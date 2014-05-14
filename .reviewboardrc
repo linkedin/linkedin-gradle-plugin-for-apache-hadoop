@@ -1,0 +1,5 @@
+REPOSITORY='hadoop-plugin'
+REVIEWBOARD_URL='https://rb.corp.linkedin.com'
+TARGET_GROUPS='hadoopdev-reviewers'
+TRACKING_BRANCH='origin/master'
+GUESS_FIELDS='true'
