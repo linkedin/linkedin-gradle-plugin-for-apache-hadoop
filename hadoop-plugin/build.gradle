@@ -1,0 +1,32 @@
+apply plugin: 'eclipse'
+apply plugin: 'groovy'
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile "commons-io:commons-io:2.4"
+}
+
+uploadArchives {
+  repositories {
+    ivy {
+      url "/home/abain/local-repo"
+    }
+  }
+}
+
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for Maven Central'
+  classifier = 'sources'
+  from sourceSets.main.groovy
+}
+
+task groovydocJar(type: Jar) {
+  description = 'An archive of the GroovyDocs for Maven Central'
+  classifier = 'javadoc'
+  from groovydoc
+}
+
+artifacts {
+  archives groovydocJar, sourceJar
+}

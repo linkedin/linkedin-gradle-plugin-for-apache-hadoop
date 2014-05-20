@@ -1,0 +1,140 @@
+buildscript {
+  repositories {
+    ivy {
+      url "/home/abain/local-repo"
+    }
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath group: 'com.linkedin', name: 'hadoop-plugin', version: '0.0.1'
+  }
+}
+
+def job1 = new PigJob("job1")
+job1.script = "src/main/pig/count_by_country.job"
+job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
+job1.parameters["output"] = "count_by_country.dat"
+
+//def generateFeatures(config) {
+//  group("features") {
+//    pig_job("feature1") {
+//      parameters config
+//    }
+//  }
+//}
+
+def generateWorkflows() {
+  workflow("genTrain") {
+  }
+}
+
+workflow("train") {
+  // config = blah
+  // generateFeatures(blah)
+  depends 'prod'
+}
+
+workflow("prod") {
+  // config = blah2
+  // addGroup generateFeatures(blah2)
+}
+
+azkaban {
+  // Directory in which to generate the job files
+  jobConfDir = "./jobs"
+
+  // Set the global common properties
+  properties = [
+    myPropertyA: 'myPropertyA',
+    myPropertyB: 'myPropertyB'
+  ]
+
+//  addWorkflow('prod') {
+//    reads '/data/databases/foo', [as: 'input']
+//    writes '/data/databases/bar', [as: 'output']
+//  }
+
+  generateWorkflows()
+
+  workflow('workflow1') {
+    // Add a job to the workflow that you defined globally. You can add it to
+    // several workflows, and each will get a job file scoped to that workflow.
+    // addJob('group1.group2.job3') {
+    //   parameters['member_summary']
+    // }
+
+    azkabanJob('job2') {
+      reads '/data/databases/foo', [as: 'input']
+      writes '/data/databases/bar', [as: 'output']
+      caches '/data/databases/bazz', [as: 'foobarbazz']
+      setJob 'propertyName1', 'propertyValue1'
+      setJvm 'udf.import.list', 'oink.,com.linkedin.pig.'
+      depends 'job1'
+    }
+
+    azkabanJob('job3') {
+    }
+
+    azkabanJob('job4') {
+      depends 'job3'
+    }
+
+    azkabanJob('job5') {
+      // depends 'job1', 'job4'
+      depends 'job4'
+    }
+
+    depends 'job3', 'job5'
+  }
+}
+
+//azkaban.properties('common.properties') {
+//  myPropertyA: 'myPropertyA',
+//  myPropertyB: 'myPropertyB'
+//}
+
+azkaban.workflow('workflow2') {
+  pigJob('job6') {
+    script = 'src/main/pig/' + 'count_by_country.job'
+    parameter 'member_summary', '/data/derived/member/summary#LATEST'
+    parameter 'output', 'count_by_country.dat'
+    reads '/data/databases/foo', [as: 'input']
+    writes '/data/databases/bar', [as: 'output']
+  }
+
+  hiveJob('job7') {
+    query = "show tables"
+  }
+
+  commandJob('job8') {
+    uses 'echo "hello world"'
+  }
+
+  javaJob('job9') {
+    uses "com.linkedin.hello.World"
+  }
+
+  javaProcessJob('job10') {
+    uses "com.linkedin.hello.World"
+  }
+
+  voldemortBuildPushJob('job11') {
+  }
+
+  if (false) {
+    pigJob('job12') {
+      script = 'src/main/pig/count_by_country2.job'
+    }
+  }
+  else {
+    pigJob('job12Else') {
+      if (false) {
+        script = 'src/main/pig/count_by_country2.job'
+      }
+      else {
+        script = 'src/main/pig/count_by_country2else.job'
+      }
+    }
+  }
+}
