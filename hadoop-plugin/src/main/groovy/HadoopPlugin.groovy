@@ -1,96 +1,113 @@
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.Copy;
-import org.gradle.api.tasks.Exec;
 
 /**
  * HadoopPlugin is the class that implements our Gradle Plugin.
  */
 class HadoopPlugin implements Plugin<Project> {
-
+  NamedScope globalScope = new NamedScope("global");
   Project project;
 
-  AzkabanWorkflow workflow(String name, Closure configure) {
-    println "HadoopPlugin workflow: " + name
-    AzkabanWorkflow flow = new AzkabanWorkflow(name, project);
-    project.configure(flow, configure);
-    // workflows.add(flow);
-    return flow;
-  }
-
   void apply(Project project) {
-    // Add the extension object that exposes the DSL to users.
-    AzkabanExtension azkabanExtension = new AzkabanExtension(project);
+    this.project = project;
+
+    // Add the extensions that expose the DSL to users.
+    AzkabanExtension azkabanExtension = new AzkabanExtension(project, globalScope);
     project.extensions.add("azkaban", azkabanExtension);
+    project.extensions.add("azkabanJob", this.&azkabanJob);
+    project.extensions.add("commandJob", this.&commandJob);
+    project.extensions.add("hiveJob", this.&hiveJob);
+    project.extensions.add("javaJob", this.&javaJob);
+    project.extensions.add("javaProcessJob", this.&javaProcessJob);
+    project.extensions.add("pigJob", this.&pigJob);
+    project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
+    project.extensions.add("global", this.&global);
+    project.extensions.add("lookup", this.&lookup);
+    project.extensions.add("propertySet", this.&propertySet);
     project.extensions.add("workflow", this.&workflow);
 
     // Add the Gradle task that checks and evaluates the DSL. Plugin users
     // should have their build tasks depend on this task.
-    project.tasks.add("buildAzkabanFlow") << {
+    project.tasks.create("buildAzkabanFlow") << {
       AzkabanLintChecker checker = new AzkabanLintChecker();
       if (!checker.checkAzkabanExtension(project.extensions.azkaban)) {
         throw new Exception("AzkabanLintChecker FAILED");
       }
 
-      System.out.println("AzkabanLintChecker PASSED");
+      println("AzkabanLintChecker PASSED");
       project.extensions.azkaban.build();
     }
 
-    // Add a task that sets up the cache directory we will copy to the host
-    // that will execute our Pig scripts.
-    project.tasks.add(name: "buildPigCache", type: Copy) {
-      dependsOn project.tasks["jar"]
-      from project.configurations['runtime']
-      into "${project.buildDir}/pigCache"
-    }
-
-    // Add a task for each Pig script that runs the script. This task will
-    // depend on the previous task that sets up the pigCache directory.
-    generatePigTasks(project);
+    // Add a task for each Pig script that runs the script on the gateway.
+    PigTasks.generatePigTasks(project);
   }
 
-  void generatePigTasks(Project project) {
-    File sourceDir = new File("./src");
-    Collection<File> files = FileUtils.listFiles(sourceDir, FileFileFilter.FILE, DirectoryFileFilter.DIRECTORY);
-
-    for (File file : files) {
-      String fileName = file.getName();
-
-      // For each Pig script, add a task to the project that will run the script.
-      // TODO uniquify task names
-      if (fileName.toLowerCase().endsWith(".pig")) {
-
-        project.tasks.add(name: "run_${fileName}", type: Exec) {
-          dependsOn project.tasks["buildPigCache"]
-          description = "Run this Pig script";
-          group = "Hadoop Plugin";
-
-          String pigHost = "eat1-magicgw01.grid.linkedin.com";
-          String ssh = "/usr/bin/ssh -K ${pigHost}";
-          String pigCache = "./.pigCache";
-          String mkdir = "${ssh} \"mkdir -p ${pigCache}\"";
-          String rsync = "rsync -av ${project.buildDir}/pigCache -e \"ssh -K\" ${pigHost}:${pigCache}";
-          String pig = "magic-pig ${fileName}"
-
-          // println "Will execute Pig script ${fileName} on host ${pigHost}";
-          // println "Running mkdir command: ${mkdir}"
-          commandLine mkdir
-
-          // println "Running rsync command: ${rsync}"
-          // println "Running Pig: ${pig}"
-        }
-      }
+  Object global(Object object) {
+    if (globalScope.contains(object.name)) {
+      throw new Exception("An object with name ${object.name} requested to be global is already bound in global scope");
     }
+    globalScope.bind(object.name, object);
+    return object;
+  }
+
+  Object lookup(String name) {
+    return globalScope.lookup(name);
+  }
+
+  Object lookup(String name, Closure configure) {
+    Object boundObject = globalScope.lookup(name);
+    if (boundObject == null) {
+      return null;
+    }
+    project.configure(boundObject, configure);
+    return boundObject;
+  }
+
+  AzkabanJob addAndConfigure(AzkabanJob job, Closure configure) {
+    globalScope.bind(job.name, job);
+    project.configure(job, configure);
+    return job;
+  }
+
+  AzkabanJob azkabanJob(String name, Closure configure) {
+    return addAndConfigure(new AzkabanJob(name), configure);
+  }
+
+  CommandJob commandJob(String name, Closure configure) {
+    return addAndConfigure(new CommandJob(name), configure);
+  }
+
+  HiveJob hiveJob(String name, Closure configure) {
+    return addAndConfigure(new HiveJob(name), configure);
+  }
+
+  JavaJob javaJob(String name, Closure configure) {
+    return addAndConfigure(new JavaJob(name), configure);
+  }
+
+  JavaProcessJob javaProcessJob(String name, Closure configure) {
+    return addAndConfigure(new JavaProcessJob(name), configure);
+  }
+
+  PigJob pigJob(String name, Closure configure) {
+    return addAndConfigure(new PigJob(name), configure);
+  }
+
+  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
+    return addAndConfigure(new VoldemortBuildPushJob(name), configure);
+  }
+
+  AzkabanProperties propertySet(String name, Closure configure) {
+    AzkabanProperties props = new AzkabanProperties(name);
+    globalScope.bind(name, props);
+    project.configure(props, configure);
+    return props;
+  }
+
+  AzkabanWorkflow workflow(String name, Closure configure) {
+    AzkabanWorkflow flow = new AzkabanWorkflow(name, project, globalScope);
+    globalScope.bind(name, flow);
+    project.configure(flow, configure);
+    return flow;
   }
 }

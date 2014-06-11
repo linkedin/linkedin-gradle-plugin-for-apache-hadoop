@@ -1,164 +1,3 @@
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import org.gradle.api.Project;
-
-/**
- * AzkabanExtension will be the class that exposes the DSL to users. To use
- * the DSL, users should add the
- *
- * azkaban {
- *   ...
- * }
- *
- * configuration block to their build.gradle file.
- */
-class AzkabanExtension {
-  Map<String, String> properties;
-  List<AzkabanWorkflow> workflows;
-
-  // The directory in which to build the job files defaults to ./conf/jobs but
-  // may be set in the DSL.
-  String jobConfDir = "./conf/jobs";
-
-  static Project project;
-
-  AzkabanExtension(Project gradleProject) {
-    project = gradleProject;
-    properties = new HashMap<String, String>();
-    workflows = new ArrayList<AzkabanJob>();
-  }
-
-  void build() throws IOException {
-    File file = new File(jobConfDir);
-    if (!file.isDirectory() || !file.exists()) {
-      throw new IOException("Directory ${jobConfDir} does not exist or is not a directory");
-    }
-
-    workflows.each() { workflow ->
-      workflow.build(jobConfDir);
-    }
-
-    buildProperties();
-  }
-
-  // TODO figure out how to name the .properties file
-  void buildProperties() {
-    if (properties.size() > 0) {
-      File file = new File(jobConfDir, "common.properties");
-      file.withWriter { out ->
-        properties.each() { key, value ->
-          out.writeLine("${key}=${value}");
-        }
-      }
-    }
-  }
-
-  AzkabanWorkflow workflow(String name, Closure configure) {
-    println "AzkabanExtension workflow: " + name
-    AzkabanWorkflow flow = new AzkabanWorkflow(name, project);
-    project.configure(flow, configure);
-    workflows.add(flow);
-    return flow;
-  }
-}
-
-class AzkabanWorkflow {
-  Set<String> dependencyNames;
-  String name;
-  Project project;
-
-  // This will allow jobs to be referred to by name (e.g. when declaring
-  // dependencies). This also implicitly provides scoping for job names.
-  Map<String, AzkabanJob> nameJobMap;
-
-  // The final job of the workflow (that will be used to launch the workflow
-  // in Azkaban). Built from the dependencyNames for the workflow.
-  NoopJob workflowJob;
-
-  AzkabanWorkflow(String name, Project project) {
-    this.dependencyNames = new LinkedHashSet<String>();
-    this.name = name;
-    this.nameJobMap = new HashMap<String, AzkabanJob>();
-    this.project = project;
-    this.workflowJob = null;
-  }
-
-  void build(String directory) throws IOException {
-    workflowJob = new NoopJob(name);
-    workflowJob.dependencyNames.addAll(dependencyNames);
-
-    List<AzkabanJob> jobList = buildJobList(new ArrayList<AzkabanJob>(), workflowJob);
-
-    jobList.each() { job ->
-      job.build(directory, name);
-    }
-  }
-
-  List<AzkabanJob> buildJobList(List<AzkabanJob> jobList, AzkabanJob job) {
-    // Tell the job to lookup its named job dependencies in this workflow
-    job.updateDependencies(nameJobMap);
-
-    // Let's do this breath first, so add all the child first
-    for (AzkabanJob childJob : job.dependencies) {
-      jobList.add(childJob);
-    }
-
-    // Then do the recursion
-    for (AzkabanJob childJob : job.dependencies) {
-      buildJobList(jobList, childJob);
-    }
-
-    return jobList;
-  }
-
-  AzkabanJob configureAndAdd(AzkabanJob job, Closure configure) {
-    project.configure(job, configure);
-    if (nameJobMap.containsKey(job.name)) {
-      throw new Exception("Found two jobs with the name ${job.name} in workflow ${this.name}");
-    }
-    nameJobMap.put(job.name, job);
-    return job;
-  }
-
-  void depends(String... jobNames) {
-    dependencyNames.addAll(jobNames.toList());
-  }
-
-  AzkabanJob azkabanJob(String name, Closure configure) {
-    return configureAndAdd(new AzkabanJob(name), configure);
-  }
-
-  CommandJob commandJob(String name, Closure configure) {
-    return configureAndAdd(new CommandJob(name), configure);
-  }
-
-  HiveJob hiveJob(String name, Closure configure) {
-    return configureAndAdd(new HiveJob(name), configure);
-  }
-
-  JavaJob javaJob(String name, Closure configure) {
-    return configureAndAdd(new JavaJob(name), configure);
-  }
-
-  JavaProcessJob javaProcessJob(String name, Closure configure) {
-    return configureAndAdd(new JavaProcessJob(name), configure);
-  }
-
-  PigJob pigJob(String name, Closure configure) {
-    return configureAndAdd(new PigJob(name), configure);
-  }
-
-  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
-    return configureAndAdd(new VoldemortBuildPushJob(name), configure);
-  }
-}
-
 /**
  * Base class for all Azkaban job types.
  */
@@ -229,6 +68,25 @@ class AzkabanJob {
     setJvm("mapred.create.symlink", "yes");
   }
 
+  // If cloning more than one job, it's up to external callers to clear
+  // job.dependencies and rebuild it if necessary.
+  AzkabanJob clone() {
+    AzkabanJob cloneJob = new AzkabanJob(name);
+    return clone(cloneJob);
+  }
+
+  // Helper method to clone a job, intended to make it easier for subclasses
+  // to override the clone method and call this helper method.
+  AzkabanJob clone(AzkabanJob cloneJob) {
+    cloneJob.dependencyNames.addAll(dependencyNames);
+    cloneJob.dependencies.addAll(dependencies);
+    cloneJob.jobProperties.putAll(jobProperties);
+    cloneJob.jvmProperties.putAll(jvmProperties);
+    cloneJob.reading.addAll(reading);
+    cloneJob.writing.addAll(writing);
+    return cloneJob;
+  }
+
   void depends(String... jobNames) {
     dependencyNames.addAll(jobNames.toList());
   }
@@ -253,12 +111,16 @@ class AzkabanJob {
 
   // Tell the job to update its job dependencies from its named dependencies.
   // It is necessary to do this before we build the job.
-  void updateDependencies(Map<String, AzkabanJob> nameJobMap) {
+  void updateDependencies(NamedScope scope) {
     dependencyNames.each { jobName ->
-      if (!nameJobMap.containsKey(jobName)) {
+      if (!scope.contains(jobName)) {
         throw new Exception("Dependency ${jobName} for job ${this.name} not defined");
       }
-      dependencies.add(nameJobMap.get(jobName));
+      Object val = scope.lookup(jobName);
+      if (!(val instanceof AzkabanJob)) {
+        throw new Exception("Dependency ${jobName} for job ${this.name} resolves to an object that is not an AzkabanJob");
+      }
+      dependencies.add((AzkabanJob)val);
     }
   }
 }
@@ -274,6 +136,12 @@ class CommandJob extends AzkabanJob {
     allProperties["type"] = "command";
     allProperties["command"] = command;
     return super.buildProperties(allProperties);
+  }
+
+  CommandJob clone() {
+    CommandJob cloneJob = new CommandJob(name);
+    cloneJob.command = command;
+    return clone(cloneJob);
   }
 
   void uses(String command) {
@@ -301,6 +169,13 @@ class HiveJob extends AzkabanJob {
     }
     return super.buildProperties(allProperties);
   }
+
+  HiveJob clone() {
+    HiveJob cloneJob = new HiveJob(name);
+    cloneJob.query = query;
+    cloneJob.queryFile = queryFile;
+    return clone(cloneJob);
+  }
 }
 
 class JavaJob extends AzkabanJob {
@@ -314,6 +189,12 @@ class JavaJob extends AzkabanJob {
     allProperties["type"] = "java";
     allProperties["job.class"] = jobClass;
     return super.buildProperties(allProperties);
+  }
+
+  JavaJob clone() {
+    JavaJob cloneJob = new JavaJob(name);
+    cloneJob.jobClass = jobClass;
+    return clone(cloneJob);
   }
 
   void uses(String jobClass) {
@@ -334,6 +215,12 @@ class JavaProcessJob extends AzkabanJob {
     return super.buildProperties(allProperties);
   }
 
+  JavaProcessJob clone() {
+    JavaProcessJob cloneJob = new JavaProcessJob(name);
+    cloneJob.javaClass = javaClass;
+    return clone(cloneJob);
+  }
+
   void uses(String javaClass) {
     this.javaClass = javaClass;
   }
@@ -347,6 +234,11 @@ class NoopJob extends AzkabanJob {
   Map<String, String> buildProperties(Map<String, String> allProperties) {
     allProperties["type"] = "noop";
     return super.buildProperties(allProperties);
+  }
+
+  NoopJob clone() {
+    NoopJob cloneJob = new NoopJob(name);
+    return clone(cloneJob);
   }
 }
 
@@ -366,6 +258,13 @@ class PigJob extends AzkabanJob {
       allProperties["param.${key}"] = "${value}";
     }
     return super.buildProperties(allProperties);
+  }
+
+  PigJob clone() {
+    PigJob cloneJob = new PigJob(name);
+    cloneJob.parameters.putAll(parameters);
+    cloneJob.script = script;
+    return clone(cloneJob);
   }
 
   void parameter(String name, String value) {
@@ -393,5 +292,10 @@ class VoldemortBuildPushJob extends AzkabanJob {
   Map<String, String> buildProperties(Map<String, String> allProperties) {
     allProperties["type"] = "VoldemortBuildandPush";
     return super.buildProperties(allProperties);
+  }
+
+  VoldemortBuildPushJob clone() {
+    VoldemortBuildPushJob cloneJob = new VoldemortBuildPushJob(name);
+    return clone(cloneJob);
   }
 }

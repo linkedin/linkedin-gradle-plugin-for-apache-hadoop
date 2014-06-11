@@ -1,19 +1,5 @@
-buildscript {
-  repositories {
-    ivy {
-      url "/home/abain/local-repo"
-    }
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath group: 'com.linkedin', name: 'hadoop-plugin', version: '0.0.1'
-  }
-}
-
 apply plugin: 'eclipse'
 apply plugin: 'java'
-apply plugin: 'hadoop'
+apply from:   'workflows.gradle'
 
-apply from: 'workflows.gradle'
 build.dependsOn buildAzkabanFlow

@@ -11,58 +11,95 @@ buildscript {
   }
 }
 
+apply plugin: HadoopPlugin
+
 def job1 = new PigJob("job1")
 job1.script = "src/main/pig/count_by_country.job"
 job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
 job1.parameters["output"] = "count_by_country.dat"
+global job1
 
-//def generateFeatures(config) {
-//  group("features") {
-//    pig_job("feature1") {
-//      parameters config
-//    }
-//  }
-//}
+def train = new AzkabanWorkflow('train')
+// global train
+
+def job1Ref = lookup('job1')
+job1Ref.script = "src/main/pig/count_by_country.job1"
+
+lookup('job1') {
+  job1Ref.script = "src/main/pig/count_by_country.job11"
+}
 
 def generateWorkflows() {
-  workflow("genTrain") {
+  workflow('genTrain') {
   }
 }
 
-workflow("train") {
-  // config = blah
-  // generateFeatures(blah)
-  depends 'prod'
+pigJob('prodJob') {
+  script = 'globalProdJob'
 }
 
-workflow("prod") {
-  // config = blah2
-  // addGroup generateFeatures(blah2)
+workflow('prod') {
+  addJob('job1', 'job1.1') {
+    script = "src/main/pig/count_by_country.job1.1"
+  }
+  depends 'job1.1'
+
+  pigJob('prodJob') {
+    script = 'workflowProdJob'
+  }
+}
+
+pigJob('job20') {
+  script = 'src/main/pig/' + 'count_by_country.job'
+  parameter 'member_summary', '/data/derived/member/summary#LATEST'
+  parameter 'output', 'count_by_country.dat'
+  reads '/data/databases/foo', [as: 'input']
+  writes '/data/databases/bar', [as: 'output']
+}
+
+propertySet('global') {
+  myPropertyA = 'globalA'
+  myPropertyB = 'globalB'
 }
 
 azkaban {
   // Directory in which to generate the job files
-  jobConfDir = "./jobs"
+  jobConfDir = "${project.projectDir}/jobs"
 
-  // Set the global common properties
-  properties = [
-    myPropertyA: 'myPropertyA',
-    myPropertyB: 'myPropertyB'
-  ]
+  propertySet('common') {
+    myPropertyA = 'valA'
+    myPropertyB = 'valB'
+  }
 
-//  addWorkflow('prod') {
-//    reads '/data/databases/foo', [as: 'input']
-//    writes '/data/databases/bar', [as: 'output']
-//  }
+  addPropertySet('global') {
+    myPropertyB = 'globalBUpdate'
+    myPropertyC = 'globalC'
+  }
 
   generateWorkflows()
 
   workflow('workflow1') {
     // Add a job to the workflow that you defined globally. You can add it to
     // several workflows, and each will get a job file scoped to that workflow.
-    // addJob('group1.group2.job3') {
-    //   parameters['member_summary']
-    // }
+    addJob('job20') {
+      parameter 'output', 'count_by_country.dat'
+      reads '/data/databases/foo', [as: 'input']
+    }
+
+    def job20 = lookup('job20')
+    job20.script = 'src/main/pig/count_by_country.job20'
+
+    def job21 = new PigJob('job21')
+    job21.script = 'foobar'
+    local job21
+
+    lookup('job20') {
+      writes '/data/databases/bar', [as: 'output']
+    }
+
+    pigJob('job1') {
+      script = "foobars"
+    }
 
     azkabanJob('job2') {
       reads '/data/databases/foo', [as: 'input']
@@ -81,18 +118,19 @@ azkaban {
     }
 
     azkabanJob('job5') {
-      // depends 'job1', 'job4'
       depends 'job4'
     }
 
-    depends 'job3', 'job5'
-  }
-}
+    depends 'job2', 'job3', 'job5', 'job20'
 
-//azkaban.properties('common.properties') {
-//  myPropertyA: 'myPropertyA',
-//  myPropertyB: 'myPropertyB'
-//}
+    propertySet('workflow1-common') {
+      myPropertyA = 'valA.1'
+      myPropertyB = 'valB.1'
+    }
+  }
+
+  local train
+}
 
 azkaban.workflow('workflow2') {
   pigJob('job6') {
@@ -122,10 +160,13 @@ azkaban.workflow('workflow2') {
   voldemortBuildPushJob('job11') {
   }
 
+  depends 'job11', 'job10', 'job9', 'job8', 'job7', 'job6'
+
   if (false) {
     pigJob('job12') {
       script = 'src/main/pig/count_by_country2.job'
     }
+    depends 'job12'
   }
   else {
     pigJob('job12Else') {
@@ -136,5 +177,6 @@ azkaban.workflow('workflow2') {
         script = 'src/main/pig/count_by_country2else.job'
       }
     }
+    depends 'job12Else'
   }
 }
