@@ -1,3 +1,5 @@
+package com.linkedin.gradle.hadoop;
+
 /**
  * Base class for all Azkaban job types.
  */

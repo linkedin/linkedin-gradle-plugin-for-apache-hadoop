@@ -1,3 +1,5 @@
+package com.linkedin.gradle.hadoop;
+
 /**
  * The DSL implements explicit scope, allowing us to refer to workflows and
  * jobs by name instead of by object reference.

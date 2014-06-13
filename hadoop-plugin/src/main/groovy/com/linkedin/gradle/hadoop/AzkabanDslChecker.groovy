@@ -1,3 +1,5 @@
+package com.linkedin.gradle.hadoop;
+
 /**
  * This is a "lint-like" class that scans the user's DSL for any potential
  * problems.

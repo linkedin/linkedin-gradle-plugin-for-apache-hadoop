@@ -1,3 +1,5 @@
+package com.linkedin.gradle.hadoop;
+
 class AzkabanProperties extends LinkedHashMap<String, String> {
   String name;
 

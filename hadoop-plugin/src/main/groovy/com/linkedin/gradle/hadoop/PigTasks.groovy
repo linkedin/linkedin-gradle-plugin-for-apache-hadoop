@@ -1,3 +1,5 @@
+package com.linkedin.gradle.hadoop;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
