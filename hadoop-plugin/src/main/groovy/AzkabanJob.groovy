@@ -221,7 +221,7 @@ class CommandJob extends AzkabanJob {
 
 
 class HiveJob extends AzkabanJob {
-  // Only one of query or queryFile should be set
+  // Exactly one of query or queryFile must be set
   String query;
   String queryFile;
 
@@ -304,6 +304,84 @@ class JavaProcessJob extends AzkabanJob {
 
   void uses(String javaClass) {
     this.javaClass = javaClass;
+  }
+}
+
+
+class KafkaPushJob extends AzkabanJob {
+  String inputPath;
+  String topic;
+
+  // Optional
+  Integer batchNumBytes;
+  Boolean disableSchemaRegistration;
+  String kafkaUrl;
+  String nameNode;
+  String schemaRegistryUrl;
+
+  KafkaPushJob(String jobName) {
+    super(jobName);
+  }
+
+  Map<String, String> buildProperties(Map<String, String> allProperties) {
+    allProperties["type"] = "KafkaPushJob";
+    allProperties["input.path"] = inputPath;
+    allProperties["topic"] = topic;
+    if (batchNumBytes != null) {
+      allProperties["batch.num.bytes"] = batchNumBytes.toString();
+    }
+    if (disableSchemaRegistration != null) {
+      allProperties["disable.schema.registration"] = disableSchemaRegistration.toString();
+    }
+    if (kafkaUrl != null) {
+      allProperties["kafka.url"] = kafkaUrl;
+    }
+    if (nameNode != null) {
+      allProperties["name.node"] = nameNode;
+    }
+    if (schemaRegistryUrl != null) {
+      allProperties["schemaregistry.rest.url"] = schemaRegistryUrl;
+    }
+    return super.buildProperties(allProperties);
+  }
+
+  KafkaPushJob clone() {
+    KafkaPushJob cloneJob = new KafkaPushJob(name);
+    cloneJob.inputPath = inputPath;
+    cloneJob.topic = topic;
+    cloneJob.batchNumBytes = batchNumBytes;
+    cloneJob.kafkaUrl = kafkaUrl;
+    cloneJob.nameNode = nameNode;
+    cloneJob.schemaRegistryUrl = schemaRegistryUrl;
+    return clone(cloneJob);
+  }
+
+  void usesInputPath(String inputPath) {
+    this.inputPath = inputPath;
+  }
+
+  void usesTopic(String topic) {
+    this.topic = topic;
+  }
+
+  void usesBatchNumBytes(Integer batchNumBytes) {
+    this.batchNumBytes = batchNumBytes;
+  }
+
+  void usesDisableSchemaRegistration(Boolean disableSchemaRegistration) {
+    this.disableSchemaRegistration = disableSchemaRegistration;
+  }
+
+  void usesKafkaUrl(String kafkaUrl) {
+    this.kafkaUrl = kafkaUrl;
+  }
+
+  void usesNameNode(String nameNode) {
+    this.nameNode = nameNode;
+  }
+
+  void usesSchemaRegistryUrl(String schemaRegistryUrl) {
+    this.schemaRegistryUrl = schemaRegistryUrl;
   }
 }
 
@@ -392,8 +470,8 @@ class VoldemortBuildPushJob extends AzkabanJob {
   String buildOutputPath;
   Integer repFactor;
   boolean isAvroData = false;
-  String avroKeyField;
-  String avroValueField;
+  String avroKeyField;    // Required if isAvroData is true
+  String avroValueField;  // Required if isAvroData is true
 
   VoldemortBuildPushJob(String jobName) {
     super(jobName);
@@ -427,5 +505,41 @@ class VoldemortBuildPushJob extends AzkabanJob {
     cloneJob.avroKeyField = avroKeyField;
     cloneJob.avroValueField = avroValueField;
     return clone(cloneJob);
+  }
+
+  void usesStoreDesc(String storeDesc) {
+    this.storeDesc = storeDesc;
+  }
+
+  void usesStoreName(String storeName) {
+    this.storeName = storeName;
+  }
+
+  void usesStoreOwners(String storeOwners) {
+    this.storeOwners = storeOwners;
+  }
+
+  void usesInputPath(String buildInputPath) {
+    this.buildInputPath = buildInputPath;
+  }
+
+  void usesOutputPath(String buildOutputPath) {
+    this.buildOutputPath = buildOutputPath;
+  }
+
+  void usesRepFactor(Integer repFactor) {
+    this.repFactor = repFactor;
+  }
+
+  void usesAvroData(boolean isAvroData) {
+    this.isAvroData = isAvroData;
+  }
+
+  void usesAvroKeyField(String avroKeyField) {
+    this.avroKeyField = avroKeyField;
+  }
+
+  void usesAvroValueField(String avroValueField) {
+    this.avroValueField = avroValueField;
   }
 }

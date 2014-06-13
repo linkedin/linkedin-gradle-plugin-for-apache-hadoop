@@ -201,6 +201,10 @@ class AzkabanWorkflow {
     return addAndConfigureJob(new JavaProcessJob(name), configure);
   }
 
+  KafkaPushJob kafkaPushJob(String name, Closure configure) {
+    return addAndConfigureJob(new KafkaPushJob(name), configure);
+  }
+
   PigJob pigJob(String name, Closure configure) {
     return addAndConfigureJob(new PigJob(name), configure);
   }

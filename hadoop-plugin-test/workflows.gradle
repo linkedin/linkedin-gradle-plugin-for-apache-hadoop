@@ -182,17 +182,28 @@ azkaban.workflow('workflow4') {
   }
 
   javaJob('job9') {
-    uses "com.linkedin.hello.World"
+    uses 'com.linkedin.hello.World'
   }
 
   javaProcessJob('job10') {
-    uses "com.linkedin.hello.World"
+    uses 'com.linkedin.hello.World'
   }
 
   voldemortBuildPushJob('job11') {
+    usesStoreDesc 'storeDesc'
+    usesStoreName 'storeName'
+    usesStoreOwners 'storeOwners'
+    usesInputPath 'buildInputPath'
+    usesOutputPath 'buildOutputPath'
+    usesRepFactor 1
   }
 
-  depends 'job11', 'job10', 'job9', 'job8', 'job7'
+  kafkaPushJob('job12') {
+    usesInputPath '/data/derived/kafka'
+    usesTopic 'memberTopic'
+  }
+
+  depends 'job12', 'job11', 'job10', 'job9', 'job8', 'job7'
 
   if (false) {
     pigJob('job12') {

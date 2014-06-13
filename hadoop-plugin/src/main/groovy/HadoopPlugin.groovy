@@ -24,18 +24,19 @@ class HadoopPlugin implements Plugin<Project> {
     project.extensions.add("hiveJob", this.&hiveJob);
     project.extensions.add("javaJob", this.&javaJob);
     project.extensions.add("javaProcessJob", this.&javaProcessJob);
+    project.extensions.add("kafkaPushJob", this.&kafkaPushJob);
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
 
     // Add the Gradle task that checks and evaluates the DSL. Plugin users
     // should have their build tasks depend on this task.
     project.tasks.create("buildAzkabanFlow") << {
-      AzkabanLintChecker checker = new AzkabanLintChecker();
+      AzkabanDslChecker checker = new AzkabanDslChecker();
       if (!checker.checkAzkabanExtension(project.extensions.azkaban)) {
-        throw new Exception("AzkabanLintChecker FAILED");
+        throw new Exception("AzkabanDslChecker FAILED");
       }
 
-      println("AzkabanLintChecker PASSED");
+      logger.lifecycle("AzkabanDslChecker PASSED");
       project.extensions.azkaban.build();
     }
 
@@ -102,6 +103,10 @@ class HadoopPlugin implements Plugin<Project> {
 
   JavaProcessJob javaProcessJob(String name, Closure configure) {
     return addAndConfigure(new JavaProcessJob(name), configure);
+  }
+
+  KafkaPushJob kafkaPushJob(String name, Closure configure) {
+    return addAndConfigure(new KafkaPushJob(name), configure);
   }
 
   PigJob pigJob(String name, Closure configure) {
