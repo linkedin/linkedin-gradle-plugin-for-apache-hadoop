@@ -14,6 +14,11 @@ class HadoopPlugin implements Plugin<Project> {
     // Add the extensions that expose the DSL to users.
     AzkabanExtension azkabanExtension = new AzkabanExtension(project, globalScope);
     project.extensions.add("azkaban", azkabanExtension);
+    project.extensions.add("global", this.&global);
+    project.extensions.add("lookup", this.&lookup);
+    project.extensions.add("propertyFile", this.&propertyFile);
+    project.extensions.add("workflow", this.&workflow);
+
     project.extensions.add("azkabanJob", this.&azkabanJob);
     project.extensions.add("commandJob", this.&commandJob);
     project.extensions.add("hiveJob", this.&hiveJob);
@@ -21,10 +26,6 @@ class HadoopPlugin implements Plugin<Project> {
     project.extensions.add("javaProcessJob", this.&javaProcessJob);
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
-    project.extensions.add("global", this.&global);
-    project.extensions.add("lookup", this.&lookup);
-    project.extensions.add("propertySet", this.&propertySet);
-    project.extensions.add("workflow", this.&workflow);
 
     // Add the Gradle task that checks and evaluates the DSL. Plugin users
     // should have their build tasks depend on this task.
@@ -63,6 +64,20 @@ class HadoopPlugin implements Plugin<Project> {
     return boundObject;
   }
 
+  AzkabanProperties propertyFile(String name, Closure configure) {
+    AzkabanProperties props = new AzkabanProperties(name);
+    globalScope.bind(name, props);
+    project.configure(props, configure);
+    return props;
+  }
+
+  AzkabanWorkflow workflow(String name, Closure configure) {
+    AzkabanWorkflow flow = new AzkabanWorkflow(name, project, globalScope);
+    globalScope.bind(name, flow);
+    project.configure(flow, configure);
+    return flow;
+  }
+
   AzkabanJob addAndConfigure(AzkabanJob job, Closure configure) {
     globalScope.bind(job.name, job);
     project.configure(job, configure);
@@ -95,19 +110,5 @@ class HadoopPlugin implements Plugin<Project> {
 
   VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
     return addAndConfigure(new VoldemortBuildPushJob(name), configure);
-  }
-
-  AzkabanProperties propertySet(String name, Closure configure) {
-    AzkabanProperties props = new AzkabanProperties(name);
-    globalScope.bind(name, props);
-    project.configure(props, configure);
-    return props;
-  }
-
-  AzkabanWorkflow workflow(String name, Closure configure) {
-    AzkabanWorkflow flow = new AzkabanWorkflow(name, project, globalScope);
-    globalScope.bind(name, flow);
-    project.configure(flow, configure);
-    return flow;
   }
 }

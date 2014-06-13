@@ -9,12 +9,14 @@ class AzkabanProperties extends LinkedHashMap<String, String> {
     }
   }
 
-  void build(String directory) throws IOException {
+  void build(String directory, String parentName) throws IOException {
     if (this.keySet().size() == 0) {
       return;
     }
 
-    File file = new File(directory, "${name}.properties");
+    String fileName = parentName == null ? name : "${parentName}-${name}";
+    File file = new File(directory, "${fileName}.properties");
+
     file.withWriter { out ->
       this.each() { key, value ->
         out.writeLine("${key}=${value}");
@@ -26,5 +28,10 @@ class AzkabanProperties extends LinkedHashMap<String, String> {
     AzkabanProperties props = new AzkabanProperties(name);
     props.putAll(this);
     return props;
+  }
+
+  void set(Map args) {
+    Map<String, String> properties = args.properties;
+    this.putAll(properties);
   }
 }

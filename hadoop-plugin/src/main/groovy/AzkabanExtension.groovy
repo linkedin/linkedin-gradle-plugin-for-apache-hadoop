@@ -12,6 +12,7 @@ import org.gradle.api.Project;
  */
 class AzkabanExtension {
   NamedScope azkabanScope;
+  boolean cleanFirst;
   String jobConfDir;
   Project project;
   List<AzkabanProperties> properties;
@@ -23,6 +24,7 @@ class AzkabanExtension {
 
   AzkabanExtension(Project project, NamedScope globalScope) {
     this.azkabanScope = new NamedScope("azkaban", globalScope);
+    this.cleanFirst = true;
     this.jobConfDir = null;
     this.project = project;
     this.properties = new ArrayList<AzkabanProperties>();
@@ -39,19 +41,41 @@ class AzkabanExtension {
       throw new IOException("Directory ${jobConfDir} does not exist or is not a directory");
     }
 
+    if (cleanFirst) {
+      file.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+        String fileName = f.getName().toLowerCase();
+        if (fileName.endsWith(".job") || fileName.endsWith(".properties")) {
+          f.delete();
+        }
+      }
+    }
+
     workflows.each() { workflow ->
       workflow.build(jobConfDir);
     }
 
     properties.each() { props ->
-      props.build(jobConfDir);
+      props.build(jobConfDir, null);
     }
   }
 
-  AzkabanProperties addPropertySet(String name, Closure configure) {
+  void buildPath(String buildDir) {
+    if (buildDir.startsWith("/")) {
+      jobConfDir = buildDir;
+    }
+    else {
+      jobConfDir = new File("${project.projectDir}", buildDir).getPath();
+    }
+  }
+
+  void cleanPath(boolean cleanFirst) {
+    this.cleanFirst = cleanFirst;
+  }
+
+  AzkabanProperties addPropertyFile(String name, Closure configure) {
     AzkabanProperties props = azkabanScope.lookup(name);
     if (props == null) {
-      throw new Exception("Could not find property set ${name} in call to addProperty");
+      throw new Exception("Could not find property set ${name} in call to addPropertyFile");
     }
     AzkabanProperties clone = props.clone();
     azkabanScope.bind(name, clone);
@@ -60,7 +84,7 @@ class AzkabanExtension {
     return clone;
   }
 
-  AzkabanProperties addPropertySet(String name, String rename, Closure configure) {
+  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
     AzkabanProperties props = azkabanScope.lookup(name);
     if (props == null) {
       throw new Exception("Could not find property set ${name} in call to addProperty");
@@ -100,13 +124,13 @@ class AzkabanExtension {
     return clone;
   }
 
-  Object local(Object object) {
-    if (azkabanScope.contains(object.name)) {
-      throw new Exception("An object with name ${object.name} requested to be local is already bound in azkaban scope");
-    }
-    azkabanScope.bind(object.name, object);
-    return object;
-  }
+//  Object local(Object object) {
+//    if (azkabanScope.thisLevel.containsKey(object.name)) {
+//      throw new Exception("An object with name ${object.name} requested to be local is already bound in azkaban scope");
+//    }
+//    azkabanScope.bind(object.name, object);
+//    return object;
+//  }
 
   Object lookup(String name) {
     return azkabanScope.lookup(name);
@@ -121,7 +145,7 @@ class AzkabanExtension {
     return boundObject;
   }
 
-  AzkabanProperties propertySet(String name, Closure configure) {
+  AzkabanProperties propertyFile(String name, Closure configure) {
     AzkabanProperties props = new AzkabanProperties(name);
     azkabanScope.bind(name, props);
     project.configure(props, configure);

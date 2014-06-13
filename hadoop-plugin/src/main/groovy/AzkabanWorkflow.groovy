@@ -13,6 +13,7 @@ import org.gradle.api.Project;
 class AzkabanWorkflow {
   String name;
   Project project;
+  List<AzkabanProperties> properties;
 
   // We keep track of all of the jobs declared in the workflow, even if they
   // are not transitive parents of the launch job.
@@ -41,6 +42,7 @@ class AzkabanWorkflow {
     this.launchJobDependencies = new LinkedHashSet<String>();
     this.name = name;
     this.project = project;
+    this.properties = new ArrayList<AzkabanProperties>();
     this.workflowScope = new NamedScope(name, nextLevel);
   }
 
@@ -70,11 +72,41 @@ class AzkabanWorkflow {
     return addAndConfigureJob(clone, configure);
   }
 
+  AzkabanProperties addPropertyFile(String name, Closure configure) {
+    AzkabanProperties props = workflowScope.lookup(name);
+    if (props == null) {
+      throw new Exception("Could not find property set ${name} in call to addPropertyFile");
+    }
+    AzkabanProperties clone = props.clone();
+    workflowScope.bind(name, clone);
+    project.configure(clone, configure);
+    properties.add(clone);
+    return clone;
+  }
+
+  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
+    AzkabanProperties props = workflowScope.lookup(name);
+    if (props == null) {
+      throw new Exception("Could not find property set ${name} in call to addPropertyFile");
+    }
+    AzkabanProperties clone = props.clone();
+    clone.name = rename;
+    workflowScope.bind(rename, clone);
+    project.configure(clone, configure);
+    properties.add(clone);
+    return clone;
+  }
+
   void build(String directory) throws IOException {
     launchJob.dependencyNames.addAll(launchJobDependencies);
     List<AzkabanJob> jobList = buildJobList(launchJob, new ArrayList<AzkabanJob>());
+
     jobList.each() { job ->
       job.build(directory, name);
+    }
+
+    properties.each() { props ->
+      props.build(directory, name);
     }
   }
 
@@ -120,13 +152,13 @@ class AzkabanWorkflow {
     launchJobDependencies.addAll(jobNames.toList());
   }
 
-  AzkabanJob local(AzkabanJob job) {
-    if (workflowScope.contains(job.name)) {
-      throw new Exception("An job with name ${job.name} requested to be local is already bound in workflow scope");
-    }
-    workflowScope.bind(job.name, job);
-    return job;
-  }
+//  Object local(Object object) {
+//    if (workflowScope.thisLevel.containsKey(object.name)) {
+//      throw new Exception("An object with name ${object.name} requested to be local is already bound in workflow scope");
+//    }
+//    workflowScope.bind(object.name, object);
+//    return object;
+//  }
 
   Object lookup(String name) {
     return workflowScope.lookup(name);
@@ -139,6 +171,14 @@ class AzkabanWorkflow {
     }
     project.configure(boundObject, configure);
     return boundObject;
+  }
+
+  AzkabanProperties propertyFile(String name, Closure configure) {
+    AzkabanProperties props = new AzkabanProperties(name);
+    workflowScope.bind(name, props);
+    project.configure(props, configure);
+    properties.add(props);
+    return props;
   }
 
   AzkabanJob azkabanJob(String name, Closure configure) {

@@ -20,12 +20,14 @@ class AzkabanJob {
     writing = new ArrayList<String>();
   }
 
-  void build(String directory, String workflowName) throws IOException {
+  void build(String directory, String parentName) throws IOException {
     // Use a LinkedHashMap so that the properties will be enumerated in the
     // order in which we add them.
     Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>());
 
-    File file = new File(directory, "${workflowName}-${name}.job");
+    String fileName = parentName == null ? name : "${parentName}-${name}";
+    File file = new File(directory, "${fileName}.job");
+
     file.withWriter { out ->
       allProperties.each() { key, value ->
         out.writeLine("${key}=${value}");
@@ -53,19 +55,64 @@ class AzkabanJob {
     return allProperties;
   }
 
-  void caches(String pathName, Map<String, String> options) {
-    reads(pathName, null);
-    String symLink = options["as"];
-    String cacheLink = "${pathName}#${symLink}";
-
-    if (jvmProperties.containsKey("mapred.cache.files")) {
-      setJvm("mapred.cache.files", jvmProperties["mapred.cache.files"] + "," + cacheLink);
-    }
-    else {
-      setJvm("mapred.cache.files", cacheLink);
+  void caches(Map args) {
+    Map<String, String> files = args.files;
+    if (files.size() == 0) {
+      return;
     }
 
-    setJvm("mapred.create.symlink", "yes");
+    reads(args);
+
+    for (Map.Entry<String, String> entry : files.entrySet()) {
+      String symLink = entry.key;
+      String pathName = entry.value;
+      String cacheLink = "${pathName}#${symLink}";
+
+      if (jvmProperties.containsKey("mapred.cache.files")) {
+        setJvmProperty("mapred.cache.files", jvmProperties["mapred.cache.files"] + "," + cacheLink);
+      }
+      else {
+        setJvmProperty("mapred.cache.files", cacheLink);
+      }
+    }
+
+    setJvmProperty("mapred.create.symlink", "yes");
+  }
+
+  void cachesArchive(Map args) {
+    Map<String, String> files = args.files;
+    if (files.size() == 0) {
+      return;
+    }
+
+    reads(args);
+    List<String> archiveExt = Arrays.asList(".zip", ".tgz", ".tar.gz", ".tar", ".jar");
+
+    for (Map.Entry<String, String> entry : files.entrySet()) {
+      String symLink = entry.key;
+      String pathName = entry.value;
+      String cacheLink = "${pathName}#${symLink}";
+
+      boolean found = false;
+      String lowerPath = pathName.toLowerCase();
+
+      archiveExt.each() { String ext ->
+        found = found || lowerPath.endsWith(ext);
+      }
+
+      if (!found) {
+        throw new Exception("File given to cachesArchive must be one of: " + archiveExt.toString());
+      }
+
+      if (jvmProperties.containsKey("mapred.cache.archives")) {
+        setJvmProperty("mapred.cache.archives", jvmProperties["mapred.cache.archives"] + "," + cacheLink);
+      }
+      else {
+        setJvmProperty("mapred.cache.archives", cacheLink);
+      }
+    }
+
+    setJvmProperty("mapred.create.symlink", "yes");
   }
 
   // If cloning more than one job, it's up to external callers to clear
@@ -91,21 +138,43 @@ class AzkabanJob {
     dependencyNames.addAll(jobNames.toList());
   }
 
-  // Override this to handle subclass-specific options
-  void reads(String pathName, Map<String, String> options) {
-    reading.add(pathName);
+  // Setting the queue is common enough that we give it its own method
+  void queue(String queueName) {
+    jvmProperties.put("mapred.job.queue.name", queueName);
   }
 
-  // Override this to handle subclass-specific options
-  void writes(String pathName, Map<String, String> options) {
-    writing.add(pathName);
+  // Override this to handle subclass-specific handling of the file key
+  void reads(Map args) {
+    Map<String, String> files = args.files;
+    for (String pathName : files.values()) {
+      reading.add(pathName);
+    }
   }
 
-  void setJob(String name, String value) {
+  // Override this to handle subclass-specific handling of the file key
+  void writes(Map args) {
+    Map<String, String> files = args.files;
+    for (String pathName : files.values()) {
+      writing.add(pathName);
+    }
+  }
+
+  void set(Map args) {
+    if (args.containsKey("properties")) {
+      Map<String, String> properties = args.properties;
+      jobProperties.putAll(properties);
+    }
+    if (args.containsKey("jvmProperties")) {
+      Map<String, String> jvmProperties = args.jvmProperties;
+      jvmProperties.putAll(jvmProperties);
+    }
+  }
+
+  void setJobProperty(String name, String value) {
     jobProperties.put(name, value)
   }
 
-  void setJvm(String name, String value) {
+  void setJvmProperty(String name, String value) {
     jvmProperties.put(name, value);
   }
 
@@ -124,6 +193,7 @@ class AzkabanJob {
     }
   }
 }
+
 
 class CommandJob extends AzkabanJob {
   String command;
@@ -148,6 +218,7 @@ class CommandJob extends AzkabanJob {
     this.command = command;
   }
 }
+
 
 class HiveJob extends AzkabanJob {
   // Only one of query or queryFile should be set
@@ -176,7 +247,16 @@ class HiveJob extends AzkabanJob {
     cloneJob.queryFile = queryFile;
     return clone(cloneJob);
   }
+
+  void usesQuery(String query) {
+    this.query = query;
+  }
+
+  void usesQueryFile(String queryFile) {
+    this.queryFile = queryFile;
+  }
 }
+
 
 class JavaJob extends AzkabanJob {
   String jobClass;
@@ -202,6 +282,7 @@ class JavaJob extends AzkabanJob {
   }
 }
 
+
 class JavaProcessJob extends AzkabanJob {
   String javaClass;
 
@@ -226,6 +307,7 @@ class JavaProcessJob extends AzkabanJob {
   }
 }
 
+
 class NoopJob extends AzkabanJob {
   NoopJob(String jobName) {
     super(jobName);
@@ -241,6 +323,7 @@ class NoopJob extends AzkabanJob {
     return clone(cloneJob);
   }
 }
+
 
 class PigJob extends AzkabanJob {
   Map<String, String> parameters;
@@ -271,31 +354,78 @@ class PigJob extends AzkabanJob {
     parameters.put(name, value);
   }
 
-  void reads(String pathName, Map<String, String> options) {
-    super.reads(pathName, options);
-    if (options != null && options.containsKey("as")) {
-      String param = options["as"];
-      parameter(param, pathName);
+  void reads(Map args) {
+    super.reads(args);
+    Map<String, String> files = args.files;
+    for (Map.Entry<String, String> entry : files) {
+      parameter(entry.key, entry.value);
+    }
+  }
+
+  void set(Map args) {
+    super.set(args);
+    if (args.containsKey("parameters")) {
+      Map<String, String> parameters = args.parameters;
+      this.parameters.putAll(properties);
     }
   }
 
   void uses(String script) {
     this.script = script;
   }
+
+  void writes(Map args) {
+    super.reads(args);
+    Map<String, String> files = args.files;
+    for (Map.Entry<String, String> entry : files) {
+      parameter(entry.key, entry.value);
+    }
+  }
 }
 
+
 class VoldemortBuildPushJob extends AzkabanJob {
+  String storeDesc;
+  String storeName;
+  String storeOwners;
+  String buildInputPath;
+  String buildOutputPath;
+  Integer repFactor;
+  boolean isAvroData = false;
+  String avroKeyField;
+  String avroValueField;
+
   VoldemortBuildPushJob(String jobName) {
     super(jobName);
   }
 
   Map<String, String> buildProperties(Map<String, String> allProperties) {
     allProperties["type"] = "VoldemortBuildandPush";
+    allProperties["push.store.description"] = storeDesc;
+    allProperties["push.store.name"] = storeName;
+    allProperties["push.store.owners"] = storeOwners;
+    allProperties["build.input.path"] = buildInputPath;
+    allProperties["build.output.dir"] = buildOutputPath;
+    allProperties["build.replication.factor"] = repFactor;
+    allProperties["build.type.avro"] = isAvroData;
+    if (isAvroData == true) {
+      allProperties["avro.key.field"] = avroKeyField;
+      allProperties["avro.value.field"] = avroValueField;
+    }
     return super.buildProperties(allProperties);
   }
 
   VoldemortBuildPushJob clone() {
     VoldemortBuildPushJob cloneJob = new VoldemortBuildPushJob(name);
+    cloneJob.storeDesc = storeDesc;
+    cloneJob.storeName = storeName;
+    cloneJob.storeOwners = storeOwners;
+    cloneJob.buildInputPath = buildInputPath;
+    cloneJob.buildOutputPath = buildOutputPath;
+    cloneJob.repFactor = repFactor;
+    cloneJob.isAvroData = isAvroData;
+    cloneJob.avroKeyField = avroKeyField;
+    cloneJob.avroValueField = avroValueField;
     return clone(cloneJob);
   }
 }

@@ -14,135 +14,167 @@ buildscript {
 apply plugin: HadoopPlugin
 
 def job1 = new PigJob("job1")
-job1.script = "src/main/pig/count_by_country.job"
+job1.script = "src/main/pig/count_by_country.pig"
 job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
 job1.parameters["output"] = "count_by_country.dat"
 global job1
 
-def train = new AzkabanWorkflow('train')
-// global train
-
-def job1Ref = lookup('job1')
-job1Ref.script = "src/main/pig/count_by_country.job1"
+def job1Lookup = lookup('job1')
+job1Lookup.script = "src/main/pig/count_by_country1.pig"
 
 lookup('job1') {
-  job1Ref.script = "src/main/pig/count_by_country.job11"
-}
-
-def generateWorkflows() {
-  workflow('genTrain') {
-  }
+  uses "src/main/pig/count_by_country11.pig"
 }
 
 pigJob('prodJob') {
-  script = 'globalProdJob'
+  uses 'prodScript1.pig'
+  set parameters: [
+    'param1' : 'val1'
+  ]
 }
 
-workflow('prod') {
-  addJob('job1', 'job1.1') {
-    script = "src/main/pig/count_by_country.job1.1"
+workflow('prodWorkflow') {
+  addJob('job1', 'job1Prod') {
+    uses "src/main/pig/count_by_countryProd.pig"
   }
-  depends 'job1.1'
 
-  pigJob('prodJob') {
-    script = 'workflowProdJob'
+  addJob('prodJob') {
+    uses 'prodScript2.pig'
+  }
+
+  depends 'job1Prod'
+}
+
+def trainWorkflow = new AzkabanWorkflow('train', project)
+
+def generateWorkflows() {
+  workflow('genTrain') {
+    addJob('prodJob') {
+    }
   }
 }
 
-pigJob('job20') {
-  script = 'src/main/pig/' + 'count_by_country.job'
-  parameter 'member_summary', '/data/derived/member/summary#LATEST'
-  parameter 'output', 'count_by_country.dat'
-  reads '/data/databases/foo', [as: 'input']
-  writes '/data/databases/bar', [as: 'output']
-}
-
-propertySet('global') {
-  myPropertyA = 'globalA'
-  myPropertyB = 'globalB'
+propertyFile('global') {
+  set properties: [
+    myPropertyA : 'globalA',
+    myPropertyB : 'globalB'
+  ]
 }
 
 azkaban {
-  // Directory in which to generate the job files
-  jobConfDir = "${project.projectDir}/jobs"
+  buildPath "jobs"
 
-  propertySet('common') {
-    myPropertyA = 'valA'
-    myPropertyB = 'valB'
+  propertyFile('common') {
+    set properties: [
+      'myPropertyA' : 'valA',
+      'myPropertyB' : 'valB'
+    ]
   }
 
-  addPropertySet('global') {
-    myPropertyB = 'globalBUpdate'
-    myPropertyC = 'globalC'
+  addPropertyFile('global') {
+    set properties: [
+      'myPropertyB' : 'globalBUpdate',
+      'myPropertyC' : 'globalC'
+    ]
+  }
+
+  workflow('workflow1') {
+
+    addPropertyFile('global', 'specific') {
+      set properties: [
+        'myPropertyD' : 'specificD'
+      ]
+    }
+
+    azkabanJob('job1') {
+      queue 'default'
+    }
+
+    azkabanJob('job2') {
+      reads files: [
+        'foo' : '/data/databases/foo',
+        'bar' : '/data/databases/bar',
+      ]
+      writes files: [
+        'bazz' : '/data/databases/bazz'
+      ]
+      caches files: [
+        'foo.jar' : '/user/abain/foo.jar'
+      ]
+      cachesArchive files: [
+        'foobar' : '/user/abain/foobar.zip'
+      ]
+      set properties: [
+        'propertyName1' : 'propertyValue1'
+      ]
+      set jvmProperties: [
+        'udf.import.list' : 'oink.,com.linkedin.pig.'
+      ]
+      depends 'job1'
+      queue 'marathon'
+    }
+
+    azkabanJob('job3') {
+      depends 'job2'
+    }
+
+    azkabanJob('job4') {
+    }
+
+    depends 'job3'
+  }
+
+  workflow('workflow2') {
+
+    addJob('job1') {
+      reads files: [
+        'input' : '/data/databases/foo'
+      ]
+      set parameters: [
+        'output' : 'count_by_country.dat'
+      ]
+    }
+
+    lookup('prodJob').script = 'src/main/pig/count_by_country_w2.pig'
+
+    def job21 = new PigJob('job21')
+    job21.script = 'foobar.pig'
+    global job21
+
+    addJob('job21', 'job21Copy') {
+      uses 'foobazz.pig'
+    }
+
+    azkabanJob('job2') {
+      depends 'job1'
+    }
+
+    depends 'job2', 'job21Copy'
+  }
+
+  workflow('workflow3') {
+    depends 'job1'
   }
 
   generateWorkflows()
 
-  workflow('workflow1') {
-    // Add a job to the workflow that you defined globally. You can add it to
-    // several workflows, and each will get a job file scoped to that workflow.
-    addJob('job20') {
-      parameter 'output', 'count_by_country.dat'
-      reads '/data/databases/foo', [as: 'input']
-    }
-
-    def job20 = lookup('job20')
-    job20.script = 'src/main/pig/count_by_country.job20'
-
-    def job21 = new PigJob('job21')
-    job21.script = 'foobar'
-    local job21
-
-    lookup('job20') {
-      writes '/data/databases/bar', [as: 'output']
-    }
-
-    pigJob('job1') {
-      script = "foobars"
-    }
-
-    azkabanJob('job2') {
-      reads '/data/databases/foo', [as: 'input']
-      writes '/data/databases/bar', [as: 'output']
-      caches '/data/databases/bazz', [as: 'foobarbazz']
-      setJob 'propertyName1', 'propertyValue1'
-      setJvm 'udf.import.list', 'oink.,com.linkedin.pig.'
-      depends 'job1'
-    }
-
-    azkabanJob('job3') {
-    }
-
-    azkabanJob('job4') {
-      depends 'job3'
-    }
-
-    azkabanJob('job5') {
-      depends 'job4'
-    }
-
-    depends 'job2', 'job3', 'job5', 'job20'
-
-    propertySet('workflow1-common') {
-      myPropertyA = 'valA.1'
-      myPropertyB = 'valB.1'
-    }
+  addWorkflow('genTrain', 'genTrainCopy') {
   }
 
-  local train
+  global trainWorkflow
+
+  addWorkflow('train', 'trainCopy') {
+
+    azkabanJob('job1') {
+    }
+
+    depends 'job1'
+  }
 }
 
-azkaban.workflow('workflow2') {
-  pigJob('job6') {
-    script = 'src/main/pig/' + 'count_by_country.job'
-    parameter 'member_summary', '/data/derived/member/summary#LATEST'
-    parameter 'output', 'count_by_country.dat'
-    reads '/data/databases/foo', [as: 'input']
-    writes '/data/databases/bar', [as: 'output']
-  }
-
+azkaban.workflow('workflow4') {
   hiveJob('job7') {
-    query = "show tables"
+    usesQuery "show tables"
   }
 
   commandJob('job8') {
@@ -160,21 +192,21 @@ azkaban.workflow('workflow2') {
   voldemortBuildPushJob('job11') {
   }
 
-  depends 'job11', 'job10', 'job9', 'job8', 'job7', 'job6'
+  depends 'job11', 'job10', 'job9', 'job8', 'job7'
 
   if (false) {
     pigJob('job12') {
-      script = 'src/main/pig/count_by_country2.job'
+      uses 'src/main/pig/count_by_country2.job'
     }
     depends 'job12'
   }
   else {
     pigJob('job12Else') {
       if (false) {
-        script = 'src/main/pig/count_by_country2.job'
+        uses 'src/main/pig/count_by_country2.job'
       }
       else {
-        script = 'src/main/pig/count_by_country2else.job'
+        uses 'src/main/pig/count_by_country2else.job'
       }
     }
     depends 'job12Else'
