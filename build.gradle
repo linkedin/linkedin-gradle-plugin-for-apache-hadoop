@@ -2,7 +2,4 @@ allprojects {
   repositories {
     mavenCentral()
   }
-
-  group = 'com.linkedin'
-  version = '0.0.1'
 }
