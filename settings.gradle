@@ -1,1 +1,2 @@
 include 'hadoop-plugin'
+include 'hadoop-plugin-test'

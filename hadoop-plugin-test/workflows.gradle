@@ -1,13 +1,11 @@
 buildscript {
   repositories {
-    ivy {
-      url "/home/abain/local-repo"
-    }
     mavenCentral()
   }
 
   dependencies {
-    classpath group: 'com.linkedin', name: 'hadoop-plugin', version: '0.0.1'
+    classpath project(":hadoop-plugin")
+    classpath "commons-io:commons-io:2.4"
   }
 }
 
