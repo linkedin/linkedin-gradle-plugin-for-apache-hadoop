@@ -3,8 +3,9 @@ buildscript {
     mavenCentral()
   }
 
+  // Gradle doesn't really handle buildscript project dependencies
   dependencies {
-    classpath project(":hadoop-plugin")
+    classpath files("../hadoop-plugin/build/libs/hadoop-plugin-0.0.2.jar")
     classpath "commons-io:commons-io:2.4"
   }
 }
