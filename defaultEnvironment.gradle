@@ -3,3 +3,8 @@ subprojects {
     mavenCentral()
   }
 }
+
+// Version information is in gradle.properties, but the group
+// is here so that it can be overwritten if
+// defaultEnvironment.gradle is not used
+group=com.linkedin.hadoop-plugin
