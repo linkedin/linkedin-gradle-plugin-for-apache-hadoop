@@ -32,17 +32,22 @@ class HadoopPlugin implements Plugin<Project> {
 
     // Add the Gradle task that checks and evaluates the DSL. Plugin users
     // should have their build tasks depend on this task.
-    project.tasks.create("buildAzkabanFlow") << {
-      AzkabanDslChecker checker = new AzkabanDslChecker();
-      if (!checker.checkAzkabanExtension(project.extensions.azkaban)) {
-        throw new Exception("AzkabanDslChecker FAILED");
-      }
+    project.tasks.create("buildAzkabanFlow") {
+      description = "Builds Azkaban job files from the Azkaban DSL";
+      group = "Hadoop Plugin";
 
-      logger.lifecycle("AzkabanDslChecker PASSED");
-      project.extensions.azkaban.build();
+      doLast {
+        AzkabanDslChecker checker = new AzkabanDslChecker();
+        if (!checker.checkAzkabanExtension(project.extensions.azkaban)) {
+          throw new Exception("AzkabanDslChecker FAILED");
+        }
+
+        logger.lifecycle("AzkabanDslChecker PASSED");
+        project.extensions.azkaban.build();
+      }
     }
 
-    // Add a task for each Pig script that runs the script on the gateway.
+    project.extensions.add("pig", new PigExtension(project));
     PigTasks.generatePigTasks(project);
   }
 

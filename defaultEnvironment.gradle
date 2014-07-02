@@ -5,6 +5,6 @@ subprojects {
 }
 
 // Version information is in gradle.properties, but the group
-// is here so that it can be overwritten if
-// defaultEnvironment.gradle is not used
-group=com.linkedin.hadoop-plugin
+// is here so that it can be overridden for LinkedIn internal
+// builds, which will not use defaultEnvironment.gradle.
+group='com.linkedin.hadoop-plugin'
