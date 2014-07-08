@@ -1,6 +1,7 @@
 package com.linkedin.gradle.hadoop;
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree
@@ -15,6 +16,8 @@ class PigTasks {
     if (project.extensions.pig.generateTasks) {
       addPigCacheTask(project);
       addPigScriptTasks(project);
+      addPigShowJobsTask(project);
+      addPigRunJobTask(project);
     }
   }
 
@@ -62,11 +65,28 @@ class PigTasks {
     pigFileTree.each { File file ->
       String fileName = file.getName();
       String filePath = file.getAbsolutePath();
-
       String taskName = buildUniqueTaskName(fileName, taskNames);
       taskNames.add(taskName);
       addPigScriptTask(project, filePath, taskName, null);
     }
+  }
+
+  // Uniquify the task names that correspond to running Pig scripts on a host, since there may be
+  // more than one Pig script with the same name recursively under ${project.projectDir}/src.
+  static String buildUniqueTaskName(String fileName, Set<String> taskNames) {
+    if (!taskNames.contains(fileName)) {
+      return fileName;
+    }
+
+    char index = '1';
+    StringBuilder sb = new StringBuilder(fileName + index);
+    int length = sb.length();
+
+    while (!taskNames.contains(sb.toString())) {
+      sb.setCharAt(length, ++index);
+    }
+
+    return sb.toString();
   }
 
   static void addPigScriptTask(Project project, String filePath, String taskName, Map<String, String> parameters) {
@@ -92,7 +112,7 @@ class PigTasks {
 
           new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
             out.writeLine("#!/bin/sh");
-            out.writeLine("echo ==================");
+            out.writeLine("echo ====================");
             out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
             out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
             out.writeLine("${remoteShellCmd} ${remoteHostName} mkdir -p ${remoteCacheDir}");
@@ -105,7 +125,7 @@ class PigTasks {
         else {
           new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
             out.writeLine("#!/bin/sh");
-            out.writeLine("echo ==================");
+            out.writeLine("echo ====================");
             out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
             out.writeLine("echo Executing ${pigCommand} on the local host");
             out.writeLine("${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} -f ${projectDir}/${relaPath}");
@@ -115,21 +135,67 @@ class PigTasks {
     }
   }
 
-  // Uniquify the task names that correspond to running Pig scripts on a host, since there may be
-  // more than one Pig script with the same name recursively under ${project.projectDir}/src.
-  static String buildUniqueTaskName(String fileName, Set<String> taskNames) {
-    if (!taskNames.contains(fileName)) {
-      return fileName;
+  // Adds tasks to display the Pig jobs specified by the user in the Azkaban DSL and a task that
+  // can execute these jobs.
+  static void addPigShowJobsTask(Project project) {
+    project.tasks.create("showPigJobs") {
+      description = "Lists Pig jobs configured in the Azkaban DSL that can be run with the runPigJob task";
+      group = "Hadoop Plugin";
+
+      doLast {
+        Map<String, PigJob> pigJobs = findPigJobs(project);
+        println("The following Pig jobs configured in the AzkabanDSL can be run with gradle runPigJob -PjobName=<job name>");
+
+        pigJobs.keySet().each() { String jobName ->
+          println(jobName);
+        }
+      }
     }
+  }
 
-    char index = '1';
-    StringBuilder sb = new StringBuilder(fileName + index);
-    int length = sb.length();
+  static void addPigRunJobTask(Project project) {
+    project.tasks.create("runPigJob") {
+      dependsOn project.tasks["buildPigCache"]
+      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -PjobName=<job name>";
+      group = "Hadoop Plugin";
 
-    while (!taskNames.contains(sb.toString())) {
-      sb.setCharAt(length, ++index);
+      doLast {
+        if (!project.jobName) {
+          throw new GradleException("You must use -PjobName=<job name> to specify the job name with runPigJob");
+        }
+
+        Map<String, PigJob> pigJobs = findPigJobs(project);
+        PigJob pigJob = pigJobs.get(project.jobName);
+
+        if (pigJob == null) {
+          throw new GradleException("Could not find Pig job with name ${project.jobName} configured in the Azkaban DSL");
+        }
+
+        println("Found Pig Job ${pigJob.name}!");
+      }
     }
+  }
 
-    return sb.toString();
+  static Map<String, PigJob> findPigJobs(Project project) {
+    Map<String, PigJob> pigJobs = new LinkedHashMap<String, PigJob>();
+    findPigJobs(project.extensions.globalScope, "", pigJobs);
+    return pigJobs;
+  }
+
+  static void findPigJobs(NamedScope scope, String prefix, Map<String, PigJob> pigJobs) {
+    scope.thisLevel.each { String name, Object val ->
+      if (val instanceof PigJob) {
+        PigJob pigJob = (PigJob)val;
+        pigJobs.put(prefix + pigJob.name, pigJob);
+      }
+      else if (val instanceof AzkabanExtension) {
+        AzkabanExtension azkaban = (AzkabanExtension)val;
+        findPigJobs(azkaban.azkabanScope, "${prefix}${azkaban.azkabanScope.levelName}.", pigJobs);
+      }
+      else if (val instanceof AzkabanWorkflow) {
+        AzkabanWorkflow workflow = (AzkabanWorkflow)val;
+        findPigJobs(workflow.workflowScope, "${prefix}${workflow.workflowScope.levelName}.", pigJobs);
+      }
+    }
   }
 }

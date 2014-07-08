@@ -1,5 +1,7 @@
 package com.linkedin.gradle.hadoop;
 
+import org.gradle.api.GradleException
+
 /**
  * The DSL implements explicit scope, allowing us to refer to workflows and
  * jobs by name instead of by object reference.
@@ -44,5 +46,42 @@ class NamedScope {
       return thisLevel.get(name);
     }
     return (nextLevel == null) ? null : nextLevel.lookup(name);
+  }
+
+  Object lookdown(String name) {
+    if (!name.contains(".")) {
+      return thisLevel.get(name);
+    }
+
+    // Handle the global scope (that has an empty level name) as a special case.
+    String lookupPrefix = levelName.equals("") ? "" : "${levelName}.";
+    String lookupName = name;
+
+    if (!lookupName.startsWith(lookupPrefix)) {
+      return null;
+    }
+
+    lookupName = lookupName.replaceFirst(lookupPrefix, "");
+
+    if (!lookupName.contains(".")) {
+      return thisLevel.get(lookupName);
+    }
+
+    String[] parts = lookupName.split(".")
+    String nextPart = parts[0];
+
+    thisLevel.each() { String key, Object val ->
+      if (key.equals(nextPart)) {
+        if (val instanceof AzkabanExtension) {
+          return ((AzkabanExtension)val).azkabanScope.lookdown(lookupName);
+        }
+        if (val instanceof AzkabanWorkflow) {
+          return ((AzkabanWorkflow)val).workflowScope.lookdown(lookupName);
+        }
+        throw new GradleException("Part ${nextPart} in fully qualified name ${name} referred to a non-container object: ${val}");
+      }
+    }
+
+    return null;
   }
 }

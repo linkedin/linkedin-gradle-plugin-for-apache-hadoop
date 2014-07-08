@@ -154,14 +154,6 @@ class AzkabanWorkflow {
     launchJobDependencies.addAll(jobNames.toList());
   }
 
-//  Object local(Object object) {
-//    if (workflowScope.thisLevel.containsKey(object.name)) {
-//      throw new Exception("An object with name ${object.name} requested to be local is already bound in workflow scope");
-//    }
-//    workflowScope.bind(object.name, object);
-//    return object;
-//  }
-
   Object lookup(String name) {
     return workflowScope.lookup(name);
   }

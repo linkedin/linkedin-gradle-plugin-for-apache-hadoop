@@ -7,7 +7,7 @@ import org.gradle.api.Project;
  * HadoopPlugin is the class that implements our Gradle Plugin.
  */
 class HadoopPlugin implements Plugin<Project> {
-  NamedScope globalScope = new NamedScope("global");
+  NamedScope globalScope = new NamedScope("");
   Project project;
 
   void apply(Project project) {
@@ -16,6 +16,8 @@ class HadoopPlugin implements Plugin<Project> {
     // Add the extensions that expose the DSL to users.
     AzkabanExtension azkabanExtension = new AzkabanExtension(project, globalScope);
     project.extensions.add("azkaban", azkabanExtension);
+    project.extensions.add("globalScope", globalScope);
+
     project.extensions.add("global", this.&global);
     project.extensions.add("lookup", this.&lookup);
     project.extensions.add("propertyFile", this.&propertyFile);

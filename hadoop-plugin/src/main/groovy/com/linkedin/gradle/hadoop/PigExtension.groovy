@@ -5,12 +5,17 @@ import org.gradle.api.Project;
 /**
  * PigExtension exposes properties to that allow the user to configure how
  * to run Pig scripts from the command line.
+ *
+ * NOTE: At first, I was planning to use the standard Gradle DSL to allow
+ * users to configure this extension, but it is difficult to use the DSL
+ * at configuration time to configure other tasks, so I moved the properties
+ * to an explicit property file.
  */
 class PigExtension {
   Project project;
 
-  // The user must set this to true to cause Pig tasks to be generated
-  boolean generateTasks = false;
+  // The user can set this to false to not generate any Pig tasks
+  boolean generateTasks = true;
 
   // Properties that can be set by the user
   String dependencyConf = "runtime";

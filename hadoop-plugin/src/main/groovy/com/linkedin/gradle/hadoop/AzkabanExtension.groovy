@@ -31,6 +31,10 @@ class AzkabanExtension {
     this.project = project;
     this.properties = new ArrayList<AzkabanProperties>();
     this.workflows = new ArrayList<AzkabanJob>();
+
+    // Bind the name azkaban in the global scope so that we can do fully-qualified name lookups
+    // of the form azkaban.workflow1.job1
+    globalScope.bind("azkaban", this);
   }
 
   void build() throws IOException {
@@ -125,14 +129,6 @@ class AzkabanExtension {
     workflows.add(clone);
     return clone;
   }
-
-//  Object local(Object object) {
-//    if (azkabanScope.thisLevel.containsKey(object.name)) {
-//      throw new Exception("An object with name ${object.name} requested to be local is already bound in azkaban scope");
-//    }
-//    azkabanScope.bind(object.name, object);
-//    return object;
-//  }
 
   Object lookup(String name) {
     return azkabanScope.lookup(name);
