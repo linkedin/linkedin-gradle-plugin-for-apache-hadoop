@@ -14,10 +14,10 @@ class PigTasks {
     readPigProperties(project);
 
     if (project.extensions.pig.generateTasks) {
-      addPigCacheTask(project);
+      addBuildCacheTask(project);
       addPigScriptTasks(project);
-      addPigShowJobsTask(project);
-      addPigRunJobTask(project);
+      addShowPigJobsTask(project);
+      addRunPigJobTask(project);
     }
   }
 
@@ -36,7 +36,7 @@ class PigTasks {
   }
 
   // Adds a task to set up the cache directory that will be rsync'd to the host that will run Pig.
-  static void addPigCacheTask(Project project) {
+  static void addBuildCacheTask(Project project) {
     project.tasks.create(name: "buildPigCache", type: Sync) {
       description = "Build the cache directory to run Pig scripts by Gradle tasks";
       group = "Hadoop Plugin";
@@ -91,53 +91,74 @@ class PigTasks {
 
   static void addPigScriptTask(Project project, String filePath, String taskName, Map<String, String> parameters) {
     String relaPath = filePath.replace("${project.projectDir}/", "");
+    String projectDir = "${project.extensions.pig.pigCacheDir}/${project.name}";
 
     project.tasks.create(name: "run_${taskName}", type: Exec) {
+      commandLine "sh", "${projectDir}/run_${taskName}.sh"
       dependsOn project.tasks["buildPigCache"]
       description = "Run the Pig script ${relaPath}";
       group = "Hadoop Plugin";
 
-      String projectDir = "${project.extensions.pig.pigCacheDir}/${project.name}";
-      commandLine "sh", "${projectDir}/run_${taskName}.sh"
-
       doFirst {
-        String pigCommand = project.extensions.pig.pigCommand;
-        String pigOptions = project.extensions.pig.pigOptions ?: "";
-
-        if (project.extensions.pig.remoteHostName) {
-          String remoteHostName = project.extensions.pig.remoteHostName;
-          String remoteShellCmd = project.extensions.pig.remoteShellCmd;
-          String remoteCacheDir = project.extensions.pig.remoteCacheDir;
-          String remoteProjDir = "${remoteCacheDir}/${project.name}";
-
-          new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-            out.writeLine("#!/bin/sh");
-            out.writeLine("echo ====================");
-            out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
-            out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
-            out.writeLine("${remoteShellCmd} ${remoteHostName} mkdir -p ${remoteCacheDir}");
-            out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
-            out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
-            out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-            out.writeLine("${remoteShellCmd} ${remoteHostName} ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${remoteProjDir}/${relaPath}");
-          }
-        }
-        else {
-          new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-            out.writeLine("#!/bin/sh");
-            out.writeLine("echo ====================");
-            out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
-            out.writeLine("echo Executing ${pigCommand} on the local host");
-            out.writeLine("${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} -f ${projectDir}/${relaPath}");
-          }
-        }
+        writePigExecScript(project, filePath, taskName, parameters);
       }
     }
   }
 
+  static void writePigExecScript(Project project, String filePath, String taskName, Map<String, String> parameters) {
+    String relaPath = filePath.replace("${project.projectDir}/", "");
+    String projectDir = "${project.extensions.pig.pigCacheDir}/${project.name}";
+
+    String pigCommand = project.extensions.pig.pigCommand;
+    String pigOptions = project.extensions.pig.pigOptions ?: "";
+    String pigParams = buildPigParameters(parameters);
+
+    if (project.extensions.pig.remoteHostName) {
+      String remoteHostName = project.extensions.pig.remoteHostName;
+      String remoteShellCmd = project.extensions.pig.remoteShellCmd;
+      String remoteCacheDir = project.extensions.pig.remoteCacheDir;
+      String remoteProjDir = "${remoteCacheDir}/${project.name}";
+
+      new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
+        out.writeLine("#!/bin/sh");
+        out.writeLine("echo ====================");
+        out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
+        out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} mkdir -p ${remoteCacheDir}");
+        out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
+        out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
+        out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${remoteProjDir}/${relaPath} ${pigParams}");
+      }
+    }
+    else {
+      new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
+        out.writeLine("#!/bin/sh");
+        out.writeLine("echo ====================");
+        out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
+        out.writeLine("echo Executing ${pigCommand} on the local host");
+        out.writeLine("${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} -f ${projectDir}/${relaPath} ${pigParams}");
+      }
+    }
+  }
+
+  static String buildPigParameters(Map<String, String> parameters) {
+    StringBuilder sb = new StringBuilder();
+
+    if (parameters.size() > 0) {
+      sb.append("-param");
+    }
+
+    parameters.each { String key, String val ->
+      sb.append(" ${key}=${val}");
+    }
+
+    return sb.toString();
+  }
+
   // Adds tasks to display the Pig jobs specified by the user in the Azkaban DSL and a task that
   // can execute these jobs.
-  static void addPigShowJobsTask(Project project) {
+  static void addShowPigJobsTask(Project project) {
     project.tasks.create("showPigJobs") {
       description = "Lists Pig jobs configured in the Azkaban DSL that can be run with the runPigJob task";
       group = "Hadoop Plugin";
@@ -146,32 +167,9 @@ class PigTasks {
         Map<String, PigJob> pigJobs = findPigJobs(project);
         println("The following Pig jobs configured in the AzkabanDSL can be run with gradle runPigJob -PjobName=<job name>");
 
-        pigJobs.keySet().each() { String jobName ->
+        pigJobs.keySet().each { String jobName ->
           println(jobName);
         }
-      }
-    }
-  }
-
-  static void addPigRunJobTask(Project project) {
-    project.tasks.create("runPigJob") {
-      dependsOn project.tasks["buildPigCache"]
-      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -PjobName=<job name>";
-      group = "Hadoop Plugin";
-
-      doLast {
-        if (!project.jobName) {
-          throw new GradleException("You must use -PjobName=<job name> to specify the job name with runPigJob");
-        }
-
-        Map<String, PigJob> pigJobs = findPigJobs(project);
-        PigJob pigJob = pigJobs.get(project.jobName);
-
-        if (pigJob == null) {
-          throw new GradleException("Could not find Pig job with name ${project.jobName} configured in the Azkaban DSL");
-        }
-
-        println("Found Pig Job ${pigJob.name}!");
       }
     }
   }
@@ -195,6 +193,43 @@ class PigTasks {
       else if (val instanceof AzkabanWorkflow) {
         AzkabanWorkflow workflow = (AzkabanWorkflow)val;
         findPigJobs(workflow.workflowScope, "${prefix}${workflow.workflowScope.levelName}.", pigJobs);
+      }
+    }
+  }
+
+  static void addRunPigJobTask(Project project) {
+    project.tasks.create(name: "runPigJob", type: Exec) {
+      dependsOn project.tasks["buildPigCache"]
+      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -PjobName=<job name>";
+      group = "Hadoop Plugin";
+
+      doFirst {
+        if (!project.jobName) {
+          throw new GradleException("You must use -PjobName=<job name> to specify the job name with runPigJob");
+        }
+
+        Map<String, PigJob> pigJobs = findPigJobs(project);
+        PigJob pigJob = pigJobs.get(project.jobName);
+
+        if (pigJob == null) {
+          throw new GradleException("Could not find Pig job with name ${project.jobName}");
+        }
+
+        if (pigJob.script == null) {
+          throw new GradleException("Pig job with name ${project.jobName} does not have a script set");
+        }
+
+        File file = new File(pigJob.script);
+        if (!file.exists()) {
+          throw new GradleException("Script ${pigJob.script} for Pig job with name ${project.jobName} does not exist");
+        }
+
+        String filePath = file.getAbsolutePath();
+        String taskName = project.jobName;
+        writePigExecScript(project, filePath, taskName, pigJob.parameters);
+
+        String projectDir = "${project.extensions.pig.pigCacheDir}/${project.name}";
+        commandLine "sh", "${projectDir}/run_${taskName}.sh"
       }
     }
   }
