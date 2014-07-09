@@ -12,7 +12,7 @@ import org.gradle.api.Project;
  *
  * configuration block to their build.gradle file.
  */
-class AzkabanExtension {
+class AzkabanExtension implements NamedScopeContainer {
   NamedScope azkabanScope;
   boolean cleanFirst;
   String jobConfDir;
@@ -33,8 +33,13 @@ class AzkabanExtension {
     this.workflows = new ArrayList<AzkabanJob>();
 
     // Bind the name azkaban in the global scope so that we can do fully-qualified name lookups
-    // of the form azkaban.workflow1.job1
+    // starting from the global scope.
     globalScope.bind("azkaban", this);
+  }
+
+  @Override
+  public NamedScope getScope() {
+    return azkabanScope;
   }
 
   void build() throws IOException {

@@ -3,6 +3,14 @@ package com.linkedin.gradle.hadoop;
 import org.gradle.api.GradleException
 
 /**
+ * Interface that enables us to declare what DSL classes can declare a new
+ * scope (i.e. that thave a NamedScope object as a member variable).
+ */
+interface NamedScopeContainer {
+  NamedScope getScope();
+}
+
+/**
  * The DSL implements explicit scope, allowing us to refer to workflows and
  * jobs by name instead of by object reference.
  */
@@ -72,13 +80,10 @@ class NamedScope {
 
     thisLevel.each() { String key, Object val ->
       if (key.equals(nextPart)) {
-        if (val instanceof AzkabanExtension) {
-          return ((AzkabanExtension)val).azkabanScope.lookdown(lookupName);
+        if (val instanceof NamedScopeContainer) {
+          return ((NamedScopeContainer)val).scope.lookdown(lookupName);
         }
-        if (val instanceof AzkabanWorkflow) {
-          return ((AzkabanWorkflow)val).workflowScope.lookdown(lookupName);
-        }
-        throw new GradleException("Part ${nextPart} in fully qualified name ${name} referred to a non-container object: ${val}");
+        throw new GradleException("Part ${nextPart} in fully qualified name ${name} referred to an object that is not a NamedScopeContainer: ${val}");
       }
     }
 

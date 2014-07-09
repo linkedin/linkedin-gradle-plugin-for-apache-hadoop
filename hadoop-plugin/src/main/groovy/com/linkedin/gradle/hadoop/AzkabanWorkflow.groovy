@@ -12,7 +12,7 @@ import org.gradle.api.Project;
  *   }
  * }
  */
-class AzkabanWorkflow {
+class AzkabanWorkflow implements NamedScopeContainer {
   String name;
   Project project;
   List<AzkabanProperties> properties;
@@ -46,6 +46,11 @@ class AzkabanWorkflow {
     this.project = project;
     this.properties = new ArrayList<AzkabanProperties>();
     this.workflowScope = new NamedScope(name, nextLevel);
+  }
+
+  @Override
+  public NamedScope getScope() {
+    return workflowScope;
   }
 
   AzkabanJob addAndConfigureJob(AzkabanJob job, Closure configure) {
