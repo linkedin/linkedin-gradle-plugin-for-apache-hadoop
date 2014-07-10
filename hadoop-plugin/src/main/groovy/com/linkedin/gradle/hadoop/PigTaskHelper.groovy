@@ -4,19 +4,14 @@ import org.gradle.api.Project;
 
 class PigTaskHelper {
 
+  // Build the necessary text to pass JVM parameters to Pig.
+  static String buildJvmParameters(Map<String, String> jvmParameters) {
+    return jvmParameters.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+  }
+
   // Build the necessary text to pass script parameters to Pig.
   static String buildPigParameters(Map<String, String> parameters) {
-    StringBuilder sb = new StringBuilder();
-
-    if (parameters.size() > 0) {
-      sb.append("-param");
-    }
-
-    parameters.each { String key, String val ->
-      sb.append(" ${key}=${val}");
-    }
-
-    return sb.toString();
+    return parameters.collect() { key, val -> return "-param ${key}=${val}" }.join(" ");
   }
 
   // Uniquify the task names that correspond to running Pig scripts on a host, since there may be

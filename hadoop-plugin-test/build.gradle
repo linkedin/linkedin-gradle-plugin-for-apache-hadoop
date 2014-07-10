@@ -2,4 +2,4 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply from:   'workflows.gradle'
 
-build.dependsOn buildAzkabanFlow
+build.dependsOn buildAzkabanFlows

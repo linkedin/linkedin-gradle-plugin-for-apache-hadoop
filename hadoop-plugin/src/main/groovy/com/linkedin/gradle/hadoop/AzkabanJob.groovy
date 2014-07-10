@@ -1,5 +1,7 @@
 package com.linkedin.gradle.hadoop;
 
+import bsh.This;
+
 /**
  * Base class for all Azkaban job types.
  */
@@ -15,8 +17,8 @@ class AzkabanJob {
   AzkabanJob(String jobName) {
     dependencies = new LinkedHashSet<AzkabanJob>();
     dependencyNames = new LinkedHashSet<String>();
-    jobProperties = new HashMap<String, String>();
-    jvmProperties = new HashMap<String, String>();
+    jobProperties = new LinkedHashMap<String, String>();
+    jvmProperties = new LinkedHashMap<String, String>();
     name = jobName;
     reading = new ArrayList<String>();
     writing = new ArrayList<String>();
@@ -411,7 +413,7 @@ class PigJob extends AzkabanJob {
 
   PigJob(String jobName) {
     super(jobName);
-    parameters = new HashMap<String, String>();
+    parameters = new LinkedHashMap<String, String>();
   }
 
   Map<String, String> buildProperties(Map<String, String> allProperties) {
@@ -446,7 +448,7 @@ class PigJob extends AzkabanJob {
     super.set(args);
     if (args.containsKey("parameters")) {
       Map<String, String> parameters = args.parameters;
-      this.parameters.putAll(properties);
+      this.parameters.putAll(parameters);
     }
   }
 

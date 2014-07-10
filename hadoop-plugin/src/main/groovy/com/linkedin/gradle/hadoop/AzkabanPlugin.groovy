@@ -33,7 +33,7 @@ class AzkabanPlugin implements Plugin<Project> {
 
     // Add the Gradle task that checks and evaluates the DSL. Plugin users
     // should have their build tasks depend on this task.
-    project.tasks.create("buildAzkabanFlow") {
+    project.tasks.create("buildAzkabanFlows") {
       description = "Builds Azkaban job files from the Azkaban DSL. Have your build task depend on this task.";
       group = "Hadoop Plugin";
 
