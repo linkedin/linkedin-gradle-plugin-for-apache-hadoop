@@ -108,12 +108,15 @@ class AzkabanWorkflow implements NamedScopeContainer {
     launchJob.dependencyNames.addAll(launchJobDependencies);
     List<AzkabanJob> jobList = buildJobList(launchJob, new ArrayList<AzkabanJob>());
 
+    // In the special "default" workflow, don't prefix job file names with the workflow name.
+    String parentName = "default".equals(name) ? null : name;
+
     jobList.each() { job ->
-      job.build(directory, name);
+      job.build(directory, parentName);
     }
 
     properties.each() { props ->
-      props.build(directory, name);
+      props.build(directory, parentName);
     }
   }
 
