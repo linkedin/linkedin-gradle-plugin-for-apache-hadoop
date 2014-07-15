@@ -105,18 +105,41 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   void build(String directory) throws IOException {
+    if ("default".equals(name)) {
+      buildDefault(directory);
+      return;
+    }
+
     launchJob.dependencyNames.addAll(launchJobDependencies);
     List<AzkabanJob> jobList = buildJobList(launchJob, new ArrayList<AzkabanJob>());
 
-    // In the special "default" workflow, don't prefix job file names with the workflow name.
-    String parentName = "default".equals(name) ? null : name;
+    // If there was more than one launch dependency, build the launch job, otherwise do not.
+    if (launchJobDependencies.size() > 1) {
+      launchJob.build(directory, null);
+    }
 
     jobList.each() { job ->
-      job.build(directory, parentName);
+      job.build(directory, name);
     }
 
     properties.each() { props ->
-      props.build(directory, parentName);
+      props.build(directory, name);
+    }
+  }
+
+  // In the special "default" workflow, just build all the jobs as they are, with no launch job.
+  // In this workflow, don't prefix job file names with the workflow name.
+  void buildDefault(String directory) throws IOException {
+    if (!"default".equals(name)) {
+      throw new Exception("You cannot buildDefault except on the 'default' workflow");
+    }
+
+    jobs.each() { job ->
+      job.build(directory, null);
+    }
+
+    properties.each() { props ->
+      props.build(directory, null);
     }
   }
 
