@@ -1,4 +1,8 @@
-package com.linkedin.gradle.hadoop;
+package com.linkedin.gradle.pig;
+
+import com.linkedin.gradle.azkaban.NamedScope;
+import com.linkedin.gradle.azkaban.NamedScopeContainer;
+import com.linkedin.gradle.azkaban.PigJob;
 
 import org.gradle.api.Project;
 

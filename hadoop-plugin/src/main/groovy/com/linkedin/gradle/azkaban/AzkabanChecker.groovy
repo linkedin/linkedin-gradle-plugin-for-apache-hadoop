@@ -1,4 +1,4 @@
-package com.linkedin.gradle.hadoop;
+package com.linkedin.gradle.azkaban;
 
 /**
  * This is a "lint-like" class that scans the user's DSL for any potential

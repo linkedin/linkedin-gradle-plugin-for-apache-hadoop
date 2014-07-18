@@ -1,4 +1,4 @@
-package com.linkedin.gradle.hadoop;
+package com.linkedin.gradle.pig;
 
 import org.gradle.api.Project;
 

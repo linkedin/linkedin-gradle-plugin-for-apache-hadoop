@@ -1,4 +1,4 @@
-package com.linkedin.gradle.hadoop;
+package com.linkedin.gradle.azkaban;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
