@@ -4,7 +4,7 @@ buildscript {
   }
   dependencies {
     // Cannot declare project dependencies in buildscript blocks
-    classpath files("../hadoop-plugin/build/libs/hadoop-plugin-${project.version}.jar")
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
   }
 }
 
