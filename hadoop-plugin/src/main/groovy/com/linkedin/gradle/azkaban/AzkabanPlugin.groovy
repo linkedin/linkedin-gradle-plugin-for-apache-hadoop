@@ -56,25 +56,19 @@ class AzkabanPlugin implements Plugin<Project> {
   // Helper method to configure AzkabanJob in the DSL. Can be called by subclasses to configure
   // custom AzkabanJob subclass types.
   AzkabanJob configureJob(AzkabanJob job, Closure configure) {
-    globalScope.bind(job.name, job);
-    project.configure(job, configure);
-    return job;
+    return AzkabanMethods.configureJob(project, job, configure, globalScope);
   }
 
   // Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
   // configure custom AzkabanProperties subclass types.
   AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
-    globalScope.bind(props.name, props);
-    project.configure(props, configure);
-    return props;
+    return AzkabanMethods.configureProperties(project, props, configure, globalScope);
   }
 
   // Helper method to configure AzkabanWorkflow in the DSL. Can be called by subclasses to
   // configure custom AzkabanWorkflow subclass types.
   AzkabanWorkflow configureWorkflow(AzkabanWorkflow workflow, Closure configure) {
-    globalScope.bind(workflow.name, workflow);
-    project.configure(workflow, configure);
-    return workflow;
+    return AzkabanMethods.configureWorkflow(project, workflow, configure, globalScope);
   }
 
   // Factory method to return the AzkabanFactory that can be overridden by subclasses.
@@ -83,24 +77,15 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   Object global(Object object) {
-    if (globalScope.contains(object.name)) {
-      throw new Exception("An object with name ${object.name} requested to be global is already bound in global scope");
-    }
-    globalScope.bind(object.name, object);
-    return object;
+    return AzkabanMethods.global(object, globalScope);
   }
 
   Object lookup(String name) {
-    return globalScope.lookup(name);
+    return AzkabanMethods.lookup(name, globalScope);
   }
 
   Object lookup(String name, Closure configure) {
-    Object boundObject = lookup(name);
-    if (boundObject == null) {
-      return null;
-    }
-    project.configure(boundObject, configure);
-    return boundObject;
+    return AzkabanMethods.lookup(project, name, globalScope, configure);
   }
 
   AzkabanJob azkabanJob(String name, Closure configure) {
@@ -140,12 +125,10 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   AzkabanProperties propertyFile(String name, Closure configure) {
-    AzkabanProperties props = azkabanFactory.makeAzkabanProperties(name);
-    return configureProperties(props, configure);
+    return configureProperties(azkabanFactory.makeAzkabanProperties(name), configure);
   }
 
   AzkabanWorkflow workflow(String name, Closure configure) {
-    AzkabanWorkflow flow = azkabanFactory.makeAzkabanWorkflow(name, project, globalScope);
-    return configureWorkflow(flow, configure);
+    return configureWorkflow(azkabanFactory.makeAzkabanWorkflow(name, project, globalScope), configure);
   }
 }

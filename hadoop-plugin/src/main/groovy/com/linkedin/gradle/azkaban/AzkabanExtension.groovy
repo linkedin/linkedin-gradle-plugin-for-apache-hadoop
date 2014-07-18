@@ -88,8 +88,7 @@ class AzkabanExtension implements NamedScopeContainer {
   // Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
   // configure custom AzkabanProperties subclass types.
   AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
-    azkabanScope.bind(props.name, props);
-    project.configure(props, configure);
+    AzkabanMethods.configureProperties(project, props, configure, azkabanScope);
     properties.add(props);
     return props;
   }
@@ -97,72 +96,40 @@ class AzkabanExtension implements NamedScopeContainer {
   // Helper method to configure AzkabanWorkflow in the DSL. Can be called by subclasses to
   // configure custom AzkabanWorkflow subclass types.
   AzkabanWorkflow configureWorkflow(AzkabanWorkflow workflow, Closure configure) {
-    azkabanScope.bind(workflow.name, workflow);
-    project.configure(workflow, configure);
+    AzkabanMethods.configureWorkflow(project, workflow, configure, azkabanScope);
     workflows.add(workflow);
     return workflow;
   }
 
-  Object lookup(String name) {
-    return azkabanScope.lookup(name);
-  }
-
-  Object lookup(String name, Closure configure) {
-    Object boundObject = azkabanScope.lookup(name);
-    if (boundObject == null) {
-      return null;
-    }
-    project.configure(boundObject, configure);
-    return boundObject;
-  }
-
   AzkabanProperties addPropertyFile(String name, Closure configure) {
-    AzkabanProperties props = azkabanScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
-    }
-    AzkabanProperties clone = props.clone();
-    return configureProperties(clone, configure);
+    return configureProperties(AzkabanMethods.clonePropertyFile(name, azkabanScope), configure);
   }
 
   AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
-    AzkabanProperties props = azkabanScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
-    }
-    AzkabanProperties clone = props.clone();
-    clone.name = rename;
-    return configureProperties(clone, configure);
+    return configureProperties(AzkabanMethods.clonePropertyFile(name, rename, azkabanScope), configure);
   }
 
   AzkabanWorkflow addWorkflow(String name, Closure configure) {
-    AzkabanWorkflow workflow = azkabanScope.lookup(name);
-    if (workflow == null) {
-      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
-    }
-    AzkabanWorkflow clone = workflow.clone();
-    clone.workflowScope.nextLevel = azkabanScope;
-    return configureWorkflow(clone, configure);
+    return configureWorkflow(AzkabanMethods.cloneWorkflow(name, azkabanScope), configure);
   }
 
   AzkabanWorkflow addWorkflow(String name, String rename, Closure configure) {
-    AzkabanWorkflow workflow = azkabanScope.lookup(name);
-    if (workflow == null) {
-      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
-    }
-    AzkabanWorkflow clone = workflow.clone();
-    clone.name = rename;
-    clone.workflowScope.nextLevel = azkabanScope;
-    return configureWorkflow(clone, configure);
+    return configureWorkflow(AzkabanMethods.cloneWorkflow(name, rename, azkabanScope), configure);
+  }
+
+  Object lookup(String name) {
+    return AzkabanMethods.lookup(name, azkabanScope);
+  }
+
+  Object lookup(String name, Closure configure) {
+    return AzkabanMethods.lookup(project, name, azkabanScope, configure);
   }
 
   AzkabanProperties propertyFile(String name, Closure configure) {
-    AzkabanProperties props = azkabanFactory.makeAzkabanProperties(name);
-    return configureProperties(props, configure);
+    return configureProperties(azkabanFactory.makeAzkabanProperties(name), configure);
   }
 
   AzkabanWorkflow workflow(String name, Closure configure) {
-    AzkabanWorkflow flow = azkabanFactory.makeAzkabanWorkflow(name, project, azkabanScope);
-    return configureWorkflow(flow, configure);
+    return configureWorkflow(azkabanFactory.makeAzkabanWorkflow(name, project, azkabanScope), configure);
   }
 }

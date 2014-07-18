@@ -131,8 +131,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
   // Helper method to configure AzkabanJob in the DSL. Can be called by subclasses to configure
   // custom AzkabanJob subclass types.
   AzkabanJob configureJob(AzkabanJob job, Closure configure) {
-    workflowScope.bind(job.name, job);
-    project.configure(job, configure);
+    AzkabanMethods.configureJob(project, job, configure, workflowScope);
     jobs.add(job);
     return job;
   }
@@ -140,8 +139,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
   // Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
   // configure custom AzkabanProperties subclass types.
   AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
-    workflowScope.bind(props.name, props);
-    project.configure(props, configure);
+    AzkabanMethods.configureProperties(project, props, configure, workflowScope);
     properties.add(props);
     return props;
   }
@@ -155,54 +153,27 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   Object lookup(String name) {
-    return workflowScope.lookup(name);
+    return AzkabanMethods.lookup(name, workflowScope);
   }
 
   Object lookup(String name, Closure configure) {
-    Object boundObject = workflowScope.lookup(name);
-    if (boundObject == null) {
-      return null;
-    }
-    project.configure(boundObject, configure);
-    return boundObject;
+    return AzkabanMethods.lookup(project, name, workflowScope, configure);
   }
 
   AzkabanJob addJob(String name, Closure configure) {
-    AzkabanJob job = workflowScope.lookup(name);
-    if (job == null) {
-      throw new Exception("Could not find job ${name} in call to addJob");
-    }
-    AzkabanJob clone = job.clone();
-    return configureJob(clone, configure);
+    return configureJob(AzkabanMethods.cloneJob(name, workflowScope), configure);
   }
 
   AzkabanJob addJob(String name, String rename, Closure configure) {
-    AzkabanJob job = workflowScope.lookup(name);
-    if (job == null) {
-      throw new Exception("Could not find job ${name} in call to addJob");
-    }
-    AzkabanJob clone = job.clone();
-    clone.name = rename;
-    return configureJob(clone, configure);
+    return configureJob(AzkabanMethods.cloneJob(name, rename, workflowScope), configure);
   }
 
   AzkabanProperties addPropertyFile(String name, Closure configure) {
-    AzkabanProperties props = workflowScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
-    }
-    AzkabanProperties clone = props.clone();
-    return configureProperties(clone, configure);
+    return configureProperties(AzkabanMethods.clonePropertyFile(name, workflowScope), configure);
   }
 
   AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
-    AzkabanProperties props = workflowScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
-    }
-    AzkabanProperties clone = props.clone();
-    clone.name = rename;
-    return configureProperties(clone, configure);
+    return configureProperties(AzkabanMethods.clonePropertyFile(name, rename, workflowScope), configure);
   }
 
   AzkabanJob azkabanJob(String name, Closure configure) {
@@ -242,7 +213,6 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   AzkabanProperties propertyFile(String name, Closure configure) {
-    AzkabanProperties props = azkabanFactory.makeAzkabanProperties(name);
-    return configureProperties(props, configure);
+    return configureProperties(azkabanFactory.makeAzkabanProperties(name), configure);
   }
 }
