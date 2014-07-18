@@ -6,7 +6,7 @@ package com.linkedin.gradle.hadoop;
  *
  * This tool is based on a presentation by twalker of his tool "Demeantor".
  */
-class AzkabanDslChecker {
+class AzkabanChecker {
 
   boolean checkAzkabanExtension(AzkabanExtension azkaban) {
     boolean ok = true;
@@ -86,7 +86,7 @@ class AzkabanDslChecker {
     return true;
   }
 
-  boolean checkAzkabanJob(NoopJob job) {
+  boolean checkAzkabanJob(NoOpJob job) {
     return true;
   }
 

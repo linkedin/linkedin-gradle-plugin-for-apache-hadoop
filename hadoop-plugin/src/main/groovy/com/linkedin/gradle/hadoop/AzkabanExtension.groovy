@@ -13,6 +13,7 @@ import org.gradle.api.Project;
  * configuration block to their build.gradle file.
  */
 class AzkabanExtension implements NamedScopeContainer {
+  AzkabanFactory azkabanFactory;
   NamedScope azkabanScope;
   boolean cleanFirst;
   String jobConfDir;
@@ -25,6 +26,7 @@ class AzkabanExtension implements NamedScopeContainer {
   }
 
   AzkabanExtension(Project project, NamedScope globalScope) {
+    this.azkabanFactory = project.extensions.azkabanFactory;
     this.azkabanScope = new NamedScope("azkaban", globalScope);
     this.cleanFirst = true;
     this.jobConfDir = null;
@@ -83,56 +85,22 @@ class AzkabanExtension implements NamedScopeContainer {
     this.cleanFirst = cleanFirst;
   }
 
-  AzkabanProperties addPropertyFile(String name, Closure configure) {
-    AzkabanProperties props = azkabanScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find property set ${name} in call to addPropertyFile");
-    }
-    AzkabanProperties clone = props.clone();
-    azkabanScope.bind(name, clone);
-    project.configure(clone, configure);
-    properties.add(clone);
-    return clone;
+  // Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
+  // configure custom AzkabanProperties subclass types.
+  AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
+    azkabanScope.bind(props.name, props);
+    project.configure(props, configure);
+    properties.add(props);
+    return props;
   }
 
-  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
-    AzkabanProperties props = azkabanScope.lookup(name);
-    if (props == null) {
-      throw new Exception("Could not find property set ${name} in call to addProperty");
-    }
-    AzkabanProperties clone = props.clone();
-    clone.name = rename;
-    azkabanScope.bind(rename, clone);
-    project.configure(clone, configure);
-    properties.add(clone);
-    return clone;
-  }
-
-  AzkabanWorkflow addWorkflow(String name, Closure configure) {
-    AzkabanWorkflow workflow = azkabanScope.lookup(name);
-    if (workflow == null) {
-      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
-    }
-    AzkabanWorkflow clone = workflow.clone();
-    clone.workflowScope.nextLevel = azkabanScope;
-    azkabanScope.bind(name, clone);
-    project.configure(clone, configure);
-    workflows.add(clone);
-    return clone;
-  }
-
-  AzkabanWorkflow addWorkflow(String name, String rename, Closure configure) {
-    AzkabanWorkflow workflow = azkabanScope.lookup(name);
-    if (workflow == null) {
-      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
-    }
-    AzkabanWorkflow clone = workflow.clone();
-    clone.name = rename;
-    clone.workflowScope.nextLevel = azkabanScope;
-    azkabanScope.bind(rename, clone);
-    project.configure(clone, configure);
-    workflows.add(clone);
-    return clone;
+  // Helper method to configure AzkabanWorkflow in the DSL. Can be called by subclasses to
+  // configure custom AzkabanWorkflow subclass types.
+  AzkabanWorkflow configureWorkflow(AzkabanWorkflow workflow, Closure configure) {
+    azkabanScope.bind(workflow.name, workflow);
+    project.configure(workflow, configure);
+    workflows.add(workflow);
+    return workflow;
   }
 
   Object lookup(String name) {
@@ -148,19 +116,53 @@ class AzkabanExtension implements NamedScopeContainer {
     return boundObject;
   }
 
+  AzkabanProperties addPropertyFile(String name, Closure configure) {
+    AzkabanProperties props = azkabanScope.lookup(name);
+    if (props == null) {
+      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
+    }
+    AzkabanProperties clone = props.clone();
+    return configureProperties(clone, configure);
+  }
+
+  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
+    AzkabanProperties props = azkabanScope.lookup(name);
+    if (props == null) {
+      throw new Exception("Could not find propertyFile ${name} in call to addPropertyFile");
+    }
+    AzkabanProperties clone = props.clone();
+    clone.name = rename;
+    return configureProperties(clone, configure);
+  }
+
+  AzkabanWorkflow addWorkflow(String name, Closure configure) {
+    AzkabanWorkflow workflow = azkabanScope.lookup(name);
+    if (workflow == null) {
+      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
+    }
+    AzkabanWorkflow clone = workflow.clone();
+    clone.workflowScope.nextLevel = azkabanScope;
+    return configureWorkflow(clone, configure);
+  }
+
+  AzkabanWorkflow addWorkflow(String name, String rename, Closure configure) {
+    AzkabanWorkflow workflow = azkabanScope.lookup(name);
+    if (workflow == null) {
+      throw new Exception("Could not find workflow ${name} in call to addWorkflow");
+    }
+    AzkabanWorkflow clone = workflow.clone();
+    clone.name = rename;
+    clone.workflowScope.nextLevel = azkabanScope;
+    return configureWorkflow(clone, configure);
+  }
+
   AzkabanProperties propertyFile(String name, Closure configure) {
-    AzkabanProperties props = new AzkabanProperties(name);
-    azkabanScope.bind(name, props);
-    project.configure(props, configure);
-    properties.add(props);
-    return props;
+    AzkabanProperties props = azkabanFactory.makeAzkabanProperties(name);
+    return configureProperties(props, configure);
   }
 
   AzkabanWorkflow workflow(String name, Closure configure) {
-    AzkabanWorkflow flow = new AzkabanWorkflow(name, project, azkabanScope);
-    azkabanScope.bind(name, flow);
-    project.configure(flow, configure);
-    workflows.add(flow);
-    return flow;
+    AzkabanWorkflow flow = azkabanFactory.makeAzkabanWorkflow(name, project, azkabanScope);
+    return configureWorkflow(flow, configure);
   }
 }

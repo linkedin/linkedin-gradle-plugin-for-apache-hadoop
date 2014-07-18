@@ -12,7 +12,7 @@ class PigPlugin implements Plugin<Project> {
   Project project;
 
   void apply(Project project) {
-    this.pigExtension = new PigExtension(project);
+    this.pigExtension = makePigExtension(project);
     this.project = project;
 
     project.extensions.add("pig", pigExtension);
@@ -24,6 +24,11 @@ class PigPlugin implements Plugin<Project> {
       addShowPigJobsTask();
       addExecPigJobsTask();
     }
+  }
+
+  // Factory method to return the Pig extension that can be overridden by subclasses.
+  PigExtension makePigExtension(Project project) {
+    return new PigExtension(project);
   }
 
   // Reads the properties file containing information to configure the plugin.
@@ -101,6 +106,7 @@ class PigPlugin implements Plugin<Project> {
         logger.lifecycle("The following Pig jobs configured in the AzkabanDSL can be run with gradle runPigJob -Pjob=<job name>");
 
         pigJobs.each { String jobName, PigJob job ->
+          // TODO Only build JVM properties and parameters, since those are what actually get passed
           Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>());
 
           logger.lifecycle("\n----------");
@@ -155,17 +161,17 @@ class PigPlugin implements Plugin<Project> {
   // Writes out the shell script that will run Pig for the given script and parameters.
   void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmParameters) {
     String relaPath = filePath.replace("${project.projectDir}/", "");
-    String projectDir = "${project.extensions.pig.pigCacheDir}/${project.name}";
+    String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
 
-    String pigCommand = project.extensions.pig.pigCommand;
-    String pigOptions = project.extensions.pig.pigOptions ?: "";
+    String pigCommand = pigExtension.pigCommand;
+    String pigOptions = pigExtension.pigOptions ?: "";
     String pigParams  = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
     String jvmParams  = jvmParameters == null ? "" : PigTaskHelper.buildJvmParameters(jvmParameters);
 
-    if (project.extensions.pig.remoteHostName) {
-      String remoteHostName = project.extensions.pig.remoteHostName;
-      String remoteShellCmd = project.extensions.pig.remoteShellCmd;
-      String remoteCacheDir = project.extensions.pig.remoteCacheDir;
+    if (pigExtension.remoteHostName) {
+      String remoteHostName = pigExtension.remoteHostName;
+      String remoteShellCmd = pigExtension.remoteShellCmd;
+      String remoteCacheDir = pigExtension.remoteCacheDir;
       String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->

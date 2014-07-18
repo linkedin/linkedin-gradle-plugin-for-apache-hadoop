@@ -2,10 +2,9 @@ buildscript {
   repositories {
     mavenCentral()
   }
-
-  // Gradle doesn't really handle buildscript project dependencies
   dependencies {
-    classpath files("../hadoop-plugin/build/libs/hadoop-plugin-0.1.1.jar")
+    // Cannot declare project dependencies in buildscript blocks
+    classpath files("../hadoop-plugin/build/libs/hadoop-plugin-${project.version}.jar")
   }
 }
 
@@ -29,6 +28,9 @@ pigJob('prodJob') {
   set parameters: [
     'param1' : 'val1'
   ]
+}
+
+noOpJob('testNoOpJob') {
 }
 
 workflow('prodWorkflow') {

@@ -1,4 +1,2 @@
 include 'hadoop-plugin'
-
-// Do not include hadoop-plugin-test. Gradle really can't handle dependencies
-// between projects that are dependent through the build scripts.
+include 'hadoop-plugin-test'

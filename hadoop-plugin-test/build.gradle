@@ -1,5 +1,14 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
-apply from:   'workflows.gradle'
 
-build.dependsOn buildAzkabanFlows
+// Gradle doesn't have a way to say that the buildscript for this project depends on the
+// hadoop-plugin project, so we have to hack around that a bit.
+task testPluginTask() {
+  doFirst {
+    apply from: 'workflows.gradle'
+    project.tasks['buildAzkabanFlows'].execute()
+  }
+}
+
+testPluginTask.dependsOn ":hadoop-plugin:build"
+build.dependsOn testPluginTask

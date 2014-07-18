@@ -89,4 +89,8 @@ class NamedScope {
 
     return null;
   }
+
+  String toString() {
+    return "(NamedScope: levelName = ${levelName}, nextLevel.levelName = ${nextLevel?.levelName}, thisLevel = ${thisLevel.toString()})";
+  }
 }

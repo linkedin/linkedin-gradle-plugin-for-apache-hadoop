@@ -1,18 +1,16 @@
 package com.linkedin.gradle.hadoop;
 
-class AzkabanProperties extends LinkedHashMap<String, String> {
+class AzkabanProperties {
   String name;
+  Map<String, String> properties;
 
   AzkabanProperties(String name) {
-    super();
     this.name = name;
-    if (name.toLowerCase().endsWith(".properties")) {
-      throw new Exception("Do not add the .properties extension as it will be added automatically");
-    }
+    this.properties = new LinkedHashMap<String, String>();
   }
 
   void build(String directory, String parentName) throws IOException {
-    if (this.keySet().size() == 0) {
+    if (this.properties.keySet().size() == 0) {
       return;
     }
 
@@ -20,7 +18,7 @@ class AzkabanProperties extends LinkedHashMap<String, String> {
     File file = new File(directory, "${fileName}.properties");
 
     file.withWriter { out ->
-      this.each() { key, value ->
+      properties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
     }
@@ -28,12 +26,16 @@ class AzkabanProperties extends LinkedHashMap<String, String> {
 
   AzkabanProperties clone() {
     AzkabanProperties props = new AzkabanProperties(name);
-    props.putAll(this);
+    props.properties.putAll(this.properties);
     return props;
   }
 
   void set(Map args) {
-    Map<String, String> properties = args.properties;
-    this.putAll(properties);
+    Map<String, String> props = args.properties;
+    properties.putAll(props);
+  }
+
+  String toString() {
+    return "(AzkabanProperties: name = ${name}, properties = ${properties.toString()})";
   }
 }

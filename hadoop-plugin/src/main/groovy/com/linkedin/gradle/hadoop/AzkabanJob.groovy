@@ -1,7 +1,5 @@
 package com.linkedin.gradle.hadoop;
 
-import bsh.This;
-
 /**
  * Base class for all Azkaban job types.
  */
@@ -180,6 +178,10 @@ class AzkabanJob {
 
   void setJvmProperty(String name, String value) {
     jvmProperties.put(name, value);
+  }
+
+  String toString() {
+    return "(AzkabanJob: name = ${name})";
   }
 
   // Tell the job to update its job dependencies from its named dependencies.
@@ -390,8 +392,8 @@ class KafkaPushJob extends AzkabanJob {
 }
 
 
-class NoopJob extends AzkabanJob {
-  NoopJob(String jobName) {
+class NoOpJob extends AzkabanJob {
+  NoOpJob(String jobName) {
     super(jobName);
   }
 
@@ -400,8 +402,8 @@ class NoopJob extends AzkabanJob {
     return super.buildProperties(allProperties);
   }
 
-  NoopJob clone() {
-    NoopJob cloneJob = new NoopJob(name);
+  NoOpJob clone() {
+    NoOpJob cloneJob = new NoOpJob(name);
     return clone(cloneJob);
   }
 }
