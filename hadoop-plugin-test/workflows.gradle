@@ -10,7 +10,7 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-def job1 = new com.linkedin.gradle.hadoop.PigJob("job1")
+def job1 = new com.linkedin.gradle.azkaban.PigJob("job1")
 job1.script = "src/main/pig/count_by_country.pig"
 job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
 job1.parameters["output"] = "count_by_country.dat"
@@ -45,7 +45,7 @@ workflow('prodWorkflow') {
   depends 'job1Prod'
 }
 
-def trainWorkflow = new com.linkedin.gradle.hadoop.AzkabanWorkflow('train', project)
+def trainWorkflow = new com.linkedin.gradle.azkaban.AzkabanWorkflow('train', project)
 
 def generateWorkflows() {
   workflow('genTrain') {
@@ -137,7 +137,7 @@ azkaban {
 
     lookup('prodJob').script = 'src/main/pig/count_by_country_w2.pig'
 
-    def job21 = new com.linkedin.gradle.hadoop.PigJob('job21')
+    def job21 = new com.linkedin.gradle.azkaban.PigJob('job21')
     job21.script = 'foobar.pig'
     global job21
 
