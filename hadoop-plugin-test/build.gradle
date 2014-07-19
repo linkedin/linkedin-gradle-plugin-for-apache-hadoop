@@ -5,6 +5,12 @@ apply plugin: 'java'
 // hadoop-plugin project, so we have to hack around that a bit.
 task testPluginTask() {
   doFirst {
+    File jobsDirectory = file("./jobs");
+    if (!jobsDirectory.exists()) {
+      jobsDirectory.mkdir();
+    }
+  }
+  doLast {
     apply from: 'workflows.gradle'
     project.tasks['buildAzkabanFlows'].execute()
   }
