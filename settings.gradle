@@ -1,2 +1,3 @@
 include 'hadoop-plugin'
 include 'hadoop-plugin-test'
+include 'li-hadoop-plugin'

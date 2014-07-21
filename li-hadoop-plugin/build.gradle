@@ -1,0 +1,24 @@
+apply plugin: 'eclipse'
+apply plugin: 'groovy'
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile project(":hadoop-plugin")
+}
+
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for the Hadoop Gradle Plugin'
+  classifier = 'sources'
+  from sourceSets.main.groovy
+}
+
+task groovydocJar(type: Jar) {
+  description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin'
+  classifier = 'javadoc'
+  from groovydoc
+}
+
+artifacts {
+  archives groovydocJar, sourceJar
+}
