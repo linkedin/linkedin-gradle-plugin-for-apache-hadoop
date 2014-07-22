@@ -184,6 +184,10 @@ class AzkabanWorkflow implements NamedScopeContainer {
     return configureJob(azkabanFactory.makeCommandJob(name), configure);
   }
 
+  HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
+    return configureJob(azkabanFactory.makeHadoopJavaJob(name), configure);
+  }
+
   HiveJob hiveJob(String name, Closure configure) {
     return configureJob(azkabanFactory.makeHiveJob(name), configure);
   }

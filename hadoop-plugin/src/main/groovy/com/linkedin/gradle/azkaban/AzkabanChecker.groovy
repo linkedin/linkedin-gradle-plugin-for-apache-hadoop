@@ -44,6 +44,14 @@ class AzkabanChecker {
     return true;
   }
 
+  boolean checkAzkabanJob(HadoopJavaJob job) {
+    if (job.jobClass == null || job.jobClass.isEmpty()) {
+      System.err.println("AzkabanDslChecker ERROR: HadoopJavaJob ${job.name} must set jobClass");
+      return false;
+    }
+    return true;
+  }
+
   boolean checkAzkabanJob(HiveJob job) {
     boolean emptyQuery = job.query == null || job.query.isEmpty();
     boolean emptyQueryFile = job.queryFile == null || job.queryFile.isEmpty();

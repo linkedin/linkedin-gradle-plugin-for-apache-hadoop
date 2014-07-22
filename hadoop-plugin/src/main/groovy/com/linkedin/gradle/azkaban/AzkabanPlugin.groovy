@@ -27,6 +27,7 @@ class AzkabanPlugin implements Plugin<Project> {
 
     project.extensions.add("azkabanJob", this.&azkabanJob);
     project.extensions.add("commandJob", this.&commandJob);
+    project.extensions.add("hadoopJavaJob", this.&hadoopJavaJob);
     project.extensions.add("hiveJob", this.&hiveJob);
     project.extensions.add("javaJob", this.&javaJob);
     project.extensions.add("javaProcessJob", this.&javaProcessJob);
@@ -94,6 +95,10 @@ class AzkabanPlugin implements Plugin<Project> {
 
   CommandJob commandJob(String name, Closure configure) {
     return configureJob(azkabanFactory.makeCommandJob(name), configure);
+  }
+
+  HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
+    return configureJob(azkabanFactory.makeHadoopJavaJob(name), configure);
   }
 
   HiveJob hiveJob(String name, Closure configure) {

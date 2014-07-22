@@ -226,6 +226,31 @@ class CommandJob extends AzkabanJob {
 }
 
 
+class HadoopJavaJob extends AzkabanJob {
+  String jobClass;
+
+  HadoopJavaJob(String jobName) {
+    super(jobName);
+  }
+
+  Map<String, String> buildProperties(Map<String, String> allProperties) {
+    allProperties["type"] = "hadoopJava";
+    allProperties["job.class"] = jobClass;
+    return super.buildProperties(allProperties);
+  }
+
+  HadoopJavaJob clone() {
+    HadoopJavaJob cloneJob = new HadoopJavaJob(name);
+    cloneJob.jobClass = jobClass;
+    return clone(cloneJob);
+  }
+
+  void uses(String jobClass) {
+    this.jobClass = jobClass;
+  }
+}
+
+
 class HiveJob extends AzkabanJob {
   // Exactly one of query or queryFile must be set
   String query;

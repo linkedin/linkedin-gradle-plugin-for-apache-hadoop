@@ -27,6 +27,11 @@ class AzkabanFactory {
     return new CommandJob(name);
   }
 
+  // Factory method to build HadoopJavaJob that can be overridden by subclasses.
+  HadoopJavaJob makeHadoopJavaJob(String name) {
+    return new HadoopJavaJob(name);
+  }
+
   // Factory method to build HiveJob that can be overridden by subclasses.
   HiveJob makeHiveJob(String name) {
     return new HiveJob(name);
