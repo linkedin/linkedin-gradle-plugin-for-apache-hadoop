@@ -186,7 +186,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
       }
     }
     else {
