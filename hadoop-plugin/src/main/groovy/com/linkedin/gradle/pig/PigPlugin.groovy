@@ -55,7 +55,8 @@ class PigPlugin implements Plugin<Project> {
 
       FileTree pigFileTree = project.fileTree([
         dir: "${project.projectDir}",
-        include: "src/**/*.pig"
+        include: "src/**/*",
+        exclude: "src/test"
       ]);
 
       from pigFileTree;
