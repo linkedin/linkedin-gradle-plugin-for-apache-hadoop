@@ -82,6 +82,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
     }
 
     jobs.each() { job ->
+      job.updateDependencies(workflowScope);
       job.build(directory, null);
     }
 
