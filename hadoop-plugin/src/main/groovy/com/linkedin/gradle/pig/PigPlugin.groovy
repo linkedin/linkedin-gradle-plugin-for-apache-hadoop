@@ -186,7 +186,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
       }
     }
     else {
@@ -195,7 +195,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
-        out.writeLine("${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
+        out.writeLine("cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} -f ${relaPath} ${pigParams}");
       }
     }
   }
