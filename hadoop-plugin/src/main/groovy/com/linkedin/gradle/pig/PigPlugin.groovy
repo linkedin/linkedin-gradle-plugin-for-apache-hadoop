@@ -50,7 +50,7 @@ class PigPlugin implements Plugin<Project> {
   // Adds a task to set up the cache directory that will be rsync'd to the host that will run Pig.
   void addBuildCacheTask() {
     project.tasks.create(name: "buildPigCache", type: Sync) {
-      description = "Build the cache directory to run Pig scripts by Gradle tasks";
+      description = "Build the cache directory to run Pig scripts by Gradle tasks. This task will be run automatically for you.";
       group = "Hadoop Plugin";
 
       if (pigExtension.dependencyConf != null) {
@@ -97,7 +97,7 @@ class PigPlugin implements Plugin<Project> {
       project.tasks.create(name: "run_${taskName}", type: Exec) {
         commandLine "sh", "${projectDir}/run_${taskName}.sh"
         dependsOn project.tasks["buildPigCache"]
-        description = "Run the Pig script ${relaPath} with no Pig or JVM parameters";
+        description = "Run the Pig script ${relaPath} with no Pig parameters or JVM properties";
         group = "Hadoop Plugin";
 
         doFirst {
@@ -119,12 +119,9 @@ class PigPlugin implements Plugin<Project> {
         logger.lifecycle("The following Pig jobs configured in the AzkabanDSL can be run with gradle runPigJob -Pjob=<job name>");
 
         pigJobs.each { String jobName, PigJob job ->
-          // TODO Only build JVM properties and parameters, since those are what actually get passed
           Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>());
-
           logger.lifecycle("\n----------");
           logger.lifecycle("Job name: ${jobName}");
-
           allProperties.each() { key, value ->
             logger.lifecycle("${key}=${value}");
           }
@@ -138,7 +135,7 @@ class PigPlugin implements Plugin<Project> {
   void addExecPigJobsTask() {
     project.tasks.create(name: "runPigJob", type: Exec) {
       dependsOn project.tasks["buildPigCache"]
-      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -Pjob=<job name>";
+      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -Pjob=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
       group = "Hadoop Plugin";
 
       doFirst {
@@ -163,7 +160,7 @@ class PigPlugin implements Plugin<Project> {
         }
 
         String filePath = file.getAbsolutePath();
-        writePigExecScript(filePath, project.job, pigJob.parameters, null);
+        writePigExecScript(filePath, project.job, pigJob.parameters, pigJob.jvmProperties);
 
         String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
         commandLine "sh", "${projectDir}/run_${project.job}.sh"
@@ -172,14 +169,14 @@ class PigPlugin implements Plugin<Project> {
   }
 
   // Writes out the shell script that will run Pig for the given script and parameters.
-  void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmParameters) {
+  void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmProperties) {
     String relaPath = filePath.replace("${project.projectDir}/", "");
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
 
     String pigCommand = pigExtension.pigCommand;
     String pigOptions = pigExtension.pigOptions ?: "";
     String pigParams  = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
-    String jvmParams  = jvmParameters == null ? "" : PigTaskHelper.buildJvmParameters(jvmParameters);
+    String jvmParams  = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
 
     if (pigExtension.remoteHostName) {
       String remoteHostName = pigExtension.remoteHostName;
@@ -196,7 +193,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} ${pigParams} -f ${relaPath}'");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}'");
       }
     }
     else {
@@ -205,7 +202,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
-        out.writeLine("cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} ${pigParams} -f ${relaPath}");
+        out.writeLine("cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}");
       }
     }
   }
