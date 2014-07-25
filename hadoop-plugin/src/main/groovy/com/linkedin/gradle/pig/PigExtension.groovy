@@ -18,7 +18,7 @@ class PigExtension {
   boolean generateTasks = true;
 
   // Properties that can be set by the user
-  String dependencyConf = "runtime";
+  String dependencyConf;
   String pigCacheDir = ".hadoopPlugin";
   String pigCommand = "pig";
   String pigOptions;
@@ -48,14 +48,19 @@ class PigExtension {
       throw new Exception("Method validateProperties called when generateTasks is false");
     }
 
-    if (!dependencyConf || !pigCacheDir || !pigCommand) {
-      String msg = "You must set the properties dependencyConf, pigCacheDir, and pigCommand to generate Pig tasks";
+    if (!pigCacheDir || !pigCommand) {
+      String msg = "You must set the properties pigCacheDir and pigCommand in your .pigProperties file to generate Pig tasks";
+      throw new Exception(msg);
+    }
+
+    if (dependencyConf != null && project.configurations.find { it.name == dependencyConf } == null) {
+      String msg = "You set the property dependencyConf to ${dependencyConf} in your .pigProperties file, but no such configuration exists for the project";
       throw new Exception(msg);
     }
 
     if (remoteHostName) {
       if (!remoteCacheDir || !remoteShellCmd) {
-        String msg = "If you set remoteHostName, you must also set remoteCacheDir and remoteShellCmd to generate Pig tasks";
+        String msg = "If you set remoteHostName in your .pigProperties file, you must also set remoteCacheDir and remoteShellCmd to generate Pig tasks";
         throw new Exception(msg);
       }
     }

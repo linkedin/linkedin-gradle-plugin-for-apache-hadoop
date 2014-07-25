@@ -53,6 +53,10 @@ class PigPlugin implements Plugin<Project> {
       description = "Build the cache directory to run Pig scripts by Gradle tasks";
       group = "Hadoop Plugin";
 
+      if (pigExtension.dependencyConf != null) {
+        from project.configurations[pigExtension.dependencyConf];
+      }
+
       FileTree pigFileTree = project.fileTree([
         dir: "${project.projectDir}",
         include: "src/**/*",
@@ -60,9 +64,15 @@ class PigPlugin implements Plugin<Project> {
       ]);
 
       from pigFileTree;
-      from project.configurations[pigExtension.dependencyConf];
       into "${pigExtension.pigCacheDir}/${project.name}";
       includeEmptyDirs = false;
+
+      doFirst {
+        if (pigExtension.dependencyConf == null) {
+          logger.lifecycle("Pig Plugin dependencyConf property is not set. No configuration dependencies will be added to the Pig cache directory");
+          logger.lifecycle("To runtime jars or other resources when you run a Pig script with the Pig Plugin, set this property in your .pigProperties file");
+        }
+      }
     }
   }
 
@@ -87,7 +97,7 @@ class PigPlugin implements Plugin<Project> {
       project.tasks.create(name: "run_${taskName}", type: Exec) {
         commandLine "sh", "${projectDir}/run_${taskName}.sh"
         dependsOn project.tasks["buildPigCache"]
-        description = "Run the Pig script ${relaPath}";
+        description = "Run the Pig script ${relaPath} with no Pig or JVM parameters";
         group = "Hadoop Plugin";
 
         doFirst {
@@ -186,7 +196,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} ${pigOptions} -Dpig.additional.jars=${remoteProjDir}/*.jar -f ${relaPath} ${pigParams}'");
+        out.writeLine("${remoteShellCmd} ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${pigOptions} ${pigParams} -f ${relaPath}'");
       }
     }
     else {
@@ -195,7 +205,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
-        out.writeLine("cd ${projectDir}; ${pigCommand} ${pigOptions} -Dpig.additional.jars=${projectDir}/*.jar -f ${relaPath} ${pigParams}");
+        out.writeLine("cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${pigOptions} ${pigParams} -f ${relaPath}");
       }
     }
   }
