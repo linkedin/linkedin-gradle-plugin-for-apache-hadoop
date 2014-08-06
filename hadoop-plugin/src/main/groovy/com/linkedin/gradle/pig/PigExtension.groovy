@@ -14,19 +14,19 @@ import org.gradle.api.Project;
 class PigExtension {
   Project project;
 
-  // The user can set this to false to not generate any Pig tasks
-  boolean generateTasks = true;
-
   // Properties that can be set by the user
   String dependencyConf;
   String pigCacheDir = ".hadoopPlugin";
   String pigCommand = "pig";
   String pigOptions;
 
+  // The user can set this to false to not generate any Pig tasks
+  boolean generateTasks = true;
+
   // Properties that must be set if the user is running Pig on a remote host
   String remoteHostName;
   String remoteCacheDir;
-  String remoteShellCmd;
+  String remoteSshOpts;
 
   PigExtension(Project project) {
     this.project = project;
@@ -40,7 +40,7 @@ class PigExtension {
     pigOptions = properties.containsKey("pigOptions") ? properties.getProperty("pigOptions") : pigOptions;
     remoteHostName = properties.containsKey("remoteHostName") ? properties.getProperty("remoteHostName") : remoteHostName;
     remoteCacheDir = properties.containsKey("remoteCacheDir") ? properties.getProperty("remoteCacheDir") : remoteCacheDir;
-    remoteShellCmd = properties.containsKey("remoteShellCmd") ? properties.getProperty("remoteShellCmd") : remoteShellCmd;
+    remoteSshOpts = properties.containsKey("remoteSshOpts") ? properties.getProperty("remoteSshOpts") : remoteSshOpts;
   }
 
   void validateProperties() {
@@ -59,8 +59,8 @@ class PigExtension {
     }
 
     if (remoteHostName) {
-      if (!remoteCacheDir || !remoteShellCmd) {
-        String msg = "If you set remoteHostName in your .pigProperties file, you must also set remoteCacheDir and remoteShellCmd to generate Pig tasks";
+      if (!remoteCacheDir) {
+        String msg = "If you set remoteHostName in your .pigProperties file, you must also set remoteCacheDir to generate Pig tasks";
         throw new Exception(msg);
       }
     }

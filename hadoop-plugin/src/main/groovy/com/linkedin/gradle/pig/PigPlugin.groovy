@@ -163,7 +163,7 @@ class PigPlugin implements Plugin<Project> {
         writePigExecScript(filePath, project.job, pigJob.parameters, pigJob.jvmProperties);
 
         String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
-        commandLine "sh", "${projectDir}/run_${project.job}.sh"
+        commandLine "bash", "${projectDir}/run_${project.job}.sh"
       }
     }
   }
@@ -180,25 +180,25 @@ class PigPlugin implements Plugin<Project> {
 
     if (pigExtension.remoteHostName) {
       String remoteHostName = pigExtension.remoteHostName;
-      String remoteShellCmd = pigExtension.remoteShellCmd;
+      String remoteSshOpts = pigExtension.remoteSshOpts;
       String remoteCacheDir = pigExtension.remoteCacheDir;
       String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-        out.writeLine("#!/bin/sh");
+        out.writeLine("#!/bin/bash");
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} mkdir -p ${remoteCacheDir}");
+        out.writeLine("ssh ${remoteSshOpts} ${remoteHostName} mkdir -p ${remoteCacheDir}");
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
-        out.writeLine("rsync -av ${projectDir} -e \"${remoteShellCmd}\" ${remoteHostName}:${remoteCacheDir}");
+        out.writeLine("rsync -av ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("${remoteShellCmd} ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}'");
+        out.writeLine("ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}'");
       }
     }
     else {
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-        out.writeLine("#!/bin/sh");
+        out.writeLine("#!/bin/bash");
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
