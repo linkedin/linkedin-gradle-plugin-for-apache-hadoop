@@ -60,6 +60,7 @@ class PigPlugin implements Plugin<Project> {
       FileTree pigFileTree = project.fileTree([
         dir: "${project.projectDir}",
         include: "src/**/*",
+        include: "resources/**",
         exclude: "src/test"
       ]);
 
@@ -191,7 +192,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
         out.writeLine("ssh ${remoteSshOpts} ${remoteHostName} mkdir -p ${remoteCacheDir}");
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
-        out.writeLine("rsync -av ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}");
+        out.writeLine("rsync -av -P ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}");
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
         out.writeLine("ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}'");
       }
