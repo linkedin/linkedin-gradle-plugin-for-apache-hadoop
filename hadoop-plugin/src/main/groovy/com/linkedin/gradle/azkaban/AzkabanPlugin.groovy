@@ -10,7 +10,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Project project;
 
   @Override
-  public void apply(Project project) {
+  void apply(Project project) {
     this.azkabanFactory = makeAzkabanFactory();
     project.extensions.add("azkabanFactory", azkabanFactory);
 

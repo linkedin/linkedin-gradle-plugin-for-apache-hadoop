@@ -7,8 +7,8 @@ import org.gradle.api.Project;
 
 class LiAzkabanPlugin extends AzkabanPlugin {
   @Override
-  void applyTo(Project project) {
-    super.applyTo(project);
+  void apply(Project project) {
+    super.apply(project);
     project.extensions.add("pigLiJob", this.&pigLiJob);
   }
 
@@ -18,6 +18,7 @@ class LiAzkabanPlugin extends AzkabanPlugin {
   }
 
   PigLiJob pigLiJob(String name, Closure configure) {
-    return configureJob(new PigLiJob(name), configure);
+    LiAzkabanFactory liAzkabanFactory = (LiAzkabanFactory)azkabanFactory;
+    return configureJob(liAzkabanFactory.makePigLiJob(name), configure);
   }
 }
