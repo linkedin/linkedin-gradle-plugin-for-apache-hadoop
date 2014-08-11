@@ -164,11 +164,11 @@ class AzkabanJob {
   void set(Map args) {
     if (args.containsKey("properties")) {
       Map<String, String> properties = args.properties;
-      jobProperties.putAll(properties);
+      this.jobProperties.putAll(properties);
     }
     if (args.containsKey("jvmProperties")) {
       Map<String, String> jvmProperties = args.jvmProperties;
-      jvmProperties.putAll(jvmProperties);
+      this.jvmProperties.putAll(jvmProperties);
     }
   }
 
