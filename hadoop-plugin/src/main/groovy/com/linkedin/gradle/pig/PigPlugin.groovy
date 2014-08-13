@@ -170,17 +170,12 @@ class PigPlugin implements Plugin<Project> {
 
   // Writes out the shell script that will run Pig for the given script and parameters.
   void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmProperties) {
-    String relaPath = filePath.replace("${project.projectDir}/", "");
+    String relFilePath = filePath.replace("${project.projectDir}/", "");
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
-
     String pigCommand = pigExtension.pigCommand;
-    String pigOptions = pigExtension.pigOptions ?: "";
-    String pigParams  = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
-    String jvmParams  = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
 
     if (pigExtension.remoteHostName) {
       String remoteHostName = pigExtension.remoteHostName;
-      String remoteSshOpts = pigExtension.remoteSshOpts;
       String remoteCacheDir = pigExtension.remoteCacheDir;
       String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
@@ -189,11 +184,11 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
-        out.writeLine("ssh ${remoteSshOpts} ${remoteHostName} mkdir -p ${remoteCacheDir}");
-        out.writeLine("echo Syncing local directory ${projectDir} to ${remoteHostName}:${remoteCacheDir}");
-        out.writeLine("rsync -av -P ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}");
+        out.writeLine(buildRemoteMkdirCmd());
+        out.writeLine("echo Syncing local directory ${projectDir} to ${remoteCacheDir} on host ${remoteHostName}");
+        out.writeLine(buildRemoteRsyncCmd());
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine("ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}'");
+        out.writeLine(buildRemotePigCmd(relFilePath, parameters, jvmProperties));
       }
     }
     else {
@@ -202,8 +197,48 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
-        out.writeLine("cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${jvmParams} ${pigOptions} ${pigParams} -f ${relaPath}");
+        out.writeLine(buildLocalPigCmd(relFilePath, parameters, jvmProperties));
       }
     }
+  }
+
+  // Make this command easily customized by subclasses
+  String buildRemoteMkdirCmd() {
+    String remoteHostName = pigExtension.remoteHostName;
+    String remoteSshOpts = pigExtension.remoteSshOpts;
+    String remoteCacheDir = pigExtension.remoteCacheDir;
+    return "ssh ${remoteSshOpts} ${remoteHostName} mkdir -p ${remoteCacheDir}";
+  }
+
+  // Make this command easily customized by subclasses
+  String buildRemoteRsyncCmd() {
+    String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
+    String remoteHostName = pigExtension.remoteHostName;
+    String remoteSshOpts = pigExtension.remoteSshOpts;
+    String remoteCacheDir = pigExtension.remoteCacheDir;
+    return "rsync -av ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}";
+  }
+
+  // Make this command easily customized by subclasses
+  String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
+    String pigCommand = pigExtension.pigCommand;
+    String pigOptions = pigExtension.pigOptions ?: "";
+    String pigParams = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
+    String jvmParams = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
+    String remoteHostName = pigExtension.remoteHostName;
+    String remoteSshOpts = pigExtension.remoteSshOpts;
+    String remoteCacheDir = pigExtension.remoteCacheDir;
+    String remoteProjDir = "${remoteCacheDir}/${project.name}";
+    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
+  }
+
+  // Make this command easily customized by subclasses
+  String buildLocalPigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
+    String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
+    String pigCommand = pigExtension.pigCommand;
+    String pigOptions = pigExtension.pigOptions ?: "";
+    String pigParams = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
+    String jvmParams = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
+    return "cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}";
   }
 }
