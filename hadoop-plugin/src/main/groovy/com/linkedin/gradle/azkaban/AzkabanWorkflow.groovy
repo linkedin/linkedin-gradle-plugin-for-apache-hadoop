@@ -24,7 +24,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
 
   // The final job of the workflow (that will be used to launch the workflow
   // in Azkaban). Built from the launch job dependencies for the workflow.
-  NoOpJob launchJob;
+  LaunchJob launchJob;
   Set<String> launchJobDependencies;
 
   // This will allow jobs to be referred to by name (e.g. when declaring
@@ -38,7 +38,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
   AzkabanWorkflow(String name, Project project, NamedScope nextLevel) {
     this.azkabanFactory = project.extensions.azkabanFactory;
     this.jobs = new ArrayList<AzkabanJob>();
-    this.launchJob = azkabanFactory.makeNoOpJob(name);
+    this.launchJob = azkabanFactory.makeLaunchJob(name);
     this.launchJobDependencies = new LinkedHashSet<String>();
     this.name = name;
     this.project = project;
@@ -51,32 +51,31 @@ class AzkabanWorkflow implements NamedScopeContainer {
     return workflowScope;
   }
 
-  void build(String directory) throws IOException {
+  void build(String directory, String parentName) throws IOException {
     if ("default".equals(name)) {
-      buildDefault(directory);
+      buildDefault(directory, parentName);
       return;
     }
 
+    // Build the topologically sorted list of jobs in the workflow.
     launchJob.dependencyNames.addAll(launchJobDependencies);
-    List<AzkabanJob> jobList = buildJobList(launchJob, new ArrayList<AzkabanJob>());
+    Set<AzkabanJob> jobList = buildJobList(launchJob);
 
-    // If there was more than one launch dependency, build the launch job, otherwise do not.
-    if (launchJobDependencies.size() > 1) {
-      launchJob.build(directory, null);
-    }
+    // Build the all the jobs and properties in the workflow.
+    String childParentName = parentName == null ? name : "${parentName}-${name}";
 
     jobList.each() { job ->
-      job.build(directory, name);
+      job.build(directory, childParentName);
     }
 
     properties.each() { props ->
-      props.build(directory, name);
+      props.build(directory, childParentName);
     }
   }
 
   // In the special "default" workflow, just build all the jobs as they are, with no launch job.
   // In this workflow, don't prefix job file names with the workflow name.
-  void buildDefault(String directory) throws IOException {
+  void buildDefault(String directory, String parentName) throws IOException {
     if (!"default".equals(name)) {
       throw new Exception("You cannot buildDefault except on the 'default' workflow");
     }
@@ -94,16 +93,23 @@ class AzkabanWorkflow implements NamedScopeContainer {
   // Topologically generate the list of jobs to build for this workflow by
   // asking the given job to lookup its named dependencies in the current scope
   // and add them to the job list.
-  List<AzkabanJob> buildJobList(AzkabanJob job, List<AzkabanJob> jobList) {
-    job.updateDependencies(workflowScope);
+  Set<AzkabanJob> buildJobList(LaunchJob launchJob) {
+    Queue<AzkabanJob> jobQueue = new LinkedList<AzkabanJob>();
+    jobQueue.add(launchJob);
 
-    // Add the children of this job in a breadth-first manner
-    for (AzkabanJob childJob : job.dependencies) {
-      jobList.add(childJob);
-    }
+    Set<AzkabanJob> jobList = new LinkedHashSet<AzkabanJob>();
 
-    for (AzkabanJob childJob : job.dependencies) {
-      buildJobList(childJob, jobList);
+    while (!jobQueue.isEmpty()) {
+      AzkabanJob job = jobQueue.remove();
+      job.updateDependencies(workflowScope);
+      jobList.add(job);
+
+      // Add the children of this job to the job list in a breadth-first manner.
+      for (AzkabanJob childJob : job.dependencies) {
+        if (!jobList.contains(childJob)) {
+          jobQueue.add(childJob);
+        }
+      }
     }
 
     return jobList;

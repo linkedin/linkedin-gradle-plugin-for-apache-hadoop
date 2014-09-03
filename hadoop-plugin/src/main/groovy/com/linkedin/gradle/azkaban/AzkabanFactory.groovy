@@ -52,6 +52,11 @@ class AzkabanFactory {
     return new KafkaPushJob(name);
   }
 
+  // Factory method to build LaunchJob that can be overridden by subclasses.
+  LaunchJob makeLaunchJob(String name) {
+    return new LaunchJob(name);
+  }
+
   // Factory method to build NoopJob that can be overridden by subclasses.
   NoOpJob makeNoOpJob(String name) {
     return new NoOpJob(name);

@@ -50,8 +50,19 @@ class AzkabanExtension implements NamedScopeContainer {
     }
 
     File file = new File(jobConfDir);
-    if (!file.isDirectory() || !file.exists()) {
-      throw new IOException("Directory ${jobConfDir} does not exist or is not a directory");
+
+    if (file.exists()) {
+      if (!file.isDirectory()) {
+        throw new IOException("Directory ${jobConfDir} must specify a directory");
+      }
+    }
+    else {
+      // Try to make the directory automatically if we can. For git users, this is convenient as
+      // git will not push empty directories in the repository (and users will often add the
+      // generated job files to their gitignore).
+      if (!file.mkdir()) {
+        throw new IOException("Directory ${jobConfDir} does not exist and could not be created");
+      }
     }
 
     if (cleanFirst) {
@@ -64,7 +75,7 @@ class AzkabanExtension implements NamedScopeContainer {
     }
 
     workflows.each() { workflow ->
-      workflow.build(jobConfDir);
+      workflow.build(jobConfDir, null);
     }
 
     properties.each() { props ->

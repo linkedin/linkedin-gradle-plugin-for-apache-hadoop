@@ -25,9 +25,9 @@ class AzkabanJob {
   void build(String directory, String parentName) throws IOException {
     // Use a LinkedHashMap so that the properties will be enumerated in the
     // order in which we add them.
-    Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>());
+    Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>(), parentName);
 
-    String fileName = parentName == null ? name : "${parentName}-${name}";
+    String fileName = buildFileName(name, parentName);
     File file = new File(directory, "${fileName}.job");
 
     file.withWriter { out ->
@@ -37,14 +37,25 @@ class AzkabanJob {
     }
   }
 
+  // Subclasses should override this method if they need to customize how the job file name is
+  // generated.
+  String buildFileName(String name, String parentName) {
+    return parentName == null ? name : "${parentName}-${name}";
+  }
+
+  // Subclasses should override this method if they need to customize how the
+  // dependencies are generated.
+  Map<String, String> buildProperties(Map<String, String> allProperties, String parentName) {
+    if (dependencies.size() > 0) {
+      String jobDependencyNames = dependencies.collect() { job -> return (parentName == null) ? job.name : "${parentName}-${job.name}"; }.join(",");
+      allProperties["dependencies"] = jobDependencyNames;
+    }
+    return buildProperties(allProperties);
+  }
+
   // Subclasses should override this method to add their own properties, and
   // then call this base class method to add properties common to all jobs.
   Map<String, String> buildProperties(Map<String, String> allProperties) {
-    if (dependencies.size() > 0) {
-      String dependencyNames = dependencies.collect() { job -> return job.name }.join(",");
-      allProperties["dependencies"] = dependencyNames;
-    }
-
     if (jvmProperties.size() > 0) {
       String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
@@ -416,6 +427,23 @@ class KafkaPushJob extends AzkabanJob {
   }
 }
 
+
+// A LaunchJob is a special kind of NoOpJob that is used to launch a workflow. The name of the
+// LaunchJob is simply the workflow name.
+class LaunchJob extends NoOpJob {
+  LaunchJob(String jobName) {
+    super(jobName);
+  }
+
+  String buildFileName(String name, String parentName) {
+    return name;
+  }
+
+  LaunchJob clone() {
+    LaunchJob cloneJob = new LaunchJob(name);
+    return clone(cloneJob);
+  }
+}
 
 class NoOpJob extends AzkabanJob {
   NoOpJob(String jobName) {

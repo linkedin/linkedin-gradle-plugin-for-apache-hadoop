@@ -170,6 +170,19 @@ azkaban {
 
     depends 'job1'
   }
+
+  workflow('triangleDependencies') {
+    azkabanJob('job1') {
+      queue 'default'
+    }
+    azkabanJob('job2') {
+      depends 'job1'
+    }
+    azkabanJob('job3') {
+      depends 'job1'
+    }
+    depends 'job3', 'job2'
+  }
 }
 
 azkaban.workflow('workflow4') {
