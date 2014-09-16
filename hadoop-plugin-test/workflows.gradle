@@ -25,6 +25,12 @@ lookup('job1') {
 
 pigJob('prodJob') {
   uses 'prodScript1.pig'
+  reads files: [
+    'path1' : '/user/foo'
+  ]
+  writes files: [
+    'path2' : '/user/bar'
+  ]
   set parameters: [
     'param1' : 'val1'
   ]
@@ -63,6 +69,22 @@ propertyFile('global') {
 
 azkaban {
   buildPath "jobs"
+
+  addWorkflow('prodWorkflow') {
+    pigJob('prodJob2') {
+      uses 'prodScript2.pig'
+      reads files: [
+        'path1' : '/user/foo'
+      ]
+      writes files: [
+        'path2' : '/user/bar'
+      ]
+      set parameters: [
+        'param1' : 'val1'
+      ]
+    }
+    depends 'job1Prod', 'prodJob', 'prodJob2'
+  }
 
   propertyFile('common') {
     set properties: [

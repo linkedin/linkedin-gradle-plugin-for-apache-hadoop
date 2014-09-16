@@ -159,16 +159,18 @@ class AzkabanJob {
   // Override this to handle subclass-specific handling of the file key
   void reads(Map args) {
     Map<String, String> files = args.files;
-    for (String pathName : files.values()) {
-      reading.add(pathName);
+    for (Map.Entry<String, String> entry : files) {
+      setJobProperty(entry.key, entry.value);
+      reading.add(entry.value);
     }
   }
 
   // Override this to handle subclass-specific handling of the file key
   void writes(Map args) {
     Map<String, String> files = args.files;
-    for (String pathName : files.values()) {
-      writing.add(pathName);
+    for (Map.Entry<String, String> entry : files) {
+      setJobProperty(entry.key, entry.value);
+      writing.add(entry.value);
     }
   }
 
@@ -491,14 +493,19 @@ class PigJob extends AzkabanJob {
     parameters.put(name, value);
   }
 
+  @Override
   void reads(Map args) {
     super.reads(args);
+
+    // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
+
     for (Map.Entry<String, String> entry : files) {
       parameter(entry.key, entry.value);
     }
   }
 
+  @Override
   void set(Map args) {
     super.set(args);
     if (args.containsKey("parameters")) {
@@ -511,9 +518,13 @@ class PigJob extends AzkabanJob {
     this.script = script;
   }
 
+  @Override
   void writes(Map args) {
-    super.reads(args);
+    super.writes(args);
+
+    // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
+
     for (Map.Entry<String, String> entry : files) {
       parameter(entry.key, entry.value);
     }
