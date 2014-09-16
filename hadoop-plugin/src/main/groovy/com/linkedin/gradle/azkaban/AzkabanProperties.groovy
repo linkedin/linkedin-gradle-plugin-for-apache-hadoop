@@ -18,10 +18,14 @@ class AzkabanProperties {
     File file = new File(directory, "${fileName}.properties");
 
     file.withWriter { out ->
+      out.writeLine("# This file generated from the Azkaban DSL. Do not edit by hand.");
       properties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
     }
+
+    // Set to read-only to remind people that they should not be editing the job files.
+    file.setWritable(false);
   }
 
   AzkabanProperties clone() {

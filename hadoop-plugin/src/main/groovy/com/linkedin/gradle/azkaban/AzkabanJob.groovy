@@ -31,10 +31,14 @@ class AzkabanJob {
     File file = new File(directory, "${fileName}.job");
 
     file.withWriter { out ->
+      out.writeLine("# This file generated from the Azkaban DSL. Do not edit by hand.");
       allProperties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
     }
+
+    // Set to read-only to remind people that they should not be editing the job files.
+    file.setWritable(false);
   }
 
   // Subclasses should override this method if they need to customize how the job file name is
