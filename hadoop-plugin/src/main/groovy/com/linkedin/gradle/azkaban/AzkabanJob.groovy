@@ -135,8 +135,7 @@ class AzkabanJob {
   // If cloning more than one job, it's up to external callers to clear
   // job.dependencies and rebuild it if necessary.
   AzkabanJob clone() {
-    AzkabanJob cloneJob = new AzkabanJob(name);
-    return clone(cloneJob);
+    return clone(new AzkabanJob(name));
   }
 
   // Helper method to clone a job, intended to make it easier for subclasses
@@ -232,9 +231,12 @@ class CommandJob extends AzkabanJob {
   }
 
   CommandJob clone() {
-    CommandJob cloneJob = new CommandJob(name);
+    return clone(new CommandJob(name));
+  }
+
+  CommandJob clone(CommandJob cloneJob) {
     cloneJob.command = command;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void uses(String command) {
@@ -257,9 +259,12 @@ class HadoopJavaJob extends AzkabanJob {
   }
 
   HadoopJavaJob clone() {
-    HadoopJavaJob cloneJob = new HadoopJavaJob(name);
+    return clone(new HadoopJavaJob(name));
+  }
+
+  HadoopJavaJob clone(HadoopJavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void uses(String jobClass) {
@@ -290,10 +295,13 @@ class HiveJob extends AzkabanJob {
   }
 
   HiveJob clone() {
-    HiveJob cloneJob = new HiveJob(name);
+    return clone(new HiveJob(name));
+  }
+
+  HiveJob clone(HiveJob cloneJob) {
     cloneJob.query = query;
     cloneJob.queryFile = queryFile;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void usesQuery(String query) {
@@ -320,9 +328,12 @@ class JavaJob extends AzkabanJob {
   }
 
   JavaJob clone() {
-    JavaJob cloneJob = new JavaJob(name);
+    return clone(new JavaJob(name));
+  }
+
+  JavaJob clone(JavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void uses(String jobClass) {
@@ -345,9 +356,12 @@ class JavaProcessJob extends AzkabanJob {
   }
 
   JavaProcessJob clone() {
-    JavaProcessJob cloneJob = new JavaProcessJob(name);
+    return clone(new JavaProcessJob(name));
+  }
+
+  JavaProcessJob clone(JavaProcessJob cloneJob) {
     cloneJob.javaClass = javaClass;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void uses(String javaClass) {
@@ -394,14 +408,17 @@ class KafkaPushJob extends AzkabanJob {
   }
 
   KafkaPushJob clone() {
-    KafkaPushJob cloneJob = new KafkaPushJob(name);
+    return clone(new KafkaPushJob(name));
+  }
+
+  KafkaPushJob clone(KafkaPushJob cloneJob) {
     cloneJob.inputPath = inputPath;
     cloneJob.topic = topic;
     cloneJob.batchNumBytes = batchNumBytes;
     cloneJob.kafkaUrl = kafkaUrl;
     cloneJob.nameNode = nameNode;
     cloneJob.schemaRegistryUrl = schemaRegistryUrl;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void usesInputPath(String inputPath) {
@@ -446,8 +463,11 @@ class LaunchJob extends NoOpJob {
   }
 
   LaunchJob clone() {
-    LaunchJob cloneJob = new LaunchJob(name);
-    return clone(cloneJob);
+    return clone(new LaunchJob(name));
+  }
+
+  LaunchJob clone(LaunchJob cloneJob) {
+    return super.clone(cloneJob);
   }
 }
 
@@ -462,8 +482,11 @@ class NoOpJob extends AzkabanJob {
   }
 
   NoOpJob clone() {
-    NoOpJob cloneJob = new NoOpJob(name);
-    return clone(cloneJob);
+    return clone(new NoOpJob(name));
+  }
+
+  NoOpJob clone(NoOpJob cloneJob) {
+    return super.clone(cloneJob);
   }
 }
 
@@ -487,10 +510,13 @@ class PigJob extends AzkabanJob {
   }
 
   PigJob clone() {
-    PigJob cloneJob = new PigJob(name);
+    return clone(new PigJob(name));
+  }
+
+  PigJob clone(PigJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void parameter(String name, String value) {
@@ -568,7 +594,10 @@ class VoldemortBuildPushJob extends AzkabanJob {
   }
 
   VoldemortBuildPushJob clone() {
-    VoldemortBuildPushJob cloneJob = new VoldemortBuildPushJob(name);
+    return clone(new VoldemortBuildPushJob(name));
+  }
+
+  VoldemortBuildPushJob clone(VoldemortBuildPushJob cloneJob) {
     cloneJob.storeDesc = storeDesc;
     cloneJob.storeName = storeName;
     cloneJob.storeOwners = storeOwners;
@@ -578,7 +607,7 @@ class VoldemortBuildPushJob extends AzkabanJob {
     cloneJob.isAvroData = isAvroData;
     cloneJob.avroKeyField = avroKeyField;
     cloneJob.avroValueField = avroValueField;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 
   void usesStoreDesc(String storeDesc) {

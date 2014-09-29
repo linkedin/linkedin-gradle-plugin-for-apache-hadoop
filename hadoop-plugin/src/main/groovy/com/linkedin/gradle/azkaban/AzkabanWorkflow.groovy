@@ -116,7 +116,10 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   AzkabanWorkflow clone() {
-    AzkabanWorkflow workflow = new AzkabanWorkflow(name, project, null);
+    return clone(new AzkabanWorkflow(name, project, null));
+  }
+
+  AzkabanWorkflow clone(AzkabanWorkflow workflow) {
     workflow.launchJob = launchJob.clone();
     workflow.launchJobDependencies.addAll(launchJobDependencies);
     workflow.workflowScope = workflowScope.clone();
@@ -155,7 +158,14 @@ class AzkabanWorkflow implements NamedScopeContainer {
     return "(AzkabanWorkflow: name = ${name})";
   }
 
+  // The depends method has been deprecated in favor of executes, so that workflow and job
+  // dependencies can more easily visually distinguished.
+  @Deprecated
   void depends(String... jobNames) {
+    launchJobDependencies.addAll(jobNames.toList());
+  }
+
+  void executes(String... jobNames) {
     launchJobDependencies.addAll(jobNames.toList());
   }
 

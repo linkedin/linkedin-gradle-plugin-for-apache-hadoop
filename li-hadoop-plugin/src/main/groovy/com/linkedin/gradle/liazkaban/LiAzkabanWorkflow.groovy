@@ -15,7 +15,15 @@ class LiAzkabanWorkflow extends AzkabanWorkflow {
     super(name, project, nextLevel);
   }
 
+  LiAzkabanWorkflow clone() {
+    return clone(new LiAzkabanWorkflow(name, project, null));
+  }
+
+  LiAzkabanWorkflow clone(LiAzkabanWorkflow workflow) {
+    return super.clone(workflow);
+  }
+
   PigLiJob pigLiJob(String name, Closure configure) {
-    return configureJob(new PigLiJob(name), configure);
+    return configureJob(((LiAzkabanFactory)azkabanFactory).makePigLiJob(name), configure);
   }
 }

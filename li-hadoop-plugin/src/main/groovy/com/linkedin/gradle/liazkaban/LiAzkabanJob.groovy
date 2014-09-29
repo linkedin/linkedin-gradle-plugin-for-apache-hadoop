@@ -18,11 +18,14 @@ class PigLiJob extends PigJob {
     return allProperties;
   }
 
-  // We have to additionally override the clone method.
+  // We have to additionally override the clone methods.
   PigLiJob clone() {
-    PigLiJob cloneJob = new PigLiJob(name);
+    return clone(new PigLiJob(name));
+  }
+
+  PigLiJob clone(PigLiJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;
-    return clone(cloneJob);
+    return super.clone(cloneJob);
   }
 }
