@@ -1,15 +1,27 @@
+/*
+ * Copyright 2014 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.linkedin.gradle.pig;
 
 import org.gradle.api.Project;
 
 /**
- * PigExtension exposes properties to that allow the user to configure how
- * to run Pig scripts from the command line.
- *
- * NOTE: At first, I was planning to use the standard Gradle DSL to allow
- * users to configure this extension, but it is difficult to use the DSL
- * at configuration time to configure other tasks, so I moved the properties
- * to an explicit property file.
+ * PigExtension exposes configuration properties for running Pig scripts from the command line.
+ * <p>
+ * NOTE: It is very difficult to use the Gradle DSL itself at configuration time to configure other
+ * tasks. It is much more convenient to simply load the properties by an explicit property file.
  */
 class PigExtension {
   Project project;
@@ -28,10 +40,20 @@ class PigExtension {
   String remoteCacheDir;
   String remoteSshOpts;
 
+  /**
+   * Constructor for the PigExtension.
+   *
+   * @param project The Gradle project
+   */
   PigExtension(Project project) {
     this.project = project;
   }
 
+  /**
+   * Sets properties on the PigExtension from the incoming properties object.
+   *
+   * @param properties The properties object
+   */
   void readFromProperties(Properties properties) {
     generateTasks = properties.containsKey("generateTasks") ? Boolean.parseBoolean(properties.getProperty("generateTasks")) : generateTasks;
     dependencyConf = properties.containsKey("dependencyConf") ? properties.getProperty("dependencyConf") : dependencyConf;
@@ -43,6 +65,10 @@ class PigExtension {
     remoteSshOpts = properties.containsKey("remoteSshOpts") ? properties.getProperty("remoteSshOpts") : remoteSshOpts;
   }
 
+  /**
+   * Validates the current set of properties set on the PigExtension. Thrwos an exception if the
+   * property vales cannot be validated.
+   */
   void validateProperties() {
     if (!generateTasks) {
       throw new Exception("Method validateProperties called when generateTasks is false");

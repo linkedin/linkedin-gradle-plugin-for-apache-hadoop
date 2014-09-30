@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.linkedin.gradle.pig;
 
 import com.linkedin.gradle.azkaban.PigJob;
@@ -9,10 +24,14 @@ import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.Sync;
 
+/**
+ * PigPlugin implements features for Apache Pig.
+ */
 class PigPlugin implements Plugin<Project> {
   PigExtension pigExtension;
   Project project;
 
+  @Override
   void apply(Project project) {
     this.pigExtension = makePigExtension(project);
     this.project = project;
@@ -28,12 +47,19 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Factory method to return the Pig extension that can be overridden by subclasses.
+  /**
+   * Factory method to return the Pig extension. Can be overridden by subclasses.
+   *
+   * @param project The Gradle project
+   * @return The PigExtension object to use for the PigPlugin
+   */
   PigExtension makePigExtension(Project project) {
     return new PigExtension(project);
   }
 
-  // Reads the properties file containing information to configure the plugin.
+  /**
+   * Reads the properties file containing information to configure the plugin.
+   */
   void readPigProperties() {
     File file = new File("${project.projectDir}/.pigProperties");
     if (file.exists()) {
@@ -47,7 +73,9 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Adds a task to set up the cache directory that will be rsync'd to the host that will run Pig.
+  /**
+   * Adds a task to set up the cache directory that will be rsync'd to the host that will run Pig.
+   */
   void addBuildCacheTask() {
     project.tasks.create(name: "buildPigCache", type: Sync) {
       description = "Build the cache directory to run Pig scripts by Gradle tasks. This task will be run automatically for you.";
@@ -76,8 +104,10 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // For each Pig script, adds a task to run the script on a host. With these tasks, you cannot
-  // pass any Java or Pig parameters to the script.
+  /**
+   * For each Pig script, adds a task to run the script on a host. With these tasks, you cannot
+   * pass any Java or Pig parameters to the script.
+   */
   void addPigScriptTasks() {
     FileTree pigFileTree = project.fileTree([
       dir: "${project.projectDir}",
@@ -107,8 +137,10 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Adds tasks to display the Pig jobs specified by the user in the Azkaban DSL and a task that
-  // can execute these jobs.
+  /**
+   * Adds tasks to display the Pig jobs specified by the user in the Azkaban DSL and a task that
+   * can execute these jobs.
+   */
   void addShowPigJobsTask() {
     project.tasks.create("showPigJobs") {
       description = "Lists Pig jobs configured in the Azkaban DSL that can be run with the runPigJob task";
@@ -130,8 +162,10 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Adds a task to run a Pig job configured in the Azkaban DSL. This enables the user to pass
-  // parameters to the script.
+  /**
+   * Adds a task to run a Pig job configured in the Azkaban DSL. This enables the user to pass
+   * parameters to the script.
+   */
   void addExecPigJobsTask() {
     project.tasks.create(name: "runPigJob", type: Exec) {
       dependsOn project.tasks["buildPigCache"]
@@ -168,7 +202,14 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Writes out the shell script that will run Pig for the given script and parameters.
+  /**
+   * Writes out the shell script that will run Pig for the given script and parameters.
+   *
+   * @param filePath The absolute path to the Pig script file
+   * @param taskName The name of the corresponding Gradle task for this execution of the script
+   * @param parameters The Pig parameters
+   * @param jvmProperties The JVM properties
+   */
   void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmProperties) {
     String relFilePath = filePath.replace("${project.projectDir}/", "");
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
@@ -202,7 +243,12 @@ class PigPlugin implements Plugin<Project> {
     }
   }
 
-  // Make this command easily customized by subclasses
+  /**
+   * Method to build the command to create the cache directory on the remote host. Subclasses can
+   * override this method to provide their own command.
+   *
+   * @return Command that creates the cache directory on the remote host
+   */
   String buildRemoteMkdirCmd() {
     String remoteHostName = pigExtension.remoteHostName;
     String remoteSshOpts = pigExtension.remoteSshOpts;
@@ -210,7 +256,12 @@ class PigPlugin implements Plugin<Project> {
     return "ssh ${remoteSshOpts} ${remoteHostName} mkdir -p ${remoteCacheDir}";
   }
 
-  // Make this command easily customized by subclasses
+  /**
+   * Method to build the command to rsync the project directory to the remote host's cache
+   * directory. Subclasses can override this method to provide their own command.
+   *
+   * @return Command that rsyncs the project directory to the remote host's cache directory.
+   */
   String buildRemoteRsyncCmd() {
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
     String remoteHostName = pigExtension.remoteHostName;
@@ -219,7 +270,15 @@ class PigPlugin implements Plugin<Project> {
     return "rsync -av ${projectDir} -e \"ssh ${remoteSshOpts}\" ${remoteHostName}:${remoteCacheDir}";
   }
 
-  // Make this command easily customized by subclasses
+  /**
+   * Method to build the command that invokes Pig on the remote host. Subclasses can override
+   * this method to provide their own command.
+   *
+   * @param relFilePath The relative path to the Pig script file
+   * @param parameters The Pig parameters
+   * @param jvmProperties The JVM properties
+   * @return Command that invokes Pig on the remote host
+   */
   String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
     String pigCommand = pigExtension.pigCommand;
     String pigOptions = pigExtension.pigOptions ?: "";
@@ -232,7 +291,15 @@ class PigPlugin implements Plugin<Project> {
     return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
   }
 
-  // Make this command easily customized by subclasses
+  /**
+   * Method to build the command that invokes Pig on the local host. Subclasses can override
+   * this method to provide their own command.
+   *
+   * @param relFilePath The relative path to the Pig script file
+   * @param parameters The Pig parameters
+   * @param jvmProperties The JVM properties
+   * @return Command that invokes Pig on the local host
+   */
   String buildLocalPigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
     String pigCommand = pigExtension.pigCommand;

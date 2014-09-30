@@ -12,10 +12,10 @@ task sourceJar(type: Jar) {
   from sourceSets.main.groovy
 }
 
-task groovydocJar(type: Jar) {
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
   description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin'
-  classifier = 'javadoc'
-  from groovydoc
+  classifier = 'groovydoc'
+  from groovydoc.destinationDir
 }
 
 artifacts {

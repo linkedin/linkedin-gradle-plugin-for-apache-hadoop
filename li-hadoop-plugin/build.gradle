@@ -8,15 +8,15 @@ dependencies {
 }
 
 task sourceJar(type: Jar) {
-  description = 'An archive of the source code for the Hadoop Gradle Plugin'
+  description = 'An archive of the source code for the Hadoop Gradle Plugin - LinkedIn customizations'
   classifier = 'sources'
   from sourceSets.main.groovy
 }
 
-task groovydocJar(type: Jar) {
-  description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin'
-  classifier = 'javadoc'
-  from groovydoc
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin - LinkedIn customizations'
+  classifier = 'groovydoc'
+  from groovydoc.destinationDir
 }
 
 artifacts {
