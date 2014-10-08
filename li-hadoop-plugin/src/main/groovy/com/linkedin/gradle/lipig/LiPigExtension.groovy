@@ -41,7 +41,7 @@ class LiPigExtension extends PigExtension {
     }
 
     this.pigCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
-    this.pigCommand = "/export/apps/pig/latest/bin/pig";
+    this.pigCommand = "/export/apps/pig/linkedin-pig-0.11.1.li22-1/bin/pig";
     this.remoteHostName = "eat1-magicgw01.grid.linkedin.com";
     this.remoteCacheDir = "/export/home/${System.getProperty('user.name')}/.hadoopPlugin";
     this.remoteSshOpts = "-q -K";
