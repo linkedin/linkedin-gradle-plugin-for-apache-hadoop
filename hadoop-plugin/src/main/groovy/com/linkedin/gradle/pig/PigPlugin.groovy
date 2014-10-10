@@ -148,7 +148,12 @@ class PigPlugin implements Plugin<Project> {
 
       doLast {
         Map<String, PigJob> pigJobs = PigTaskHelper.findConfiguredPigJobs(project);
-        logger.lifecycle("The following Pig jobs configured in the AzkabanDSL can be run with gradle runPigJob -Pjob=<job name>");
+        if (pigJobs.isEmpty()) {
+          logger.lifecycle("The project ${project.name} does not have any Pig jobs configured with the Azkaban DSL.");
+          return;
+        }
+
+        logger.lifecycle("The following Pig jobs in the project ${project.name} are configured in the Azkaban DSL and can be run with gradle runPigJob -Pjob=<job name>:");
 
         pigJobs.each { String jobName, PigJob job ->
           Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>());
@@ -181,16 +186,16 @@ class PigPlugin implements Plugin<Project> {
         PigJob pigJob = pigJobs.get(project.job);
 
         if (pigJob == null) {
-          throw new GradleException("Could not find Pig job with name ${project.jobName}");
+          throw new GradleException("Could not find Pig job with name ${project.job} configured in the project ${project.name}. Please check the job name and run the task from within the module directory in which your jobs are configured.");
         }
 
         if (pigJob.script == null) {
-          throw new GradleException("Pig job with name ${project.jobName} does not have a script set");
+          throw new GradleException("Pig job with name ${pigJob.name} does not have a script set");
         }
 
         File file = new File(pigJob.script);
         if (!file.exists()) {
-          throw new GradleException("Script ${pigJob.script} for Pig job with name ${project.jobName} does not exist");
+          throw new GradleException("Script ${pigJob.script} for Pig job with name ${pigJob.name} does not exist");
         }
 
         String filePath = file.getAbsolutePath();
