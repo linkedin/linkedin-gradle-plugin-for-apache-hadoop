@@ -63,7 +63,7 @@ class PigTaskHelper {
     int length = sb.length();
 
     while (!taskNames.contains(sb.toString())) {
-      sb.setCharAt(length, ++index);
+      sb.setCharAt(length - 1, ++index);
     }
 
     return sb.toString();
