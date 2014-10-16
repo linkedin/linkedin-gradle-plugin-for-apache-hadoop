@@ -13,69 +13,69 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.Project;
 
 /**
- * An AzkabanWorkflow is a collection of jobs and properties that represent a logical workflow,
- * i.e. jobs with dependencies that form a DAG.
+ * A Workflow is a collection of jobs and properties that represent a logical workflow, i.e. jobs
+ * with dependencies that form a DAG.
  * <p>
  * In the DSL, a workflow can be specified with:
  * <pre>
  *   workflow('workflowName') {
  *     // Declare jobs and properties
  *     ...
- *     // Declare the job names the workflow executes
- *     executes 'jobName1', 'jobName2'
+ *     // Declare the job targets for the workflow
+ *     targets 'jobName1', 'jobName2'
  *   }
  * </pre>
  */
-class AzkabanWorkflow implements NamedScopeContainer {
-  AzkabanFactory azkabanFactory;
+class Workflow implements NamedScopeContainer {
+  HadoopDslFactory factory;
   String name;
   Project project;
-  List<AzkabanProperties> properties;
+  List<Properties> properties;
 
-  // We keep track of all of the jobs declared in the workflow, even if they
-  // are not transitive parents of the launch job.
-  List<AzkabanJob> jobs;
+  // We keep track of all of the jobs declared in the workflow, even if they are not transitive
+  // parents of the launch job.
+  List<Job> jobs;
 
-  // The final job of the workflow (that will be used to launch the workflow
-  // in Azkaban). Built from the launch job dependencies for the workflow.
+  // The final job of the workflow (that will be used to launch the workflow). Built from the
+  // launch job dependencies for the workflow.
   LaunchJob launchJob;
   Set<String> launchJobDependencies;
 
-  // This will allow jobs to be referred to by name (e.g. when declaring
-  // dependencies). This also implicitly provides scoping for job names.
-  NamedScope workflowScope;
+  // This will allow jobs to be referred to by name (e.g. when declaring dependencies). This also
+  // implicitly provides scoping for job names.
+  NamedScope scope;
 
   /**
-   * Base constructor for an AzkabanWorkflow.
+   * Base constructor for a Workflow.
    *
    * @param name The workflow name
    * @param project The Gradle project
    */
-  AzkabanWorkflow(String name, Project project) {
+  Workflow(String name, Project project) {
     this(name, project, null);
   }
 
   /**
-   * Constructor for an AzkabanWorkflow given a parent scope.
+   * Constructor for a Workflow given a parent scope.
    *
    * @param name The workflow name
    * @param project The Gradle project
-   * @param nextLevel The parent scope
+   * @param parentScope The parent scope
    */
-  AzkabanWorkflow(String name, Project project, NamedScope nextLevel) {
-    this.azkabanFactory = project.extensions.azkabanFactory;
-    this.jobs = new ArrayList<AzkabanJob>();
-    this.launchJob = azkabanFactory.makeLaunchJob(name);
+  Workflow(String name, Project project, NamedScope parentScope) {
+    this.factory = project.extensions.hadoopDslFactory;
+    this.jobs = new ArrayList<Job>();
+    this.launchJob = factory.makeLaunchJob(name);
     this.launchJobDependencies = new LinkedHashSet<String>();
     this.name = name;
     this.project = project;
-    this.properties = new ArrayList<AzkabanProperties>();
-    this.workflowScope = new NamedScope(name, nextLevel);
+    this.properties = new ArrayList<Properties>();
+    this.scope = new NamedScope(name, parentScope);
   }
 
   /**
@@ -85,7 +85,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
    */
   @Override
   public NamedScope getScope() {
-    return workflowScope;
+    return scope;
   }
 
   /**
@@ -104,7 +104,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
     }
 
     // Build the list of jobs to build for the workflow.
-    Set<AzkabanJob> jobsToBuild = buildJobList();
+    Set<Job> jobsToBuild = buildJobList();
 
     // Build the all the jobs and properties in the workflow.
     parentScope = parentScope == null ? name : "${parentScope}_${name}";
@@ -151,16 +151,16 @@ class AzkabanWorkflow implements NamedScopeContainer {
    *
    * @return The list (as a LinkedHashSet) of jobs to build for the workflow
    */
-  Set<AzkabanJob> buildJobList() {
-    Map<String, AzkabanJob> jobMap = buildJobMap();
-    Queue<AzkabanJob> queue = new LinkedList<AzkabanJob>();
-    Set<AzkabanJob> jobsToBuild = new LinkedHashSet<AzkabanJob>();
+  Set<Job> buildJobList() {
+    Map<String, Job> jobMap = buildJobMap();
+    Queue<Job> queue = new LinkedList<Job>();
+    Set<Job> jobsToBuild = new LinkedHashSet<Job>();
 
     launchJob.dependencyNames.addAll(launchJobDependencies);
     queue.add(launchJob);
 
     while (!queue.isEmpty()) {
-      AzkabanJob job = queue.remove();
+      Job job = queue.remove();
 
       if (!jobsToBuild.contains(job)) {
         jobsToBuild.add(job);
@@ -180,10 +180,10 @@ class AzkabanWorkflow implements NamedScopeContainer {
    *
    * @return A map of the job names to jobs in the workflow
    */
-  Map<String, AzkabanJob> buildJobMap() {
-    Map<String, AzkabanJob> jobMap = new HashMap<String, AzkabanJob>();
+  Map<String, Job> buildJobMap() {
+    Map<String, Job> jobMap = new HashMap<String, Job>();
 
-    jobs.each() { AzkabanJob job ->
+    jobs.each() { Job job ->
       jobMap.put(job.name, job);
     }
 
@@ -195,8 +195,8 @@ class AzkabanWorkflow implements NamedScopeContainer {
    *
    * @return The cloned workflow
    */
-  AzkabanWorkflow clone() {
-    return clone(new AzkabanWorkflow(name, project, null));
+  Workflow clone() {
+    return clone(new Workflow(name, project, null));
   }
 
   /**
@@ -205,65 +205,66 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param workflow The workflow being cloned
    * @return The cloned workflow
    */
-  AzkabanWorkflow clone(AzkabanWorkflow workflow) {
+  Workflow clone(Workflow workflow) {
     workflow.launchJob = launchJob.clone();
     workflow.launchJobDependencies.addAll(launchJobDependencies);
-    workflow.workflowScope = workflowScope.clone();
+    workflow.scope = scope.clone();
 
     // Clear the scope for the cloned workflow. Then clone all the jobs
     // declared in the original workflow and use them to rebuild the scope.
-    workflow.workflowScope.thisLevel.clear();
+    workflow.scope.thisLevel.clear();
 
-    for (AzkabanJob job : jobs) {
-      AzkabanJob jobClone = job.clone();
+    for (Job job : jobs) {
+      Job jobClone = job.clone();
       workflow.jobs.add(jobClone);
-      workflow.workflowScope.bind(job.name, job);
+      workflow.scope.bind(job.name, job);
     }
 
     return workflow;
   }
 
   /**
-   * Helper method to configure AzkabanJob in the DSL. Can be called by subclasses to configure
-   * custom AzkabanJob subclass types.
+   * Helper method to configure a Job in the DSL. Can be called by subclasses to configure custom
+   * Job subclass types.
    *
    * @param job The job to configure
    * @param configure The configuration closure
    * @return The input job, which is now configured
    */
-  AzkabanJob configureJob(AzkabanJob job, Closure configure) {
-    AzkabanMethods.configureJob(project, job, configure, workflowScope);
+  Job configureJob(Job job, Closure configure) {
+    Methods.configureJob(project, job, configure, scope);
     jobs.add(job);
     return job;
   }
 
   /**
-   * Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
-   * configure custom AzkabanProperties subclass types.
+   * Helper method to configure a Properties object in the DSL. Can be called by subclasses to
+   * configure custom Properties subclass types.
    *
    * @param props The properties to configure
    * @param configure The configuration closure
    * @return The input properties, which is now configured
    */
-  AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
-    AzkabanMethods.configureProperties(project, props, configure, workflowScope);
+  Properties configureProperties(Properties props, Closure configure) {
+    Methods.configureProperties(project, props, configure, scope);
     properties.add(props);
     return props;
   }
 
   /**
-   * Returns a string representation of the scope.
+   * Returns a string representation of the workflow.
    *
-   * @return A string representation of the scope
+   * @return A string representation of the workflow
    */
   String toString() {
-    return "(AzkabanWorkflow: name = ${name})";
+    return "(Workflow: name = ${name})";
   }
 
   /**
    * @deprecated This method has been deprecated in favor of the targets method.
+   *
    * DSL method that declares the jobs on which this workflow depends.
-   * </p>
+   * <p>
    * The depends method has been deprecated in favor of executes, so that workflow and job
    * dependencies can more easily visually distinguished.
    *
@@ -271,19 +272,20 @@ class AzkabanWorkflow implements NamedScopeContainer {
    */
   @Deprecated
   void depends(String... jobNames) {
-    project.logger.lifecycle("The AzkabanWorkflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
+    project.logger.lifecycle("The Workflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchJobDependencies.addAll(jobNames.toList());
   }
 
   /**
    * @deprecated This method has been deprecated in favor of the targets method.
+   *
    * DSL method that declares the jobs this workflow executes.
    *
    * @param jobNames The list of job names this workflow executes
    */
   @Deprecated
   void executes(String... jobNames) {
-    project.logger.lifecycle("The AzkabanWorkflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
+    project.logger.lifecycle("The Workflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchJobDependencies.addAll(jobNames.toList());
   }
 
@@ -297,25 +299,25 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   /**
-   * DSL lookup method. Looks up an object in workflow scope.
+   * DSL lookup method. Looks up an object in scope.
    *
    * @param name The name to lookup
-   * @return The object that is bound in workflow scope to the given name, or null if no such name is bound in workflow scope
+   * @return The object that is bound in workflow scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name) {
-    return AzkabanMethods.lookup(name, workflowScope);
+    return Methods.lookup(name, scope);
   }
 
   /**
-   * DSL lookup method. Looks up an object in workflow scope and then applies the given configuration
+   * DSL lookup method. Looks up an object in scope and then applies the given configuration
    * closure.
    *
    * @param name The name to lookup
    * @param configure The configuration closure
-   * @return The object that is bound in workflow scope to the given name, or null if no such name is bound in workflow scope
+   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name, Closure configure) {
-    return AzkabanMethods.lookup(project, name, workflowScope, configure);
+    return Methods.lookup(project, name, scope, configure);
   }
 
   /**
@@ -326,8 +328,8 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured job that was added to the workflow
    */
-  AzkabanJob addJob(String name, Closure configure) {
-    return configureJob(AzkabanMethods.cloneJob(name, workflowScope), configure);
+  Job addJob(String name, Closure configure) {
+    return configureJob(Methods.cloneJob(name, scope), configure);
   }
 
   /**
@@ -340,8 +342,8 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured job that was added to the workflow
    */
-  AzkabanJob addJob(String name, String rename, Closure configure) {
-    return configureJob(AzkabanMethods.cloneJob(name, rename, workflowScope), configure);
+  Job addJob(String name, String rename, Closure configure) {
+    return configureJob(Methods.cloneJob(name, rename, scope), configure);
   }
 
   /**
@@ -352,8 +354,8 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured properties object that was added to the workflow
    */
-  AzkabanProperties addPropertyFile(String name, Closure configure) {
-    return configureProperties(AzkabanMethods.clonePropertyFile(name, workflowScope), configure);
+  Properties addPropertyFile(String name, Closure configure) {
+    return configureProperties(Methods.clonePropertyFile(name, scope), configure);
   }
 
   /**
@@ -366,36 +368,34 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured properties object that was added to the workflow
    */
-  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
-    return configureProperties(AzkabanMethods.clonePropertyFile(name, rename, workflowScope), configure);
+  Properties addPropertyFile(String name, String rename, Closure configure) {
+    return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
   }
 
   /**
-   * DSL azkabanJob method. Creates an AzkabanJob in workflow scope with the given name and
-   * configuration.
+   * DSL job method. Creates a Job in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  AzkabanJob azkabanJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeAzkabanJob(name), configure);
+  Job job(String name, Closure configure) {
+    return configureJob(factory.makeJob(name), configure);
   }
 
   /**
-   * DSL commandJob method. Creates a CommandJob in workflow scope with the given name and
-   * configuration.
+   * DSL commandJob method. Creates a CommandJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   CommandJob commandJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeCommandJob(name), configure);
+    return configureJob(factory.makeCommandJob(name), configure);
   }
 
   /**
-   * DSL hadoopJavaJob method. Creates a HadoopJavaJob in workflow scope with the given name and
+   * DSL hadoopJavaJob method. Creates a HadoopJavaJob in scope with the given name and
    * configuration.
    *
    * @param name The job name
@@ -403,23 +403,24 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @return The new job
    */
   HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeHadoopJavaJob(name), configure);
+    return configureJob(factory.makeHadoopJavaJob(name), configure);
   }
 
   /**
-   * DSL hiveJob method. Creates a HiveJob in workflow scope with the given name and configuration.
+   * DSL hiveJob method. Creates a HiveJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   HiveJob hiveJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeHiveJob(name), configure);
+    return configureJob(factory.makeHiveJob(name), configure);
   }
 
   /**
    * @deprecated JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob.
-   * DSL javaJob method. Creates a JavaJob in workflow scope with the given name and configuration.
+   *
+   * DSL javaJob method. Creates a JavaJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
@@ -428,11 +429,11 @@ class AzkabanWorkflow implements NamedScopeContainer {
   @Deprecated
   JavaJob javaJob(String name, Closure configure) {
     project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
-    return configureJob(azkabanFactory.makeJavaJob(name), configure);
+    return configureJob(factory.makeJavaJob(name), configure);
   }
 
   /**
-   * DSL javaProcessJob method. Creates a JavaProcessJob in workflow scope with the given name and
+   * DSL javaProcessJob method. Creates a JavaProcessJob in scope with the given name and
    * configuration.
    *
    * @param name The job name
@@ -440,11 +441,11 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @return The new job
    */
   JavaProcessJob javaProcessJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeJavaProcessJob(name), configure);
+    return configureJob(factory.makeJavaProcessJob(name), configure);
   }
 
   /**
-   * DSL kafkaPushJob method. Creates a KafkaPushJob in workflow scope with the given name and
+   * DSL kafkaPushJob method. Creates a KafkaPushJob in scope with the given name and
    * configuration.
    *
    * @param name The job name
@@ -452,52 +453,52 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @return The new job
    */
   KafkaPushJob kafkaPushJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeKafkaPushJob(name), configure);
+    return configureJob(factory.makeKafkaPushJob(name), configure);
   }
 
   /**
-   * DSL noOpJob method. Creates a NoOpJob in workflow scope with the given name and configuration.
+   * DSL noOpJob method. Creates a NoOpJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   NoOpJob noOpJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeNoOpJob(name), configure);
+    return configureJob(factory.makeNoOpJob(name), configure);
   }
 
   /**
-   * DSL pigJob method. Creates a PigJob in workflow scope with the given name and configuration.
+   * DSL pigJob method. Creates a PigJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   PigJob pigJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makePigJob(name), configure);
+    return configureJob(factory.makePigJob(name), configure);
   }
 
   /**
-   * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in workflow scope with the
-   * given name and configuration.
+   * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in scope with the given name
+   * and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
-    return configureJob(azkabanFactory.makeVoldemortBuildPushJob(name), configure);
+    return configureJob(factory.makeVoldemortBuildPushJob(name), configure);
   }
 
   /**
-   * DSL propertyFile method. Creates an AzkabanProperties object in workflow scope with the given
-   * name and configuration.
+   * DSL propertyFile method. Creates a Properties object in scope with the given name and
+   * configuration.
    *
    * @param name The properties name
    * @param configure The configuration closure
    * @return The new properties object
    */
-  AzkabanProperties propertyFile(String name, Closure configure) {
-    return configureProperties(azkabanFactory.makeAzkabanProperties(name), configure);
+  Properties propertyFile(String name, Closure configure) {
+    return configureProperties(factory.makeProperties(name), configure);
   }
 }

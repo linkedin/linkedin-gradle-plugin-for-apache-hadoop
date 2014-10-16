@@ -13,37 +13,37 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liazkaban;
+package com.linkedin.gradle.lihadoopdsl;
 
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.NamedScope;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.Workflow;
 
 import org.gradle.api.Project;
 
 /**
- * LinkedIn-specific customizations to AzkabanWorkflow that allow for additional LinkedIn-specific
- * job types to be created in the workflow.
+ * LinkedIn-specific customizations to Workflow that allow for additional LinkedIn-specific job
+ * types to be created in the workflow.
  */
-class LiAzkabanWorkflow extends AzkabanWorkflow {
+class LiWorkflow extends Workflow {
   /**
-   * Base constructor for a LiAzkabanWorkflow.
+   * Base constructor for a LiWorkflow.
    *
    * @param name The workflow name
    * @param project The Gradle project
    */
-  LiAzkabanWorkflow(String name, Project project) {
+  LiWorkflow(String name, Project project) {
     super(name, project);
   }
 
   /**
-   * Constructor for a LiAzkabanWorkflow given a parent scope.
+   * Constructor for a LiWorkflow given a parent scope.
    *
    * @param name The workflow name
    * @param project The Gradle project
-   * @param nextLevel The parent scope
+   * @param parentScope The parent scope
    */
-  LiAzkabanWorkflow(String name, Project project, NamedScope nextLevel) {
-    super(name, project, nextLevel);
+  LiWorkflow(String name, Project project, NamedScope parentScope) {
+    super(name, project, parentScope);
   }
 
   /**
@@ -51,8 +51,8 @@ class LiAzkabanWorkflow extends AzkabanWorkflow {
    *
    * @return The cloned workflow
    */
-  LiAzkabanWorkflow clone() {
-    return clone(new LiAzkabanWorkflow(name, project, null));
+  LiWorkflow clone() {
+    return clone(new LiWorkflow(name, project, null));
   }
 
   /**
@@ -61,7 +61,7 @@ class LiAzkabanWorkflow extends AzkabanWorkflow {
    * @param workflow The workflow being cloned
    * @return The cloned workflow
    */
-  LiAzkabanWorkflow clone(LiAzkabanWorkflow workflow) {
+  LiWorkflow clone(LiWorkflow workflow) {
     return super.clone(workflow);
   }
 
@@ -74,6 +74,6 @@ class LiAzkabanWorkflow extends AzkabanWorkflow {
    * @return The new job
    */
   PigLiJob pigLiJob(String name, Closure configure) {
-    return configureJob(((LiAzkabanFactory)azkabanFactory).makePigLiJob(name), configure);
+    return configureJob(((LiHadoopDslFactory)factory).makePigLiJob(name), configure);
   }
 }

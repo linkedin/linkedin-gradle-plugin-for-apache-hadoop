@@ -13,17 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liazkaban;
+package com.linkedin.gradle.lihadoopdsl;
 
-import com.linkedin.gradle.azkaban.AzkabanFactory;
-import com.linkedin.gradle.azkaban.AzkabanPlugin;
+import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
 import org.gradle.api.Project;
 
 /**
- * LinkedIn-specific customizations to the Azkaban Plugin.
+ * LinkedIn-specific customizations to the Hadoop DSL Plugin.
  */
-class LiAzkabanPlugin extends AzkabanPlugin {
+class LiHadoopDslPlugin extends HadoopDslPlugin {
   @Override
   void apply(Project project) {
     super.apply(project);
@@ -31,25 +31,25 @@ class LiAzkabanPlugin extends AzkabanPlugin {
   }
 
   /**
-   * Returns the LinkedIn-specific AzkabanFactory. Can be overridden by subclasses that wish to
-   * provide their own AzkabanFactory.
+   * Returns the LinkedIn-specific HadoopDslFactory. Can be overridden by subclasses that wish to
+   * provide their own HadoopDslFactory.
    *
-   * @return The AzkabanFactory to use
+   * @return The HadoopDslFactory to use
    */
   @Override
-  AzkabanFactory makeAzkabanFactory() {
-    return new LiAzkabanFactory();
+  HadoopDslFactory makeFactory() {
+    return new LiHadoopDslFactory();
   }
 
   /**
-   * DSL pigLiJob method. Creates a PigLiJob in global scope with the given name and configuration.
+   * DSL pigLiJob method. Creates a PigLiJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   PigLiJob pigLiJob(String name, Closure configure) {
-    LiAzkabanFactory liAzkabanFactory = (LiAzkabanFactory)azkabanFactory;
-    return configureJob(liAzkabanFactory.makePigLiJob(name), configure);
+    LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
+    return configureJob(liFactory.makePigLiJob(name), configure);
   }
 }

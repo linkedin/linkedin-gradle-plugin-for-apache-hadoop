@@ -16,6 +16,7 @@
 package com.linkedin.gradle.hadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 
 import org.gradle.api.Plugin;
@@ -28,6 +29,7 @@ class HadoopPlugin implements Plugin<Project> {
 
   @Override
   void apply(Project project) {
+    project.getPlugins().apply(getHadoopDslPluginClass());
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getPigPluginClass());
   }
@@ -40,6 +42,16 @@ class HadoopPlugin implements Plugin<Project> {
    */
   Class<? extends AzkabanPlugin> getAzkabanPluginClass() {
     return AzkabanPlugin.class;
+  }
+
+  /**
+   * Factory method to return the HadoopDslPlugin class. Subclasses can override this method to
+   * return their own HadoopDslPlugin class.
+   *
+   * @return Class that implements the HadoopDslPlugin
+   */
+  Class<? extends HadoopDslPlugin> getHadoopDslPluginClass() {
+    return HadoopDslPlugin.class;
   }
 
   /**

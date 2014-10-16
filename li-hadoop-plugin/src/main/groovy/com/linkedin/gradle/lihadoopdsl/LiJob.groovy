@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liazkaban;
+package com.linkedin.gradle.lihadoopdsl;
 
-import com.linkedin.gradle.azkaban.PigJob;
+import com.linkedin.gradle.hadoopdsl.PigJob;
 
 /**
- * Extend the Hadoop Plugin Azkaban Job classes with the LinkedIn-specific "pigLi" job type.
+ * Extend the Hadoop Plugin Job classes with the LinkedIn-specific "pigLi" job type.
  * <p>
  * In the DSL, a PigLiJob can be specified with:
  * <pre>

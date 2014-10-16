@@ -13,11 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.checker;
+package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.azkaban.AzkabanJob;
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.Job;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 
 import org.gradle.api.Project;
 
@@ -44,7 +44,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanWorkflow(AzkabanWorkflow workflow) {
+  void visitWorkflow(Workflow workflow) {
     if ("default".equals(workflow.name)) {
       // WARN if a default workflow declares jobs that it executes
       if (!workflow.launchJobDependencies.isEmpty()) {
@@ -59,7 +59,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // Build a map from the jobs in the workflow that maps the job name to the job.
-    Map<String, AzkabanJob> jobMap = workflow.buildJobMap();
+    Map<String, Job> jobMap = workflow.buildJobMap();
 
     // ERROR if a workflow declares that it executes a job that is not in the workflow
     workflow.launchJobDependencies.each() { String launchJobName ->
@@ -70,7 +70,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // ERROR if a job in the workflow depends on a job that is not in the workflow
-    workflow.jobs.each() { AzkabanJob job ->
+    workflow.jobs.each() { Job job ->
       job.dependencyNames.each() { String dependencyName ->
         if (!jobMap.containsKey(dependencyName)) {
           project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} contains the job ${job.name} that declares that it depends on job ${dependencyName}, but this job is not contained in the workflow");
@@ -86,10 +86,10 @@ class WorkflowJobChecker extends BaseStaticChecker {
 
     if (!"default".equals(workflow.name)) {
       // Walk the workflow and job dependencies to build the set of job names that will be built.
-      Set<AzkabanJob> jobsToBuild = workflow.buildJobList();
+      Set<Job> jobsToBuild = workflow.buildJobList();
 
       // WARN if a workflow contains jobs that will not be built
-      jobMap.values().each() { AzkabanJob job ->
+      jobMap.values().each() { Job job ->
         if (!jobsToBuild.contains(job)) {
           project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} contains the job ${job.name} that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.");
         }

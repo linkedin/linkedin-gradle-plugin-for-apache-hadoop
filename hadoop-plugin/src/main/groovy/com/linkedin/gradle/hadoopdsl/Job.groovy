@@ -13,14 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 /**
- * Base class for all Azkaban job types.
+ * Base class for all Hadoop DSL job types.
  * <p>
- * In the DSL, an AzkabanJob can be specified with:
+ * In the DSL, a Job can be specified with:
  * <pre>
- *   azkabanJob('jobName) {
+ *   job('jobName) {
  *     reads files: [
  *       'foo' : '/data/databases/foo',
  *       'bar' : '/data/databases/bar',
@@ -46,7 +46,7 @@ package com.linkedin.gradle.azkaban;
  *   }
  * </pre>
  */
-class AzkabanJob {
+class Job {
   String name;
   Set<String> dependencyNames;
   Map<String, String> jobProperties;
@@ -55,11 +55,11 @@ class AzkabanJob {
   List<String> writing;
 
   /**
-   * Base constructor for an AzkabanJob.
+   * Base constructor for a Job.
    *
    * @param jobName The job name
    */
-  AzkabanJob(String jobName) {
+  Job(String jobName) {
     dependencyNames = new LinkedHashSet<String>();
     jobProperties = new LinkedHashMap<String, String>();
     jvmProperties = new LinkedHashMap<String, String>();
@@ -69,9 +69,9 @@ class AzkabanJob {
   }
 
   /**
-   * Builds this AzkabanJob, which writes an Azkaban job file.
+   * Builds this Job, which writes a job file.
    *
-   * @param directory The directory in which to build the Azkaban job fils
+   * @param directory The directory in which to build the job files
    * @param parentScope The fully-qualified name of the scope in which the job is bound
    */
   void build(String directory, String parentScope) throws IOException {
@@ -83,7 +83,7 @@ class AzkabanJob {
     File file = new File(directory, "${fileName}.job");
 
     file.withWriter { out ->
-      out.writeLine("# This file generated from the Azkaban DSL. Do not edit by hand.");
+      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
       allProperties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
@@ -94,9 +94,9 @@ class AzkabanJob {
   }
 
   /**
-   * Helper method to construct the name to use with the Azkaban job file. By default, the name
-   * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
-   * to customize how the name is constructed.
+   * Helper method to construct the name to use with the job file. By default, the name constructed
+   * is "${parentScope}_${name}", but subclasses can override this method if they need to customize
+   * how the name is constructed.
    * <p>
    * As an example, if the job named "job1" is nested inside the workflow "testWorkflow", this
    * method will form the name "testWorkflow_job1" as the file name.
@@ -231,8 +231,8 @@ class AzkabanJob {
    *
    * @return The cloned job
    */
-  AzkabanJob clone() {
-    return clone(new AzkabanJob(name));
+  Job clone() {
+    return clone(new Job(name));
   }
 
   /**
@@ -241,7 +241,7 @@ class AzkabanJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  AzkabanJob clone(AzkabanJob cloneJob) {
+  Job clone(Job cloneJob) {
     cloneJob.dependencyNames.addAll(dependencyNames);
     cloneJob.jobProperties.putAll(jobProperties);
     cloneJob.jvmProperties.putAll(jvmProperties);
@@ -272,8 +272,8 @@ class AzkabanJob {
   /**
    * DSL method to specify HDFS paths read by the job. When you use this method, the static checker
    * will verify that this job is dependent or transitively dependent on any jobs that write paths
-   * that this job reads. This is an important race condition in Azkaban workflows that can be
-   * completely eliminated with this static check.
+   * that this job reads. This is an important race condition in workflows that can be completely
+   * eliminated with this static check.
    * <p>
    * Using this method additionally causes lines of the form form key=hdfsPath to be written to
    * the job file (i.e. the keys you use are available as job parameters).
@@ -291,8 +291,8 @@ class AzkabanJob {
   /**
    * DSL method to specify the HDFS paths written by the job. When you use this method, the static
    * checker will verify that any jobs that read paths this job writes are dependent or transitively
-   * dependent on this job. This is an important race condition in Azkaban workflows that can be
-   * completely eliminated with this static check.
+   * dependent on this job. This is an important race condition in workflows that can be completely
+   * eliminated with this static check.
    * <p>
    * Using this method additionally causes lines of the form form key=hdfsPath to be written to
    * the job file (i.e. the keys you use are available as job parameters).
@@ -352,7 +352,7 @@ class AzkabanJob {
    * @return A string representation of the job
    */
   String toString() {
-    return "(AzkabanJob: name = ${name})";
+    return "(Job: name = ${name})";
   }
 }
 
@@ -367,7 +367,7 @@ class AzkabanJob {
  *   }
  * </pre>
  */
-class CommandJob extends AzkabanJob {
+class CommandJob extends Job {
   String command;
 
   /**
@@ -432,7 +432,7 @@ class CommandJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class HadoopJavaJob extends AzkabanJob {
+class HadoopJavaJob extends Job {
   String jobClass;
 
   /**
@@ -493,7 +493,7 @@ class HadoopJavaJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class HiveJob extends AzkabanJob {
+class HiveJob extends Job {
   // Exactly one of query or queryFile must be set
   String query;
   String queryFile;
@@ -581,7 +581,7 @@ class HiveJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class JavaJob extends AzkabanJob {
+class JavaJob extends Job {
   String jobClass;
 
   /**
@@ -646,7 +646,7 @@ class JavaJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class JavaProcessJob extends AzkabanJob {
+class JavaProcessJob extends Job {
   String javaClass;
 
   /**
@@ -713,7 +713,7 @@ class JavaProcessJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class KafkaPushJob extends AzkabanJob {
+class KafkaPushJob extends Job {
   String inputPath;
   String topic;
 
@@ -908,7 +908,7 @@ class LaunchJob extends NoOpJob {
  *   }
  * </pre>
  */
-class NoOpJob extends AzkabanJob {
+class NoOpJob extends Job {
   /**
    * Constructor for a NoOpJob.
    *
@@ -965,7 +965,7 @@ class NoOpJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class PigJob extends AzkabanJob {
+class PigJob extends Job {
   Map<String, String> parameters;
   String script;
 
@@ -1106,7 +1106,7 @@ class PigJob extends AzkabanJob {
  *   }
  * </pre>
  */
-class VoldemortBuildPushJob extends AzkabanJob {
+class VoldemortBuildPushJob extends Job {
   String storeDesc;
   String storeName;
   String storeOwners;

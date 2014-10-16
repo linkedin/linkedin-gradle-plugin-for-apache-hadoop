@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.GradleException
 
@@ -112,7 +112,7 @@ class NamedScope {
 
   /**
    * Special lookup method for fully-qualified names. Fully-qualified names in the DSL are any
-   * names containing a "." character, e.g. azkaban.workflow1.job1 or workflow1.job2. To perform a
+   * names containing a "." character, e.g. hadoop.workflow1.job1 or workflow1.job2. To perform a
    * lookup on a fully-qualified name, we start from global scope, and then "look down" scopes
    * to get to the exact scope specified by the fully-qualified name. We look to see if the object
    * is bound in scope only at the specified level.

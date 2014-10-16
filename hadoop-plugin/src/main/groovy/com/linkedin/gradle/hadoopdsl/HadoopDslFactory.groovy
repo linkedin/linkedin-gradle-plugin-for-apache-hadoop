@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.Project;
 
@@ -21,36 +21,36 @@ import org.gradle.api.Project;
  * Factory class to create instances of DSL objects. Subclasses can override these methods to
  * provide instances of their own custom subclasses of standard DSL classes.
  */
-class AzkabanFactory {
+class HadoopDslFactory {
   /**
-   * Factory method to build an AzkabanExtension.
+   * Factory method to build a HadoopDslExtension.
    *
    * @param project The Gradle project
    * @param globalScope Reference to the global scope
-   * @return The AzkabanExtension
+   * @return The HadoopDslExtension
    */
-  AzkabanExtension makeAzkabanExtension(Project project, NamedScope globalScope) {
-    return new AzkabanExtension(project, globalScope);
+  HadoopDslExtension makeExtension(Project project, NamedScope globalScope) {
+    return new HadoopDslExtension(project, globalScope);
   }
 
   /**
-   * Factory method to build the Azkaban DSL checker.
+   * Factory method to build the Hadoop DSL checker.
    *
    * @param project The Gradle project
-   * @return The AzkabanChecker
+   * @return The HadoopDslChecker
    */
-  AzkabanChecker makeAzkabanChecker(Project project) {
-    return new AzkabanChecker(project);
+  HadoopDslChecker makeChecker(Project project) {
+    return new HadoopDslChecker(project);
   }
 
   /**
-   * Factory method to build an AzkabanJob.
+   * Factory method to build a Hadoop DSL job.
    *
    * @param name The job name
    * @return The job
    */
-  AzkabanJob makeAzkabanJob(String name) {
-    return new AzkabanJob(name);
+  Job makeJob(String name) {
+    return new Job(name);
   }
 
   /**
@@ -156,24 +156,24 @@ class AzkabanFactory {
   }
 
   /**
-   * Factory method to build an AzkabanProperties object.
+   * Factory method to build a Properties object.
    *
-   * @param name The properties name
-   * @return The properties object
+   * @param name The Properties name
+   * @return The Properties object
    */
-  AzkabanProperties makeAzkabanProperties(String name) {
-    return new AzkabanProperties(name);
+  Properties makeProperties(String name) {
+    return new Properties(name);
   }
 
   /**
-   * Factory method to build an AzkabanWorkflow.
+   * Factory method to build a Workflow object;
    *
    * @param name The workflow name
    * @param project The Gradle project
-   * @param nextLevel Reference to the parent scope
+   * @param parentScope Reference to the parent scope
    * @return The workflow
    */
-  AzkabanWorkflow makeAzkabanWorkflow(String name, Project project, NamedScope nextLevel) {
-    return new AzkabanWorkflow(name, project, nextLevel);
+  Workflow makeWorkflow(String name, Project project, NamedScope parentScope) {
+    return new Workflow(name, project, parentScope);
   }
 }

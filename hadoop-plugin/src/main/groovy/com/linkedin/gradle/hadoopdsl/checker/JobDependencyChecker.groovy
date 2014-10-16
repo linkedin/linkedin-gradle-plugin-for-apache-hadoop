@@ -13,11 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.checker;
+package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.azkaban.AzkabanJob;
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.Job;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 
 import org.gradle.api.Project;
 
@@ -41,9 +41,9 @@ class JobDependencyChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanWorkflow(AzkabanWorkflow workflow) {
+  void visitWorkflow(Workflow workflow) {
     // Build a map of job names to jobs in the workflow
-    Map<String, AzkabanJob> jobMap = workflow.buildJobMap();
+    Map<String, Job> jobMap = workflow.buildJobMap();
 
     // ERROR if there are cyclic job dependencies
     detectJobCycles(workflow, jobMap);
@@ -63,10 +63,10 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param workflow The workflow to check for depedency
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectJobCycles(AzkabanWorkflow workflow, Map<String, AzkabanJob> jobMap) {
+  void detectJobCycles(Workflow workflow, Map<String, Job> jobMap) {
     Set<String> jobsChecked = new LinkedHashSet<String>();
 
-    workflow.jobs.each() { AzkabanJob job ->
+    workflow.jobs.each() { Job job ->
       if (!jobsChecked.contains(job.name)) {
         Set<String> jobsOnPath = new LinkedHashSet<String>();
         detectJobCycles(workflow, job, jobsChecked, jobsOnPath, jobMap);
@@ -86,7 +86,7 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param jobsOnPath The jobs encountered on the path so far to the current job
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectJobCycles(AzkabanWorkflow workflow, AzkabanJob job, Set<String> jobsChecked, Set<String> jobsOnPath, Map<String, AzkabanJob> jobMap) {
+  void detectJobCycles(Workflow workflow, Job job, Set<String> jobsChecked, Set<String> jobsOnPath, Map<String, Job> jobMap) {
     if (jobsOnPath.contains(job.name)) {
       String jobCycleText = detectJobCyclesText(jobsOnPath, job.name);
       project.logger.lifecycle("JobDependencyChecker ERROR: workflow ${workflow.name} has a dependency cycle: ${jobCycleText}. The workflow dependencies must form directed, acyclic graph.");
@@ -99,7 +99,7 @@ class JobDependencyChecker extends BaseStaticChecker {
 
     job.dependencyNames.each() { String dependencyName ->
       if (!jobsChecked.contains(dependencyName)) {
-        AzkabanJob parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
+        Job parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
         detectJobCycles(workflow, parentJob, jobsChecked, jobsOnPath, jobMap);
       }
     }
@@ -134,20 +134,20 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param workflow The workflow to check for read-before-write races
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectReadWriteRaces(AzkabanWorkflow workflow, Map<String, AzkabanJob> jobMap) {
-    Map<AzkabanJob, Set<AzkabanJob>> ancestorMap = buildAncestorMap(workflow, jobMap);
-    Map<String, Set<AzkabanJob>> writeMap = buildWriteMap(workflow);
+  void detectReadWriteRaces(Workflow workflow, Map<String, Job> jobMap) {
+    Map<Job, Set<Job>> ancestorMap = buildAncestorMap(workflow, jobMap);
+    Map<String, Set<Job>> writeMap = buildWriteMap(workflow);
 
     // For each job, look at the paths declared as read by the job. For each read path, verify that
     // the jobs that write to that path are declared as (immediate or transitive) ancestors of the
     // job. If not, emit a warning.
-    workflow.jobs.each() { AzkabanJob job ->
-      Set<AzkabanJob> ancestors = ancestorMap.get(job);
+    workflow.jobs.each() { Job job ->
+      Set<Job> ancestors = ancestorMap.get(job);
 
       // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
       job.reading.each() { String readPath ->
         if (writeMap.containsKey(readPath)) {
-          writeMap.get(readPath).each() { AzkabanJob writeJob ->
+          writeMap.get(readPath).each() { Job writeJob ->
             if (job == writeJob) {
               project.logger.lifecycle("JobDependencyChecker WARNING: The job ${job.name} in the workflow ${workflow.name} declares that it both reads and writes the path ${readPath}. Please check that this is correct.");
             }
@@ -169,12 +169,12 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param jobMap The map of job names to jobs in the workflow
    * @return The map of jobs to the set of (direct or transitive) ancestors for each job
    */
-  Map<AzkabanJob, Set<AzkabanJob>> buildAncestorMap(AzkabanWorkflow workflow, Map<String, AzkabanJob> jobMap) {
-    Map<AzkabanJob, Set<AzkabanJob>> ancestorMap = new HashMap<AzkabanJob, Set<AzkabanJob>>();
+  Map<Job, Set<Job>> buildAncestorMap(Workflow workflow, Map<String, Job> jobMap) {
+    Map<Job, Set<Job>> ancestorMap = new HashMap<Job, Set<Job>>();
 
-    workflow.jobs.each() { AzkabanJob job ->
+    workflow.jobs.each() { Job job ->
       if (!ancestorMap.containsKey(job)) {
-        Set<AzkabanJob> ancestors = buildAncestorSet(job, ancestorMap, jobMap);
+        Set<Job> ancestors = buildAncestorSet(job, ancestorMap, jobMap);
         ancestorMap.put(job, ancestors);
       }
     }
@@ -190,12 +190,12 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param jobMap The map of job names to jobs in the workflow
    * @return The set of (direct or transitive) ancestors for the job
    */
-  Set<AzkabanJob> buildAncestorSet(AzkabanJob job, Map<AzkabanJob, Set<AzkabanJob>> ancestorMap, Map<String, AzkabanJob> jobMap) {
-    Set<AzkabanJob> ancestors = new HashSet<AzkabanJob>();
+  Set<Job> buildAncestorSet(Job job, Map<Job, Set<Job>> ancestorMap, Map<String, Job> jobMap) {
+    Set<Job> ancestors = new HashSet<Job>();
 
     job.dependencyNames.each() { String dependencyName ->
-      AzkabanJob parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
-      Set<AzkabanJob> parentAncestors = ancestorMap.get(parentJob);
+      Job parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
+      Set<Job> parentAncestors = ancestorMap.get(parentJob);
 
       if (parentAncestors == null) {
         parentAncestors = buildAncestorSet(parentJob, ancestorMap);
@@ -216,16 +216,16 @@ class JobDependencyChecker extends BaseStaticChecker {
    * @param workflow The workflow for which to build the write map
    * @return The map of HDFS paths to the jobs in the workflow that declare that they write to that path
    */
-  Map<String, Set<AzkabanJob>> buildWriteMap(AzkabanWorkflow workflow) {
-    Map<String, Set<AzkabanJob>> writeMap = new HashMap<String, Set<AzkabanJob>>();
+  Map<String, Set<Job>> buildWriteMap(Workflow workflow) {
+    Map<String, Set<Job>> writeMap = new HashMap<String, Set<Job>>();
 
     // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
-    workflow.jobs.each() { AzkabanJob job ->
+    workflow.jobs.each() { Job job ->
       job.writing.each() { String writePath ->
-        Set<AzkabanJob> writeJobs = writeMap.get(writePath);
+        Set<Job> writeJobs = writeMap.get(writePath);
 
         if (writeJobs == null) {
-          writeJobs = new HashSet<AzkabanJob>();
+          writeJobs = new HashSet<Job>();
           writeMap.put(writePath, writeJobs);
         }
 

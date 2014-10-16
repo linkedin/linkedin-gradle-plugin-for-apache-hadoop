@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
-import com.linkedin.gradle.azkaban.checker.JobDependencyChecker;
-import com.linkedin.gradle.azkaban.checker.RequiredFieldsChecker;
-import com.linkedin.gradle.azkaban.checker.ValidNameChecker;
-import com.linkedin.gradle.azkaban.checker.WorkflowJobChecker;
+import com.linkedin.gradle.hadoopdsl.checker.JobDependencyChecker;
+import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker;
+import com.linkedin.gradle.hadoopdsl.checker.ValidNameChecker;
+import com.linkedin.gradle.hadoopdsl.checker.WorkflowJobChecker;
 
 import org.gradle.api.Project;
 
@@ -35,13 +35,13 @@ import org.gradle.api.Project;
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
  * </ul>
  */
-class AzkabanChecker extends BaseStaticChecker {
+class HadoopDslChecker extends BaseStaticChecker {
   /**
-   * Constructor for the Azkaban static checker.
+   * Constructor for the Hadoop DSL static checker.
    *
    * @param project The Gradle project
    */
-  AzkabanChecker(Project project) {
+  HadoopDslChecker(Project project) {
     super(project);
   }
 
@@ -63,14 +63,14 @@ class AzkabanChecker extends BaseStaticChecker {
   /**
    * Makes this static check on the DSL.
    *
-   * @param azkaban The Azkaban DSL extension
+   * @param extension The Hadoop DSL extension
    */
   @Override
-  void checkAzkabanDsl(AzkabanExtension azkaban) {
+  void checkHadoopDsl(HadoopDslExtension extension) {
     List<StaticChecker> checks = buildStaticChecks();
     checks.each() { check ->
       if (!foundError) {
-        check.checkAzkabanDsl(azkaban);
+        check.checkHadoopDsl(extension);
         foundError |= check.failedCheck();
       }
     }

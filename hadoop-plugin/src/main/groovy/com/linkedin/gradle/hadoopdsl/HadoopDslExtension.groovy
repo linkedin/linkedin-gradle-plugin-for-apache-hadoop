@@ -13,17 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.Project;
 
 /**
- * AzkabanExtension is a Gradle Plugin extension for the Azkaban DSL. It contains member variables
+ * HadoopDslExtension is a Gradle Plugin extension for the Hadoop DSL. It contains member variables
  * for the things that are built in the DSL, such as workflows and properties.
  * <p>
- * In the DSL, the AzkabanExtension is configured with the following syntax:
+ * In the DSL, the HadoopDslExtension is configured with the following syntax:
  * <pre>
- *   azkaban {
+ *   hadoop {
  *     buildPath 'conf/jobs'
  *     cleanPath true
  *
@@ -32,42 +32,42 @@ import org.gradle.api.Project;
  *   }
  * </pre>
  */
-class AzkabanExtension implements NamedScopeContainer {
-  AzkabanFactory azkabanFactory;
-  NamedScope azkabanScope;
+class HadoopDslExtension implements NamedScopeContainer {
   boolean cleanFirst;
+  HadoopDslFactory factory;
+  NamedScope scope;
   String jobConfDir;
   Project project;
-  List<AzkabanProperties> properties;
-  List<AzkabanWorkflow> workflows;
+  List<Properties> properties;
+  List<Workflow> workflows;
 
   /**
-   * Base constructor for the AzkabanExtension
+   * Base constructor for the HadoopDslExtension
    *
    * @param project The Gradle project
    */
-  AzkabanExtension(Project project) {
+  HadoopDslExtension(Project project) {
     this(project, null);
   }
 
   /**
-   * Constructor for the AzkabanExtension that is aware of global scope.
+   * Constructor for the HadoopDslExtension that is aware of its parent scope (global scope).
    *
    * @param project The Gradle project
-   * @param globalScope The global scope
+   * @param parentScope The parent scope
    */
-  AzkabanExtension(Project project, NamedScope globalScope) {
-    this.azkabanFactory = project.extensions.azkabanFactory;
-    this.azkabanScope = new NamedScope("azkaban", globalScope);
+  HadoopDslExtension(Project project, NamedScope parentScope) {
+    this.factory = project.extensions.hadoopDslFactory;
+    this.scope = new NamedScope("hadoop", parentScope);
     this.cleanFirst = true;
     this.jobConfDir = null;
     this.project = project;
-    this.properties = new ArrayList<AzkabanProperties>();
-    this.workflows = new ArrayList<AzkabanJob>();
+    this.properties = new ArrayList<Properties>();
+    this.workflows = new ArrayList<Job>();
 
-    // Bind the name azkaban in the global scope so that we can do fully-qualified name lookups
-    // starting from the global scope.
-    globalScope.bind("azkaban", this);
+    // Bind the name hadoop in the parent scope so that we can do fully-qualified name lookups of
+    // objects bound in the hadoop block.
+    parentScope.bind("hadoop", this);
   }
 
   /**
@@ -77,16 +77,16 @@ class AzkabanExtension implements NamedScopeContainer {
    */
   @Override
   public NamedScope getScope() {
-    return azkabanScope;
+    return scope;
   }
 
   /**
-   * Builds the Azkaban extension, which builds the workflows and properties that have been
-   * specified in the DSL and added to the extension with the azkaban { ... } DSL syntax.
+   * Builds the Hadoop DSL extension, which builds the workflows and properties that have been
+   * specified in the DSL and added to the extension with the hadoop { ... } DSL syntax.
    */
   void build() throws IOException {
     if (jobConfDir == null || jobConfDir.isEmpty()) {
-      throw new IOException("You must set the property jobConfDir to use the Azkaban DSL");
+      throw new IOException("You must set the property jobConfDir to use the Hadoop DSL");
     }
 
     File file = new File(jobConfDir);
@@ -124,10 +124,10 @@ class AzkabanExtension implements NamedScopeContainer {
   }
 
   /**
-   * DSL buildPath method sets the directory in which Azkaban files will be generated when the
+   * DSL buildPath method sets the directory in which workflow files will be generated when the
    * extension is built. Both absolute and relative paths are accepted.
    *
-   * @param buildDir The (relative or absolute) directory in which to build the Azkaban files
+   * @param buildDir The (relative or absolute) directory in which to build the generated files
    */
   void buildPath(String buildDir) {
     if (buildDir.startsWith("/")) {
@@ -150,128 +150,127 @@ class AzkabanExtension implements NamedScopeContainer {
   }
 
   /**
-   * Helper method to configure AzkabanProperties in the DSL. Can be called by subclasses to
-   * configure custom AzkabanProperties subclass types.
+   * Helper method to configure Properties objects in the DSL. Can be called by subclasses to
+   * configure custom Properties subclass types.
    *
    * @param props The properties to configure
    * @param configure The configuration closure
    * @return The input properties, which is now configured
    */
-  AzkabanProperties configureProperties(AzkabanProperties props, Closure configure) {
-    AzkabanMethods.configureProperties(project, props, configure, azkabanScope);
+  Properties configureProperties(Properties props, Closure configure) {
+    Methods.configureProperties(project, props, configure, scope);
     properties.add(props);
     return props;
   }
 
   /**
-   * Helper method to configure an AzkabanWorkflow in the DSL. Can be called by subclasses to
-   * configure custom AzkabanWorkflow subclass types.
+   * Helper method to configure a Workflow in the DSL. Can be called by subclasses to configure
+   * custom Workflow subclass types.
    *
    * @param workflow The workflow to configure
    * @param configure The configuration closure
    * @return The input workflow, which is now configured
    */
-  AzkabanWorkflow configureWorkflow(AzkabanWorkflow workflow, Closure configure) {
-    AzkabanMethods.configureWorkflow(project, workflow, configure, azkabanScope);
+  Workflow configureWorkflow(Workflow workflow, Closure configure) {
+    Methods.configureWorkflow(project, workflow, configure, scope);
     workflows.add(workflow);
     return workflow;
   }
 
   /**
    * DSL addPropertyFile method. Looks up the properties with given name, clones it, configures the
-   * clone with the given configuration closure and adds the clone to azkaban scope.
+   * clone with the given configuration closure and binds the clone in scope.
    *
    * @param name The properties name to lookup
    * @param configure The configuration closure
-   * @return The cloned and configured properties object that was added to azkaban scope
+   * @return The cloned and configured properties object that was bound in scope
    */
-  AzkabanProperties addPropertyFile(String name, Closure configure) {
-    return configureProperties(AzkabanMethods.clonePropertyFile(name, azkabanScope), configure);
+  Properties addPropertyFile(String name, Closure configure) {
+    return configureProperties(Methods.clonePropertyFile(name, scope), configure);
   }
 
   /**
    * DSL addPropertyFile method. Looks up the properties with given name, clones it, renames the
    * clone to the specified name, configures the clone with the given configuration closure and
-   * adds the clone to azkaban scope.
+   * binds the clone in scope.
    *
    * @param name The properties name to lookup
    * @param rename The new name to give the cloned properties object
    * @param configure The configuration closure
-   * @return The cloned, renamed and configured properties object that was added to azkaban scope
+   * @return The cloned, renamed and configured properties object that was bound in scope
    */
-  AzkabanProperties addPropertyFile(String name, String rename, Closure configure) {
-    return configureProperties(AzkabanMethods.clonePropertyFile(name, rename, azkabanScope), configure);
+  Properties addPropertyFile(String name, String rename, Closure configure) {
+    return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
   }
 
   /**
    * DSL addWorkflow method. Looks up the workflow with given name, clones it, configures the clone
-   * with the given configuration closure and adds the clone to azkaban scope.
+   * with the given configuration closure and binds the clone in scope.
    *
    * @param name The workflow name to lookup
    * @param configure The configuration closure
-   * @return The cloned and configured workflow that was added to azkaban scope
+   * @return The cloned and configured workflow that was bound in scope
    */
-  AzkabanWorkflow addWorkflow(String name, Closure configure) {
-    return configureWorkflow(AzkabanMethods.cloneWorkflow(name, azkabanScope), configure);
+  Workflow addWorkflow(String name, Closure configure) {
+    return configureWorkflow(Methods.cloneWorkflow(name, scope), configure);
   }
 
   /**
    * DSL addWorkflow method. Looks up the workflow with given name, clones it, renames the clone to
-   * the specified name, configures the clone with the given configuration closure and adds the
-   * clone to azkaban scope.
+   * the specified name, configures the clone with the given configuration closure and binds the
+   * clone in scope.
    *
    * @param name The workflow name to lookup
    * @param rename The new name to give the cloned workflow
    * @param configure The configuration closure
-   * @return The cloned, renamed and configured workflow that was added to azkaban scope
+   * @return The cloned, renamed and configured workflow that was bound in scope
    */
-  AzkabanWorkflow addWorkflow(String name, String rename, Closure configure) {
-    return configureWorkflow(AzkabanMethods.cloneWorkflow(name, rename, azkabanScope), configure);
+  Workflow addWorkflow(String name, String rename, Closure configure) {
+    return configureWorkflow(Methods.cloneWorkflow(name, rename, scope), configure);
   }
 
   /**
-   * DSL lookup method. Looks up an object in azkaban scope.
+   * DSL lookup method. Looks up an object in scope.
    *
    * @param name The name to lookup
-   * @return The object that is bound in azkaban scope to the given name, or null if no such name is bound in azkaban scope
+   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name) {
-    return AzkabanMethods.lookup(name, azkabanScope);
+    return Methods.lookup(name, scope);
   }
 
   /**
-   * DSL lookup method. Looks up an object in azkaban scope and then applies the given
-   * configuration closure.
+   * DSL lookup method. Looks up an object in scope and then applies the given configuration
+   * closure.
    *
    * @param name The name to lookup
    * @param configure The configuration closure
-   * @return The object that is bound in azkaban scope to the given name, or null if no such name is bound in azkaban scope
+   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name, Closure configure) {
-    return AzkabanMethods.lookup(project, name, azkabanScope, configure);
+    return Methods.lookup(project, name, scope, configure);
   }
 
   /**
-   * DSL propertyFile method. Creates an AzkabanProperties object in azkaban scope with the given
-   * name and configuration.
+   * DSL propertyFile method. Creates a Properties object in scope with the given name and
+   * configuration.
    *
    * @param name The properties name
    * @param configure The configuration closure
    * @return The new properties object
    */
-  AzkabanProperties propertyFile(String name, Closure configure) {
-    return configureProperties(azkabanFactory.makeAzkabanProperties(name), configure);
+  Properties propertyFile(String name, Closure configure) {
+    return configureProperties(factory.makeProperties(name), configure);
   }
 
   /**
-   * DSL workflow method. Creates an AzkabanWorkflow in azkaban scope with the given name and
-   * configuration.
+   * DSL workflow method. Creates a Workflow in scope with the given name and configuration.
    *
    * @param name The workflow name
    * @param configure The configuration closure
    * @return The new workflow
    */
-  AzkabanWorkflow workflow(String name, Closure configure) {
-    return configureWorkflow(azkabanFactory.makeAzkabanWorkflow(name, project, azkabanScope), configure);
+  Workflow workflow(String name, Closure configure) {
+    return configureWorkflow(factory.makeWorkflow(name, project, scope), configure);
   }
 }

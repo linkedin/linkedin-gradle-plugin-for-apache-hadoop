@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.pig;
 
-import com.linkedin.gradle.azkaban.PigJob;
+import com.linkedin.gradle.hadoopdsl.PigJob;
 
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin;
@@ -138,22 +138,22 @@ class PigPlugin implements Plugin<Project> {
   }
 
   /**
-   * Adds tasks to display the Pig jobs specified by the user in the Azkaban DSL and a task that
+   * Adds tasks to display the Pig jobs specified by the user in the Hadoop DSL and a task that
    * can execute these jobs.
    */
   void addShowPigJobsTask() {
     project.tasks.create("showPigJobs") {
-      description = "Lists Pig jobs configured in the Azkaban DSL that can be run with the runPigJob task";
+      description = "Lists Pig jobs configured in the Hadoop DSL that can be run with the runPigJob task";
       group = "Hadoop Plugin";
 
       doLast {
         Map<String, PigJob> pigJobs = PigTaskHelper.findConfiguredPigJobs(project);
         if (pigJobs.isEmpty()) {
-          logger.lifecycle("The project ${project.name} does not have any Pig jobs configured with the Azkaban DSL.");
+          logger.lifecycle("The project ${project.name} does not have any Pig jobs configured with the Hadoop DSL.");
           return;
         }
 
-        logger.lifecycle("The following Pig jobs in the project ${project.name} are configured in the Azkaban DSL and can be run with gradle runPigJob -Pjob=<job name>:");
+        logger.lifecycle("The following Pig jobs in the project ${project.name} are configured in the Hadoop DSL and can be run with gradle runPigJob -Pjob=<job name>:");
 
         pigJobs.each { String jobName, PigJob job ->
           Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>());
@@ -168,13 +168,13 @@ class PigPlugin implements Plugin<Project> {
   }
 
   /**
-   * Adds a task to run a Pig job configured in the Azkaban DSL. This enables the user to pass
+   * Adds a task to run a Pig job configured in the Hadoop DSL. This enables the user to pass
    * parameters to the script.
    */
   void addExecPigJobsTask() {
     project.tasks.create(name: "runPigJob", type: Exec) {
       dependsOn project.tasks["buildPigCache"]
-      description = "Runs a Pig job configured in the Azkaban DSL with gradle runPigJob -Pjob=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
+      description = "Runs a Pig job configured in the Hadoop DSL with gradle runPigJob -Pjob=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
       group = "Hadoop Plugin";
 
       doFirst {

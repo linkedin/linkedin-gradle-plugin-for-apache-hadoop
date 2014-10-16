@@ -15,9 +15,9 @@
  */
 package com.linkedin.gradle.pig;
 
-import com.linkedin.gradle.azkaban.NamedScope;
-import com.linkedin.gradle.azkaban.NamedScopeContainer;
-import com.linkedin.gradle.azkaban.PigJob;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
+import com.linkedin.gradle.hadoopdsl.PigJob;
 
 import org.gradle.api.Project;
 
@@ -70,7 +70,7 @@ class PigTaskHelper {
   }
 
   /**
-   * Finds the Pig jobs configured in the Azkaban DSL and returns them as a map of the fully
+   * Finds the Pig jobs configured in the Hadoop DSL and returns them as a map of the fully
    * qualified job name to the job.
    *
    * @param project The Gradle project

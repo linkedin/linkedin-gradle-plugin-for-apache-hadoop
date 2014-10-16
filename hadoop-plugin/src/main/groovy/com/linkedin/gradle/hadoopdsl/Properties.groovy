@@ -13,11 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 /**
- * The AzkabanProperties class represents Azkaban property files. In the DSL, properties can be
- * specified with:
+ * The Properties class represents property files. In the DSL, properties can be specified with:
  * <pre>
  *   propertyFile('common') {
  *     set properties: [
@@ -27,22 +26,22 @@ package com.linkedin.gradle.azkaban;
  *   }
  * </pre>
  */
-class AzkabanProperties {
+class Properties {
   String name;
   Map<String, String> properties;
 
   /**
-   * Base constructor for AzkabanProperties.
+   * Base constructor for Properties.
    *
    * @param name The properties name
    */
-  AzkabanProperties(String name) {
+  Properties(String name) {
     this.name = name;
     this.properties = new LinkedHashMap<String, String>();
   }
 
   /**
-   * Builds an Azkaban properties file.
+   * Builds a properties file.
    *
    * @param directory The directory in which to build the property file
    * @param parentScope The fully-qualified name of the scope in which the properties object is bound
@@ -56,7 +55,7 @@ class AzkabanProperties {
     File file = new File(directory, "${fileName}.properties");
 
     file.withWriter { out ->
-      out.writeLine("# This file generated from the Azkaban DSL. Do not edit by hand.");
+      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
       properties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
@@ -67,7 +66,7 @@ class AzkabanProperties {
   }
 
   /**
-   * Helper method to construct the name to use with the Azkaban properties file. By default, the name
+   * Helper method to construct the name to use with the properties file. By default, the name
    * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
    * to customize how the name is constructed.
    *
@@ -84,23 +83,23 @@ class AzkabanProperties {
    *
    * @return The cloned properties
    */
-  AzkabanProperties clone() {
-    return clone(new AzkabanProperties(name));
+  Properties clone() {
+    return clone(new Properties(name));
   }
 
   /**
-   * Helper method to set the properties on a cloned AzkabanProperties object.
+   * Helper method to set the properties on a cloned Properties object.
    *
    * @param The properties object being cloned
    * @return The cloned properties
    */
-  AzkabanProperties clone(AzkabanProperties cloneProps) {
+  Properties clone(Properties cloneProps) {
     cloneProps.properties.putAll(this.properties);
     return cloneProps;
   }
 
   /**
-   * DSL method to set Azkaban properties.
+   * DSL method to set properties.
    *
    * @param args Args whose key 'properties' has a map value containing the properties to set
    */
@@ -115,6 +114,6 @@ class AzkabanProperties {
    * @return A string representation of the properties
    */
   String toString() {
-    return "(AzkabanProperties: name = ${name}, properties = ${properties.toString()})";
+    return "(Properties: name = ${name}, properties = ${properties.toString()})";
   }
 }

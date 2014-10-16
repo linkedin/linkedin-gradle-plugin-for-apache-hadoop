@@ -10,7 +10,7 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-def job1 = new com.linkedin.gradle.azkaban.PigJob("job1")
+def job1 = new com.linkedin.gradle.hadoopdsl.PigJob("job1")
 job1.script = "src/main/pig/count_by_country.pig"
 job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
 job1.parameters["output"] = "count_by_country.dat"
@@ -51,7 +51,7 @@ workflow('prodWorkflow') {
   targets 'job1Prod'
 }
 
-def trainWorkflow = new com.linkedin.gradle.azkaban.AzkabanWorkflow('train', project)
+def trainWorkflow = new com.linkedin.gradle.hadoopdsl.Workflow('train', project)
 
 def generateWorkflows() {
   workflow('genTrain') {
@@ -67,7 +67,7 @@ propertyFile('global') {
   ]
 }
 
-azkaban {
+hadoop {
   buildPath "jobs"
 
   addWorkflow('prodWorkflow') {
@@ -108,11 +108,11 @@ azkaban {
       ]
     }
 
-    azkabanJob('job1') {
+    job('job1') {
       queue 'default'
     }
 
-    azkabanJob('job2') {
+    job('job2') {
       reads files: [
         'foo' : '/data/databases/foo',
         'bar' : '/data/databases/bar',
@@ -136,14 +136,14 @@ azkaban {
       queue 'marathon'
     }
 
-    azkabanJob('job3') {
+    job('job3') {
       reads files: [
         'bazz' : '/data/databases/bazz'
       ]
       depends 'job2'
     }
 
-    azkabanJob('job4') {
+    job('job4') {
     }
 
     targets 'job3'
@@ -162,7 +162,7 @@ azkaban {
 
     lookup('prodJob').script = 'src/main/pig/count_by_country_w2.pig'
 
-    def job21 = new com.linkedin.gradle.azkaban.PigJob('job21')
+    def job21 = new com.linkedin.gradle.hadoopdsl.PigJob('job21')
     job21.script = 'foobar.pig'
     global job21
 
@@ -170,7 +170,7 @@ azkaban {
       uses 'foobazz.pig'
     }
 
-    azkabanJob('job2') {
+    job('job2') {
       depends 'job1'
     }
 
@@ -192,27 +192,27 @@ azkaban {
 
   addWorkflow('train', 'trainCopy') {
 
-    azkabanJob('job1') {
+    job('job1') {
     }
 
     targets 'job1'
   }
 
   workflow('triangleDependencies') {
-    azkabanJob('job1') {
+    job('job1') {
       queue 'default'
     }
-    azkabanJob('job2') {
+    job('job2') {
       depends 'job1'
     }
-    azkabanJob('job3') {
+    job('job3') {
       depends 'job1'
     }
     targets 'job3', 'job2'
   }
 }
 
-azkaban.workflow('workflow4') {
+hadoop.workflow('workflow4') {
   hiveJob('job7') {
     usesQuery "show tables"
   }

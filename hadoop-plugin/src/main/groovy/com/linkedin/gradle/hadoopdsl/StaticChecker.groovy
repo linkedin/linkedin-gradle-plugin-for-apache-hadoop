@@ -13,20 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.Project;
 
 /**
  * Interface for static checker rules.
  */
-interface StaticChecker extends AzkabanVisitor {
+interface StaticChecker extends Visitor {
   /**
    * Makes this static check on the DSL.
    *
-   * @param azkaban The Azkaban DSL extension
+   * @param extension The Hadoop DSL extension
    */
-  void checkAzkabanDsl(AzkabanExtension extension);
+  void checkHadoopDsl(HadoopDslExtension extension);
 
   /**
    * Asks the checker rule whether or not the check failed.
@@ -39,7 +39,7 @@ interface StaticChecker extends AzkabanVisitor {
 /**
  * Base class for static checking rules.
  */
-class BaseStaticChecker extends BaseAzkabanVisitor implements StaticChecker {
+class BaseStaticChecker extends BaseVisitor implements StaticChecker {
   /**
    * Member variable that tracks whether or not the checker found an error or not. Subclasses
    * set this variable when the check the DSL.
@@ -63,11 +63,11 @@ class BaseStaticChecker extends BaseAzkabanVisitor implements StaticChecker {
   /**
    * Makes this static check on the DSL.
    *
-   * @param azkaban The Azkaban DSL extension
+   * @param extension The Hadoop DSL extension
    */
   @Override
-  void checkAzkabanDsl(AzkabanExtension extension) {
-    visitAzkabanExtension(extension);
+  void checkHadoopDsl(HadoopDslExtension extension) {
+    visitExtension(extension);
   }
 
   /**

@@ -13,29 +13,29 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liazkaban
+package com.linkedin.gradle.lihadoopdsl
 
-import com.linkedin.gradle.azkaban.AzkabanFactory;
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.NamedScope;
+import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 import org.gradle.api.Project;
 
 /**
- * LinkedIn-specific AzkabanFactory class that provides customized subclass instances.
+ * LinkedIn-specific HadoopDslFactory class that provides customized subclass instances.
  */
-class LiAzkabanFactory extends AzkabanFactory {
+class LiHadoopDslFactory extends HadoopDslFactory {
   /**
-   * Returns a LinkedIn-specific LiAzkabanWorkflow
+   * Returns a LinkedIn-specific LiWorkflow
    *
    * @param name The workflow name
    * @param project The Gradle project
-   * @param nextLevel Reference to the parent scope
+   * @param parentScope Reference to the parent scope
    * @return The workflow
    */
   @Override
-  AzkabanWorkflow makeAzkabanWorkflow(String name, Project project, NamedScope nextLevel) {
-    return new LiAzkabanWorkflow(name, project, nextLevel);
+  Workflow makeWorkflow(String name, Project project, NamedScope parentScope) {
+    return new LiWorkflow(name, project, parentScope);
   }
 
   /**

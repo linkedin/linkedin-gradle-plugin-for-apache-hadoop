@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.checker;
+package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.azkaban.AzkabanJob;
-import com.linkedin.gradle.azkaban.AzkabanProperties;
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.Job;
+import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 
 import java.util.regex.Pattern;
 
@@ -60,7 +60,7 @@ class ValidNameChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanProperties(AzkabanProperties props) {
+  void visitProperties(Properties props) {
     if (!validateName(props.name)) {
       project.logger.lifecycle("ValidNameChecker ERROR: The properties object ${props.name} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
       foundError = true;
@@ -68,18 +68,18 @@ class ValidNameChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanWorkflow(AzkabanWorkflow workflow) {
+  void visitWorkflow(Workflow workflow) {
     if (!validateName(workflow.name)) {
       project.logger.lifecycle("ValidNameChecker ERROR: The workflow ${workflow.name} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
       foundError = true;
     }
 
     // Be sure to recursively check the jobs and properties contained in the workflow.
-    super.visitAzkabanWorkflow(workflow);
+    super.visitWorkflow(workflow);
   }
 
   @Override
-  void visitAzkabanJob(AzkabanJob job) {
+  void visitJob(Job job) {
     if (!validateName(job.name)) {
       project.logger.lifecycle("ValidNameChecker ERROR: The job ${job.name} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
       foundError = true;

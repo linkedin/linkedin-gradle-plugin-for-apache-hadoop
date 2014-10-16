@@ -13,76 +13,76 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.Project;
 
 /**
- * Static helper methods used to implement the Azkaban DSL.
+ * Static helper methods used to implement the Hadoop DSL.
  * <p>
- * People extending the Azkaban DSL by subclassing should generally not need to call methods in
- * this class, as they should already be called appropriately by AzkabanPlugin, AzkabanExtension
- * and AzkabanWorkflow, but you can call them if you need to do so.
+ * People extending the Hadoop DSL by subclassing should generally not need to call methods in
+ * this class, as they should already be called appropriately by HadoopDslPlugin,
+ * HadoopDslExtension and Workflow classes, but you can call them if you need to do so.
  */
-class AzkabanMethods {
+class Methods {
 
-  static AzkabanJob cloneJob(String name, NamedScope scope) {
-    AzkabanJob job = scope.lookup(name);
+  static Job cloneJob(String name, NamedScope scope) {
+    Job job = scope.lookup(name);
     if (job == null) {
       throw new Exception("Could not find job ${name} from scope ${scope.levelName}");
     }
     return job.clone();
   }
 
-  static AzkabanJob cloneJob(String name, String rename, NamedScope scope) {
-    AzkabanJob job = cloneJob(name, scope);
+  static Job cloneJob(String name, String rename, NamedScope scope) {
+    Job job = cloneJob(name, scope);
     job.name = rename;
     return job;
   }
 
-  static AzkabanProperties clonePropertyFile(String name, NamedScope scope) {
-    AzkabanProperties props = scope.lookup(name);
+  static Properties clonePropertyFile(String name, NamedScope scope) {
+    Properties props = scope.lookup(name);
     if (props == null) {
       throw new Exception("Could not find propertyFile ${name} from scope ${scope.levelName}");
     }
     return props.clone();
   }
 
-  static AzkabanProperties clonePropertyFile(String name, String rename, NamedScope scope) {
-    AzkabanProperties props = clonePropertyFile(name, scope)
+  static Properties clonePropertyFile(String name, String rename, NamedScope scope) {
+    Properties props = clonePropertyFile(name, scope)
     props.name = rename;
     return props;
   }
 
-  static AzkabanWorkflow cloneWorkflow(String name, NamedScope scope) {
-    AzkabanWorkflow workflow = scope.lookup(name);
+  static Workflow cloneWorkflow(String name, NamedScope scope) {
+    Workflow workflow = scope.lookup(name);
     if (workflow == null) {
       throw new Exception("Could not find workflow ${name} from scope ${scope.levelName}");
     }
-    AzkabanWorkflow clone = workflow.clone();
-    clone.workflowScope.nextLevel = scope;
+    Workflow clone = workflow.clone();
+    clone.scope.nextLevel = scope;
     return clone;
   }
 
-  static AzkabanWorkflow cloneWorkflow(String name, String rename, NamedScope scope) {
-    AzkabanWorkflow workflow = cloneWorkflow(name, scope);
+  static Workflow cloneWorkflow(String name, String rename, NamedScope scope) {
+    Workflow workflow = cloneWorkflow(name, scope);
     workflow.name = rename;
     return workflow;
   }
 
-  static AzkabanJob configureJob(Project project, AzkabanJob job, Closure configure, NamedScope scope) {
+  static Job configureJob(Project project, Job job, Closure configure, NamedScope scope) {
     scope.bind(job.name, job);
     project.configure(job, configure);
     return job;
   }
 
-  static AzkabanProperties configureProperties(Project project, AzkabanProperties props, Closure configure, NamedScope scope) {
+  static Properties configureProperties(Project project, Properties props, Closure configure, NamedScope scope) {
     scope.bind(props.name, props);
     project.configure(props, configure);
     return props;
   }
 
-  static AzkabanWorkflow configureWorkflow(Project project, AzkabanWorkflow workflow, Closure configure, NamedScope scope) {
+  static Workflow configureWorkflow(Project project, Workflow workflow, Closure configure, NamedScope scope) {
     scope.bind(workflow.name, workflow);
     project.configure(workflow, configure);
     return workflow;

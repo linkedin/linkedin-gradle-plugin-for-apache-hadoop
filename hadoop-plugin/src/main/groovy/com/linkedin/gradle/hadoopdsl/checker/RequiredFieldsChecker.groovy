@@ -13,21 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.checker;
+package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.azkaban.AzkabanJob;
-import com.linkedin.gradle.azkaban.AzkabanProperties;
-import com.linkedin.gradle.azkaban.AzkabanWorkflow;
-import com.linkedin.gradle.azkaban.BaseStaticChecker;
-import com.linkedin.gradle.azkaban.CommandJob;
-import com.linkedin.gradle.azkaban.HadoopJavaJob;
-import com.linkedin.gradle.azkaban.HiveJob;
-import com.linkedin.gradle.azkaban.JavaJob;
-import com.linkedin.gradle.azkaban.JavaProcessJob;
-import com.linkedin.gradle.azkaban.KafkaPushJob;
-import com.linkedin.gradle.azkaban.NoOpJob;
-import com.linkedin.gradle.azkaban.PigJob;
-import com.linkedin.gradle.azkaban.VoldemortBuildPushJob;
+import com.linkedin.gradle.hadoopdsl.Job;
+import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.CommandJob;
+import com.linkedin.gradle.hadoopdsl.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.HiveJob;
+import com.linkedin.gradle.hadoopdsl.JavaJob;
+import com.linkedin.gradle.hadoopdsl.JavaProcessJob;
+import com.linkedin.gradle.hadoopdsl.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.NoOpJob;
+import com.linkedin.gradle.hadoopdsl.PigJob;
+import com.linkedin.gradle.hadoopdsl.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
 
@@ -45,19 +45,19 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanProperties(AzkabanProperties props) {
+  void visitProperties(Properties props) {
     if (props.properties.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker WARNING: Properties ${props.name} does not declare any properties. Nothing will be built for this properties object.");
     }
   }
 
   @Override
-  void visitAzkabanJob(AzkabanJob job) {
-    // AzkabanJob has no required fields
+  void visitJob(Job job) {
+    // Job has no required fields
   }
 
   @Override
-  void visitAzkabanJob(CommandJob job) {
+  void visitJob(CommandJob job) {
     if (job.command == null || job.command.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: CommandJob ${job.name} must set command");
       foundError = true;
@@ -65,7 +65,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(HadoopJavaJob job) {
+  void visitJob(HadoopJavaJob job) {
     if (job.jobClass == null || job.jobClass.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: HadoopJavaJob ${job.name} must set jobClass");
       foundError = true;
@@ -73,7 +73,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(HiveJob job) {
+  void visitJob(HiveJob job) {
     boolean emptyQuery = job.query == null || job.query.isEmpty();
     boolean emptyQueryFile = job.queryFile == null || job.queryFile.isEmpty();
     if (emptyQuery && emptyQueryFile) {
@@ -87,7 +87,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(JavaJob job) {
+  void visitJob(JavaJob job) {
     if (job.jobClass == null || job.jobClass.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: JavaJob ${job.name} must set jobClass");
       foundError = true;
@@ -95,7 +95,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(JavaProcessJob job) {
+  void visitJob(JavaProcessJob job) {
     if (job.javaClass == null || job.javaClass.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: JavaProcessJob ${job.name} must set javaClass");
       foundError = true;
@@ -103,7 +103,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(KafkaPushJob job) {
+  void visitJob(KafkaPushJob job) {
     if (job.inputPath == null || job.inputPath.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: KafkaPushJob ${job.name} must set inputPath");
       foundError = true;
@@ -115,7 +115,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(NoOpJob job) {
+  void visitJob(NoOpJob job) {
     // NoOpJob has no required fields, but is only useful if it declares dependencies.
     if (job.dependencyNames.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker WARNING: NoOpJob ${job.name} does not declare any dependencies. It won't do anything.");
@@ -123,7 +123,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(PigJob job) {
+  void visitJob(PigJob job) {
     if (job.script == null || job.script.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: PigJob ${job.name} must set script");
       foundError = true;
@@ -131,7 +131,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
-  void visitAzkabanJob(VoldemortBuildPushJob job) {
+  void visitJob(VoldemortBuildPushJob job) {
     boolean emptyStoreDesc = job.storeDesc == null || job.storeDesc.isEmpty();
     boolean emptyStoreName = job.storeName == null || job.storeName.isEmpty();
     boolean emptyStoreOwnr = job.storeOwners == null || job.storeOwners.isEmpty();

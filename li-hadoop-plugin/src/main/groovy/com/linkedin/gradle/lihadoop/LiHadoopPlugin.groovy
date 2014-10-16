@@ -15,11 +15,11 @@
  */
 package com.linkedin.gradle.lihadoop;
 
-import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.hadoop.HadoopPlugin;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 
-import com.linkedin.gradle.liazkaban.LiAzkabanPlugin;
+import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
 
 /**
@@ -27,14 +27,13 @@ import com.linkedin.gradle.lipig.LiPigPlugin;
  */
 class LiHadoopPlugin extends HadoopPlugin {
   /**
-   * Returns the LinkedIn-specific AzkabanPlugin class. Subclasses can override this method to
-   * return their own AzkabanPlugin class.
+   * Returns the LinkedIn-specific LiHadoopDslPlugin class. Subclasses can override this method to
+   * return their own HadoopDslPlugin class.
    *
-   * @return Class that implements the AzkabanPlugin
+   * @return Class that implements the HadoopDslPlugin
    */
-  @Override
-  Class<? extends AzkabanPlugin> getAzkabanPluginClass() {
-    return LiAzkabanPlugin.class;
+  Class<? extends HadoopDslPlugin> getHadoopDslPluginClass() {
+    return LiHadoopDslPlugin.class;
   }
 
   /**
