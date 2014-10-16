@@ -226,7 +226,7 @@ class PigPlugin implements Plugin<Project> {
       String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-        out.writeLine("#!/bin/bash");
+        out.writeLine("#!/usr/bin/env bash");
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Creating directory ${remoteCacheDir} on host ${remoteHostName}");
@@ -239,7 +239,7 @@ class PigPlugin implements Plugin<Project> {
     }
     else {
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
-        out.writeLine("#!/bin/bash");
+        out.writeLine("#!/usr/bin/env bash");
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");

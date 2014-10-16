@@ -11,7 +11,7 @@ task testPluginTask() {
     }
   }
   doLast {
-    apply from: 'workflows.gradle'
+    apply from: 'src/main/gradle/workflows.gradle'
     project.tasks['buildAzkabanFlows'].execute()
   }
 }

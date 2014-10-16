@@ -36,10 +36,11 @@ class AzkabanFactory {
   /**
    * Factory method to build the Azkaban DSL checker.
    *
+   * @param project The Gradle project
    * @return The AzkabanChecker
    */
-  AzkabanChecker makeAzkabanChecker() {
-    return new AzkabanChecker();
+  AzkabanChecker makeAzkabanChecker(Project project) {
+    return new AzkabanChecker(project);
   }
 
   /**

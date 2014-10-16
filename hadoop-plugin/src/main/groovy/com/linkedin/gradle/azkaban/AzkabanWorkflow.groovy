@@ -95,27 +95,26 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * from a transitive walk starting from the jobs the workflow executes actually get built.
    *
    * @param directory The directory in which to build the workflow files
-   * @param parentName The fully-qualified name of the scope in which the workflow is bound
+   * @param parentScope The fully-qualified name of the scope in which the workflow is bound
    */
-  void build(String directory, String parentName) throws IOException {
+  void build(String directory, String parentScope) throws IOException {
     if ("default".equals(name)) {
-      buildDefault(directory, parentName);
+      buildDefault(directory, parentScope);
       return;
     }
 
-    // Build the topologically sorted list of jobs in the workflow.
-    launchJob.dependencyNames.addAll(launchJobDependencies);
-    Set<AzkabanJob> jobList = buildJobList(launchJob);
+    // Build the list of jobs to build for the workflow.
+    Set<AzkabanJob> jobsToBuild = buildJobList();
 
     // Build the all the jobs and properties in the workflow.
-    String childParentName = parentName == null ? name : "${parentName}-${name}";
+    parentScope = parentScope == null ? name : "${parentScope}_${name}";
 
-    jobList.each() { job ->
-      job.build(directory, childParentName);
+    jobsToBuild.each() { job ->
+      job.build(directory, parentScope);
     }
 
     properties.each() { props ->
-      props.build(directory, childParentName);
+      props.build(directory, parentScope);
     }
   }
 
@@ -126,15 +125,14 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * can be found from a transitive walk of the jobs the workflow executes).
    *
    * @param directory The directory in which to build the workflow files
-   * @param parentName The fully-qualified name of the scope in which the workflow is bound
+   * @param parentScope The fully-qualified name of the scope in which the workflow is bound
    */
-  void buildDefault(String directory, String parentName) throws IOException {
+  void buildDefault(String directory, String parentScope) throws IOException {
     if (!"default".equals(name)) {
       throw new Exception("You cannot buildDefault except on the 'default' workflow");
     }
 
     jobs.each() { job ->
-      job.updateDependencies(workflowScope);
       job.build(directory, null);
     }
 
@@ -151,29 +149,45 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * transitive path from the jobs the workflow executes to a declared job. This capability is by
    * design. In this case, the static checker will display a warning message.
    *
-   * @param launchJob The LaunchJob for the workflow that specifies the jobs the workflow executes
    * @return The list (as a LinkedHashSet) of jobs to build for the workflow
    */
-  Set<AzkabanJob> buildJobList(LaunchJob launchJob) {
-    Queue<AzkabanJob> jobQueue = new LinkedList<AzkabanJob>();
-    jobQueue.add(launchJob);
+  Set<AzkabanJob> buildJobList() {
+    Map<String, AzkabanJob> jobMap = buildJobMap();
+    Queue<AzkabanJob> queue = new LinkedList<AzkabanJob>();
+    Set<AzkabanJob> jobsToBuild = new LinkedHashSet<AzkabanJob>();
 
-    Set<AzkabanJob> jobList = new LinkedHashSet<AzkabanJob>();
+    launchJob.dependencyNames.addAll(launchJobDependencies);
+    queue.add(launchJob);
 
-    while (!jobQueue.isEmpty()) {
-      AzkabanJob job = jobQueue.remove();
-      job.updateDependencies(workflowScope);
-      jobList.add(job);
+    while (!queue.isEmpty()) {
+      AzkabanJob job = queue.remove();
 
-      // Add the children of this job to the job list in a breadth-first manner.
-      for (AzkabanJob childJob : job.dependencies) {
-        if (!jobList.contains(childJob)) {
-          jobQueue.add(childJob);
+      if (!jobsToBuild.contains(job)) {
+        jobsToBuild.add(job);
+
+        // Add the parents of this job to the queue in a breadth-first manner.
+        for (String parentJob : job.dependencyNames) {
+          queue.add(jobMap.get(parentJob));
         }
       }
     }
+    return jobsToBuild;
+  }
 
-    return jobList;
+  /**
+   * Helper function to return a map of the job names to jobs in the workflow. This does not
+   * include the launch job that is implicitly added when the workflow is built.
+   *
+   * @return A map of the job names to jobs in the workflow
+   */
+  Map<String, AzkabanJob> buildJobMap() {
+    Map<String, AzkabanJob> jobMap = new HashMap<String, AzkabanJob>();
+
+    jobs.each() { AzkabanJob job ->
+      jobMap.put(job.name, job);
+    }
+
+    return jobMap;
   }
 
   /**
@@ -202,7 +216,6 @@ class AzkabanWorkflow implements NamedScopeContainer {
 
     for (AzkabanJob job : jobs) {
       AzkabanJob jobClone = job.clone();
-      jobClone.dependencies.clear();
       workflow.jobs.add(jobClone);
       workflow.workflowScope.bind(job.name, job);
     }
@@ -248,7 +261,7 @@ class AzkabanWorkflow implements NamedScopeContainer {
   }
 
   /**
-   * @deprecated This method has been deprecated in favor of the executes method.
+   * @deprecated This method has been deprecated in favor of the targets method.
    * DSL method that declares the jobs on which this workflow depends.
    * </p>
    * The depends method has been deprecated in favor of executes, so that workflow and job
@@ -258,15 +271,28 @@ class AzkabanWorkflow implements NamedScopeContainer {
    */
   @Deprecated
   void depends(String... jobNames) {
+    project.logger.lifecycle("The AzkabanWorkflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchJobDependencies.addAll(jobNames.toList());
   }
 
   /**
+   * @deprecated This method has been deprecated in favor of the targets method.
    * DSL method that declares the jobs this workflow executes.
    *
    * @param jobNames The list of job names this workflow executes
    */
+  @Deprecated
   void executes(String... jobNames) {
+    project.logger.lifecycle("The AzkabanWorkflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
+    launchJobDependencies.addAll(jobNames.toList());
+  }
+
+  /**
+   * DSL method that declares the target jobs for the workflow.
+   *
+   * @param jobNames The list of target job for the workflow
+   */
+  void targets(String... jobNames) {
     launchJobDependencies.addAll(jobNames.toList());
   }
 
@@ -399,7 +425,9 @@ class AzkabanWorkflow implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @Deprecated
   JavaJob javaJob(String name, Closure configure) {
+    project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
     return configureJob(azkabanFactory.makeJavaJob(name), configure);
   }
 

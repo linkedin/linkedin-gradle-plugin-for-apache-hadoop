@@ -48,7 +48,6 @@ package com.linkedin.gradle.azkaban;
  */
 class AzkabanJob {
   String name;
-  Set<AzkabanJob> dependencies;
   Set<String> dependencyNames;
   Map<String, String> jobProperties;
   Map<String, String> jvmProperties;
@@ -61,7 +60,6 @@ class AzkabanJob {
    * @param jobName The job name
    */
   AzkabanJob(String jobName) {
-    dependencies = new LinkedHashSet<AzkabanJob>();
     dependencyNames = new LinkedHashSet<String>();
     jobProperties = new LinkedHashMap<String, String>();
     jvmProperties = new LinkedHashMap<String, String>();
@@ -74,14 +72,14 @@ class AzkabanJob {
    * Builds this AzkabanJob, which writes an Azkaban job file.
    *
    * @param directory The directory in which to build the Azkaban job fils
-   * @param parentName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The fully-qualified name of the scope in which the job is bound
    */
-  void build(String directory, String parentName) throws IOException {
+  void build(String directory, String parentScope) throws IOException {
     // Use a LinkedHashMap so that the properties will be enumerated in the
     // order in which we add them.
-    Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>(), parentName);
+    Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>(), parentScope);
 
-    String fileName = buildFileName(name, parentName);
+    String fileName = buildFileName(name, parentScope);
     File file = new File(directory, "${fileName}.job");
 
     file.withWriter { out ->
@@ -97,15 +95,18 @@ class AzkabanJob {
 
   /**
    * Helper method to construct the name to use with the Azkaban job file. By default, the name
-   * constructed is "${parentName}-${name}", but subclasses can override this method if they need
+   * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
    * to customize how the name is constructed.
+   * <p>
+   * As an example, if the job named "job1" is nested inside the workflow "testWorkflow", this
+   * method will form the name "testWorkflow_job1" as the file name.
    *
    * @param name The job name
-   * @param parentName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The fully-qualified name of the scope in which the job is bound
    * @return The name to use when generating the job file
    */
-  String buildFileName(String name, String parentName) {
-    return parentName == null ? name : "${parentName}-${name}";
+  String buildFileName(String name, String parentScope) {
+    return parentScope == null ? name : "${parentScope}_${name}";
   }
 
   /**
@@ -114,13 +115,12 @@ class AzkabanJob {
    * customize how the dependencies property is generated.
    *
    * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @param parentName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The fully-qualified name of the scope in which the job is bound
    * @return The input job properties map
    */
-  Map<String, String> buildProperties(Map<String, String> allProperties, String parentName) {
-    if (dependencies.size() > 0) {
-      String jobDependencyNames = dependencies.collect() { job -> return (parentName == null) ? job.name : "${parentName}-${job.name}"; }.join(",");
-      allProperties["dependencies"] = jobDependencyNames;
+  Map<String, String> buildProperties(Map<String, String> allProperties, String parentScope) {
+    if (dependencyNames.size() > 0) {
+      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return (parentScope == null) ? jobName : "${parentScope}_${jobName}"; }.join(",");
     }
     return buildProperties(allProperties);
   }
@@ -243,7 +243,6 @@ class AzkabanJob {
    */
   AzkabanJob clone(AzkabanJob cloneJob) {
     cloneJob.dependencyNames.addAll(dependencyNames);
-    cloneJob.dependencies.addAll(dependencies);
     cloneJob.jobProperties.putAll(jobProperties);
     cloneJob.jvmProperties.putAll(jvmProperties);
     cloneJob.reading.addAll(reading);
@@ -354,25 +353,6 @@ class AzkabanJob {
    */
   String toString() {
     return "(AzkabanJob: name = ${name})";
-  }
-
-  /**
-   * Helper method that tells the job to update its job dependencies list from its named
-   * dependencies.
-   *
-   * @param scope The scope in which the job is bound
-   */
-  void updateDependencies(NamedScope scope) {
-    dependencyNames.each { jobName ->
-      if (!scope.contains(jobName)) {
-        throw new Exception("Dependency ${jobName} for job ${this.name} not defined");
-      }
-      Object val = scope.lookup(jobName);
-      if (!(val instanceof AzkabanJob)) {
-        throw new Exception("Dependency ${jobName} for job ${this.name} resolves to an object that is not an AzkabanJob");
-      }
-      dependencies.add((AzkabanJob)val);
-    }
   }
 }
 
@@ -889,11 +869,11 @@ class LaunchJob extends NoOpJob {
    * Override for LaunchJob. The name of the generated LaunchJob file is simply the workflow name.
    *
    * @param name The job name
-   * @param parentName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The fully-qualified name of the scope in which the job is bound
    * @return The name to use when generating the job file
    */
   @Override
-  String buildFileName(String name, String parentName) {
+  String buildFileName(String name, String parentScope) {
     return name;
   }
 

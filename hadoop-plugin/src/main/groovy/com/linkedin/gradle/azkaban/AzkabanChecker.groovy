@@ -15,136 +15,104 @@
  */
 package com.linkedin.gradle.azkaban;
 
+import com.linkedin.gradle.azkaban.checker.JobDependencyChecker;
+import com.linkedin.gradle.azkaban.checker.RequiredFieldsChecker;
+import com.linkedin.gradle.azkaban.checker.ValidNameChecker;
+import com.linkedin.gradle.azkaban.checker.WorkflowJobChecker;
+
+import org.gradle.api.Project;
+
 /**
- * Static checker that scans the user's DSL for any potential problems.
+ * Top-level static checker that scans the user's DSL for any potential problems. The static
+ * checker consists of a series of static checking rules, each of which is typically implemented
+ * in its own class.
+ * <p>
+ * The static checker applies the following checker classes:
+ * <li>
+ *   <ul>ValidNameChecker: checks that names for all DSL objects are limited to approved characters</ul>
+ *   <li>RequiredFieldsChecker: checks that all the required fields in the DSL are set</li>
+ *   <li>WorkflowJobChecker: checks various properties of workflows</li>
+ *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
+ * </ul>
  */
-class AzkabanChecker {
-
-  boolean checkAzkabanExtension(AzkabanExtension azkaban) {
-    boolean ok = true;
-
-    azkaban.workflows.each() { workflow ->
-      // We want to print error messages for every job, so don't short-circuit the call.
-      ok = checkAzkabanWorkflow(workflow) && ok
-    }
-
-    return ok;
+class AzkabanChecker extends BaseStaticChecker {
+  /**
+   * Constructor for the Azkaban static checker.
+   *
+   * @param project The Gradle project
+   */
+  AzkabanChecker(Project project) {
+    super(project);
   }
 
-  boolean checkAzkabanWorkflow(AzkabanWorkflow workflow) {
-    boolean ok = true;
-
-    // Then check each job. Groovy has multi-methods, so it will do overload
-    // resolution based on the runtime type of the job.
-    workflow.jobs.each() { job ->
-      // We want to print error messages for every job, so don't short-circuit the call.
-      ok = checkAzkabanJob(job) && ok
-    }
-
-    return ok;
+  /**
+   * Builds the list of static checking rules that will be applied to DSL. This factory method can
+   * be overridden by subclasses to customize or manipulate the static checks that get made.
+   *
+   * @return The list of static checks to apply to the DSL
+   */
+  List<StaticChecker> buildStaticChecks() {
+    List<StaticChecker> checks = new ArrayList<StaticChecker>();
+    checks.add(makeValidNameChecker());
+    checks.add(makeRequiredFieldsChecker());
+    checks.add(makeWorkflowJobChecker());
+    checks.add(makeJobDependencyChecker());
+    return checks;
   }
 
-  boolean checkAzkabanJob(AzkabanJob job) {
-    return true;
+  /**
+   * Makes this static check on the DSL.
+   *
+   * @param azkaban The Azkaban DSL extension
+   */
+  @Override
+  void checkAzkabanDsl(AzkabanExtension azkaban) {
+    List<StaticChecker> checks = buildStaticChecks();
+    checks.each() { check ->
+      if (!foundError) {
+        check.checkAzkabanDsl(azkaban);
+        foundError |= check.failedCheck();
+      }
+    }
   }
 
-  boolean checkAzkabanJob(CommandJob job) {
-    if (job.command == null || job.command.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: CommandJob ${job.name} must set command");
-      return false;
-    }
-    return true;
+  /**
+   * Factory method to build the JobDependencyChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The JobDependencyChecker check
+   */
+  JobDependencyChecker makeJobDependencyChecker() {
+    return new JobDependencyChecker(project);
   }
 
-  boolean checkAzkabanJob(HadoopJavaJob job) {
-    if (job.jobClass == null || job.jobClass.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: HadoopJavaJob ${job.name} must set jobClass");
-      return false;
-    }
-    return true;
+  /**
+   * Factory method to build the RequiredFieldsChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The RequiredFieldsChecker check
+   */
+  RequiredFieldsChecker makeRequiredFieldsChecker() {
+    return new RequiredFieldsChecker(project);
   }
 
-  boolean checkAzkabanJob(HiveJob job) {
-    boolean emptyQuery = job.query == null || job.query.isEmpty();
-    boolean emptyQueryFile = job.queryFile == null || job.queryFile.isEmpty();
-    if (emptyQuery && emptyQueryFile) {
-      System.err.println("AzkabanDslChecker ERROR: HiveJob ${job.name} must set query or queryFile");
-      return false;
-    }
-    if (!emptyQuery && !emptyQueryFile) {
-      System.err.println("AzkabanDslChecker ERROR: HiveJob ${job.name} sets both query and queryFile");
-      return false;
-    }
-    return true;
+  /**
+   * Factory method to build the ValidNameChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The ValidNameChecker check
+   */
+  ValidNameChecker makeValidNameChecker() {
+    return new ValidNameChecker(project);
   }
 
-  boolean checkAzkabanJob(JavaJob job) {
-    if (job.jobClass == null || job.jobClass.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: JavaJob ${job.name} must set jobClass");
-      return false;
-    }
-    return true;
-  }
-
-  boolean checkAzkabanJob(JavaProcessJob job) {
-    if (job.javaClass == null || job.javaClass.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: JavaProcessJob ${job.name} must set javaClass");
-      return false;
-    }
-    return true;
-  }
-
-  boolean checkAzkabanJob(KafkaPushJob job) {
-    if (job.inputPath == null || job.inputPath.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: KafkaPushJob ${job.name} must set inputPath");
-      return false;
-    }
-    if (job.topic == null || job.topic.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: KafkaPushJob ${job.name} must set topic");
-      return false;
-    }
-    return true;
-  }
-
-  boolean checkAzkabanJob(NoOpJob job) {
-    return true;
-  }
-
-  boolean checkAzkabanJob(PigJob job) {
-    if (job.script == null || job.script.isEmpty()) {
-      System.err.println("AzkabanDslChecker ERROR: PigJob ${job.name} must set script");
-      return false;
-    }
-    return true;
-  }
-
-  boolean checkAzkabanJob(VoldemortBuildPushJob job) {
-    boolean emptyStoreDesc = job.storeDesc == null || job.storeDesc.isEmpty();
-    boolean emptyStoreName = job.storeName == null || job.storeName.isEmpty();
-    boolean emptyStoreOwnr = job.storeOwners == null || job.storeOwners.isEmpty();
-    boolean emptyInputPath = job.buildInputPath == null || job.buildInputPath.isEmpty();
-    boolean emptyOutptPath = job.buildOutputPath == null || job.buildOutputPath.isEmpty();
-    boolean emptyRepFactor = job.repFactor == null;
-
-    if (emptyStoreDesc || emptyStoreName || emptyStoreOwnr || emptyInputPath || emptyOutptPath || emptyRepFactor) {
-      System.err.println("AzkabanDslChecker ERROR: VoldemortBuildPushJob ${job.name} has the following required fields: storeDesc, storeName, storeOwners, buildInputPath, buildOutputPath, repFactor");
-      return false;
-    }
-
-    // Cannot be empty if isAvroData is true
-    boolean emptyAvroKeyFd = job.avroKeyField == null || job.avroKeyField.isEmpty();
-    boolean emptyAvroValFd = job.avroValueField == null || job.avroValueField.isEmpty();
-
-    if (job.isAvroData == true && (emptyAvroKeyFd || emptyAvroValFd)) {
-      System.err.println("AzkabanDslChecker ERROR: VoldemortBuildPushJob ${job.name} must set both avroKeyField and avroValueField when isAvroData is set to true");
-      return false;
-    }
-
-    // Print a warning if avroKeyField or avroValueField is set but isAvroData is false
-    if (job.isAvroData == false && (!emptyAvroKeyFd || !emptyAvroValFd)) {
-      System.out.println("AzkabanDslChecker WARNING: VoldemortBuildPushJob ${job.name} will not use avroKeyField and avroValueField since isAvroData is set to false");
-    }
-
-    return true;
+  /**
+   * Factory method to build the WorkflowJobChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The WorkflowJobChecker check
+   */
+  WorkflowJobChecker makeWorkflowJobChecker() {
+    return new WorkflowJobChecker(project);
   }
 }

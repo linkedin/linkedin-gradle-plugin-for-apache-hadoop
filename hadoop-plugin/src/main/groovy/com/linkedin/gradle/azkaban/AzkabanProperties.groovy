@@ -45,14 +45,14 @@ class AzkabanProperties {
    * Builds an Azkaban properties file.
    *
    * @param directory The directory in which to build the property file
-   * @param parentName The fully-qualified name of the scope in which the properties object is bound
+   * @param parentScope The fully-qualified name of the scope in which the properties object is bound
    */
-  void build(String directory, String parentName) throws IOException {
+  void build(String directory, String parentScope) throws IOException {
     if (this.properties.keySet().size() == 0) {
       return;
     }
 
-    String fileName = parentName == null ? name : "${parentName}-${name}";
+    String fileName = buildFileName(name, parentScope);
     File file = new File(directory, "${fileName}.properties");
 
     file.withWriter { out ->
@@ -64,6 +64,19 @@ class AzkabanProperties {
 
     // Set to read-only to remind people that they should not be editing the job files.
     file.setWritable(false);
+  }
+
+  /**
+   * Helper method to construct the name to use with the Azkaban properties file. By default, the name
+   * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
+   * to customize how the name is constructed.
+   *
+   * @param name The job name
+   * @param parentScope The fully-qualified name of the scope in which the properties object is bound
+   * @return The name to use when generating the properties file
+   */
+  String buildFileName(String name, String parentScope) {
+    return parentScope == null ? name : "${parentScope}_${name}";
   }
 
   /**

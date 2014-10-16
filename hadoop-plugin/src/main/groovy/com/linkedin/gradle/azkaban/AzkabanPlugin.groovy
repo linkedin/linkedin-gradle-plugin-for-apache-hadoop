@@ -61,8 +61,10 @@ class AzkabanPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doLast {
-        AzkabanChecker checker = azkabanFactory.makeAzkabanChecker();
-        if (!checker.checkAzkabanExtension(azkabanExtension)) {
+        AzkabanChecker checker = azkabanFactory.makeAzkabanChecker(project);
+        checker.checkAzkabanDsl(azkabanExtension);
+
+        if (checker.failedCheck()) {
           throw new Exception("AzkabanDslChecker FAILED");
         }
 
@@ -209,6 +211,7 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   @Deprecated
   JavaJob javaJob(String name, Closure configure) {
+    project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
     return configureJob(azkabanFactory.makeJavaJob(name), configure);
   }
 

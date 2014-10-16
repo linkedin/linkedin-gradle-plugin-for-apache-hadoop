@@ -48,7 +48,7 @@ workflow('prodWorkflow') {
     uses 'prodScript2.pig'
   }
 
-  depends 'job1Prod'
+  targets 'job1Prod'
 }
 
 def trainWorkflow = new com.linkedin.gradle.azkaban.AzkabanWorkflow('train', project)
@@ -83,7 +83,7 @@ azkaban {
         'param1' : 'val1'
       ]
     }
-    depends 'job1Prod', 'prodJob', 'prodJob2'
+    targets 'job1Prod', 'prodJob', 'prodJob2'
   }
 
   propertyFile('common') {
@@ -137,13 +137,16 @@ azkaban {
     }
 
     azkabanJob('job3') {
+      reads files: [
+        'bazz' : '/data/databases/bazz'
+      ]
       depends 'job2'
     }
 
     azkabanJob('job4') {
     }
 
-    depends 'job3'
+    targets 'job3'
   }
 
   workflow('workflow2') {
@@ -171,11 +174,13 @@ azkaban {
       depends 'job1'
     }
 
-    depends 'job2', 'job21Copy'
+    targets 'job2', 'job21Copy'
   }
 
   workflow('workflow3') {
-    depends 'job1'
+    addJob('job1') {
+    }
+    targets 'job1'
   }
 
   generateWorkflows()
@@ -190,7 +195,7 @@ azkaban {
     azkabanJob('job1') {
     }
 
-    depends 'job1'
+    targets 'job1'
   }
 
   workflow('triangleDependencies') {
@@ -203,7 +208,7 @@ azkaban {
     azkabanJob('job3') {
       depends 'job1'
     }
-    depends 'job3', 'job2'
+    targets 'job3', 'job2'
   }
 }
 
@@ -212,11 +217,11 @@ azkaban.workflow('workflow4') {
     usesQuery "show tables"
   }
 
-  commandJob('job8') {
+  commandJob('command-job8') {
     uses 'echo "hello world"'
   }
 
-  javaJob('job9') {
+  javaJob('java-job9') {
     uses 'com.linkedin.hello.World'
   }
 
@@ -238,13 +243,13 @@ azkaban.workflow('workflow4') {
     usesTopic 'memberTopic'
   }
 
-  depends 'job12', 'job11', 'job10', 'job9', 'job8', 'job7'
+  targets 'job12', 'job11', 'job10', 'java-job9', 'command-job8', 'job7'
 
   if (false) {
     pigJob('job12') {
       uses 'src/main/pig/count_by_country2.job'
     }
-    depends 'job12'
+    targets 'job12'
   }
   else {
     pigJob('job12Else') {
@@ -255,6 +260,6 @@ azkaban.workflow('workflow4') {
         uses 'src/main/pig/count_by_country2else.job'
       }
     }
-    depends 'job12Else'
+    targets 'job12Else'
   }
 }
