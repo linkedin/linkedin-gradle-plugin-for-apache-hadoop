@@ -24,6 +24,11 @@ import org.gradle.api.Project;
  * LinkedIn-specific customizations to the Hadoop DSL Plugin.
  */
 class LiHadoopDslPlugin extends HadoopDslPlugin {
+  /**
+   * Applies the LinkedIn-specific Hadoop DSL Plugin.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void apply(Project project) {
     super.apply(project);

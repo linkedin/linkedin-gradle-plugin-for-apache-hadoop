@@ -31,6 +31,11 @@ class PigPlugin implements Plugin<Project> {
   PigExtension pigExtension;
   Project project;
 
+  /**
+   * Applies the Pig Plugin, which sets up tasks for Apache Pig.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void apply(Project project) {
     this.pigExtension = makePigExtension(project);

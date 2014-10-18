@@ -69,31 +69,6 @@ class Job {
   }
 
   /**
-   * Builds this Job, which writes a job file.
-   *
-   * @param directory The directory in which to build the job files
-   * @param parentScope The fully-qualified name of the scope in which the job is bound
-   */
-  void build(String directory, String parentScope) throws IOException {
-    // Use a LinkedHashMap so that the properties will be enumerated in the
-    // order in which we add them.
-    Map<String, String> allProperties = buildProperties(new LinkedHashMap<String, String>(), parentScope);
-
-    String fileName = buildFileName(name, parentScope);
-    File file = new File(directory, "${fileName}.job");
-
-    file.withWriter { out ->
-      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      allProperties.each() { key, value ->
-        out.writeLine("${key}=${value}");
-      }
-    }
-
-    // Set to read-only to remind people that they should not be editing the job files.
-    file.setWritable(false);
-  }
-
-  /**
    * Helper method to construct the name to use with the job file. By default, the name constructed
    * is "${parentScope}_${name}", but subclasses can override this method if they need to customize
    * how the name is constructed.

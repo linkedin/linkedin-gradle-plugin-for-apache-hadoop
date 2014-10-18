@@ -41,31 +41,6 @@ class Properties {
   }
 
   /**
-   * Builds a properties file.
-   *
-   * @param directory The directory in which to build the property file
-   * @param parentScope The fully-qualified name of the scope in which the properties object is bound
-   */
-  void build(String directory, String parentScope) throws IOException {
-    if (this.properties.keySet().size() == 0) {
-      return;
-    }
-
-    String fileName = buildFileName(name, parentScope);
-    File file = new File(directory, "${fileName}.properties");
-
-    file.withWriter { out ->
-      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      properties.each() { key, value ->
-        out.writeLine("${key}=${value}");
-      }
-    }
-
-    // Set to read-only to remind people that they should not be editing the job files.
-    file.setWritable(false);
-  }
-
-  /**
    * Helper method to construct the name to use with the properties file. By default, the name
    * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
    * to customize how the name is constructed.

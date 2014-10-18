@@ -15,21 +15,49 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import org.gradle.api.Project;
+
 /**
- * Interface for static checker rules.
+ * Base class for static checking rules.
  */
-interface StaticChecker extends Visitor {
+abstract class BaseStaticChecker extends BaseVisitor implements StaticChecker {
+  /**
+   * Member variable that tracks whether or not the checker found an error or not. Subclasses
+   * set this variable when the check the DSL.
+   */
+  boolean foundError = false;
+
+  /**
+   * Member variable for the Gradle project so we can access the logger.
+   */
+  Project project;
+
+  /**
+   * Base constructor for the BaseStaticChecker.
+   *
+   * @param project The Gradle project
+   */
+  BaseStaticChecker(Project project) {
+    this.project = project;
+  }
+
   /**
    * Makes this static check on the DSL.
    *
    * @param extension The Hadoop DSL extension
    */
-  void checkHadoopDsl(HadoopDslExtension extension);
+  @Override
+  void checkHadoopDsl(HadoopDslExtension extension) {
+    visitExtension(extension);
+  }
 
   /**
    * Asks the checker rule whether or not the check failed.
    *
    * @return Whether or not the check failed
    */
-  boolean failedCheck();
+  @Override
+  boolean failedCheck() {
+    return foundError;
+  }
 }

@@ -16,20 +16,20 @@
 package com.linkedin.gradle.hadoopdsl;
 
 /**
- * Interface for static checker rules.
+ * Interface for Hadoop DSL compilers.
  */
-interface StaticChecker extends Visitor {
+interface HadoopDslCompiler extends Visitor {
   /**
-   * Makes this static check on the DSL.
+   * Cleans up generated files from the build directory.
+   *
+   * @param buildDirectoryFile Java File object representing the build directory
+   */
+  void cleanBuildDirectory(File buildDirectoryFile);
+
+  /**
+   * Builds the Hadoop DSL.
    *
    * @param extension The Hadoop DSL extension
    */
-  void checkHadoopDsl(HadoopDslExtension extension);
-
-  /**
-   * Asks the checker rule whether or not the check failed.
-   *
-   * @return Whether or not the check failed
-   */
-  boolean failedCheck();
+  void compile(HadoopDslExtension extension);
 }

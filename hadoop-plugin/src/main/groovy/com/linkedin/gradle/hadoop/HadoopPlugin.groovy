@@ -26,7 +26,12 @@ import org.gradle.api.Project;
  * HadoopPlugin is the class that implements our Gradle Plugin.
  */
 class HadoopPlugin implements Plugin<Project> {
-
+  /**
+   * Applies the Hadoop Plugin, which in turn applies the Hadoop DSL, Azkaban and Apache Pig
+   * plugins.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void apply(Project project) {
     project.getPlugins().apply(getHadoopDslPluginClass());

@@ -27,6 +27,12 @@ class HadoopDslPlugin implements Plugin<Project> {
   NamedScope globalScope = new NamedScope("");
   Project project;
 
+  /**
+   * Applies the Hadoop DSL Plugin, which sets up the extensions and methods necessary to use the
+   * Hadoop DSL.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void apply(Project project) {
     this.factory = makeFactory();

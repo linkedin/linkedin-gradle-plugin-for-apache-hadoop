@@ -89,59 +89,6 @@ class Workflow implements NamedScopeContainer {
   }
 
   /**
-   * Builds the workflow.
-   * <p>
-   * NOTE: not all jobs in the workflow are built by default. Only those jobs that can be found
-   * from a transitive walk starting from the jobs the workflow executes actually get built.
-   *
-   * @param directory The directory in which to build the workflow files
-   * @param parentScope The fully-qualified name of the scope in which the workflow is bound
-   */
-  void build(String directory, String parentScope) throws IOException {
-    if ("default".equals(name)) {
-      buildDefault(directory, parentScope);
-      return;
-    }
-
-    // Build the list of jobs to build for the workflow.
-    Set<Job> jobsToBuild = buildJobList();
-
-    // Build the all the jobs and properties in the workflow.
-    parentScope = parentScope == null ? name : "${parentScope}_${name}";
-
-    jobsToBuild.each() { job ->
-      job.build(directory, parentScope);
-    }
-
-    properties.each() { props ->
-      props.build(directory, parentScope);
-    }
-  }
-
-  /**
-   * Helper method to build the special default workflow, which is a workflow with the special name
-   * "default". In the default workflow, the fully-qualified name of the parent scope is not added
-   * to the file names; and all jobs in the workflow are built (rather than only those jobs that
-   * can be found from a transitive walk of the jobs the workflow executes).
-   *
-   * @param directory The directory in which to build the workflow files
-   * @param parentScope The fully-qualified name of the scope in which the workflow is bound
-   */
-  void buildDefault(String directory, String parentScope) throws IOException {
-    if (!"default".equals(name)) {
-      throw new Exception("You cannot buildDefault except on the 'default' workflow");
-    }
-
-    jobs.each() { job ->
-      job.build(directory, null);
-    }
-
-    properties.each() { props ->
-      props.build(directory, null);
-    }
-  }
-
-  /**
    * Generate the list of jobs to build for this workflow by performing a transitive (breadth-
    * first) walk of the jobs in the workflow, starting from the jobs the workflow executes.
    * <p>

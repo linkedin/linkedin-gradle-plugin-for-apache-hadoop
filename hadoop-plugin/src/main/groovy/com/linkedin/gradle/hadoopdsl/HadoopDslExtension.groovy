@@ -33,10 +33,10 @@ import org.gradle.api.Project;
  * </pre>
  */
 class HadoopDslExtension implements NamedScopeContainer {
+  String buildDirectory;
   boolean cleanFirst;
   HadoopDslFactory factory;
   NamedScope scope;
-  String jobConfDir;
   Project project;
   List<Properties> properties;
   List<Workflow> workflows;
@@ -57,10 +57,10 @@ class HadoopDslExtension implements NamedScopeContainer {
    * @param parentScope The parent scope
    */
   HadoopDslExtension(Project project, NamedScope parentScope) {
+    this.buildDirectory = null;
     this.factory = project.extensions.hadoopDslFactory;
     this.scope = new NamedScope("hadoop", parentScope);
     this.cleanFirst = true;
-    this.jobConfDir = null;
     this.project = project;
     this.properties = new ArrayList<Properties>();
     this.workflows = new ArrayList<Job>();
@@ -81,49 +81,6 @@ class HadoopDslExtension implements NamedScopeContainer {
   }
 
   /**
-   * Builds the Hadoop DSL extension, which builds the workflows and properties that have been
-   * specified in the DSL and added to the extension with the hadoop { ... } DSL syntax.
-   */
-  void build() throws IOException {
-    if (jobConfDir == null || jobConfDir.isEmpty()) {
-      throw new IOException("You must set the property jobConfDir to use the Hadoop DSL");
-    }
-
-    File file = new File(jobConfDir);
-
-    if (file.exists()) {
-      if (!file.isDirectory()) {
-        throw new IOException("Directory ${jobConfDir} must specify a directory");
-      }
-    }
-    else {
-      // Try to make the directory automatically if we can. For git users, this is convenient as
-      // git will not push empty directories in the repository (and users will often add the
-      // generated job files to their gitignore).
-      if (!file.mkdir()) {
-        throw new IOException("Directory ${jobConfDir} does not exist and could not be created");
-      }
-    }
-
-    if (cleanFirst) {
-      file.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-        String fileName = f.getName().toLowerCase();
-        if (fileName.endsWith(".job") || fileName.endsWith(".properties")) {
-          f.delete();
-        }
-      }
-    }
-
-    workflows.each() { workflow ->
-      workflow.build(jobConfDir, null);
-    }
-
-    properties.each() { props ->
-      props.build(jobConfDir, null);
-    }
-  }
-
-  /**
    * DSL buildPath method sets the directory in which workflow files will be generated when the
    * extension is built. Both absolute and relative paths are accepted.
    *
@@ -131,10 +88,10 @@ class HadoopDslExtension implements NamedScopeContainer {
    */
   void buildPath(String buildDir) {
     if (buildDir.startsWith("/")) {
-      jobConfDir = buildDir;
+      this.buildDirectory = buildDir;
     }
     else {
-      jobConfDir = new File("${project.projectDir}", buildDir).getPath();
+      this.buildDirectory = new File("${project.projectDir}", buildDir).getPath();
     }
   }
 

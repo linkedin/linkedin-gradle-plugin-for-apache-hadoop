@@ -24,11 +24,14 @@ import org.gradle.api.Project;
  * AzkabanPlugin implements features for Azkaban, including building the Hadoop DSL for Azkaban.
  */
 class AzkabanPlugin implements Plugin<Project> {
-
+  /**
+   * Applies the AzkabanPlugin. This adds the Gradle task that builds the Hadoop DSL for Azkaban.
+   * Plugin users should have their build tasks depend on this task.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void apply(Project project) {
-    // Add the Gradle task that builds the Hadoop DSL for Azkaban. Plugin users should have their
-    // build tasks depend on this task.
     project.tasks.create("buildAzkabanFlows") {
       dependsOn "checkHadoopDsl"
       description = "Builds the Hadoop DSL for Azkaban. Have your build task depend on this task.";
@@ -36,8 +39,20 @@ class AzkabanPlugin implements Plugin<Project> {
 
       doLast {
         HadoopDslExtension extension = project.extensions.hadoop;
-        extension.build();
+        AzkabanDslCompiler compiler = makeCompiler(project);
+        compiler.compile(extension);
       }
     }
+  }
+
+  /**
+   * Factory method to build the Hadoop DSL compiler for Azkaban. Subclasses can override this
+   * method to provide their own compiler.
+   *
+   * @param project The Gradle project
+   * @return The AzkabanDslCompiler
+   */
+  AzkabanDslCompiler makeCompiler(Project project) {
+    return new AzkabanDslCompiler(project);
   }
 }
