@@ -58,12 +58,15 @@ class PigTaskHelper {
       return fileName;
     }
 
-    char index = '1';
-    StringBuilder sb = new StringBuilder(fileName + index);
+    StringBuilder sb = new StringBuilder(fileName);
     int length = sb.length();
 
-    while (!taskNames.contains(sb.toString())) {
-      sb.setCharAt(length - 1, ++index);
+    int index = 1;
+    sb.append(index);
+
+    while (taskNames.contains(sb.toString())) {
+      sb.setLength(length);
+      sb.append(++index);
     }
 
     return sb.toString();
