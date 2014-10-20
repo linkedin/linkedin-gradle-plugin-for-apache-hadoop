@@ -24,7 +24,6 @@ import org.gradle.api.Project;
 /**
  * The WorkflowJobChecker rule checks the following:
  * <ul>
- *   <li>WARN if a default workflow declares jobs that it executes</li>
  *   <li>WARN if a workflow does not declare any jobs that it executes</li>
  *   <li>ERROR if a workflow declares that it executes a job that is not in the workflow</li>
  *   <li>ERROR if a job in a workflow depends on a job that is not in the workflow. Note that this
@@ -45,17 +44,9 @@ class WorkflowJobChecker extends BaseStaticChecker {
 
   @Override
   void visitWorkflow(Workflow workflow) {
-    if ("default".equals(workflow.name)) {
-      // WARN if a default workflow declares jobs that it executes
-      if (!workflow.launchJobDependencies.isEmpty()) {
-        project.logger.lifecycle("WorkflowJobChecker WARNING: The default workflow ${workflow.name} declares that it executes jobs. These will be ignored as the default workflow builds all jobs declared in the workflow.");
-      }
-    }
-    else {
-      // WARN if a workflow does not declare any jobs that it executes
-      if (workflow.launchJobDependencies.isEmpty()) {
-        project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not execute any jobs. No job files will be built for this workflow. Use the workflow executes method to declare the jobs executed by the workflow.");
-      }
+    // WARN if a workflow does not declare any jobs that it executes
+    if (workflow.launchJobDependencies.isEmpty()) {
+      project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not execute any jobs. No job files will be built for this workflow. Use the workflow executes method to declare the jobs executed by the workflow.");
     }
 
     // Build a map from the jobs in the workflow that maps the job name to the job.
@@ -84,15 +75,13 @@ class WorkflowJobChecker extends BaseStaticChecker {
       project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not contain any jobs. No job files will be built for this workflow.");
     }
 
-    if (!"default".equals(workflow.name)) {
-      // Walk the workflow and job dependencies to build the set of job names that will be built.
-      Set<Job> jobsToBuild = workflow.buildJobList();
+    // Walk the workflow and job dependencies to build the set of job names that will be built.
+    Set<Job> jobsToBuild = workflow.buildJobList();
 
-      // WARN if a workflow contains jobs that will not be built
-      jobMap.values().each() { Job job ->
-        if (!jobsToBuild.contains(job)) {
-          project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} contains the job ${job.name} that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.");
-        }
+    // WARN if a workflow contains jobs that will not be built
+    jobMap.values().each() { Job job ->
+      if (!jobsToBuild.contains(job)) {
+        project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} contains the job ${job.name} that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.");
       }
     }
   }
