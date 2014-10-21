@@ -132,15 +132,15 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(VoldemortBuildPushJob job) {
-    boolean emptyStoreDesc = job.storeDesc == null || job.storeDesc.isEmpty();
     boolean emptyStoreName = job.storeName == null || job.storeName.isEmpty();
-    boolean emptyStoreOwnr = job.storeOwners == null || job.storeOwners.isEmpty();
+    boolean emptyClustName = job.clusterName == null || job.clusterName.isEmpty();
     boolean emptyInputPath = job.buildInputPath == null || job.buildInputPath.isEmpty();
     boolean emptyOutptPath = job.buildOutputPath == null || job.buildOutputPath.isEmpty();
-    boolean emptyRepFactor = job.repFactor == null;
+    boolean emptyStoreOwnr = job.storeOwners == null || job.storeOwners.isEmpty();
+    boolean emptyStoreDesc = job.storeDesc == null || job.storeDesc.isEmpty();
 
-    if (emptyStoreDesc || emptyStoreName || emptyStoreOwnr || emptyInputPath || emptyOutptPath || emptyRepFactor) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: VoldemortBuildPushJob ${job.name} has the following required fields: storeDesc, storeName, storeOwners, buildInputPath, buildOutputPath, repFactor");
+    if (emptyStoreName || emptyClustName || emptyInputPath || emptyOutptPath || emptyStoreOwnr || emptyStoreDesc) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: VoldemortBuildPushJob ${job.name} has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc");
       foundError = true;
     }
 
