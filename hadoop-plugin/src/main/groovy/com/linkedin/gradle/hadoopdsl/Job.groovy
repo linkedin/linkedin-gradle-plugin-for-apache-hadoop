@@ -675,20 +675,26 @@ class JavaProcessJob extends Job {
 /**
  * Job class for type=KafkaPushJob jobs.
  * <p>
- * In the DSL, a KafkaPushJob can be specified with:
+ * These are documentated internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Hadoop+to+Kafka+Bridge.
+ * <p>
+ * The code for this job is at http://svn.corp.linkedin.com/netrepo/hadoop-to-kafka-bridge/trunk/.
+ * <p>
+ * In the example below, the values are NOT necessarily default values; they are simply meant to
+ * illustrate the DSL. In the DSL, a KafkaPushJob can be specified with:
  * <pre>
  *   kafkaPushJob('jobName') {
- *     usesInputPath '/data/derived/kafka'  // Required
- *     usesTopic 'memberTopic'              // Required
- *     usesBatchNumBytes 1024               // Optional
- *     usesDisableSchemaRegistration true   // Optional
- *     usesKafkaUrl 'http://foo.bar'        // Optional
- *     usesNameNode 'eat1-magicnn01'        // Optional
- *     usesSchemaRegistryUrl 'http://foo'   // Optional
+ *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
+ *     usesTopic 'kafkatestpush'                                       // Required
+ *     usesBatchNumBytes 1000000                                       // Optional
+ *     usesDisableSchemaRegistration true                              // Optional
+ *     usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
+ *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
+ *     usesSchemaRegistryUrl 'http://eat1-app501:10252/schemaRegistry/schemas'  // Optional
  *   }
  * </pre>
  */
 class KafkaPushJob extends Job {
+  // Required
   String inputPath;
   String topic;
 
@@ -1066,29 +1072,67 @@ class PigJob extends Job {
 /**
  * Job class for type=VoldemortBuildandPush jobs.
  * <p>
- * In the DSL, a VoldemortBuildandPush can be specified with:
+ * These are documentated internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Voldemort+Build+and+Push.
+ * <p>
+ * The code for this job is at https://github.com/voldemort/voldemort/blob/master/contrib/hadoop-store-builder/src/java/voldemort/store/readonly/mr/azkaban/VoldemortBuildAndPushJob.java.
+ * <p>
+ * In the example below, the values are NOT necessarily default values; they are simply meant to
+ * illustrate the DSL. In the DSL, a VoldemortBuildandPush can be specified with:
  * <pre>
  *   voldemortBuildPushJob('jobName') {
- *     usesStoreDesc 'storeDesc'        // Required
- *     usesStoreName 'storeName'        // Required
- *     usesStoreOwners 'storeOwners'    // Required
- *     usesInputPath 'buildInputPath'   // Required
- *     usesOutputPath 'buildOutputPath' // Required
- *     usesRepFactor 1                  // Required
- *     usesAvroData true                // Required.  Set to false by default
- *     usesAvroKeyField 'keyField'      // Optional unless isAvroData is true
- *     usesAvroValueField 'valueField'  // Optional unless isAvroData is true
+ *     usesStoreName 'test-store'          // Required
+ *     usesClusterName 'tcp://foo:10103'   // Required
+ *     usesInputPath '/user/foo/input'     // Required
+ *     usesOutputPath '/user/foo/output'   // Required
+ *     usesStoreOwners 'foo@linkedin.com'  // Required
+ *     usesStoreDesc 'Store for testing'   // Required
+ *     usesTempDir '/tmp/foo'              // Optional
+ *     usesRepFactor 2                     // Optional
+ *     usesCompressValue false             // Optional
+ *     usesKeySelection 'memberId'         // Optional
+ *     usesValueSelection 'lastName'       // Optional
+ *     usesNumChunks -1                    // Optional
+ *     usesChunkSize 1073741824            // Optional
+ *     usesKeepOutput false                // Optional
+ *     usesPushHttpTimeoutSeconds 86400    // Optional
+ *     usesPushNode 0                      // Optional
+ *     usesBuildStore true                 // Optional
+ *     usesPushStore true                  // Optional
+ *     usesFetcherProtocol 'hftp'          // Optional
+ *     usesFetcherPort '50070'             // Optional
+ *     usesAvroSerializerVersioned false   // Optional
+ *     usesAvroData false                  // Optional
+ *     usesAvroKeyField 'memberId'         // Optional unless isAvroData is true
+ *     usesAvroValueField 'firstName'      // Optional unless isAvroData is true
  *   }
  * </pre>
  */
 class VoldemortBuildPushJob extends Job {
-  String storeDesc;
+  // Required
   String storeName;
-  String storeOwners;
+  String clusterName;
   String buildInputPath;
   String buildOutputPath;
+  String storeOwners;
+  String storeDesc;
+
+  // Optional
+  String buildTempDir;
   Integer repFactor;
-  boolean isAvroData = false;
+  Boolean compressValue;
+  String keySelection;
+  String valueSelection;
+  Integer numChunks;
+  Integer chunkSize;
+  Boolean keepOutput;
+  Integer pushHttpTimeoutSeconds;
+  Integer pushNode;
+  Boolean buildStore;
+  Boolean pushStore;
+  String fetcherProtocol;
+  String fetcherPort;
+  Boolean isAvroSerializerVersioned;
+  Boolean isAvroData;
   String avroKeyField;    // Required if isAvroData is true
   String avroValueField;  // Required if isAvroData is true
 
@@ -1103,18 +1147,69 @@ class VoldemortBuildPushJob extends Job {
 
   @Override
   Map<String, String> buildProperties(Map<String, String> allProperties) {
+    // Required
     allProperties["type"] = "VoldemortBuildandPush";
-    allProperties["push.store.description"] = storeDesc;
     allProperties["push.store.name"] = storeName;
-    allProperties["push.store.owners"] = storeOwners;
+    allProperties["push.cluster"] = clusterName;
     allProperties["build.input.path"] = buildInputPath;
     allProperties["build.output.dir"] = buildOutputPath;
-    allProperties["build.replication.factor"] = repFactor;
-    allProperties["build.type.avro"] = isAvroData;
-    if (isAvroData == true) {
+    allProperties["push.store.owners"] = storeOwners;
+    allProperties["push.store.description"] = storeDesc;
+
+    // Optional
+    if (buildTempDir != null) {
+      allProperties["build.temp.dir"] = buildTempDir;
+    }
+    if (repFactor != null) {
+      allProperties["build.replication.factor"] = repFactor;
+    }
+    if (compressValue != null) {
+      allProperties["build.compress.value"] = compressValue;
+    }
+    if (keySelection != null) {
+      allProperties["key.selection"] = keySelection;
+    }
+    if (valueSelection != null) {
+      allProperties["value.selection"] = valueSelection;
+    }
+    if (numChunks != null) {
+      allProperties["num.chunks"] = numChunks;
+    }
+    if (chunkSize != null) {
+      allProperties["build.chunk.size"] = chunkSize;
+    }
+    if (keepOutput != null) {
+      allProperties["build.output.keep"] = keepOutput;
+    }
+    if (pushHttpTimeoutSeconds != null) {
+      allProperties["push.http.timeout.seconds"] = pushHttpTimeoutSeconds;
+    }
+    if (pushNode != null) {
+      allProperties["push.node"] = pushNode;
+    }
+    if (buildStore != null) {
+      allProperties["build"] = buildStore;
+    }
+    if (pushStore != null) {
+      allProperties["push"] = pushStore;
+    }
+    if (fetcherProtocol != null) {
+      allProperties["voldemort.fetcher.protocol"] = fetcherProtocol;
+    }
+    if (fetcherPort != null) {
+      allProperties["voldemort.fetcher.port"] = fetcherPort;
+    }
+    if (isAvroSerializerVersioned != null) {
+      allProperties["avro.serializer.versioned"] = isAvroSerializerVersioned;
+    }
+    if (isAvroData != null) {
+      allProperties["build.type.avro"] = isAvroData;
+    }
+    if (isAvroData != null && isAvroData == true) {
       allProperties["avro.key.field"] = avroKeyField;
       allProperties["avro.value.field"] = avroValueField;
     }
+
     return super.buildProperties(allProperties);
   }
 
@@ -1134,25 +1229,32 @@ class VoldemortBuildPushJob extends Job {
    * @return The cloned job
    */
   VoldemortBuildPushJob clone(VoldemortBuildPushJob cloneJob) {
-    cloneJob.storeDesc = storeDesc;
     cloneJob.storeName = storeName;
-    cloneJob.storeOwners = storeOwners;
+    cloneJob.clusterName = clusterName;
     cloneJob.buildInputPath = buildInputPath;
     cloneJob.buildOutputPath = buildOutputPath;
+    cloneJob.storeOwners = storeOwners;
+    cloneJob.storeDesc = storeDesc;
+
+    cloneJob.buildTempDir = buildTempDir;
     cloneJob.repFactor = repFactor;
+    cloneJob.compressValue = compressValue;
+    cloneJob.keySelection = keySelection;
+    cloneJob.valueSelection = valueSelection;
+    cloneJob.numChunks = numChunks;
+    cloneJob.chunkSize = chunkSize;
+    cloneJob.keepOutput = keepOutput;
+    cloneJob.pushHttpTimeoutSeconds = pushHttpTimeoutSeconds;
+    cloneJob.pushNode = pushNode;
+    cloneJob.buildStore = buildStore;
+    cloneJob.pushStore = pushStore;
+    cloneJob.fetcherProtocol = fetcherProtocol;
+    cloneJob.fetcherPort = fetcherPort;
+    cloneJob.isAvroSerializerVersioned = isAvroSerializerVersioned;
     cloneJob.isAvroData = isAvroData;
     cloneJob.avroKeyField = avroKeyField;
     cloneJob.avroValueField = avroValueField;
     return super.clone(cloneJob);
-  }
-
-  /**
-   * DSL usesStoreDesc method causes push.store.description=value to be set in the job file.
-   *
-   * @param storeDesc
-   */
-  void usesStoreDesc(String storeDesc) {
-    this.storeDesc = storeDesc;
   }
 
   /**
@@ -1165,12 +1267,12 @@ class VoldemortBuildPushJob extends Job {
   }
 
   /**
-   * DSL usesStoreOwners method causes push.store.owners=value to be set in the job file.
+   * DSL usesClusterName method causes push.cluster=value to be set in the job file.
    *
-   * @param storeOwners
+   * @param clusterName
    */
-  void usesStoreOwners(String storeOwners) {
-    this.storeOwners = storeOwners;
+  void usesClusterName(String clusterName) {
+    this.clusterName = clusterName;
   }
 
   /**
@@ -1192,6 +1294,33 @@ class VoldemortBuildPushJob extends Job {
   }
 
   /**
+   * DSL usesStoreOwners method causes push.store.owners=value to be set in the job file.
+   *
+   * @param storeOwners
+   */
+  void usesStoreOwners(String storeOwners) {
+    this.storeOwners = storeOwners;
+  }
+
+  /**
+   * DSL usesStoreDesc method causes push.store.description=value to be set in the job file.
+   *
+   * @param storeDesc
+   */
+  void usesStoreDesc(String storeDesc) {
+    this.storeDesc = storeDesc;
+  }
+
+  /**
+   * DSL usesTempDir method causes build.temp.dir=value to be set in the job file.
+   *
+   * @param buildTempDir
+   */
+  void usesTempDir(String buildTempDir) {
+    this.buildTempDir = buildTempDir;
+  }
+
+  /**
    * DSL usesRepFactor method causes build.replication.factor=value to be set in the job file.
    *
    * @param repFactor
@@ -1201,11 +1330,131 @@ class VoldemortBuildPushJob extends Job {
   }
 
   /**
+   * DSL usesCompressValue method causes build.compress.value=value to be set in the job file.
+   *
+   * @param compressValue
+   */
+  void usesCompressValue(Boolean compressValue) {
+    this.compressValue = compressValue;
+  }
+
+  /**
+   * DSL usesKeySelection method causes key.selection=value to be set in the job file.
+   *
+   * @param keySelection
+   */
+  void usesKeySelection(String keySelection) {
+    this.keySelection = keySelection;
+  }
+
+  /**
+   * DSL usesValueSelection method causes value.selection=value to be set in the job file.
+   *
+   * @param valueSelection
+   */
+  void usesValueSelection(String valueSelection) {
+    this.valueSelection = valueSelection;
+  }
+
+  /**
+   * DSL usesNumChunks method causes num.chunks=value to be set in the job file.
+   *
+   * @param numChunks
+   */
+  void usesNumChunks(Integer numChunks) {
+    this.numChunks = numChunks;
+  }
+
+  /**
+   * DSL usesChunkSize method causes build.chunk.size=value to be set in the job file.
+   *
+   * @param chunkSize
+   */
+  void usesChunkSize(Integer chunkSize) {
+    this.chunkSize = chunkSize;
+  }
+
+  /**
+   * DSL usesKeepOutput method causes build.output.keep=value to be set in the job file.
+   *
+   * @param keepOutput
+   */
+  void usesKeepOutput(Boolean keepOutput) {
+    this.keepOutput = keepOutput;
+  }
+
+  /**
+   * DSL usesPushHttpTimeoutSeconds method causes push.http.timeout.seconds=value to be set in the
+   * job file.
+   *
+   * @param pushHttpTimeoutSeconds
+   */
+  void usesPushHttpTimeoutSeconds(Integer pushHttpTimeoutSeconds) {
+    this.pushHttpTimeoutSeconds = pushHttpTimeoutSeconds;
+  }
+
+  /**
+   * DSL usesPushNode method causes push.node=value to be set in the job file.
+   *
+   * @param pushNode
+   */
+  void usesPushNode(Integer pushNode) {
+    this.pushNode = pushNode;
+  }
+
+  /**
+   * DSL usesBuildStore method causes build=value to be set in the job file.
+   *
+   * @param buildStore
+   */
+  void usesBuildStore(Boolean buildStore) {
+    this.buildStore = buildStore;
+  }
+
+  /**
+   * DSL usesPushStore method causes push=value to be set in the job file.
+   *
+   * @param pushStore
+   */
+  void usesPushStore(Boolean pushStore) {
+    this.pushStore = pushStore;
+  }
+
+  /**
+   * DSL usesFetcherProtocol method causes voldemort.fetcher.protocol=value to be set in the job
+   * file.
+   *
+   * @param fetcherProtocol
+   */
+  void usesFetcherProtocol(String fetcherProtocol) {
+    this.fetcherProtocol = fetcherProtocol;
+  }
+
+  /**
+   * DSL usesFetcherPort method causes voldemort.fetcher.port=value to be set in the job file.
+   *
+   * @param fetcherPort
+   */
+  void usesFetcherPort(String fetcherPort) {
+    this.fetcherPort = fetcherPort;
+  }
+
+  /**
+   * DSL usesAvroSerializerVersioned method causes avro.serializer.versioned=value to be set in the
+   * job file.
+   *
+   * @param isAvroSerializerVersioned
+   */
+  void usesAvroSerializerVersioned(Boolean isAvroSerializerVersioned) {
+    this.isAvroSerializerVersioned = isAvroSerializerVersioned;
+  }
+
+  /**
    * DSL usesAvroData method causes build.type.avro=value to be set in the job file.
    *
    * @param isAvroData
    */
-  void usesAvroData(boolean isAvroData) {
+  void usesAvroData(Boolean isAvroData) {
     this.isAvroData = isAvroData;
   }
 
