@@ -337,13 +337,17 @@ class Job {
  * <p>
  * In the DSL, a CommandJob can be specified with:
  * <pre>
+ *   def commands = ['echo "hello"', 'echo "This is how one runs a command job"', 'whoami']
+ *
  *   commandJob('jobName') {
- *     uses 'echo "hello world"'  // Required
+ *     uses 'echo "hello world"'  // Exactly one of uses or usesCommands is required
+ *     usesCommands commands      // Exactly one of uses or usesCommands is required
  *   }
  * </pre>
  */
 class CommandJob extends Job {
   String command;
+  List<String> commands;
 
   /**
    * Constructor for a CommandJob.
@@ -357,7 +361,18 @@ class CommandJob extends Job {
   @Override
   Map<String, String> buildProperties(Map<String, String> allProperties) {
     allProperties["type"] = "command";
-    allProperties["command"] = command;
+
+    if (command != null) {
+      allProperties["command"] = command;
+    }
+    if (commands != null && commands.size() > 0) {
+      allProperties["command"] = commands.get(0);
+
+      for (int i = 1; i < commands.size(); i++) {
+        allProperties["command.${i}"] = commands.get(i);
+      }
+    }
+
     return super.buildProperties(allProperties);
   }
 
@@ -378,17 +393,32 @@ class CommandJob extends Job {
    */
   CommandJob clone(CommandJob cloneJob) {
     cloneJob.command = command;
+    cloneJob.commands = commands;
     return super.clone(cloneJob);
   }
 
   /**
    * DSL method uses specifies the command for the job. This method causes the property
-   * command=value to be added the job. This method is required to build the job.
+   * command=value to be added the job.
+   * <p>
+   * Only one of the methods uses or usesCommands can be specified with a CommandJob.
    *
    * @param command The command for the job
    */
   void uses(String command) {
     this.command = command;
+  }
+
+  /**
+   * DSL method usesCommands specifies the commands for the job. This method causes the properties
+   * command.1=value1, command.2=value2, etc. to be added the job.
+   * <p>
+   * Only one of the methods uses or usesCommands can be specified with a CommandJob.
+   *
+   * @param command The command for the job
+   */
+  void usesCommands(List<String> commands) {
+    this.commands = commands;
   }
 }
 
@@ -462,14 +492,18 @@ class HadoopJavaJob extends Job {
  * <p>
  * In the DSL, a HiveJob can be specified with:
  * <pre>
+ *   def queries = ["show tables", "describe myTable"]
+ *
  *   hiveJob('jobName') {
- *     usesQuery "show tables"
- *     uses "hello.q"           // Cannot be used at the same time as usesQuery
+ *     usesQueries queries
+ *     usesQuery "show tables"  // Exactly one of usesQueries, usesQuery or usesQueryFile is required
+ *     usesQueryFile "hello.q"  // Exactly one of usesQueries, usesQuery or usesQuery is required
  *   }
  * </pre>
  */
 class HiveJob extends Job {
-  // Exactly one of query or queryFile must be set
+  // Exactly one of queries, query or queryFile must be set
+  List<String> queries;
   String query;
   String queryFile;
 
@@ -486,12 +520,25 @@ class HiveJob extends Job {
   Map<String, String> buildProperties(Map<String, String> allProperties) {
     allProperties["type"] = "hive";
     allProperties["azk.hive.action"] = "execute.query";
-    if (query) {
+
+    if (queries != null && queries.size() > 0) {
+      for (int i = 1; i <= queries.size(); i++) {
+        if (i <= 9) {
+          // Multi-queries have to be indexed from 01. See http://azkaban.github.io/azkaban/docs/2.5/#hive-type.
+          allProperties["hive.query.0${i}"] = queries.get(i - 1);
+        }
+        else {
+          allProperties["hive.query.${i}"] = queryFile;
+        }
+      }
+    }
+    if (query != null) {
       allProperties["hive.query"] = query;
     }
-    if (queryFile) {
+    if (queryFile != null) {
       allProperties["hive.query.file"] = queryFile;
     }
+
     return super.buildProperties(allProperties);
   }
 
@@ -511,16 +558,34 @@ class HiveJob extends Job {
    * @return The cloned job
    */
   HiveJob clone(HiveJob cloneJob) {
+    cloneJob.queries = queries;
     cloneJob.query = query;
     cloneJob.queryFile = queryFile;
     return super.clone(cloneJob);
   }
 
   /**
-   * DSL method usesQuery specifies the query for the job. This method causes the property
-   * hive.query=value to be added the job. This method is required to build the job.
+   * DSL method usesQueries specifies the queries for the job. This method causes the properties
+   * hive.query.01=value1, hive.query.02=value2, etc. to be added the job.
    * <p>
-   * Only one of the properties hive.query or hive.query.file can be set on a HiveJob.
+   * Note that you can specify a maximum of 99 queries for the job. If there are more than 99
+   * queries, the job will fail the static checker.
+   * <p>
+   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
+   * HiveJob.
+   *
+   * @param queries The Hive queries for the job
+   */
+  void usesQueries(List<String> queries) {
+    this.queries = queries;
+  }
+
+  /**
+   * DSL method usesQuery specifies the query for the job. This method causes the property
+   * hive.query=value to be added the job.
+   * <p>
+   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
+   * HiveJob.
    *
    * @param query The Hive query for the job
    */
@@ -530,9 +595,10 @@ class HiveJob extends Job {
 
   /**
    * DSL method usesQueryFile specifies the query file for the job. This method causes the property
-   * hive.query.file=value to be added the job. This method is required to build the job.
+   * hive.query.file=value to be added the job.
    * <p>
-   * Only one of the properties hive.query or hive.query.file can be set on a HiveJob.
+   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
+   * HiveJob.
    *
    * @param queryFile The Hive query file for the job
    */

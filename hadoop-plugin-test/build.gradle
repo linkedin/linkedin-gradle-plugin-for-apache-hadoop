@@ -1,6 +1,17 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
 // Gradle doesn't have a way to say that the buildscript for this project depends on the
 // hadoop-plugin project, so we have to hack around that a bit.
 task testPluginTask() {
@@ -12,6 +23,7 @@ task testPluginTask() {
   }
   doLast {
     apply from: 'src/main/gradle/workflows.gradle'
+    apply from: 'src/main/gradle/HADOOP-7558.gradle'
     project.tasks['buildAzkabanFlows'].execute()
   }
 }

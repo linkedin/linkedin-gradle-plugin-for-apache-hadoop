@@ -58,8 +58,14 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(CommandJob job) {
-    if (job.command == null || job.command.isEmpty()) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: CommandJob ${job.name} must set command");
+    boolean emptyCommand = job.command == null || job.command.isEmpty();
+    boolean emptyCommands = job.commands == null || job.commands.isEmpty();
+    if (emptyCommand && emptyCommands) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: CommandJob ${job.name} must set command or commands");
+      foundError = true;
+    }
+    if (!emptyCommand && !emptyCommands) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: CommandJob ${job.name} sets both command and commands");
       foundError = true;
     }
   }
@@ -74,14 +80,37 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(HiveJob job) {
+    boolean emptyQueries = job.queries == null || job.queries.isEmpty();
     boolean emptyQuery = job.query == null || job.query.isEmpty();
     boolean emptyQueryFile = job.queryFile == null || job.queryFile.isEmpty();
-    if (emptyQuery && emptyQueryFile) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} must set query or queryFile");
+
+    if (emptyQueries && emptyQuery && emptyQueryFile) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} must set one of queries, query or queryFile");
       foundError = true;
     }
-    if (!emptyQuery && !emptyQueryFile) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both query and queryFile");
+
+    if (!emptyQueries && !emptyQuery && !emptyQueryFile) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets queries, query and queryFile");
+      foundError = true;
+    }
+    else {
+      if (!emptyQueries && !emptyQuery) {
+        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both queries and query");
+        foundError = true;
+      }
+      if (!emptyQueries && !emptyQueryFile) {
+        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both queries and queryFile");
+        foundError = true;
+      }
+      if (!emptyQuery && !emptyQueryFile) {
+        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both query and queryFile");
+        foundError = true;
+      }
+    }
+
+    // The Hive Azkaban plugin supports a maximum of 99 queries.
+    if (!emptyQueries && job.queries.size() > 99) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets more than 99 queries");
       foundError = true;
     }
   }

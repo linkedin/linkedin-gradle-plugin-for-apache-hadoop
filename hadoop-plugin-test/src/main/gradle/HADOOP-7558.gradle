@@ -1,0 +1,19 @@
+hadoop.workflow('HADOOP-7558') {
+
+  // Test multiple commands for a CommandJob
+  def commands = ['echo "hello"', 'echo "This is how one runs a command job"', 'whoami']
+
+  commandJob('commandJob1') {
+    usesCommands commands
+  }
+
+
+  // Test multiple queries for a HiveJob
+  def queries = ["show tables;", "describe myTable;"]
+
+  hiveJob('hiveJob1') {
+    usesQueries queries
+  }
+
+  targets 'commandJob1', 'hiveJob1'
+}
