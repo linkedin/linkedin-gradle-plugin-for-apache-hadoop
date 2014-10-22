@@ -65,7 +65,7 @@ class AzkabanDslCompiler extends BaseCompiler {
 
     file.withWriter { out ->
       out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      properties.each() { key, value ->
+      props.properties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
     }
