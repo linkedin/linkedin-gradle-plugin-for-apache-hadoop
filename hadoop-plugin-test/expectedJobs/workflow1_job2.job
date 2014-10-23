@@ -1,0 +1,9 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=workflow1_job1
+jvm.args=-Dmapred.cache.files=/user/abain/foo.jar#foo.jar -Dmapred.create.symlink=yes -Dmapred.cache.archives=/user/abain/foobar.zip#foobar -Dudf.import.list=oink.,com.linkedin.pig. -Dmapred.job.queue.name=marathon
+foo=/data/databases/foo
+bar=/data/databases/bar
+bazz=/data/databases/bazz
+foo.jar=/user/abain/foo.jar
+foobar=/user/abain/foobar.zip
+propertyName1=propertyValue1

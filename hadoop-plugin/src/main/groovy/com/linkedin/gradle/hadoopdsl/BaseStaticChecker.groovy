@@ -47,7 +47,7 @@ abstract class BaseStaticChecker extends BaseVisitor implements StaticChecker {
    * @param extension The Hadoop DSL extension
    */
   @Override
-  void checkHadoopDsl(HadoopDslExtension extension) {
+  void check(HadoopDslExtension extension) {
     visitExtension(extension);
   }
 

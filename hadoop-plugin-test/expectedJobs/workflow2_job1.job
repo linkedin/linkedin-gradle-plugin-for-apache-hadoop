@@ -1,0 +1,7 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+pig.script=src/main/pig/count_by_country11.pig
+param.member_summary=/data/derived/member/summary#LATEST
+param.output=count_by_country.dat
+param.input=/data/databases/foo
+input=/data/databases/foo

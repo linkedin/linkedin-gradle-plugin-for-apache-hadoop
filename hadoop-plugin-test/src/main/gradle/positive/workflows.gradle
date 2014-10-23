@@ -3,7 +3,6 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    // Cannot declare project dependencies in buildscript blocks
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
   }
 }
@@ -69,6 +68,7 @@ propertyFile('global') {
 
 hadoop {
   buildPath "jobs"
+  cleanPath false
 
   addWorkflow('prodWorkflow') {
     pigJob('prodJob2') {
@@ -230,12 +230,12 @@ hadoop.workflow('workflow4') {
   }
 
   voldemortBuildPushJob('job11') {
-    usesStoreDesc 'storeDesc'
-    usesStoreName 'storeName'
-    usesStoreOwners 'storeOwners'
-    usesInputPath 'buildInputPath'
-    usesOutputPath 'buildOutputPath'
-    usesRepFactor 1
+    usesStoreName 'test-store'          // Required
+    usesClusterName 'tcp://foo:10103'   // Required
+    usesInputPath '/user/foo/input'     // Required
+    usesOutputPath '/user/foo/output'   // Required
+    usesStoreOwners 'foo@linkedin.com'  // Required
+    usesStoreDesc 'Store for testing'   // Required
   }
 
   kafkaPushJob('job12') {

@@ -1,21 +1,134 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
-// Gradle doesn't have a way to say that the buildscript for this project depends on the
-// hadoop-plugin project, so we have to hack around that a bit.
-task testPluginTask() {
+// Create an initial task that sets up the directories for a new test run.
+task initTestCases() {
+  dependsOn ":hadoop-plugin:build";
+  description = "Hadoop DSL task to prepare the test cases";
+  group = "Hadoop DSL Tests";
+
   doFirst {
-    File jobsDirectory = file("./jobs");
-    if (!jobsDirectory.exists()) {
-      jobsDirectory.mkdir();
-    }
-  }
-  doLast {
-    apply from: 'src/main/gradle/workflows.gradle'
-    apply from: 'src/main/gradle/HADOOP-7558.gradle'
-    project.tasks['buildAzkabanFlows'].execute()
+    file("${project.projectDir}/jobs").deleteDir();
+    file("${project.projectDir}/jobs").mkdir();
+    file("${project.projectDir}/output").deleteDir();
+    file("${project.projectDir}/output").mkdir();
+    file("${project.projectDir}/output/positive").mkdir();
+    file("${project.projectDir}/output/negative").mkdir();
   }
 }
 
-testPluginTask.dependsOn ":hadoop-plugin:build"
-build.dependsOn testPluginTask
+// Enumerate the test case files.
+def testFiles = [];
+
+FileTree testCases = project.fileTree([
+  dir: "${project.projectDir}",
+  include: "src/main/gradle/**/*.gradle"
+]);
+
+testCases.each { File file ->
+  String relaPath = file.getAbsolutePath().replace("${project.projectDir}/src/main/gradle/", "");
+  testFiles.add(relaPath);
+};
+
+// Get rid of the variable "Total time: 4.544 secs" that appears at the end of the build output.
+def cleanBuildOutput(String buildOutput) {
+  int endIndex = buildOutput.lastIndexOf("Total time:");
+  return (endIndex == -1) ? buildOutput : buildOutput.substring(0, endIndex);
+}
+
+// Determine the base file name for a test case file from its relative path name.
+def findBaseFileName(String fileName) {
+  return fileName.replace("positive/", "").replace("negative/", "").replace(".gradle", "");
+}
+
+// Create a task for each test case.
+testFiles.each { fileName ->
+  String baseFileName = findBaseFileName(fileName);
+  String pluginTestDir = "${project.pluginTestDir}";
+
+  // In LinkedIn internal builds, the dependencies are in a different place, so allow this task to
+  // read the location from the project properties.
+  if (project.hasProperty("overridePluginTestDir")) {
+    pluginTestDir = project.overridePluginTestDir
+  }
+
+  project.tasks.create("test_${baseFileName}") {
+    description = "Hadoop DSL test case for the file ${fileName}";
+    group = "Hadoop DSL Tests";
+
+    doFirst {
+      logger.lifecycle("Running test for the file ${fileName}");
+    }
+    doLast {
+      project.pluginTestDir="${pluginTestDir}"
+      apply from: "src/main/gradle/${fileName}";
+      project.tasks["buildAzkabanFlows"].execute();
+    }
+  }
+}
+
+// Create a wrapper task that runs each test case and captures its output.
+testFiles.each { fileName ->
+  String baseFileName = findBaseFileName(fileName);
+  String baseDirName = fileName.replace("${baseFileName}.gradle", "").replace("/", "");
+  String outputFile = baseDirName.isEmpty() ? "${baseFileName}.out" : "${baseDirName}/${baseFileName}.out";
+
+  project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
+    description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
+    group = "Hadoop DSL Tests";
+
+    // In LinkedIn internal builds, the dependencies are in a different place, so pass the
+    // location on to the test case task.
+    commandLine "gradle", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}"
+    ignoreExitValue true;
+
+    // Store the output instead of printing to the console
+    // errorOutput = new ByteArrayOutputStream();
+    standardOutput = new ByteArrayOutputStream();
+
+    doLast {
+      String buildOutput = standardOutput.toString();
+      logger.lifecycle(buildOutput);
+
+      new File("${project.projectDir}/output/${outputFile}").withWriter { out ->
+        out.write(cleanBuildOutput(buildOutput));
+      }
+    }
+  }
+}
+
+// Setup the a master task that runs all the test case wrappers.
+task runTestCases(dependsOn: initTestCases) {
+  description = "Runs the Hadoop DSL test cases";
+  group = "Hadoop DSL Tests";
+
+  testFiles.each() { fileName ->
+    String baseFileName = findBaseFileName(fileName);
+    dependsOn "run_${baseFileName}";
+  }
+}
+
+// Create a task that compares the generated files against the set of known good job files.
+task compareKnownJobFiles(type: Exec, dependsOn: runTestCases) {
+  description = "Compares the results of the known job files to the compiled job files";
+  group = "Hadoop DSL Tests";
+  commandLine "diff", "-r", "${project.projectDir}/expectedJobs", "${project.projectDir}/jobs";
+}
+
+// Create a task that compares the console output against the known console output.
+task compareKnownOutputFiles(type: Exec, dependsOn: runTestCases) {
+  description = "Compares the results of the known output to the actual output";
+  group = "Hadoop DSL Tests";
+  commandLine "diff", "-r", "${project.projectDir}/expectedOutput", "${project.projectDir}/output";
+}
+
+// Create a master task that runs the test cases and compares the results.
+task runAllTests() {
+  dependsOn compareKnownJobFiles;
+  dependsOn compareKnownOutputFiles;
+  description = "Master task to run all Hadoop DSL tests and compare the actual results against the known results";
+  group = "Hadoop DSL Tests";
+}
+
+// Make the build task depend on the master task to run the test cases and compare the results.
+build.dependsOn runAllTests

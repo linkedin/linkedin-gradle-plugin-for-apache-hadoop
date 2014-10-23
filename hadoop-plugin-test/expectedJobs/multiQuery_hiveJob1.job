@@ -1,0 +1,5 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hive
+azk.hive.action=execute.query
+hive.query.01=show tables;
+hive.query.02=describe myTable;

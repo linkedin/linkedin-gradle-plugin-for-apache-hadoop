@@ -1,0 +1,3 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=workflow4_job12,workflow4_job11,workflow4_job10,workflow4_java-job9,workflow4_command-job8,workflow4_job7,workflow4_job12Else
+type=noop

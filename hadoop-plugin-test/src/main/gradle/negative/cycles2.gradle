@@ -1,0 +1,36 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test that the static checker catches non-trivial cycles in a workflow.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('cycles2') {
+    job('job1') {
+      depends 'job4'
+    }
+
+    job('job2') {
+      depends 'job1'
+    }
+
+    job('job3') {
+      depends 'job2'
+    }
+
+    job('job4') {
+      depends 'job2'
+    }
+
+    targets 'job3', 'job4'
+  }
+}

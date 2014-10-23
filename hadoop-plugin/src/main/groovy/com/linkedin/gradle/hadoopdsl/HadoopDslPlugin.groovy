@@ -61,25 +61,6 @@ class HadoopDslPlugin implements Plugin<Project> {
     project.extensions.add("noOpJob", this.&noOpJob);
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
-
-    // Add the Gradle task that checks and evaluates the DSL. Plugin users
-    // should have their build tasks depend on this task.
-    project.tasks.create("checkHadoopDsl") {
-      description = "Applies the static checker to the Hadoop DSL.";
-      group = "Hadoop Plugin";
-
-      doLast {
-        HadoopDslChecker checker = factory.makeChecker(project);
-        checker.checkHadoopDsl(extension);
-
-        if (checker.failedCheck()) {
-          throw new Exception("Hadoop DSL static checker FAILED");
-        }
-        else {
-          logger.lifecycle("Hadoop DSL static checker PASSED");
-        }
-      }
-    }
   }
 
   /**

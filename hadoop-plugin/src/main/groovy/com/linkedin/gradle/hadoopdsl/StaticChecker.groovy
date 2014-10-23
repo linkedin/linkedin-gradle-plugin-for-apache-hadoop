@@ -24,7 +24,7 @@ interface StaticChecker extends Visitor {
    *
    * @param extension The Hadoop DSL extension
    */
-  void checkHadoopDsl(HadoopDslExtension extension);
+  void check(HadoopDslExtension extension);
 
   /**
    * Asks the checker rule whether or not the check failed.

@@ -66,12 +66,12 @@ class HadoopDslChecker extends BaseStaticChecker {
    * @param extension The Hadoop DSL extension
    */
   @Override
-  void checkHadoopDsl(HadoopDslExtension extension) {
+  void check(HadoopDslExtension extension) {
     List<StaticChecker> checks = buildStaticChecks();
-    checks.each() { check ->
+    checks.each() { staticCheck ->
       if (!foundError) {
-        check.checkHadoopDsl(extension);
-        foundError |= check.failedCheck();
+        staticCheck.check(extension);
+        foundError |= staticCheck.failedCheck();
       }
     }
   }

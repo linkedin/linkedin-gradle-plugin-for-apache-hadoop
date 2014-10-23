@@ -1,0 +1,6 @@
+:hadoop-plugin-test:test_multiQuery
+Running test for the file positive/multiQuery.gradle
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

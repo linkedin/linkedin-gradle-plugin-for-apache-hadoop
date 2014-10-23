@@ -174,8 +174,7 @@ class JobDependencyChecker extends BaseStaticChecker {
 
     workflow.jobs.each() { Job job ->
       if (!ancestorMap.containsKey(job)) {
-        Set<Job> ancestors = buildAncestorSet(job, ancestorMap, jobMap);
-        ancestorMap.put(job, ancestors);
+        buildAncestorSet(job, ancestorMap, jobMap);
       }
     }
 
@@ -193,13 +192,17 @@ class JobDependencyChecker extends BaseStaticChecker {
   Set<Job> buildAncestorSet(Job job, Map<Job, Set<Job>> ancestorMap, Map<String, Job> jobMap) {
     Set<Job> ancestors = new HashSet<Job>();
 
+    // Put the set in the ancestor map right away. This way, if you have a job cycle, when you
+    // cycle back to this job you will find the set instead of going into an infinite loop.
+    ancestorMap.put(job, ancestors);
+
     job.dependencyNames.each() { String dependencyName ->
       Job parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
       Set<Job> parentAncestors = ancestorMap.get(parentJob);
 
       if (parentAncestors == null) {
-        parentAncestors = buildAncestorSet(parentJob, ancestorMap);
-        ancestorMap.put(parentJob, parentAncestor);
+        parentAncestors = buildAncestorSet(parentJob, ancestorMap, jobMap);
+        ancestorMap.put(parentJob, parentAncestors);
       }
 
       ancestors.addAll(parentAncestors);

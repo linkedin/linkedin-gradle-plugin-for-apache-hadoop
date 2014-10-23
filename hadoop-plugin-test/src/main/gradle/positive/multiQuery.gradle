@@ -1,0 +1,32 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Tests for HADOOP-7558. Tests multiple commands for a CommandJob and multiple queries for a
+// HiveJob.
+def commands = ['echo "hello"', 'echo "This is how one runs a command job"', 'whoami']
+def queries = ["show tables;", "describe myTable;"]
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('multiQuery') {
+    commandJob('commandJob1') {
+      usesCommands commands
+    }
+
+    hiveJob('hiveJob1') {
+      usesQueries queries
+    }
+
+    targets 'commandJob1', 'hiveJob1'
+  }
+}

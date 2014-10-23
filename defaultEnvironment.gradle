@@ -4,9 +4,10 @@ subprojects {
   }
 }
 
-// Set the directory in which to look for the buildscript dependencies. Take a look at
-// hadoop-plugin-test/build.gradle for more information.
-project(':hadoop-plugin-test').ext['pluginTestDir'] = '../hadoop-plugin/build/libs'
+// Set the directory in which the test project will look for buildscript
+// dependencies. In LinkedIn internal builds, the buildscript dependencies are
+// in a different directory, so make this configurable.
+project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
 
 // Version information is in gradle.properties, but the group
 // is here so that it can be overridden for LinkedIn internal

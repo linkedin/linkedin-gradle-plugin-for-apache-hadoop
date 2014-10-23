@@ -1,0 +1,2 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+jvm.args=-Dmapred.job.queue.name=default

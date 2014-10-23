@@ -1,0 +1,8 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+pig.script=prodScript2.pig
+param.path1=/user/foo
+param.path2=/user/bar
+param.param1=val1
+path1=/user/foo
+path2=/user/bar
