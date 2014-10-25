@@ -1,0 +1,65 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test that the static checker catches more complicated read-write races in a workflow.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('readWriteRace2') {
+    job('job1') {
+      reads files: [
+        'foobarbazz' : '/data/databases/foobarbazz'
+      ]
+      writes files: [
+        'foo' : '/data/databases/foo'
+      ]
+    }
+
+    job('job2') {
+      reads files: [
+        'foo' : '/data/databases/foo'
+      ]
+      writes files: [
+        'bar' : '/data/databases/bazz'
+      ]
+      depends 'job1'
+    }
+
+    job('job3') {
+      reads files: [
+        'foo' : '/data/databases/foo'
+      ]
+      writes files: [
+        'bazz' : '/data/databases/bazz'
+      ]
+      depends 'job1'
+    }
+
+    job('job4') {
+      reads files: [
+        'foo' : '/data/databases/foo',
+        'bar' : '/data/databases/bar',
+        'bazz' : '/data/databases/bazz'
+      ]
+      depends 'job2', 'job3'
+    }
+
+    job('job5') {
+      writes files: [
+        'foobarbazz' : '/data/databases/foobarbazz'  // Read by job1
+      ]
+      depends 'job4'
+    }
+
+    targets 'job5'
+  }
+}

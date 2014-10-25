@@ -93,6 +93,15 @@ testFiles.each { fileName ->
       new File("${project.projectDir}/output/${outputFile}").withWriter { out ->
         out.write(cleanBuildOutput(buildOutput));
       }
+
+      // If a test case gives the wrong result, stop right there with an exception.
+      if ("positive".equals(baseDirName) && execResult.getExitValue() != 0) {
+        throw new Exception("Positive test case ${baseFileName} failed");
+      }
+
+      if ("negative".equals(baseDirName) && execResult.getExitValue() == 0) {
+        throw new Exception("Negative test case ${baseFileName} passed");
+      }
     }
   }
 }
@@ -131,4 +140,4 @@ task runAllTests() {
 }
 
 // Make the build task depend on the master task to run the test cases and compare the results.
-build.dependsOn runAllTests
+test.dependsOn runAllTests

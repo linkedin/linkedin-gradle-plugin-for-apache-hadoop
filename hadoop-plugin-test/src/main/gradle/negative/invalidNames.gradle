@@ -1,0 +1,35 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test for invalid names.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('invalid_Names') {
+    job(null) {
+    }
+
+    job('') {
+    }
+
+    job(' ') {
+    }
+
+    job('job1#') {
+    }
+
+    job('job 2') {
+    }
+
+    targets '', '  ', 'job1#', 'job 2'
+  }
+}

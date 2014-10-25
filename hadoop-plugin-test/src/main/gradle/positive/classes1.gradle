@@ -1,0 +1,35 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Simple positive tests for programming with the API.
+
+def job1 = new com.linkedin.gradle.hadoopdsl.PigJob("job1")
+job1.script = "src/main/pig/count_by_country.pig"
+job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
+job1.parameters["output"] = "count_by_country.dat"
+global job1
+
+def job1Lookup = lookup('job1')
+job1Lookup.script = "src/main/pig/count_by_country1.pig"
+
+def propertyFile1 = new com.linkedin.gradle.hadoopdsl.Properties("properties1")
+propertyFile1.properties.put("myPropertyA", "valA")
+propertyFile1.properties.put("myPropertyB", "valB")
+
+def workflow1 = new com.linkedin.gradle.hadoopdsl.Workflow('classes1Workflow1', project)
+workflow1.jobs.add(job1)
+workflow1.properties.add(propertyFile1)
+workflow1.targets 'job1'
+global workflow1
+
+hadoop.buildPath "jobs"
+hadoop.cleanPath false
+hadoop.workflows.add(workflow1)

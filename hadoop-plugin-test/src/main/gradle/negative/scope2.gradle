@@ -1,0 +1,21 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test case to support proper scoping in the DSL. You should not be able to redefine
+// DSL elements in the same scope.
+
+// The name job1 is now bound in global scope with the fully-qualified name job1
+noOpJob('job1') {
+}
+
+// Error! You can't redefine job1 in global scope!
+hiveJob('job1') {
+}

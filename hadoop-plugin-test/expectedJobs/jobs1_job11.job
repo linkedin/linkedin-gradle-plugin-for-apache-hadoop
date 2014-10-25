@@ -1,0 +1,9 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job10
+type=VoldemortBuildandPush
+push.store.name=test-store
+push.cluster=tcp://foo:10103
+build.input.path=/user/foo/input
+build.output.dir=/user/foo/output
+push.store.owners=foo@linkedin.com
+push.store.description=Store for testing

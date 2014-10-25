@@ -1,3 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=prodWorkflow_job1Prod,prodWorkflow_prodJob,prodWorkflow_prodJob2
-type=noop

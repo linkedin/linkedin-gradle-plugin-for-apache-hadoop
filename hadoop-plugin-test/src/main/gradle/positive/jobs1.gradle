@@ -1,0 +1,119 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Simple positive test cases for the various types of jobs.
+
+// Declare a couple jobs in global scope to check that these functions are working.
+
+pigJob('pigJob1') {
+  uses 'src/main/pig/pigScript.pig'
+  reads files: [
+    'path1' : '/user/foo'
+  ]
+  writes files: [
+    'path2' : '/user/bar'
+  ]
+  set parameters: [
+    'param1' : 'val1'
+  ]
+}
+
+noOpJob('noOpJob1') {
+  depends 'pigJob1'
+}
+
+// Now declare jobs for each of the job types to test them all out.
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('jobs1') {
+    job('job1') {
+    }
+
+    job('job2') {
+      reads files: [
+        'foo' : '/data/databases/foo',
+        'bar' : '/data/databases/bar',
+      ]
+      writes files: [
+        'bazz' : '/data/databases/bazz'
+      ]
+      caches files: [
+        'foo.jar' : '/user/hacker/foo.jar'
+      ]
+      cachesArchive files: [
+        'foobar' : '/user/hacker/foobar.zip'
+      ]
+      set properties: [
+        'propertyName1' : 'propertyValue1'
+      ]
+      set jvmProperties: [
+        'jvmPropertyName1' : 'jvmPropertyValue1'
+      ]
+      queue 'marathon'
+      depends 'job1'
+    }
+
+    commandJob('job3') {
+      uses 'echo "hello world"'
+      depends 'job2'
+    }
+
+    hadoopJavaJob('job4') {
+      uses 'com.linkedin.hello.HadoopJavaJob'
+      depends 'job3'
+    }
+
+    hiveJob('job5') {
+      usesQuery "show tables"
+      depends 'job4'
+    }
+
+    javaJob('job6') {
+      uses 'com.linkedin.hello.JavaJob'
+      depends 'job5'
+    }
+
+    javaProcessJob('job7') {
+      uses 'com.linkedin.hello.JavaProcessJob'
+      depends 'job6'
+    }
+
+    kafkaPushJob('job8') {
+      usesInputPath '/data/derived/kafka'
+      usesTopic 'memberTopic'
+      depends 'job7'
+    }
+
+    noOpJob('job9') {
+      depends 'job8'
+    }
+
+    pigJob('job10') {
+      uses 'src/main/pig/pigScript.pig'
+      depends 'job9'
+    }
+
+    voldemortBuildPushJob('job11') {
+      usesStoreName 'test-store'          // Required
+      usesClusterName 'tcp://foo:10103'   // Required
+      usesInputPath '/user/foo/input'     // Required
+      usesOutputPath '/user/foo/output'   // Required
+      usesStoreOwners 'foo@linkedin.com'  // Required
+      usesStoreDesc 'Store for testing'   // Required
+      depends 'job10'
+    }
+
+    targets 'job11'
+  }
+}

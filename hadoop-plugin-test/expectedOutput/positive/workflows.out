@@ -1,9 +1,7 @@
 :hadoop-plugin-test:test_workflows
 Running test for the file positive/workflows.gradle
-JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job java-job9 to one of these classes.
-WorkflowJobChecker WARNING: Workflow workflow1 contains the job job4 that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.
-WorkflowJobChecker WARNING: Workflow genTrainCopy does not execute any jobs. No job files will be built for this workflow. Use the workflow executes method to declare the jobs executed by the workflow.
-WorkflowJobChecker WARNING: Workflow genTrainCopy contains the job prodJob that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.
+WorkflowJobChecker WARNING: Workflow workflowsWorkflow4 does not declare any target jobs. Use the workflow targets method to declare the target jobs for the workflow.
+WorkflowJobChecker WARNING: Workflow workflowsWorkflow4 contains the job job1 that is not executed by the workflow and is not a transitive dependency of the jobs the workflow does execute. This job will not be built.
 Hadoop DSL static checker PASSED
 
 BUILD SUCCESSFUL

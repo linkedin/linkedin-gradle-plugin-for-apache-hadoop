@@ -1,0 +1,6 @@
+:hadoop-plugin-test:test_classes1
+Running test for the file positive/classes1.gradle
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

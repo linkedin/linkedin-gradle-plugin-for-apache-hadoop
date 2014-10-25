@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=groovy1Workflow2_job1
+type=pig
+pig.script=src/main/pig/sameName.pig

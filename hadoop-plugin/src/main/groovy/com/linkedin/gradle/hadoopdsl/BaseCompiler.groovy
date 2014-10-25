@@ -106,7 +106,7 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
    * Builds the workflow.
    * <p>
    * NOTE: not all jobs in the workflow are built by default. Only those jobs that can be found
-   * from a transitive walk starting from the jobs the workflow executes actually get built.
+   * from a transitive walk starting from the jobs the workflow targets actually get built.
    *
    * @param workflow The workflow to build
    */

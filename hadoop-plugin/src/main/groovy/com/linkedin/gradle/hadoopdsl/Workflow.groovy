@@ -90,10 +90,10 @@ class Workflow implements NamedScopeContainer {
 
   /**
    * Generate the list of jobs to build for this workflow by performing a transitive (breadth-
-   * first) walk of the jobs in the workflow, starting from the jobs the workflow executes.
+   * first) walk of the jobs in the workflow, starting from the jobs the workflow targets.
    * <p>
    * NOTE: this means that users can declare jobs in a workflow that are not built, if there is no
-   * transitive path from the jobs the workflow executes to a declared job. This capability is by
+   * transitive path from the jobs the workflow targets to a declared job. This capability is by
    * design. In this case, the static checker will display a warning message.
    *
    * @return The list (as a LinkedHashSet) of jobs to build for the workflow
@@ -212,14 +212,14 @@ class Workflow implements NamedScopeContainer {
    *
    * DSL method that declares the jobs on which this workflow depends.
    * <p>
-   * The depends method has been deprecated in favor of executes, so that workflow and job
+   * The depends method has been deprecated in favor of targets, so that workflow and job
    * dependencies can more easily visually distinguished.
    *
    * @param jobNames The list of job names on which this workflow depends
    */
   @Deprecated
   void depends(String... jobNames) {
-    project.logger.lifecycle("The Workflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
+    project.logger.lifecycle("The Workflow depends method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchJobDependencies.addAll(jobNames.toList());
   }
 

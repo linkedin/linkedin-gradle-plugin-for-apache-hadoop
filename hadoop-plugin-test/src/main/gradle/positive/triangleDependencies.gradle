@@ -1,0 +1,49 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Test case that verifies that triangle and diamond-shaped dependencies are allowed.
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('triangleDependencies') {
+    job('job1') {
+      queue 'default'
+    }
+    job('job2') {
+      depends 'job1'
+    }
+    job('job3') {
+      depends 'job1'
+    }
+    targets 'job3', 'job2'
+  }
+
+  workflow('diamondDependencies') {
+    job('job1') {
+      queue 'default'
+    }
+    job('job2') {
+      depends 'job1'
+    }
+    job('job3') {
+      depends 'job1'
+    }
+    job('job4') {
+      depends 'job2', 'job3'
+    }
+    job('job5') {
+      depends 'job3'
+    }
+    targets 'job4', 'job5'
+  }
+}

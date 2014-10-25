@@ -1,0 +1,9 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job1
+jvm.args=-Dmapred.cache.files=/user/hacker/foo.jar#foo.jar -Dmapred.create.symlink=yes -Dmapred.cache.archives=/user/hacker/foobar.zip#foobar -DjvmPropertyName1=jvmPropertyValue1 -Dmapred.job.queue.name=marathon
+foo=/data/databases/foo
+bar=/data/databases/bar
+bazz=/data/databases/bazz
+foo.jar=/user/hacker/foo.jar
+foobar=/user/hacker/foobar.zip
+propertyName1=propertyValue1

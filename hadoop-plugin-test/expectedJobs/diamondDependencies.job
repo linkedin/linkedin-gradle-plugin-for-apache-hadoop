@@ -1,0 +1,3 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=diamondDependencies_job4,diamondDependencies_job5
+type=noop

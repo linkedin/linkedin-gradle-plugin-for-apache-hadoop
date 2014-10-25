@@ -1,0 +1,5 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job7
+type=KafkaPushJob
+input.path=/data/derived/kafka
+topic=memberTopic

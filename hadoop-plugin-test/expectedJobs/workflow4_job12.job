@@ -1,4 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=KafkaPushJob
-input.path=/data/derived/kafka
-topic=memberTopic

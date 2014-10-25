@@ -1,0 +1,3 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=groovy1Workflow3_job0,groovy1Workflow3_job1,groovy1Workflow3_job2
+type=noop

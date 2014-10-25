@@ -1,0 +1,8 @@
+:hadoop-plugin-test:test_workflowChecks
+Running test for the file negative/workflowChecks.gradle
+WorkflowJobChecker ERROR: Workflow workflowChecks1 declares that it targets the job job2, but this job does not exist in the workflow
+WorkflowJobChecker ERROR: Workflow workflowChecks2 contains the job job1 that declares that it depends on job job2, but this job is not contained in the workflow
+:hadoop-plugin-test:test_workflowChecks FAILED
+
+BUILD FAILED
+

@@ -1,0 +1,21 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test case to support proper scoping in the DSL. You should not be able to redefine
+// DSL elements in the same scope.
+
+// The name workflow1 is now bound in global scope with the fully-qualified name workflow1
+workflow('workflow1') {
+}
+
+// Error! You can't redefine workflow1 in global scope!
+workflow('workflow1') {
+}

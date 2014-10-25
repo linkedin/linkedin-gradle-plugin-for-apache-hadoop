@@ -1,0 +1,2 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=diamondDependencies_job2,diamondDependencies_job3

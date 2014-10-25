@@ -1,0 +1,6 @@
+:hadoop-plugin-test:test_scope
+Running test for the file positive/scope.gradle
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

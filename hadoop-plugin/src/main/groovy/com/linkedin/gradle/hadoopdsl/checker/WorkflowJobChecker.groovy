@@ -24,8 +24,8 @@ import org.gradle.api.Project;
 /**
  * The WorkflowJobChecker rule checks the following:
  * <ul>
- *   <li>WARN if a workflow does not declare any jobs that it executes</li>
- *   <li>ERROR if a workflow declares that it executes a job that is not in the workflow</li>
+ *   <li>WARN if a workflow does not declare any target jobs</li>
+ *   <li>ERROR if a workflow declares that it targets a job that is not in the workflow</li>
  *   <li>ERROR if a job in a workflow depends on a job that is not in the workflow. Note that this
  *       prevents you from doing things like depending on a job in global scope.</li>
  *   <li>WARN if a workflow does not contain any jobs</li>
@@ -44,18 +44,18 @@ class WorkflowJobChecker extends BaseStaticChecker {
 
   @Override
   void visitWorkflow(Workflow workflow) {
-    // WARN if a workflow does not declare any jobs that it executes
+    // WARN if a workflow does not declare any target jobs
     if (workflow.launchJobDependencies.isEmpty()) {
-      project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not execute any jobs. No job files will be built for this workflow. Use the workflow executes method to declare the jobs executed by the workflow.");
+      project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not declare any target jobs. Use the workflow targets method to declare the target jobs for the workflow.");
     }
 
     // Build a map from the jobs in the workflow that maps the job name to the job.
     Map<String, Job> jobMap = workflow.buildJobMap();
 
-    // ERROR if a workflow declares that it executes a job that is not in the workflow
+    // ERROR if a workflow declares that it targets a job that is not in the workflow
     workflow.launchJobDependencies.each() { String launchJobName ->
       if (!jobMap.containsKey(launchJobName)) {
-        project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} declares that it executes the job ${launchJobName}, but this job does not exist in the workflow");
+        project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} declares that it targets the job ${launchJobName}, but this job does not exist in the workflow");
         foundError = true;
       }
     }
@@ -73,6 +73,11 @@ class WorkflowJobChecker extends BaseStaticChecker {
     // WARN if a workflow does not contain any jobs
     if (jobMap.isEmpty()) {
       project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} does not contain any jobs. No job files will be built for this workflow.");
+    }
+
+    // The workflow must have passed the previous static checks before calling buildJobList.
+    if (foundError) {
+      return;
     }
 
     // Walk the workflow and job dependencies to build the set of job names that will be built.

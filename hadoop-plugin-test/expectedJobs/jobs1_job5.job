@@ -1,0 +1,5 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job4
+type=hive
+azk.hive.action=execute.query
+hive.query=show tables

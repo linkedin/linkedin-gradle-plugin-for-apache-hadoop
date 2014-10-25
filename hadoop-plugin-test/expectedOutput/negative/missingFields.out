@@ -1,0 +1,17 @@
+:hadoop-plugin-test:test_missingFields
+Running test for the file negative/missingFields.gradle
+JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job job5 to one of these classes.
+RequiredFieldsChecker ERROR: CommandJob job2 must set command or commands
+RequiredFieldsChecker ERROR: HadoopJavaJob job3 must set jobClass
+RequiredFieldsChecker ERROR: HiveJob job4 must set one of queries, query or queryFile
+RequiredFieldsChecker ERROR: JavaJob job5 must set jobClass
+RequiredFieldsChecker ERROR: JavaProcessJob job6 must set javaClass
+RequiredFieldsChecker ERROR: KafkaPushJob job7 must set inputPath
+RequiredFieldsChecker ERROR: KafkaPushJob job7 must set topic
+RequiredFieldsChecker ERROR: PigJob job9 must set script
+RequiredFieldsChecker ERROR: VoldemortBuildPushJob job10 has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc
+RequiredFieldsChecker WARNING: Properties properties1 does not declare any properties. Nothing will be built for this properties object.
+:hadoop-plugin-test:test_missingFields FAILED
+
+BUILD FAILED
+

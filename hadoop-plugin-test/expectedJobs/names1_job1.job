@@ -1,0 +1,3 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=names1_job2
+type=noop

@@ -1,0 +1,6 @@
+:hadoop-plugin-test:test_scope5
+Running test for the file negative/scope5.gradle
+:hadoop-plugin-test:test_scope5 FAILED
+
+BUILD FAILED
+

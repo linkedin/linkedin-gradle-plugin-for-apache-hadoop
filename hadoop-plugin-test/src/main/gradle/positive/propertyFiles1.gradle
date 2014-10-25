@@ -1,0 +1,55 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Simple positive test cases for property files.
+
+def propertiesMap = [
+  'myPropertyA' : 'valA',
+  'myPropertyB' : 'valB'
+]
+
+propertyFile('propertyFiles1Properties1') {
+  set properties: [
+    myPropertyA : 'globalA',
+    myPropertyB : 'globalB'
+  ]
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  propertyFile('propertyFiles1Properties2') {
+    set properties: propertiesMap
+  }
+
+  propertyFile('propertyFiles1Properties3') {
+    set properties: [
+      'myPropertyC' : 'valC',
+      'myPropertyD' : 'valD'
+    ]
+  }
+
+  addPropertyFile('propertyFiles1Properties1') {
+    set properties: [
+      'myPropertyB' : 'globalBUpdate',
+      'myPropertyC' : 'globalC'
+    ]
+  }
+
+  workflow('propertyFiles1Workflow1') {
+    addPropertyFile('propertyFiles1Properties2') {
+      set properties: [
+        'myPropertyD' : 'updateD'
+      ]
+    }
+  }
+}

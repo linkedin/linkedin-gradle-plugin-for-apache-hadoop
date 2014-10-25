@@ -1,0 +1,74 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Simple positive tests for using Groovy within Gradle.
+
+def generateWorkflow() {
+  workflow('groovy1Workflow1') {
+    noOpJob('job1') {
+    }
+    targets 'job1'
+  }
+}
+
+def generateJob(String jobName) {
+  noOpJob(jobName) {
+  }
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  // Invoke a Groovy function from within DSL code.
+  generateWorkflow();
+
+  addWorkflow('groovy1Workflow1') {
+  }
+
+  workflow('groovy1Workflow2') {
+
+    generateJob('job1');
+
+    addJob('job1') {
+    }
+
+    if (false) {
+      pigJob('job2') {
+        uses 'src/main/pig/pigScript.pig'
+        depends 'job1'
+      }
+      targets 'job2'
+    }
+    else {
+      pigJob('job3') {
+        if (false) {
+          uses 'src/main/pig/pigScript.pig'
+        }
+        else {
+          uses 'src/main/pig/sameName.pig'
+        }
+        depends 'job1'
+      }
+      targets 'job3'
+    }
+  }
+
+  workflow('groovy1Workflow3') {
+    // Write a for loop within DSL code.
+    for (int i = 0; i < 3; i++) {
+      pigJob("job${i}") {
+        uses 'src/main/pig/pigScript.pig'
+      }
+      targets "job${i}"
+    }
+  }
+}

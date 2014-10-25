@@ -1,0 +1,7 @@
+:hadoop-plugin-test:test_readWriteRace1
+Running test for the file negative/readWriteRace1.gradle
+JobDependencyChecker ERROR: The job job3 in the workflow readWriteRace1 reads the path /data/databases/bar that is written by the job job2, but does not have a direct or transitive dependency on this job. This is a potential read-before-write race condition.
+:hadoop-plugin-test:test_readWriteRace1 FAILED
+
+BUILD FAILED
+

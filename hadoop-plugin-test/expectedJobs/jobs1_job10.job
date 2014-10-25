@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job9
+type=pig
+pig.script=src/main/pig/pigScript.pig

@@ -1,3 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=workflow2_job2,workflow2_job21Copy
-type=noop

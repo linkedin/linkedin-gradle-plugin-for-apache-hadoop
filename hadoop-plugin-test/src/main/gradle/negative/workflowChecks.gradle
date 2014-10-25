@@ -1,0 +1,33 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test that the static checker catches workflow-related errors.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('workflowChecks1') {
+    job('job1') {
+    }
+
+    // ERROR if a workflow declares that it targets a job that is not in the workflow
+    targets 'job2'
+  }
+
+  workflow('workflowChecks2') {
+    job('job1') {
+      // ERROR if a job in a workflow depends on a job that is not in the workflow
+      depends 'job2'
+    }
+
+    targets 'job1'
+  }
+}

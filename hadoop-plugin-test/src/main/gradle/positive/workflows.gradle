@@ -9,70 +9,22 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-def job1 = new com.linkedin.gradle.hadoopdsl.PigJob("job1")
-job1.script = "src/main/pig/count_by_country.pig"
-job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
-job1.parameters["output"] = "count_by_country.dat"
-global job1
+// Simple positive tests for workflows.
 
-def job1Lookup = lookup('job1')
-job1Lookup.script = "src/main/pig/count_by_country1.pig"
-
-lookup('job1') {
-  uses "src/main/pig/count_by_country11.pig"
-}
-
-pigJob('prodJob') {
-  uses 'prodScript1.pig'
-  reads files: [
-    'path1' : '/user/foo'
-  ]
-  writes files: [
-    'path2' : '/user/bar'
-  ]
-  set parameters: [
-    'param1' : 'val1'
-  ]
-}
-
-noOpJob('testNoOpJob') {
-}
-
-workflow('prodWorkflow') {
-  addJob('job1', 'job1Prod') {
+workflow('workflowsWorkflow1') {
+  pigJob('job1') {
     uses "src/main/pig/count_by_countryProd.pig"
   }
-
-  addJob('prodJob') {
-    uses 'prodScript2.pig'
-  }
-
-  targets 'job1Prod'
-}
-
-def trainWorkflow = new com.linkedin.gradle.hadoopdsl.Workflow('train', project)
-
-def generateWorkflows() {
-  workflow('genTrain') {
-    addJob('prodJob') {
-    }
-  }
-}
-
-propertyFile('global') {
-  set properties: [
-    myPropertyA : 'globalA',
-    myPropertyB : 'globalB'
-  ]
+  targets 'job1'
 }
 
 hadoop {
   buildPath "jobs"
   cleanPath false
 
-  addWorkflow('prodWorkflow') {
-    pigJob('prodJob2') {
-      uses 'prodScript2.pig'
+  workflow('workflowsWorkflow2') {
+    pigJob('job1') {
+      uses 'src/main/pig/pigScript.pig'
       reads files: [
         'path1' : '/user/foo'
       ]
@@ -83,183 +35,43 @@ hadoop {
         'param1' : 'val1'
       ]
     }
-    targets 'job1Prod', 'prodJob', 'prodJob2'
-  }
 
-  propertyFile('common') {
-    set properties: [
-      'myPropertyA' : 'valA',
-      'myPropertyB' : 'valB'
-    ]
-  }
-
-  addPropertyFile('global') {
-    set properties: [
-      'myPropertyB' : 'globalBUpdate',
-      'myPropertyC' : 'globalC'
-    ]
-  }
-
-  workflow('workflow1') {
-
-    addPropertyFile('global', 'specific') {
-      set properties: [
-        'myPropertyD' : 'specificD'
-      ]
+    pigJob('job2') {
+      uses 'src/main/pig/pigScript.pig'
     }
 
-    job('job1') {
-      queue 'default'
-    }
+    targets 'job1', 'job2'
+  }
 
-    job('job2') {
+  addWorkflow('workflowsWorkflow1', 'workflowsWorkflow3') {
+    pigJob('job2') {
+      uses 'src/main/pig/pigScript.pig'
       reads files: [
-        'foo' : '/data/databases/foo',
-        'bar' : '/data/databases/bar',
+        'path1' : '/user/foo'
       ]
       writes files: [
-        'bazz' : '/data/databases/bazz'
-      ]
-      caches files: [
-        'foo.jar' : '/user/abain/foo.jar'
-      ]
-      cachesArchive files: [
-        'foobar' : '/user/abain/foobar.zip'
-      ]
-      set properties: [
-        'propertyName1' : 'propertyValue1'
-      ]
-      set jvmProperties: [
-        'udf.import.list' : 'oink.,com.linkedin.pig.'
-      ]
-      depends 'job1'
-      queue 'marathon'
-    }
-
-    job('job3') {
-      reads files: [
-        'bazz' : '/data/databases/bazz'
-      ]
-      depends 'job2'
-    }
-
-    job('job4') {
-    }
-
-    targets 'job3'
-  }
-
-  workflow('workflow2') {
-
-    addJob('job1') {
-      reads files: [
-        'input' : '/data/databases/foo'
+        'path2' : '/user/bar'
       ]
       set parameters: [
-        'output' : 'count_by_country.dat'
+        'param1' : 'val1'
+      ]
+    }
+    targets 'job1', 'job2'
+  }
+
+  workflow('workflowsWorkflow4') {
+    pigJob('job1') {
+      uses 'src/main/pig/pigScript.pig'
+    }
+
+    propertyFile('propertyFile1') {
+      set properties: [
+        'myPropertyA' : 'valA',
+        'myPropertyB' : 'valB'
       ]
     }
 
-    lookup('prodJob').script = 'src/main/pig/count_by_country_w2.pig'
-
-    def job21 = new com.linkedin.gradle.hadoopdsl.PigJob('job21')
-    job21.script = 'foobar.pig'
-    global job21
-
-    addJob('job21', 'job21Copy') {
-      uses 'foobazz.pig'
-    }
-
-    job('job2') {
-      depends 'job1'
-    }
-
-    targets 'job2', 'job21Copy'
-  }
-
-  workflow('workflow3') {
-    addJob('job1') {
-    }
-    targets 'job1'
-  }
-
-  generateWorkflows()
-
-  addWorkflow('genTrain', 'genTrainCopy') {
-  }
-
-  global trainWorkflow
-
-  addWorkflow('train', 'trainCopy') {
-
-    job('job1') {
-    }
-
-    targets 'job1'
-  }
-
-  workflow('triangleDependencies') {
-    job('job1') {
-      queue 'default'
-    }
-    job('job2') {
-      depends 'job1'
-    }
-    job('job3') {
-      depends 'job1'
-    }
-    targets 'job3', 'job2'
-  }
-}
-
-hadoop.workflow('workflow4') {
-  hiveJob('job7') {
-    usesQuery "show tables"
-  }
-
-  commandJob('command-job8') {
-    uses 'echo "hello world"'
-  }
-
-  javaJob('java-job9') {
-    uses 'com.linkedin.hello.World'
-  }
-
-  javaProcessJob('job10') {
-    uses 'com.linkedin.hello.World'
-  }
-
-  voldemortBuildPushJob('job11') {
-    usesStoreName 'test-store'          // Required
-    usesClusterName 'tcp://foo:10103'   // Required
-    usesInputPath '/user/foo/input'     // Required
-    usesOutputPath '/user/foo/output'   // Required
-    usesStoreOwners 'foo@linkedin.com'  // Required
-    usesStoreDesc 'Store for testing'   // Required
-  }
-
-  kafkaPushJob('job12') {
-    usesInputPath '/data/derived/kafka'
-    usesTopic 'memberTopic'
-  }
-
-  targets 'job12', 'job11', 'job10', 'java-job9', 'command-job8', 'job7'
-
-  if (false) {
-    pigJob('job12') {
-      uses 'src/main/pig/count_by_country2.job'
-    }
-    targets 'job12'
-  }
-  else {
-    pigJob('job12Else') {
-      if (false) {
-        uses 'src/main/pig/count_by_country2.job'
-      }
-      else {
-        uses 'src/main/pig/count_by_country2else.job'
-      }
-    }
-    targets 'job12Else'
+    // Don't target any jobs so that we can test generating the correct warning messages.
+    // targets 'job1'
   }
 }

@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=jobs1_job5
+type=java
+job.class=com.linkedin.hello.JavaJob
