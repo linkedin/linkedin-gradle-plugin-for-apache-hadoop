@@ -1,0 +1,85 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Positive test case for using the clone-lookup pattern.
+
+pigJob('job1') {
+  uses 'src/main/pig/pigScript.pig'
+}
+
+lookup('job1') {
+  uses 'src/main/pig/sameName.pig'
+}
+
+propertyFile('properties1') {
+  set properties: [
+    'myPropertyA' : 'valA',
+    'myPropertyB' : 'valB'
+  ]
+}
+
+lookup('properties1') {
+  set properties: [
+    'myPropertyB' : 'valBUpdate',
+    'myPropertyC' : 'valC'
+  ]
+}
+
+workflow('cloneLookup1') {
+  addJob('job1') {
+    set parameters: [
+      'param1' : 'val1'
+    ]
+  }
+
+  addJob('job1', 'job2') {
+    uses 'src/main/pig/pigScript.pig'
+    set parameters: [
+      'param2' : 'val2'
+    ]
+    depends 'job1'
+  }
+
+  addPropertyFile('properties1') {
+    set properties: [
+      'myPropertyC' : 'valCUpdate',
+      'myPropertyD' : 'valD'
+    ]
+  }
+
+  targets 'job2'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  addWorkflow('cloneLookup1', 'cloneLookup2') {
+    lookup('job1') {
+      set parameters: [
+        'bar' : 'bazz'
+      ]
+    }
+
+    lookup('job2') {
+      set parameters: [
+        'param3' : 'val3'
+      ]
+    }
+
+    lookup('properties1') {
+      set properties: [
+        'myPropertyE' : 'valEUpdate',
+        'myPropertyF' : 'valF'
+      ]
+    }
+  }
+}

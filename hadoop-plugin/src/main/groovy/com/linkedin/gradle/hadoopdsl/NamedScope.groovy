@@ -99,11 +99,17 @@ class NamedScope {
 
   /**
    * From this level, recursively looks up the object in scope.
+   * <p>
+   * If you pass a name that starts with a dot, this method does a fully-qualified name lookup
+   * instead of using the lookdown method.
    *
    * @param name The name to lookup in scope
    * @return The value bound to the name in scope, or null if the name is not bound in scope
    */
   Object lookup(String name) {
+    if (name.startsWith(".")) {
+      return lookdown(name);
+    }
     if (thisLevel.containsKey(name)) {
       return thisLevel.get(name);
     }
@@ -112,42 +118,68 @@ class NamedScope {
 
   /**
    * Special lookup method for fully-qualified names. Fully-qualified names in the DSL are any
-   * names containing a "." character, e.g. hadoop.workflow1.job1 or workflow1.job2. To perform a
-   * lookup on a fully-qualified name, we start from global scope, and then "look down" scopes
-   * to get to the exact scope specified by the fully-qualified name. We look to see if the object
-   * is bound in scope only at the specified level.
+   * names starting with a "." character, e.g. .hadoop.workflow1.job1 or .workflow1.job2.
+   * <p>
+   * To perform a lookup on a fully-qualified name, we walk up to global scope, and then "look
+   * down" scopes to get to the exact scope specified by the fully-qualified name. We look to see
+   * if the object is bound in scope only at that specified level. See the lookdownHelper method
+   * for an example.
    *
    * @param name The fully-qualified name to lookup
    * @return The value bound to the name in scope, or null if the name is not bound in scope
    */
   Object lookdown(String name) {
-    if (!name.contains(".")) {
-      return thisLevel.get(name);
+    if (!name.startsWith(".")) {
+      throw new GradleException("The lookdown method can only be used with fully-qualified names. The given name ${name} does not start with a dot.");
     }
+    // Keep walking up until you get to global scope.
+    if (nextLevel != null) {
+      return nextLevel.lookdown(name);
+    }
+    // Once you get to global scope, use the lookdown helper to resolve the fully-qualified name.
+    return lookdownHelper(name);
+  }
 
-    // Handle the global scope (that has an empty level name) as a special case.
-    String lookupPrefix = levelName.equals("") ? "" : "${levelName}.";
-    String lookupName = name;
-
-    if (!lookupName.startsWith(lookupPrefix)) {
+  /**
+   * Helper method to perform a lookup on fully-qualified name starting from global scope.
+   * <p>
+   * To perform a lookup on a fully-qualified name, we start from global scope, and then "look
+   * down" scopes to get to the exact scope specified by the fully-qualified name. We look to see
+   * if the object is bound in scope only at that specified level.
+   * <p>
+   * For example, if you lookup ".hadoop.workflow1.job1", starting from global scope, the code will
+   * lookup the "hadoop" object and verify that object is a scope container. It will then go to
+   * hadoop scope and lookup the "workflow1" object and verify that it is a scope container.
+   * Finally, it will go to workflow1 scope, notice that "job1" does not contain any dots, and look
+   * only in workflow1 scope for the object bound to the name job1.
+   *
+   * @param name The fully-qualified name to lookup
+   * @return The value bound to the name in scope, or null if the name is not bound in scope
+   */
+  Object lookdownHelper(String name) {
+    // Start by checking if the scope name prefixes the lookup name.
+    if (!name.startsWith("${levelName}.")) {
       return null;
     }
 
-    lookupName = lookupName.replaceFirst(lookupPrefix, "");
+    // Then remove the scope prefix from the lookup name.
+    String lookupName = name.replaceFirst("${levelName}.", "");
 
+    // If the name is in this scope, look for the value in this level.
     if (!lookupName.contains(".")) {
       return thisLevel.get(lookupName);
     }
 
-    String[] parts = lookupName.split(".")
+    // If the lookup name still has a dot, look for the next level name and continue to look down.
+    String[] parts = lookupName.split("\\.")
     String nextPart = parts[0];
 
-    thisLevel.each() { String key, Object val ->
-      if (key.equals(nextPart)) {
-        if (val instanceof NamedScopeContainer) {
-          return ((NamedScopeContainer)val).scope.lookdown(lookupName);
+    for (Map.Entry<String, Object> entry : thisLevel.entrySet()) {
+      if (entry.getKey().equals(nextPart)) {
+        if (entry.getValue() instanceof NamedScopeContainer) {
+          return ((NamedScopeContainer)entry.getValue()).scope.lookdownHelper(lookupName);
         }
-        throw new GradleException("Part ${nextPart} in fully qualified name ${name} referred to an object that is not a NamedScopeContainer: ${val}");
+        throw new GradleException("Part ${nextPart} in fully qualified name ${name} referred to an object that is not a NamedScopeContainer: ${entry.getValue()}");
       }
     }
 

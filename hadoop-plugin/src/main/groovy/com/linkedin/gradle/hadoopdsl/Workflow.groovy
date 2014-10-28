@@ -41,9 +41,7 @@ class Workflow implements NamedScopeContainer {
   // parents of the launch job.
   List<Job> jobs;
 
-  // The final job of the workflow (that will be used to launch the workflow). Built from the
-  // launch job dependencies for the workflow.
-  LaunchJob launchJob;
+  // The names of the jobs targeted by the workflow.
   Set<String> launchJobDependencies;
 
   // This will allow jobs to be referred to by name (e.g. when declaring dependencies). This also
@@ -70,7 +68,6 @@ class Workflow implements NamedScopeContainer {
   Workflow(String name, Project project, NamedScope parentScope) {
     this.factory = project.extensions.hadoopDslFactory;
     this.jobs = new ArrayList<Job>();
-    this.launchJob = factory.makeLaunchJob(name);
     this.launchJobDependencies = new LinkedHashSet<String>();
     this.name = name;
     this.project = project;
@@ -90,7 +87,7 @@ class Workflow implements NamedScopeContainer {
 
   /**
    * Generate the list of jobs to build for this workflow by performing a transitive (breadth-
-   * first) walk of the jobs in the workflow, starting from the jobs the workflow targets.
+   * first) walk of the jobs in the workflow, starting from the target jobs for the workflow.
    * <p>
    * NOTE: this means that users can declare jobs in a workflow that are not built, if there is no
    * transitive path from the jobs the workflow targets to a declared job. This capability is by
@@ -103,6 +100,7 @@ class Workflow implements NamedScopeContainer {
     Queue<Job> queue = new LinkedList<Job>();
     Set<Job> jobsToBuild = new LinkedHashSet<Job>();
 
+    LaunchJob launchJob = factory.makeLaunchJob(name);
     launchJob.dependencyNames.addAll(launchJobDependencies);
     queue.add(launchJob);
 
@@ -153,18 +151,24 @@ class Workflow implements NamedScopeContainer {
    * @return The cloned workflow
    */
   Workflow clone(Workflow workflow) {
-    workflow.launchJob = launchJob.clone();
     workflow.launchJobDependencies.addAll(launchJobDependencies);
     workflow.scope = scope.clone();
 
-    // Clear the scope for the cloned workflow. Then clone all the jobs
-    // declared in the original workflow and use them to rebuild the scope.
+    // Clear the scope for the cloned workflow. Then clone all the jobs and
+    // properties declared in the original workflow and use them to rebuild
+    // the scope.
     workflow.scope.thisLevel.clear();
 
     for (Job job : jobs) {
       Job jobClone = job.clone();
       workflow.jobs.add(jobClone);
-      workflow.scope.bind(job.name, job);
+      workflow.scope.bind(jobClone.name, jobClone);
+    }
+
+    for (Properties props : properties) {
+      Properties propsClone = props.clone();
+      workflow.properties.add(propsClone);
+      workflow.scope.bind(propsClone.name, propsClone);
     }
 
     return workflow;

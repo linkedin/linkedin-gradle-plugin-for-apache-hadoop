@@ -1,0 +1,7 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=cloneLookup2_job1
+type=pig
+pig.script=src/main/pig/pigScript.pig
+param.param1=val1
+param.param2=val2
+param.param3=val3

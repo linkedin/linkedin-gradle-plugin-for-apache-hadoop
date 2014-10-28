@@ -1,0 +1,74 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Positive test case for doing fully-qualified name lookups.
+pigJob('job1') {
+  uses 'src/main/pig/pigScript.pig'
+}
+
+propertyFile('properties1') {
+  set properties: [
+    'myPropertyA' : 'valA',
+    'myPropertyB' : 'valB'
+  ]
+}
+
+workflow('fullyQualifiedLookup1') {
+  addJob('.job1', 'job1') {
+  }
+  addPropertyFile('.properties1', 'properties1') {
+  }
+  targets 'job1'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  addWorkflow('.fullyQualifiedLookup1', 'fullyQualifiedLookup1') {
+  }
+
+  workflow('fullyQualifiedLookup2') {
+    addJob('.job1', 'job1') {
+    }
+    addPropertyFile('.properties1', 'properties1') {
+    }
+    addJob('.fullyQualifiedLookup1.job1', 'job2') {
+    }
+    addPropertyFile('.fullyQualifiedLookup1.properties1', 'properties2') {
+    }
+    targets 'job1', 'job2'
+  }
+
+  workflow('fullyQualifiedLookup3') {
+    pigJob('job1') {
+      uses 'src/main/pig/sameName.pig'
+    }
+    targets 'job1'
+  }
+
+  propertyFile('fullyQualifiedLookupProperties2') {
+    set properties: [
+      'myPropertyC' : 'valC',
+      'myPropertyD' : 'valD'
+    ]
+  }
+
+  addWorkflow('.hadoop.fullyQualifiedLookup3', 'fullyQualifiedLookup4') {
+    addJob('.hadoop.fullyQualifiedLookup2.job1', 'job2') {
+    }
+    addPropertyFile('.hadoop.fullyQualifiedLookup2.properties1', 'properties1') {
+    }
+    addPropertyFile('.hadoop.fullyQualifiedLookupProperties2', 'properties2') {
+    }
+    targets 'job1', 'job2'
+  }
+}

@@ -67,6 +67,7 @@ class Methods {
   static Workflow cloneWorkflow(String name, String rename, NamedScope scope) {
     Workflow workflow = cloneWorkflow(name, scope);
     workflow.name = rename;
+    workflow.scope.levelName = rename;
     return workflow;
   }
 
