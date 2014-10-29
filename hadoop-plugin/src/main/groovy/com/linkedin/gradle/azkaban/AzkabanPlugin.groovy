@@ -35,7 +35,6 @@ class AzkabanPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     project.tasks.create("buildAzkabanFlows") {
-      dependsOn "checkHadoopDsl"
       description = "Builds the Hadoop DSL for Azkaban. Have your build task depend on this task.";
       group = "Hadoop Plugin";
 
