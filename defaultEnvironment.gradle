@@ -13,3 +13,8 @@ project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin
 // is here so that it can be overridden for LinkedIn internal
 // builds, which will not use defaultEnvironment.gradle.
 group='com.linkedin.hadoop-plugin'
+
+// Task to generate the Gradle wrapper
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}

@@ -79,7 +79,7 @@ testFiles.each { fileName ->
 
     // In LinkedIn internal builds, the dependencies are in a different place, so pass the
     // location on to the test case task.
-    commandLine "gradle", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}"
+    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}"
     ignoreExitValue true;
 
     // Store the output instead of printing to the console
