@@ -19,6 +19,10 @@ package com.linkedin.gradle.hadoopdsl;
  * The Properties class represents property files. In the DSL, properties can be specified with:
  * <pre>
  *   propertyFile('common') {
+ *     set jvmProperties: [
+ *       'jvmPropertyName1' : 'jvmPropertyValue1',
+ *       'jvmPropertyName2' : 'jvmPropertyValue2'
+ *     ]
  *     set properties: [
  *       myPropertyA : 'valA',
  *       myPropertyB : 'valB'
@@ -28,6 +32,7 @@ package com.linkedin.gradle.hadoopdsl;
  */
 class Properties {
   String name;
+  Map<String, String> jvmProperties;
   Map<String, String> properties;
 
   /**
@@ -37,6 +42,7 @@ class Properties {
    */
   Properties(String name) {
     this.name = name;
+    this.jvmProperties = new LinkedHashMap<String, String>();
     this.properties = new LinkedHashMap<String, String>();
   }
 
@@ -51,6 +57,28 @@ class Properties {
    */
   String buildFileName(String name, String parentScope) {
     return parentScope == null ? name : "${parentScope}_${name}";
+  }
+
+  /**
+   * Builds the properties that go into the generated properties file.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and properties correctly.
+   *
+   * @param allProperties The map that holds all the properties that will go into the built properties file
+   * @return The input properties map, with jvmProperties and properties added
+   */
+  Map<String, String> buildProperties(Map<String, String> allProperties) {
+    if (jvmProperties.size() > 0) {
+      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+      allProperties["jvm.args"] = jvmArgs;
+    }
+
+    properties.each() { key, value ->
+      allProperties[key] = value;
+    }
+
+    return allProperties;
   }
 
   /**
@@ -69,6 +97,7 @@ class Properties {
    * @return The cloned properties
    */
   Properties clone(Properties cloneProps) {
+    cloneProps.jvmProperties.putAll(this.jvmProperties);
     cloneProps.properties.putAll(this.properties);
     return cloneProps;
   }
@@ -78,9 +107,24 @@ class Properties {
    *
    * @param args Args whose key 'properties' has a map value containing the properties to set
    */
+
+  /**
+   * DSL method to specify job and JVM properties for the property file. Specifying job properties
+   * causes lines of the form key=val to be written to the properties file, while specifying JVM
+   * properties causes a line of the form jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the
+   * properties file.
+   *
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set, or a key 'jvmProperties' with a map value that specifies the JVM properties to set
+   */
   void set(Map args) {
-    Map<String, String> props = args.properties;
-    properties.putAll(props);
+    if (args.containsKey("jvmProperties")) {
+      Map<String, String> jvmProperties = args.jvmProperties;
+      this.jvmProperties.putAll(jvmProperties);
+    }
+    if (args.containsKey("properties")) {
+      Map<String, String> properties = args.properties;
+      this.properties.putAll(properties);
+    }
   }
 
   /**
@@ -89,6 +133,6 @@ class Properties {
    * @return A string representation of the properties
    */
   String toString() {
-    return "(Properties: name = ${name}, properties = ${properties.toString()})";
+    return "(Properties: name = ${name}, jvmProperties = ${jvmProperties.toString()}, properties = ${properties.toString()})";
   }
 }

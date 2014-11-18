@@ -21,6 +21,7 @@ def job1Lookup = lookup('job1')
 job1Lookup.script = "src/main/pig/count_by_country1.pig"
 
 def propertyFile1 = new com.linkedin.gradle.hadoopdsl.Properties("properties1")
+propertyFile1.jvmProperties.put("jvmProperty1", "jvm1")
 propertyFile1.properties.put("myPropertyA", "valA")
 propertyFile1.properties.put("myPropertyB", "valB")
 

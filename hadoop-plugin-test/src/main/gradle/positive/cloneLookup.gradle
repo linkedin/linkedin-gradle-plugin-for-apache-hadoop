@@ -20,6 +20,10 @@ lookup('job1') {
 }
 
 propertyFile('properties1') {
+  set jvmProperties: [
+    'jvmProperty1' : 'jvm1',
+    'jvmProperty2' : 'jvm2'
+  ]
   set properties: [
     'myPropertyA' : 'valA',
     'myPropertyB' : 'valB'
@@ -27,6 +31,9 @@ propertyFile('properties1') {
 }
 
 lookup('properties1') {
+  set jvmProperties: [
+    'jvmProperty1' : 'jvm1Update'
+  ]
   set properties: [
     'myPropertyB' : 'valBUpdate',
     'myPropertyC' : 'valC'
@@ -49,6 +56,10 @@ workflow('cloneLookup1') {
   }
 
   addPropertyFile('properties1') {
+    set jvmProperties: [
+      'jvmProperty2' : 'jvm2Update',
+      'jvmProperty3' : 'jvm3',
+    ]
     set properties: [
       'myPropertyC' : 'valCUpdate',
       'myPropertyD' : 'valD'
@@ -76,6 +87,10 @@ hadoop {
     }
 
     lookup('properties1') {
+      set jvmProperties: [
+        'jvmProperty3' : 'jvm3Update',
+        'jvmProperty4' : 'jvm4',
+      ]
       set properties: [
         'myPropertyE' : 'valEUpdate',
         'myPropertyF' : 'valF'

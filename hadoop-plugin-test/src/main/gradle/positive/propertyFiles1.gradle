@@ -11,12 +11,21 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 // Simple positive test cases for property files.
 
+def jvmPropertiesMap = [
+  'jvmPropertyName1' : 'jvmPropertyValue1',
+  'jvmPropertyName2' : 'jvmPropertyValue2'
+]
+
 def propertiesMap = [
   'myPropertyA' : 'valA',
   'myPropertyB' : 'valB'
 ]
 
 propertyFile('propertyFiles1Properties1') {
+  set jvmProperties: [
+    'jvmPropertyName1' : 'jvm1',
+    'jvmPropertyName2' : 'jvm2'
+  ]
   set properties: [
     myPropertyA : 'globalA',
     myPropertyB : 'globalB'
@@ -27,7 +36,19 @@ hadoop {
   buildPath "jobs"
   cleanPath false
 
+  addPropertyFile('propertyFiles1Properties1') {
+    set jvmProperties: [
+      'jvmPropertyName2' : 'jvm2Update',
+      'jvmPropertyName3' : 'jvm3'
+    ]
+    set properties: [
+      'myPropertyB' : 'globalBUpdate',
+      'myPropertyC' : 'globalC'
+    ]
+  }
+
   propertyFile('propertyFiles1Properties2') {
+    set jvmProperties: jvmPropertiesMap
     set properties: propertiesMap
   }
 
@@ -38,17 +59,13 @@ hadoop {
     ]
   }
 
-  addPropertyFile('propertyFiles1Properties1') {
-    set properties: [
-      'myPropertyB' : 'globalBUpdate',
-      'myPropertyC' : 'globalC'
-    ]
-  }
-
   workflow('propertyFiles1Workflow1') {
     addPropertyFile('propertyFiles1Properties2') {
+      set jvmProperties: [
+        'jvmPropertyName3' : 'jvm3'
+      ]
       set properties: [
-        'myPropertyD' : 'updateD'
+        'myPropertyC' : 'valC'
       ]
     }
   }

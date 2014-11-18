@@ -56,7 +56,10 @@ class AzkabanDslCompiler extends BaseCompiler {
    */
   @Override
   void visitProperties(Properties props) {
-    if (props.properties.keySet().size() == 0) {
+    // Use a LinkedHashMap so that the properties will be enumerated in the order they are added.
+    Map<String, String> allProperties = props.buildProperties(new LinkedHashMap<String, String>());
+
+    if (allProperties.size() == 0) {
       return;
     }
 
@@ -65,7 +68,7 @@ class AzkabanDslCompiler extends BaseCompiler {
 
     file.withWriter { out ->
       out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      props.properties.each() { key, value ->
+      allProperties.each() { key, value ->
         out.writeLine("${key}=${value}");
       }
     }
