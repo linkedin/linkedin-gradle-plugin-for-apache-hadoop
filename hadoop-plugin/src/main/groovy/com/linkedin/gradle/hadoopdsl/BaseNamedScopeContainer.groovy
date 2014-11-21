@@ -29,6 +29,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   // DSL elements that can be added in scope
   List<Job> jobs;
   List<Properties> properties;
+  List<PropertySet> propertySets;
   List<Workflow> workflows;
 
   /**
@@ -47,6 +48,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.project = null;
     this.jobs = new ArrayList<Job>();
     this.properties = new ArrayList<Properties>();
+    this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Job>();
   }
 
@@ -63,6 +65,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.jobs = new ArrayList<Job>();
     this.project = project;
     this.properties = new ArrayList<Properties>();
+    this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Job>();
   }
 
@@ -102,6 +105,12 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
       container.scope.bind(propsClone.name, propsClone);
     }
 
+    for (PropertySet propertySet : propertySets) {
+      PropertySet propertySetClone = propertySet.clone();
+      workflow.propertySets.add(propertySetClone);
+      workflow.scope.bind(propertySetClone.name, propertySetClone);
+    }
+
     for (Workflow workflow : workflows) {
       Workflow workflowClone = workflow.clone();
       container.workflows.add(workflowClone);
@@ -137,6 +146,20 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     Methods.configureProperties(project, props, configure, scope);
     properties.add(props);
     return props;
+  }
+
+  /**
+   * Helper method to configure PropertySet objects in the DSL. Can be called by subclasses to
+   * configure custom PropertySet subclass types.
+   *
+   * @param propertySet The PropertySet to configure
+   * @param configure The configuration closure
+   * @return The input PropertySet, which is now configured
+   */
+  PropertySet configurePropertySet(PropertySet propertySet, Closure configure) {
+    Methods.configurePropertySet(project, propertySet, configure, scope);
+    propertySets.add(propertySet);
+    return propertySet;
   }
 
   /**
@@ -203,6 +226,32 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   Properties addPropertyFile(String name, String rename, Closure configure) {
     return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
+  }
+
+  /**
+   * DSL addPropertySet method. Looks up the PropertySet with given name, clones it, configures the
+   * clone with the given configuration closure and binds the clone in scope.
+   *
+   * @param name The PropertySet name to lookup
+   * @param configure The configuration closure
+   * @return The cloned and configured PropertySet that was bound in scope
+   */
+  Properties addPropertySet(String name, Closure configure) {
+    return configurePropertySet(Methods.clonePropertySet(name, scope), configure);
+  }
+
+  /**
+   * DSL addPropertySet method. Looks up the PropertySet with given name, clones it, renames the
+   * clone to the specified name, configures the clone with the given configuration closure and
+   * binds the clone in scope.
+   *
+   * @param name The PropertySet name to lookup
+   * @param rename The new name to give the cloned PropertySet
+   * @param configure The configuration closure
+   * @return The cloned, renamed and configured PropertySet that was bound in scope
+   */
+  Properties addPropertySet(String name, String rename, Closure configure) {
+    return configurePropertySet(Methods.clonePropertySet(name, rename, scope), configure);
   }
 
   /**
@@ -273,6 +322,18 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   Properties propertyFile(String name, Closure configure) {
     return configureProperties(factory.makeProperties(name), configure);
+  }
+
+  /**
+   * DSL propertySet method. Creates a PropertySet object in scope with the given name and
+   * configuration.
+   *
+   * @param name The PropertySet name
+   * @param configure The configuration closure
+   * @return The new PropertySet object
+   */
+  PropertySet propertySet(String name, Closure configure) {
+    return configurePropertySet(factory.makePropertySet(name), configure);
   }
 
   /**

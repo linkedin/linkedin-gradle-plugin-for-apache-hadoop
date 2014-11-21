@@ -16,6 +16,7 @@
 package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.Job;
+import com.linkedin.gradle.hadoopdsl.PropertySet;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
@@ -57,6 +58,14 @@ class ValidNameChecker extends BaseStaticChecker {
       return false;
     }
     return name.matches(pattern);
+  }
+
+  @Override
+  void visitPropertySet(PropertySet propertySet) {
+    if (!validateName(propertySet.name)) {
+      project.logger.lifecycle("ValidNameChecker ERROR: The propertySet object ${propertySet.name} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
+      foundError = true;
+    }
   }
 
   @Override

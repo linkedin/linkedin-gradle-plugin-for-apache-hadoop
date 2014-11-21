@@ -21,11 +21,48 @@ package com.linkedin.gradle.hadoopdsl;
  * for subclasses that want to only override the overload for the base type.
  */
 abstract class BaseVisitor implements Visitor {
+  /**
+   * Keep track of the top-level extension.
+   */
+  HadoopDslExtension extension;
 
+  /**
+   * Keeps track of the current parent scope for the DSL element being built.
+   */
+  NamedScope parentScope;
+
+  /**
+   * Keeps track of the current parent scope name for the DSL element being built.
+   */
+  String parentScopeName;
+
+  /**
+   * Helper method for DSL elements that subclass BaseNamedScopeContainer.
+   *
+   * @param container The DSL element subclassing BaseNamedScopeContainer
+   */
   void visitScopeContainer(BaseNamedScopeContainer container) {
+    // Save the last scope information
+    NamedScope oldParentScope = this.parentScope;
+    String oldParentScopeName = this.parentScopeName;
+
+    // Set the new parent scope
+    this.parentScopeName = container.scope.levelName;
+    this.parentScope = container.scope;
+
     // Visit each job
     container.jobs.each() { Job job ->
       visitJob(job);
+    }
+
+    // Visit each workflow
+    container.workflows.each() { Workflow workflow ->
+      visitWorkflow(workflow);
+    }
+
+    // Visit each property set object
+    container.propertySets.each() { PropertySet propertySet ->
+      visitPropertySet(propertySet);
     }
 
     // Visit each properties object
@@ -33,10 +70,9 @@ abstract class BaseVisitor implements Visitor {
       visitProperties(props);
     }
 
-    // Visit each workflow
-    container.workflows.each() { Workflow workflow ->
-      visitWorkflow(workflow);
-    }
+    // Restore the last parent scope
+    this.parentScope = oldParentScope;
+    this.parentScopeName = oldParentScopeName;
   }
 
   @Override
@@ -47,11 +83,17 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitExtension(HadoopDslExtension hadoop) {
+    // Save the extension and visit its nested DSL elements
+    this.extension = hadoop;
     visitScopeContainer(hadoop);
   }
 
   @Override
   void visitProperties(Properties props) {
+  }
+
+  @Override
+  void visitPropertySet(PropertySet propertySet) {
   }
 
   @Override

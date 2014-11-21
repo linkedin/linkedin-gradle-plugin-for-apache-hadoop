@@ -36,6 +36,7 @@ package com.linkedin.gradle.hadoopdsl;
  * </pre>
  */
 class Job {
+  String basePropertySetName;
   String name;
   Set<String> dependencyNames;
   Map<String, String> jobProperties;
@@ -53,6 +54,15 @@ class Job {
     name = jobName;
     reading = new ArrayList<String>();
     writing = new ArrayList<String>();
+  }
+
+  /**
+   * Sets the name of the base PropertySet from which to get the base properties.
+   *
+   * @param propertySetName The name of the base PropertySet
+   */
+  void baseProperties(String propertySetName) {
+    this.basePropertySetName = propertySetName;
   }
 
   /**
@@ -118,6 +128,7 @@ class Job {
    * @return The cloned job
    */
   Job clone(Job cloneJob) {
+    cloneJob.basePropertySetName = basePropertySetName;
     cloneJob.dependencyNames.addAll(dependencyNames);
     cloneJob.jobProperties.putAll(jobProperties);
     cloneJob.reading.addAll(reading);
@@ -206,6 +217,20 @@ class Job {
   @Override
   String toString() {
     return "(Job: name = ${name})";
+  }
+
+  /**
+   * Adds any properties set on the given BasePropertySet (that are not already set), so that the
+   * final set of properties set on the job represents the union of the properties.
+   *
+   * @param propertySet The BasePropertySet to union to the job
+   */
+  void unionProperties(BasePropertySet propertySet) {
+    propertySet.jobProperties.each() { String name, String value ->
+      if (!jobProperties.containsKey(name)) {
+        setJobProperty(name, value);
+      }
+    }
   }
 }
 
@@ -517,6 +542,23 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
   void setConfProperty(String name, String value) {
     confProperties.put(name, value);
     setJobProperty("hadoop-conf.${name}", value);
+  }
+
+  /**
+   * Adds any properties set on the given BasePropertySet (that are not already set), so that the
+   * final set of properties set on the job represents the union of the properties.
+   *
+   * @param propertySet The BasePropertySet to union to the job
+   */
+  @Override
+  void unionProperties(BasePropertySet propertySet) {
+    super.unionProperties(propertySet);
+
+    propertySet.confProperties.each() { String name, String value ->
+      if (!confProperties.containsKey(name)) {
+        setConfProperty(name, value);
+      }
+    }
   }
 }
 
@@ -966,6 +1008,23 @@ class JavaProcessJob extends Job {
    */
   void setJvmProperty(String name, String value) {
     jvmProperties.put(name, value);
+  }
+
+  /**
+   * Adds any properties set on the given BasePropertySet (that are not already set), so that the
+   * final set of properties set on the job represents the union of the properties.
+   *
+   * @param propertySet The BasePropertySet to union to the job
+   */
+  @Override
+  void unionProperties(BasePropertySet propertySet) {
+    super.unionProperties(propertySet);
+
+    propertySet.jvmProperties.each() { String name, String value ->
+      if (!jvmProperties.containsKey(name)) {
+        setJvmProperty(name, value);
+      }
+    }
   }
 
   /**

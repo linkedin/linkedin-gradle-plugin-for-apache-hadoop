@@ -54,6 +54,20 @@ class Methods {
     return props;
   }
 
+  static PropertySet clonePropertySet(String name, NamedScope scope) {
+    PropertySet propertySet = scope.lookup(name);
+    if (propertySet == null) {
+      throw new Exception("Could not find PropertySet ${name} from scope ${scope.levelName}");
+    }
+    return propertySet.clone();
+  }
+
+  static PropertySet clonePropertySet(String name, String rename, NamedScope scope) {
+    PropertySet propertySet = clonePropertySet(name, scope)
+    propertySet.name = rename;
+    return propertySet;
+  }
+
   static Workflow cloneWorkflow(String name, NamedScope scope) {
     Workflow workflow = scope.lookup(name);
     if (workflow == null) {
@@ -81,6 +95,12 @@ class Methods {
     scope.bind(props.name, props);
     project.configure(props, configure);
     return props;
+  }
+
+  static PropertySet configurePropertySet(Project project, PropertySet propertySet, Closure configure, NamedScope scope) {
+    scope.bind(propertySet.name, propertySet);
+    project.configure(propertySet, configure);
+    return propertySet;
   }
 
   static Workflow configureWorkflow(Project project, Workflow workflow, Closure configure, NamedScope scope) {

@@ -1,0 +1,6 @@
+:hadoop-plugin-test:test_propertySet1
+Running test for the file positive/propertySet1.gradle
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

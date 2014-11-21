@@ -16,6 +16,7 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.checker.JobDependencyChecker;
+import com.linkedin.gradle.hadoopdsl.checker.PropertySetChecker;
 import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidNameChecker;
 import com.linkedin.gradle.hadoopdsl.checker.WorkflowJobChecker;
@@ -33,6 +34,7 @@ import org.gradle.api.Project;
  *   <li>RequiredFieldsChecker: checks that all the required fields in the DSL are set</li>
  *   <li>WorkflowJobChecker: checks various properties of workflows</li>
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
+ *   <li>PropertySetChecker: checks that that property files and jobs that declare baseProperties refer to valid property sets</li>
  * </ul>
  */
 class HadoopDslChecker extends BaseStaticChecker {
@@ -57,6 +59,7 @@ class HadoopDslChecker extends BaseStaticChecker {
     checks.add(makeRequiredFieldsChecker());
     checks.add(makeWorkflowJobChecker());
     checks.add(makeJobDependencyChecker());
+    checks.add(makePropertySetChecker());
     return checks;
   }
 
@@ -84,6 +87,16 @@ class HadoopDslChecker extends BaseStaticChecker {
    */
   JobDependencyChecker makeJobDependencyChecker() {
     return new JobDependencyChecker(project);
+  }
+
+  /**
+   * Factory method to build the PropertySetChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The RequiredFieldsChecker check
+   */
+  PropertySetChecker makePropertySetChecker() {
+    return new PropertySetChecker(project);
   }
 
   /**

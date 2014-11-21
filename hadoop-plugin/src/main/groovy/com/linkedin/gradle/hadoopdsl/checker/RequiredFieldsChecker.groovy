@@ -46,8 +46,8 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitProperties(Properties props) {
-    if (props.properties.isEmpty() && props.jvmProperties.isEmpty()) {
-      project.logger.lifecycle("RequiredFieldsChecker WARNING: Properties ${props.name} does not set any jvmProperties or properties. Nothing will be built for this properties object.");
+    if (props.basePropertySetName == null && props.confProperties.isEmpty() && props.jobProperties.isEmpty() && props.jvmProperties.isEmpty()) {
+      project.logger.lifecycle("RequiredFieldsChecker WARNING: Properties ${props.name} does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.");
     }
   }
 

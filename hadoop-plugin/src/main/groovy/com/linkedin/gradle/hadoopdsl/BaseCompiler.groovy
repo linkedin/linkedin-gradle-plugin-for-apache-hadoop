@@ -27,11 +27,6 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
   String buildDirectory;
 
   /**
-   * Keeps track of the current parent scope for the DSL element being built.
-   */
-  String parentScope;
-
-  /**
    * Member variable for the Gradle project so we can access the logger.
    */
   Project project;
@@ -42,8 +37,6 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
    * @param project The Gradle project
    */
   BaseCompiler(Project project) {
-    this.buildDirectory = null;
-    this.parentScope = null;
     this.project = project;
   }
 
@@ -104,16 +97,8 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
       cleanBuildDirectory(file);
     }
 
-    // Visit the workflows and properties under the extension. For compilation, the jobs in the
-    // extension are ignored.
-    hadoop.workflows.each() { Workflow workflow ->
-      visitWorkflow(workflow);
-    }
-
-    // Visit each properties object
-    hadoop.properties.each() { Properties props ->
-      visitProperties(props);
-    }
+    // Visit the workflows and properties under the extension
+    super.visitExtension(hadoop);
   }
 
   /**
@@ -126,16 +111,24 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
    */
   @Override
   void visitWorkflow(Workflow workflow) {
-    // Build the next parent scope for the jobs and properties in the workflow
-    String oldParentScope = this.parentScope;
-    this.parentScope = (this.parentScope == null) ? workflow.name : "${parentScope}_${workflow.name}";
+    // Save the last scope information
+    NamedScope oldParentScope = this.parentScope;
+    String oldParentScopeName = this.parentScopeName;
+
+    // Don't bother prefixing all scope names with "hadoop" even though everything being compiled
+    // is under hadoop scope.
+    boolean hadoopScope = this.parentScope == extension.scope;
+
+    // Set the new parent scope
+    this.parentScopeName = (this.parentScopeName == null || hadoopScope) ? workflow.name : "${parentScopeName}_${workflow.name}";
+    this.parentScope = workflow.scope;
 
     // Build the list of jobs to build for the workflow
     Set<Job> jobsToBuild = workflow.buildJobList();
 
     // Visit each job to build in the workflow
     jobsToBuild.each() { Job job ->
-      visitJob(job);
+      visitJobToBuild(job);
     }
 
     // Visit each properties object in the workflow
@@ -148,7 +141,16 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
       visitWorkflow(childWorkflow);
     }
 
-    // Restore the old parent scope
+    // Restore the last parent scope
     this.parentScope = oldParentScope;
+    this.parentScopeName = oldParentScopeName;
   }
+
+  /**
+   * Builds a job that has been found on a transitive walk starting from the jobs the workflow
+   * targets. These are the jobs that should actually be built by the compiler.
+   *
+   * @param The job to build
+   */
+  abstract void visitJobToBuild(Job job);
 }

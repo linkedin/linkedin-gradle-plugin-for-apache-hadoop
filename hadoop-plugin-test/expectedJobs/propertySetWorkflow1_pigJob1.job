@@ -1,0 +1,8 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+pig.script=src/main/pig/pigScript.pig
+hadoop-conf.mapred.property1=value1Update
+myProperty1=global1Update
+hadoop-conf.mapred.property2=value2
+myProperty2=global2
+jvm.args=-DjvmPropertyName1=jvm1Update -DjvmPropertyName2=jvm2

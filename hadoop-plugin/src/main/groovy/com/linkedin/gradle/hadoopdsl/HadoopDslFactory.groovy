@@ -166,6 +166,16 @@ class HadoopDslFactory {
   }
 
   /**
+   * Factory method to build a PropertySet.
+   *
+   * @param name The PropertySet name
+   * @return The PropertySet object
+   */
+  PropertySet makePropertySet(String name) {
+    return new PropertySet(name);
+  }
+
+  /**
    * Factory method to build a Workflow object;
    *
    * @param name The workflow name

@@ -15,9 +15,9 @@
  */
 package com.linkedin.gradle.hadoopdsl.checker;
 
+import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 import com.linkedin.gradle.hadoopdsl.Job;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 
 import org.gradle.api.Project;
 
@@ -60,7 +60,7 @@ class JobDependencyChecker extends BaseStaticChecker {
    * This function performs a depth-first search of the job graph, starting from each job in the
    * workflow. If any job is encountered twice on a depth-first path, there is a cycle.
    *
-   * @param workflow The workflow to check for depedency
+   * @param workflow The workflow to check for dependency
    * @param jobMap The map of job names to jobs in the workflow
    */
   void detectJobCycles(Workflow workflow, Map<String, Job> jobMap) {

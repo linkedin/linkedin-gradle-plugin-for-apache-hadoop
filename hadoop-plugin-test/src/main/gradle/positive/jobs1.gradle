@@ -36,6 +36,11 @@ hadoop {
   buildPath "jobs"
   cleanPath false
 
+  // Should not be built as this job is not within a workflow
+  pigJob('pigJob0') {
+    uses 'src/main/pig/pigScript.pig'
+  }
+
   workflow('jobs1') {
     job('job1') {
     }

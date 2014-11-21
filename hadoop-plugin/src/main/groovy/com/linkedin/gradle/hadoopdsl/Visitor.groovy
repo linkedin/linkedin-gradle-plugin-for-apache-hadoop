@@ -25,6 +25,7 @@ interface Visitor {
   void visitPlugin(HadoopDslPlugin plugin);
   void visitExtension(HadoopDslExtension hadoop);
   void visitProperties(Properties props);
+  void visitPropertySet(PropertySet propertySet);
   void visitWorkflow(Workflow workflow);
   void visitJob(Job job);
   void visitJob(CommandJob job);

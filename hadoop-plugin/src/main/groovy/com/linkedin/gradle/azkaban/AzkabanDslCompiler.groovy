@@ -18,6 +18,7 @@ package com.linkedin.gradle.azkaban;
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
 import com.linkedin.gradle.hadoopdsl.Job;
 import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.PropertySet;
 
 import org.gradle.api.Project;
 
@@ -57,13 +58,23 @@ class AzkabanDslCompiler extends BaseCompiler {
   @Override
   void visitProperties(Properties props) {
     // Use a LinkedHashMap so that the properties will be enumerated in the order they are added.
-    Map<String, String> allProperties = props.buildProperties(new LinkedHashMap<String, String>());
+    Map<String, String> allProperties = new LinkedHashMap<String, String>();
 
+    // First, union the base propertySet onto the properties object.
+    if (props.basePropertySetName != null) {
+      PropertySet propertySet = parentScope.lookup(props.basePropertySetName);
+      props.unionProperties(propertySet);
+    }
+
+    // Now build the declared properties on top of the base properties.
+    props.buildProperties(allProperties);
     if (allProperties.size() == 0) {
       return;
     }
 
-    String fileName = props.buildFileName(props.name, this.parentScope);
+    // Don't bother prefixing all scope names with "hadoop" from hadoop scope.
+    String parentScopeName = (this.parentScope == extension.scope) ? null : this.parentScopeName;
+    String fileName = props.buildFileName(props.name, parentScopeName);
     File file = new File(this.buildDirectory, "${fileName}.properties");
 
     file.withWriter { out ->
@@ -83,15 +94,23 @@ class AzkabanDslCompiler extends BaseCompiler {
    * @param job The job to build
    */
   @Override
-  void visitJob(Job job) {
+  void visitJobToBuild(Job job) {
     // Use a LinkedHashMap so that the properties will be enumerated in the order they are added.
-    Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>(), this.parentScope);
+    Map<String, String> allProperties = new LinkedHashMap<String, String>();
 
+    // First, union the base propertySet onto the job.
+    if (job.basePropertySetName != null) {
+      PropertySet propertySet = parentScope.lookup(job.basePropertySetName);
+      job.unionProperties(propertySet);
+    }
+
+    // Now build the declared properties on top of the base properties.
+    job.buildProperties(allProperties, this.parentScopeName);
     if (allProperties.size() == 0) {
       return;
     }
 
-    String fileName = job.buildFileName(job.name, this.parentScope);
+    String fileName = job.buildFileName(job.name, this.parentScopeName);
     File file = new File(this.buildDirectory, "${fileName}.job");
 
     file.withWriter { out ->
