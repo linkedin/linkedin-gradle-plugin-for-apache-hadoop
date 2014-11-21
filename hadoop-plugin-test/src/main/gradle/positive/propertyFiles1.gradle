@@ -11,6 +11,11 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 // Simple positive test cases for property files.
 
+def confPropertiesMap = [
+  'mapred.property1' : 'value1',
+  'mapred.property2' : 'value2'
+]
+
 def jvmPropertiesMap = [
   'jvmPropertyName1' : 'jvmPropertyValue1',
   'jvmPropertyName2' : 'jvmPropertyValue2'
@@ -22,6 +27,10 @@ def propertiesMap = [
 ]
 
 propertyFile('propertyFiles1Properties1') {
+  set confProperties: [
+    'mapred.property1' : 'value1',
+    'mapred.property2' : 'value2'
+  ]
   set jvmProperties: [
     'jvmPropertyName1' : 'jvm1',
     'jvmPropertyName2' : 'jvm2'
@@ -37,6 +46,10 @@ hadoop {
   cleanPath false
 
   addPropertyFile('propertyFiles1Properties1') {
+    set confProperties: [
+      'mapred.property2' : 'value2Update',
+      'mapred.property3' : 'value3'
+    ]
     set jvmProperties: [
       'jvmPropertyName2' : 'jvm2Update',
       'jvmPropertyName3' : 'jvm3'
@@ -48,6 +61,7 @@ hadoop {
   }
 
   propertyFile('propertyFiles1Properties2') {
+    set confProperties: confPropertiesMap
     set jvmProperties: jvmPropertiesMap
     set properties: propertiesMap
   }
@@ -61,6 +75,9 @@ hadoop {
 
   workflow('propertyFiles1Workflow1') {
     addPropertyFile('propertyFiles1Properties2') {
+      set confProperties: [
+        'mapred.property3' : 'value3'
+      ]
       set jvmProperties: [
         'jvmPropertyName3' : 'jvm3'
       ]

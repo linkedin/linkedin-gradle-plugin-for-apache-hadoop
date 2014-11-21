@@ -2,3 +2,12 @@
 dependencies=jobs1_job9
 type=pig
 pig.script=src/main/pig/pigScript.pig
+foo.jar=/user/hacker/foo.jar
+param.foo.jar=/user/hacker/foo.jar
+foobar=/user/hacker/foobar.zip
+param.foobar=/user/hacker/foobar.zip
+param.param1=val1
+hadoop-conf.mapred.job.queue.name=marathon
+hadoop-conf.mapred.cache.archives=/user/hacker/foobar.zip#foobar
+hadoop-conf.mapred.create.symlink=yes
+hadoop-conf.mapred.cache.files=/user/hacker/foo.jar#foo.jar

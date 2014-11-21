@@ -7,3 +7,4 @@ build.input.path=/user/foo/input
 build.output.dir=/user/foo/output
 push.store.owners=foo@linkedin.com
 push.store.description=Store for testing
+hadoop-conf.mapred.job.queue.name=marathon

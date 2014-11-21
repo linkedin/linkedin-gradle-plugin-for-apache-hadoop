@@ -9,10 +9,8 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-// Tests for HADOOP-7558. Tests multiple commands for a CommandJob and multiple queries for a
-// HiveJob.
+// Tests for HADOOP-7558. Tests multiple commands for a CommandJob.
 def commands = ['echo "hello"', 'echo "This is how one runs a command job"', 'whoami']
-def queries = ["show tables;", "describe myTable;"]
 
 hadoop {
   buildPath "jobs"
@@ -23,10 +21,6 @@ hadoop {
       usesCommands commands
     }
 
-    hiveJob('hiveJob1') {
-      usesQueries queries
-    }
-
-    targets 'commandJob1', 'hiveJob1'
+    targets 'commandJob1'
   }
 }

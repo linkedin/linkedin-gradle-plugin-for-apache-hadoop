@@ -20,7 +20,7 @@ package com.linkedin.gradle.hadoopdsl;
  * <p>
  * In the DSL, a Job can be specified with:
  * <pre>
- *   job('jobName) {
+ *   job('jobName') {
  *     reads files: [
  *       'foo' : '/data/databases/foo',
  *       'bar' : '/data/databases/bar',
@@ -28,21 +28,10 @@ package com.linkedin.gradle.hadoopdsl;
  *     writes files: [
  *       'bazz' : '/user/bazz/foobar'
  *     ]
- *     caches files: [
- *       'foo.jar' : '/user/bazz/foo.jar'
- *     ]
- *     cachesArchive files: [
- *       'foobar' : '/user/bazz/foobar.zip'
- *     ]
  *     set properties: [
  *       'propertyName1' : 'propertyValue1'
  *     ]
- *     set jvmProperties: [
- *       'jvmPropertyName1' : 'jvmPropertyValue1',
- *       'jvmPropertyName2' : 'jvmPropertyValue2'
- *     ]
  *     depends 'job1'
- *     queue 'marathon
  *   }
  * </pre>
  */
@@ -50,7 +39,6 @@ class Job {
   String name;
   Set<String> dependencyNames;
   Map<String, String> jobProperties;
-  Map<String, String> jvmProperties;
   List<String> reading;
   List<String> writing;
 
@@ -62,7 +50,6 @@ class Job {
   Job(String jobName) {
     dependencyNames = new LinkedHashSet<String>();
     jobProperties = new LinkedHashMap<String, String>();
-    jvmProperties = new LinkedHashMap<String, String>();
     name = jobName;
     reading = new ArrayList<String>();
     writing = new ArrayList<String>();
@@ -111,94 +98,8 @@ class Job {
    * @return The input job properties map, with jobProperties and jvmProperties added
    */
   Map<String, String> buildProperties(Map<String, String> allProperties) {
-    if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
-      allProperties["jvm.args"] = jvmArgs;
-    }
-
-    jobProperties.each() { key, value ->
-      allProperties[key] = value;
-    }
-
+    allProperties.putAll(jobProperties);
     return allProperties;
-  }
-
-  /**
-   * DSL method to specify files to cache. Using this DSL method sets the JVM properties
-   * mapred.cache.files and mapred.create.symlink=yes. These properties cause the specified files
-   * to be added to DistributedCache and propagated to each of the tasks. A symlink will be created
-   * in the task working directory that points to the file.
-   *
-   * @param args Args whose key 'files' has a map value specifying the files to cache
-   */
-  void caches(Map args) {
-    Map<String, String> files = args.files;
-    if (files.size() == 0) {
-      return;
-    }
-
-    reads(args);
-
-    for (Map.Entry<String, String> entry : files.entrySet()) {
-      String symLink = entry.key;
-      String pathName = entry.value;
-      String cacheLink = "${pathName}#${symLink}";
-
-      if (jvmProperties.containsKey("mapred.cache.files")) {
-        setJvmProperty("mapred.cache.files", jvmProperties["mapred.cache.files"] + "," + cacheLink);
-      }
-      else {
-        setJvmProperty("mapred.cache.files", cacheLink);
-      }
-    }
-
-    setJvmProperty("mapred.create.symlink", "yes");
-  }
-
-  /**
-   * DSL method to specify archives to cache. Valid archives to use with this method are .zip,
-   * .tgz, .tar.gz, .tar and .jar. Any other file type will result in an exception. Using this DSL
-   * method sets the JVM properties mapred.cache.archives and mapred.create.symlink=yes. These
-   * properties cause the specified archives to be added to DistributedCache and propagated to each
-   * of the tasks. A symlink will be created in the task working directory that points to the
-   * exploded archive directory.
-   *
-   * @param args Args whose key 'files' has a map value specifying the archives to cache
-   */
-  void cachesArchive(Map args) {
-    Map<String, String> files = args.files;
-    if (files.size() == 0) {
-      return;
-    }
-
-    reads(args);
-    List<String> archiveExt = Arrays.asList(".zip", ".tgz", ".tar.gz", ".tar", ".jar");
-
-    for (Map.Entry<String, String> entry : files.entrySet()) {
-      String symLink = entry.key;
-      String pathName = entry.value;
-      String cacheLink = "${pathName}#${symLink}";
-
-      boolean found = false;
-      String lowerPath = pathName.toLowerCase();
-
-      archiveExt.each() { String ext ->
-        found = found || lowerPath.endsWith(ext);
-      }
-
-      if (!found) {
-        throw new Exception("File given to cachesArchive must be one of: " + archiveExt.toString());
-      }
-
-      if (jvmProperties.containsKey("mapred.cache.archives")) {
-        setJvmProperty("mapred.cache.archives", jvmProperties["mapred.cache.archives"] + "," + cacheLink);
-      }
-      else {
-        setJvmProperty("mapred.cache.archives", cacheLink);
-      }
-    }
-
-    setJvmProperty("mapred.create.symlink", "yes");
   }
 
   /**
@@ -219,7 +120,6 @@ class Job {
   Job clone(Job cloneJob) {
     cloneJob.dependencyNames.addAll(dependencyNames);
     cloneJob.jobProperties.putAll(jobProperties);
-    cloneJob.jvmProperties.putAll(jvmProperties);
     cloneJob.reading.addAll(reading);
     cloneJob.writing.addAll(writing);
     return cloneJob;
@@ -235,31 +135,21 @@ class Job {
   }
 
   /**
-   * DSL queue method declares the queue in which this job should run. This sets the JVM property
-   * mapred.job.queue.name.
-   *
-   * @param queueName The name of the queue in which this job should run
-   */
-  void queue(String queueName) {
-    jvmProperties.put("mapred.job.queue.name", queueName);
-  }
-
-  /**
    * DSL method to specify HDFS paths read by the job. When you use this method, the static checker
    * will verify that this job is dependent or transitively dependent on any jobs that write paths
    * that this job reads. This is an important race condition in workflows that can be completely
    * eliminated with this static check.
    * <p>
    * Using this method additionally causes lines of the form form key=hdfsPath to be written to
-   * the job file (i.e. the keys you use are available as job parameters).
+   * the job file (i.e. the keys you use are available as job properties).
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
   void reads(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
-      setJobProperty(entry.key, entry.value);
       reading.add(entry.value);
+      setJobProperty(entry.key, entry.value);
     }
   }
 
@@ -270,55 +160,42 @@ class Job {
    * eliminated with this static check.
    * <p>
    * Using this method additionally causes lines of the form form key=hdfsPath to be written to
-   * the job file (i.e. the keys you use are available as job parameters).
+   * the job file (i.e. the keys you use are available as job properties).
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job writes
    */
   void writes(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
-      setJobProperty(entry.key, entry.value);
       writing.add(entry.value);
+      setJobProperty(entry.key, entry.value);
     }
   }
 
   /**
-   * DSL method to specify job and JVM properties to set on the job. Specifying job properties
-   * causes lines of the form key=val to be written to the job file, while specifying JVM
-   * properties causes a line of the form jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the
-   * job file.
+   * DSL method to specify job properties to set on the job. Specifying job properties causes lines
+   * of the form key=val to be written to the job file.
    *
-   * @param args Args whose key 'properties' has a map value specifying the job properties to set, or a key 'jvmProperties' with a map value that specifies the JVM properties to set
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set
    */
   void set(Map args) {
     if (args.containsKey("properties")) {
       Map<String, String> properties = args.properties;
-      this.jobProperties.putAll(properties);
-    }
-    if (args.containsKey("jvmProperties")) {
-      Map<String, String> jvmProperties = args.jvmProperties;
-      this.jvmProperties.putAll(jvmProperties);
+      properties.each() { String name, String value ->
+        setJobProperty(name, value);
+      }
     }
   }
 
   /**
-   * Sets the given job property.
+   * Sets the given job property. Setting a job property causes a line of the form key=val to be
+   * written to the job file.
    *
    * @param name The job property to set
    * @param value The job property value
    */
   void setJobProperty(String name, String value) {
-    jobProperties.put(name, value)
-  }
-
-  /**
-   * Sets the given JVM property.
-   *
-   * @param name The JVM property name to set
-   * @param value The JVM property value
-   */
-  void setJvmProperty(String name, String value) {
-    jvmProperties.put(name, value);
+    jobProperties.put(name, value);
   }
 
   /**
@@ -326,6 +203,7 @@ class Job {
    *
    * @return A string representation of the job
    */
+  @Override
   String toString() {
     return "(Job: name = ${name})";
   }
@@ -356,15 +234,23 @@ class CommandJob extends Job {
    */
   CommandJob(String jobName) {
     super(jobName);
+    setJobProperty("type", "command");
   }
 
+  /**
+   * Builds the job properties that go into the generated job file, except for the dependencies
+   * property, which is built by the other overload of the buildProperties method.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   *
+   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
+   * @return The input job properties map, with jobProperties and jvmProperties added
+   */
   @Override
   Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "command";
+    super.buildProperties(allProperties);
 
-    if (command != null) {
-      allProperties["command"] = command;
-    }
     if (commands != null && commands.size() > 0) {
       allProperties["command"] = commands.get(0);
 
@@ -373,7 +259,7 @@ class CommandJob extends Job {
       }
     }
 
-    return super.buildProperties(allProperties);
+    return allProperties;
   }
 
   /**
@@ -381,6 +267,7 @@ class CommandJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   CommandJob clone() {
     return clone(new CommandJob(name));
   }
@@ -391,6 +278,7 @@ class CommandJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   CommandJob clone(CommandJob cloneJob) {
     cloneJob.command = command;
     cloneJob.commands = commands;
@@ -407,6 +295,7 @@ class CommandJob extends Job {
    */
   void uses(String command) {
     this.command = command;
+    setJobProperty("command", command);
   }
 
   /**
@@ -422,6 +311,216 @@ class CommandJob extends Job {
   }
 }
 
+
+/**
+ * Abstract base class for JavaProcessJob subclasses that are for Hadoop, such as HadoopJava, Pig
+ * and Hive job types. This class contains common functionality between all of these concrete job
+ * types. It is not intended to be instantiated by the user in DSL code.
+ * <p>
+ * All concrete classes that extend HadoopJavaProcessJob support the following syntax:
+ * <pre>
+ *   concreteHadoopJavaProcessJob('jobName') {
+ *     caches files: [
+ *       'foo.txt': '/user/bar/foo.txt'
+ *     ]
+ *     cachesArchives files: [
+ *       'foo.zip': '/user/bar/foo.zip',
+ *       'bazz.tgz': '/user/bar/bazz.tgz'
+ *     ]
+ *     set confProperties: [
+ *       'mapred.property1' : 'value1',
+ *       'mapred.property2' : 'value2'
+ *     ]
+ *     depends 'job1'
+ *     queue 'queueName'
+ *   }
+ * </pre>
+ */
+abstract class HadoopJavaProcessJob extends JavaProcessJob {
+  Map<String, String> cacheArchives;
+  Map<String, String> cacheFiles;
+  Map<String, String> confProperties;
+  String queueName;
+
+  /**
+   * Constructor for a HadoopJavaProcessJob.
+   *
+   * @param jobName The job name
+   */
+  HadoopJavaProcessJob(String jobName) {
+    super(jobName);
+    this.cacheArchives = new LinkedHashMap<String, String>();
+    this.cacheFiles = new LinkedHashMap<String, String>();
+    this.confProperties = new LinkedHashMap<String, String>();
+  }
+
+  /**
+   * Builds the job properties that go into the generated job file, except for the dependencies
+   * property, which is built by the other overload of the buildProperties method.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   *
+   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
+   * @return The input job properties map, with jobProperties and jvmProperties added
+   */
+  @Override
+  Map<String, String> buildProperties(Map<String, String> allProperties) {
+    if (cacheArchives.size() > 0) {
+      String mrCacheArchives = cacheArchives.collect() { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
+      setConfProperty("mapred.cache.archives", mrCacheArchives);
+      setConfProperty("mapred.create.symlink", "yes");
+    }
+
+    if (cacheFiles.size() > 0) {
+      String mrCacheFiles = cacheFiles.collect() { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
+      setConfProperty("mapred.cache.files", mrCacheFiles);
+      setConfProperty("mapred.create.symlink", "yes");
+    }
+
+    return super.buildProperties(allProperties);
+  }
+
+  /**
+   * DSL method to specify files to add to Distributed Cache.
+   * <p>
+   * Using this DSL method sets the conf properties mapred.cache.files and
+   * mapred.create.symlink=yes. These properties cause the specified files (which must already be
+   * present on HDFS) to be added to DistributedCache and propagated to each of the tasks. A
+   * symlink will be created in the task working directory that points to the file.
+   *
+   * @param args Args whose key 'files' has a map value specifying the files to cache
+   */
+  void caches(Map args) {
+    Map<String, String> files = args.files;
+    if (files.size() == 0) {
+      return;
+    }
+
+    reads(args);
+
+    for (Map.Entry<String, String> entry : files.entrySet()) {
+      String symLink = entry.key;
+      String pathName = entry.value;
+      cacheFiles.put(symLink, pathName);
+    }
+  }
+
+  /**
+   * DSL method to specify archives to add to Distributed Cache. Valid archives to use with this
+   * method are .zip, .tgz, .tar.gz, .tar and .jar. Any other file type will result in an
+   * exception.
+   * <p>
+   * Using this DSL method sets the conf properties mapred.cache.archives and
+   * mapred.create.symlink=yes. These properties cause the specified archives (which must already
+   * be present on HDFS) to be added to DistributedCache and propagated to each of the tasks. A
+   * symlink will be created in the task working directory that points to the exploded archive
+   * directory.
+   *
+   * @param args Args whose key 'files' has a map value specifying the archives to cache
+   */
+  void cachesArchive(Map args) {
+    Map<String, String> files = args.files;
+    if (files.size() == 0) {
+      return;
+    }
+
+    reads(args);
+    List<String> archiveExt = Arrays.asList(".zip", ".tgz", ".tar.gz", ".tar", ".jar");
+
+    for (Map.Entry<String, String> entry : files.entrySet()) {
+      String symLink = entry.key;
+      String pathName = entry.value;
+      String lowerPath = pathName.toLowerCase();
+
+      boolean found = archiveExt.any() { String ext -> return lowerPath.endsWith(ext); };
+      if (!found) {
+        throw new Exception("File given to cachesArchive must be one of: " + archiveExt.toString());
+      }
+      cacheArchives.put(symLink, pathName);
+    }
+  }
+
+  /**
+   * Clones the job.
+   *
+   * @return The cloned job
+   */
+  @Override
+  abstract HadoopJavaProcessJob clone();
+
+  /**
+   * Helper method to set the properties on a cloned job.
+   *
+   * @param cloneJob The job being cloned
+   * @return The cloned job
+   */
+  @Override
+  HadoopJavaProcessJob clone(HadoopJavaProcessJob cloneJob) {
+    cloneJob.cacheArchives.putAll(cacheArchives);
+    cloneJob.cacheFiles.putAll(cacheFiles);
+    cloneJob.confProperties.putAll(confProperties);
+    cloneJob.queueName = queueName;
+    return super.clone(cloneJob);
+  }
+
+  /**
+   * DSL queue method to declare the queue in which this job should run. This does the following:
+   * <ul>
+   *   <li>Sets the property mapred.job.queue.name in the job file</li>
+   *   <li>Sets the property hadoop-conf.mapred.job.queue.name in the job file</li>
+   *   <li>Adds "-D mapred.job.queue.name=val" to the property main.args</li>
+   * </ul>
+   *
+   * @param queueName The name of the queue in which this job should run
+   */
+  void queue(String queueName) {
+    this.queueName = queueName;
+    setConfProperty("mapred.job.queue.name", queueName);
+  }
+
+  /**
+   * DSL method to specify job properties to set on the job. Specifying job properties causes lines
+   * of the form key=val to be written to the job file.
+   * <p>
+   * Additionally for JavaProcessJobs, you can specify JVM properties by using the syntax
+   * "set jvmProperties: [ ... ]", which causes a line of the form
+   * jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the job file.
+   * <p>
+   * Additionally for HadoopJavaProcessJob subclasses, you can specify Hadoop job configuration
+   * properties by using the syntax "set confProperties: [ ... ]", which causes lines of the form
+   * hadoop-conf.key=val to be written to the job file.
+   *
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set;
+   *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
+   *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set
+   */
+  @Override
+  void set(Map args) {
+    super.set(args);
+
+    if (args.containsKey("confProperties")) {
+      Map<String, String> confProperties = args.confProperties;
+      confProperties.each() { String name, String value ->
+        setConfProperty(name, value);
+      }
+    }
+  }
+
+  /**
+   * Sets the given Hadoop job configuration property. For a given key and value, this method
+   * causes the line hadoop-conf.key=val to be added to the job file.
+   *
+   * @param name The Hadoop job configuration property to set
+   * @param value The Hadoop job configuration property value
+   */
+  void setConfProperty(String name, String value) {
+    confProperties.put(name, value);
+    setJobProperty("hadoop-conf.${name}", value);
+  }
+}
+
+
 /**
  * Job class for type=hadoopJava jobs.
  * <p>
@@ -434,10 +533,24 @@ class CommandJob extends Job {
  * <pre>
  *   hadoopJavaJob('jobName') {
  *     uses 'com.linkedin.foo.HelloHadoopJavaJob'  // Required
+ *     reads files: [
+ *       'foo' : '/data/databases/foo'
+ *     ]
+ *     writes files: [
+ *       'bazz' : '/user/bazz/foobar'
+ *     ]
+ *     set confProperties: [
+ *       'mapred.property1' : 'value1',
+ *       'mapred.property2' : 'value2'
+ *     ]
+ *     set properties: [
+ *       'propertyName1' : 'propertyValue1'
+ *     ]
+ *     queue 'marathon
  *   }
  * </pre>
  */
-class HadoopJavaJob extends Job {
+class HadoopJavaJob extends HadoopJavaProcessJob {
   String jobClass;
 
   /**
@@ -447,13 +560,7 @@ class HadoopJavaJob extends Job {
    */
   HadoopJavaJob(String jobName) {
     super(jobName);
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "hadoopJava";
-    allProperties["job.class"] = jobClass;
-    return super.buildProperties(allProperties);
+    setJobProperty("type", "hadoopJava");
   }
 
   /**
@@ -461,6 +568,7 @@ class HadoopJavaJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   HadoopJavaJob clone() {
     return clone(new HadoopJavaJob(name));
   }
@@ -471,6 +579,7 @@ class HadoopJavaJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   HadoopJavaJob clone(HadoopJavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
     return super.clone(cloneJob);
@@ -482,30 +591,42 @@ class HadoopJavaJob extends Job {
    *
    * @param jobClass The Java class for the job
    */
+  @Override
   void uses(String jobClass) {
     this.jobClass = jobClass;
+    setJobProperty("job.class", jobClass);
   }
 }
+
 
 /**
  * Job class for type=hive jobs.
  * <p>
  * In the DSL, a HiveJob can be specified with:
  * <pre>
- *   def queries = ["show tables", "describe myTable"]
- *
  *   hiveJob('jobName') {
- *     usesQueries queries
- *     usesQuery "show tables"  // Exactly one of usesQueries, usesQuery or usesQueryFile is required
- *     usesQueryFile "hello.q"  // Exactly one of usesQueries, usesQuery or usesQuery is required
+ *     uses 'hello.q'  // Required
+ *     reads files: [
+ *       'foo' : '/data/databases/foo'
+ *     ]
+ *     writes files: [
+ *       'bazz' : '/user/bazz/foobar'
+ *     ]
+ *     set confProperties: [
+ *       'mapred.property1' : 'value1',
+ *       'mapred.property2' : 'value2'
+ *     ]
+ *     set parameters: [
+ *       'param1' : 'val1',
+ *       'param2' : 'val2'
+ *     ]
+ *     queue 'marathon'
  *   }
  * </pre>
  */
-class HiveJob extends Job {
-  // Exactly one of queries, query or queryFile must be set
-  List<String> queries;
-  String query;
-  String queryFile;
+class HiveJob extends HadoopJavaProcessJob {
+  Map<String, String> parameters;
+  String script;
 
   /**
    * Constructor for a HiveJob.
@@ -514,32 +635,8 @@ class HiveJob extends Job {
    */
   HiveJob(String jobName) {
     super(jobName);
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "hive";
-    allProperties["azk.hive.action"] = "execute.query";
-
-    if (queries != null && queries.size() > 0) {
-      for (int i = 1; i <= queries.size(); i++) {
-        if (i <= 9) {
-          // Multi-queries have to be indexed from 01. See http://azkaban.github.io/azkaban/docs/2.5/#hive-type.
-          allProperties["hive.query.0${i}"] = queries.get(i - 1);
-        }
-        else {
-          allProperties["hive.query.${i}"] = queryFile;
-        }
-      }
-    }
-    if (query != null) {
-      allProperties["hive.query"] = query;
-    }
-    if (queryFile != null) {
-      allProperties["hive.query.file"] = queryFile;
-    }
-
-    return super.buildProperties(allProperties);
+    this.parameters = new LinkedHashMap<String, String>();
+    setJobProperty("type", "hive");
   }
 
   /**
@@ -547,6 +644,7 @@ class HiveJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   HiveJob clone() {
     return clone(new HiveJob(name));
   }
@@ -557,53 +655,105 @@ class HiveJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   HiveJob clone(HiveJob cloneJob) {
-    cloneJob.queries = queries;
-    cloneJob.query = query;
-    cloneJob.queryFile = queryFile;
+    cloneJob.parameters.putAll(parameters);
+    cloneJob.script = script;
     return super.clone(cloneJob);
   }
 
   /**
-   * DSL method usesQueries specifies the queries for the job. This method causes the properties
-   * hive.query.01=value1, hive.query.02=value2, etc. to be added the job.
-   * <p>
-   * Note that you can specify a maximum of 99 queries for the job. If there are more than 99
-   * queries, the job will fail the static checker.
-   * <p>
-   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
-   * HiveJob.
+   * DSL method to specify HDFS paths read by the job. In addition to the functionality of the base
+   * class, for Hive jobs, using this method will cause a Hive parameter to be added to the job
+   * properties for each HDFS path specified.
    *
-   * @param queries The Hive queries for the job
+   * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
-  void usesQueries(List<String> queries) {
-    this.queries = queries;
+  @Override
+  void reads(Map args) {
+    super.reads(args);
+
+    // For Hive jobs, additionally emit a Hive script parameter
+    Map<String, String> files = args.files;
+    files.each() { String name, String value ->
+      setParameter(name, value);
+    }
   }
 
   /**
-   * DSL method usesQuery specifies the query for the job. This method causes the property
-   * hive.query=value to be added the job.
-   * <p>
-   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
-   * HiveJob.
+   * DSL method to specify HDFS paths written by the job. In addition to the functionality of the
+   * base class, for Hive jobs, using this method will cause a Hive parameter to be added to the
+   * job properties for each HDFS path specified.
    *
-   * @param query The Hive query for the job
+   * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
-  void usesQuery(String query) {
-    this.query = query;
+  @Override
+  void writes(Map args) {
+    super.writes(args);
+
+    // For Hive jobs, additionally emit a Hive script parameter
+    Map<String, String> files = args.files;
+    files.each() { String name, String value ->
+      setParameter(name, value);
+    }
   }
 
   /**
-   * DSL method usesQueryFile specifies the query file for the job. This method causes the property
-   * hive.query.file=value to be added the job.
+   * DSL method to specify job properties to set on the job. Specifying job properties causes lines
+   * of the form key=val to be written to the job file.
    * <p>
-   * Only one of the methods usesQueries, usesQuery or usesQueryFile can be specified with a
-   * HiveJob.
+   * Additionally for JavaProcessJobs, you can specify JVM properties by using the syntax
+   * "set jvmProperties: [ ... ]", which causes a line of the form
+   * jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the job file.
+   * <p>
+   * Additionally for HadoopJavaProcessJob subclasses, you can specify Hadoop job configuration
+   * properties by using the syntax "set confProperties: [ ... ]", which causes lines of the form
+   * hadoop-conf.key=val to be written to the job file.
+   * <p>
+   * Additionally for HiveJobs, you can specify Hive parameters by using the syntax
+   * "set parameters: [ ... ]". For each parameter you set, a line of the form hivevar.key=val will
+   * be written to the job file.
    *
-   * @param queryFile The Hive query file for the job
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set;
+   *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
+   *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set;
+   *   or a key 'parameters' with a map value that specifies the Hive parameters to set
    */
-  void usesQueryFile(String queryFile) {
-    this.queryFile = queryFile;
+  @Override
+  void set(Map args) {
+    super.set(args);
+
+    if (args.containsKey("parameters")) {
+      Map<String, String> parameters = args.parameters;
+      parameters.each() { String name, String value ->
+        setParameter(name, value);
+      }
+    }
+  }
+
+  /**
+   * DSL parameter method sets Hive parameters for the job. When the job file is built, job
+   * properties of the form hivevar.name=value are added to the job file.
+   *
+   * @param name The Hive parameter name
+   * @param value The Hive parameter value
+   */
+  void setParameter(String name, String value) {
+    parameters.put(name, value);
+    setJobProperty("hivevar.${name}", value);
+  }
+
+  /**
+   * DSL method uses specifies the Hive script for the job. The specified value can be either an
+   * absolute or relative path to the script file. This method causes the property
+   * hive.script=value to be added the job. This method is required to build the job.
+   *
+   * @param script The Hive script for the job
+   */
+  @Override
+  void uses(String script) {
+    this.script = script;
+    setJobProperty("hive.script", script);
   }
 }
 
@@ -619,10 +769,24 @@ class HiveJob extends Job {
  * <pre>
  *   javaJob('jobName') {
  *     uses 'com.linkedin.foo.HelloJavaJob'  // Required
+ *     reads files: [
+ *       'foo' : '/data/databases/foo'
+ *     ]
+ *     writes files: [
+ *       'bazz' : '/user/bazz/foobar'
+ *     ]
+ *     set confProperties: [
+ *       'mapred.property1' : 'value1',
+ *       'mapred.property2' : 'value2'
+ *     ]
+ *     set properties: [
+ *       'propertyName1' : 'propertyValue1'
+ *     ]
+ *     queue 'marathon
  *   }
  * </pre>
  */
-class JavaJob extends Job {
+class JavaJob extends HadoopJavaProcessJob {
   String jobClass;
 
   /**
@@ -632,13 +796,7 @@ class JavaJob extends Job {
    */
   JavaJob(String jobName) {
     super(jobName);
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "java";
-    allProperties["job.class"] = jobClass;
-    return super.buildProperties(allProperties);
+    setJobProperty("type", "java");
   }
 
   /**
@@ -646,6 +804,7 @@ class JavaJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   JavaJob clone() {
     return clone(new JavaJob(name));
   }
@@ -656,6 +815,7 @@ class JavaJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   JavaJob clone(JavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
     return super.clone(cloneJob);
@@ -667,8 +827,10 @@ class JavaJob extends Job {
    *
    * @param jobClass The Java class for the job
    */
+  @Override
   void uses(String jobClass) {
     this.jobClass = jobClass;
+    setJobProperty("job.class", jobClass);
   }
 }
 
@@ -678,17 +840,29 @@ class JavaJob extends Job {
  * <p>
  * According to the Azkaban documentation at http://azkaban.github.io/azkaban/docs/2.5/#job-types,
  * this is the job type you should use for Java-only jobs that do not need to acquire a secure
- * token to your Hadoop cluster.
+ * token to your Hadoop cluster. This class is also the base class for all job types that run with
+ * a JVM. It exposes functionality to set JVM properties.
  * <p>
  * In the DSL, a JavaProcessJob can be specified with:
  * <pre>
  *   javaProcessJob('jobName') {
  *     uses 'com.linkedin.foo.HelloJavaProcessJob'  // Required
+ *     jvmClasspath './*:./lib/*'
+ *     set jvmProperties: [
+ *       'jvmPropertyName1' : 'jvmPropertyValue1',
+ *       'jvmPropertyName2' : 'jvmPropertyValue2'
+ *     ]
+ *     Xms 96
+ *     Xmx 384
  *   }
  * </pre>
  */
 class JavaProcessJob extends Job {
   String javaClass;
+  String javaClasspath;
+  Map<String, String> jvmProperties;
+  Integer xms;
+  Integer xmx;
 
   /**
    * Constructor for a JavaProcessJob.
@@ -697,13 +871,30 @@ class JavaProcessJob extends Job {
    */
   JavaProcessJob(String jobName) {
     super(jobName);
+    jvmProperties = new LinkedHashMap<String, String>();
+    setJobProperty("type", "javaprocess");
   }
 
+  /**
+   * Builds the job properties that go into the generated job file, except for the dependencies
+   * property, which is built by the other overload of the buildProperties method.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   *
+   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
+   * @return The input job properties map, with jobProperties and jvmProperties added
+   */
   @Override
   Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "javaprocess";
-    allProperties["java.class"] = javaClass;
-    return super.buildProperties(allProperties);
+    super.buildProperties(allProperties);
+
+    if (jvmProperties.size() > 0) {
+      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+      allProperties["jvm.args"] = jvmArgs;
+    }
+
+    return allProperties;
   }
 
   /**
@@ -711,6 +902,7 @@ class JavaProcessJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   JavaProcessJob clone() {
     return clone(new JavaProcessJob(name));
   }
@@ -721,9 +913,59 @@ class JavaProcessJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   JavaProcessJob clone(JavaProcessJob cloneJob) {
     cloneJob.javaClass = javaClass;
+    cloneJob.javaClasspath = javaClasspath;
+    cloneJob.jvmProperties.putAll(jvmProperties);
+    cloneJob.xms = xms;
+    cloneJob.xmx = xmx;
     return super.clone(cloneJob);
+  }
+
+  /**
+   * Sets the classpath for the JavaProcessJob. Note that this sets the classpath for the client
+   * process only. In particular, this does not set the classpath for map and reduce tasks of
+   * Hadoop jobs.
+   *
+   * @param javaClasspath The classpath for the client process
+   */
+  void jvmClasspath(String javaClasspath) {
+    this.javaClasspath = javaClasspath;
+    setJobProperty("classpath", javaClasspath);
+  }
+
+  /**
+   * DSL method to specify job properties to set on the job. Specifying job properties causes lines
+   * of the form key=val to be written to the job file.
+   * <p>
+   * Additionally for JavaProcessJobs, you can specify JVM properties by using the syntax
+   * "set jvmProperties: [ ... ]", which causes a line of the form
+   * jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the job file.
+   *
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set;
+   *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set
+   */
+  @Override
+  void set(Map args) {
+    super.set(args);
+
+    if (args.containsKey("jvmProperties")) {
+      Map<String, String> jvmProperties = args.jvmProperties;
+      jvmProperties.each() { name, value ->
+        setJvmProperty(name, value);
+      }
+    }
+  }
+
+  /**
+   * Sets the given JVM property.
+   *
+   * @param name The JVM property name to set
+   * @param value The JVM property value
+   */
+  void setJvmProperty(String name, String value) {
+    jvmProperties.put(name, value);
   }
 
   /**
@@ -734,6 +976,37 @@ class JavaProcessJob extends Job {
    */
   void uses(String javaClass) {
     this.javaClass = javaClass;
+    setJobProperty("java.class", javaClass);
+  }
+
+  /**
+   * Sets the Azkaban -Xms for the JavaProcessJob. Note that this sets -Xms for the Azkaban process
+   * only. In particular, this does not set -Xms for map and reduce tasks of Hadoop jobs. This
+   * method causes the line Xms=valM to be written to the job file.
+   *
+   * @param xmsMb How many megabytes to set with -Xms for the Azkaban process
+   */
+  void Xms(int xmsMb) {
+    if (xmsMb <= 0) {
+      throw new Exception("You must set Xms to be a positive number");
+    }
+    xms = xmsMb;
+    setJobProperty("Xms", "${xms.toString()}M");
+  }
+
+  /**
+   * Sets the Azkaban -Xmx for the JavaProcessJob. Note that this sets -Xmx for the Azkaban process
+   * only. In particular, this does not set -Xmx for map and reduce tasks of Hadoop jobs. This
+   * method causes the line Xmx=valM to be written to the job file.
+   *
+   * @param xmxMb How many megabytes to set with -Xmx for the Azkaban process
+   */
+  void Xmx(int xmxMb) {
+    if (xmxMb <= 0) {
+      throw new Exception("You must set Xmx to be a positive number");
+    }
+    xmx = xmxMb;
+    setJobProperty("Xmx", "${xmx.toString()}M");
   }
 }
 
@@ -741,12 +1014,13 @@ class JavaProcessJob extends Job {
 /**
  * Job class for type=KafkaPushJob jobs.
  * <p>
- * These are documentated internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Hadoop+to+Kafka+Bridge.
+ * These are documented internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Hadoop+to+Kafka+Bridge.
  * <p>
  * The code for this job is at http://svn.corp.linkedin.com/netrepo/hadoop-to-kafka-bridge/trunk/.
  * <p>
  * In the example below, the values are NOT necessarily default values; they are simply meant to
- * illustrate the DSL. In the DSL, a KafkaPushJob can be specified with:
+ * illustrate the DSL. Please check that these values are appropriate for your application. In the
+ * DSL, a KafkaPushJob can be specified with:
  * <pre>
  *   kafkaPushJob('jobName') {
  *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
@@ -755,11 +1029,11 @@ class JavaProcessJob extends Job {
  *     usesDisableSchemaRegistration true                              // Optional
  *     usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
  *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
- *     usesSchemaRegistryUrl 'http://eat1-app501:10252/schemaRegistry/schemas'  // Optional
+ *     usesSchemaRegistryUrl 'http://eat1-app501.stg.linkedin.com:10252/schemaRegistry/schemas'  // Optional
  *   }
  * </pre>
  */
-class KafkaPushJob extends Job {
+class KafkaPushJob extends HadoopJavaJob {
   // Required
   String inputPath;
   String topic;
@@ -778,29 +1052,7 @@ class KafkaPushJob extends Job {
    */
   KafkaPushJob(String jobName) {
     super(jobName);
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "KafkaPushJob";
-    allProperties["input.path"] = inputPath;
-    allProperties["topic"] = topic;
-    if (batchNumBytes != null) {
-      allProperties["batch.num.bytes"] = batchNumBytes.toString();
-    }
-    if (disableSchemaRegistration != null) {
-      allProperties["disable.schema.registration"] = disableSchemaRegistration.toString();
-    }
-    if (kafkaUrl != null) {
-      allProperties["kafka.url"] = kafkaUrl;
-    }
-    if (nameNode != null) {
-      allProperties["name.node"] = nameNode;
-    }
-    if (schemaRegistryUrl != null) {
-      allProperties["schemaregistry.rest.url"] = schemaRegistryUrl;
-    }
-    return super.buildProperties(allProperties);
+    setJobProperty("type", "KafkaPushJob");
   }
 
   /**
@@ -808,6 +1060,7 @@ class KafkaPushJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   KafkaPushJob clone() {
     return clone(new KafkaPushJob(name));
   }
@@ -818,6 +1071,7 @@ class KafkaPushJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   KafkaPushJob clone(KafkaPushJob cloneJob) {
     cloneJob.inputPath = inputPath;
     cloneJob.topic = topic;
@@ -835,6 +1089,7 @@ class KafkaPushJob extends Job {
    */
   void usesInputPath(String inputPath) {
     this.inputPath = inputPath;
+    setJobProperty("input.path", inputPath);
   }
 
   /**
@@ -844,6 +1099,7 @@ class KafkaPushJob extends Job {
    */
   void usesTopic(String topic) {
     this.topic = topic;
+    setJobProperty("topic", topic);
   }
 
   /**
@@ -853,6 +1109,7 @@ class KafkaPushJob extends Job {
    */
   void usesBatchNumBytes(Integer batchNumBytes) {
     this.batchNumBytes = batchNumBytes;
+    setJobProperty("batch.num.bytes", batchNumBytes.toString());
   }
 
   /**
@@ -863,6 +1120,7 @@ class KafkaPushJob extends Job {
    */
   void usesDisableSchemaRegistration(Boolean disableSchemaRegistration) {
     this.disableSchemaRegistration = disableSchemaRegistration;
+    setJobProperty("disable.schema.registration", disableSchemaRegistration.toString());
   }
 
   /**
@@ -872,6 +1130,7 @@ class KafkaPushJob extends Job {
    */
   void usesKafkaUrl(String kafkaUrl) {
     this.kafkaUrl = kafkaUrl;
+    setJobProperty("kafka.url", kafkaUrl);
   }
 
   /**
@@ -881,6 +1140,7 @@ class KafkaPushJob extends Job {
    */
   void usesNameNode(String nameNode) {
     this.nameNode = nameNode;
+    setJobProperty("name.node", nameNode);
   }
 
   /**
@@ -891,6 +1151,7 @@ class KafkaPushJob extends Job {
    */
   void usesSchemaRegistryUrl(String schemaRegistryUrl) {
     this.schemaRegistryUrl = schemaRegistryUrl;
+    setJobProperty("schemaregistry.rest.url", schemaRegistryUrl);
   }
 }
 
@@ -929,6 +1190,7 @@ class LaunchJob extends NoOpJob {
    *
    * @return The cloned job
    */
+  @Override
   LaunchJob clone() {
     return clone(new LaunchJob(name));
   }
@@ -939,6 +1201,7 @@ class LaunchJob extends NoOpJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   LaunchJob clone(LaunchJob cloneJob) {
     return super.clone(cloneJob);
   }
@@ -963,12 +1226,7 @@ class NoOpJob extends Job {
    */
   NoOpJob(String jobName) {
     super(jobName);
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "noop";
-    return super.buildProperties(allProperties);
+    setJobProperty("type", "noop");
   }
 
   /**
@@ -976,6 +1234,7 @@ class NoOpJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   NoOpJob clone() {
     return clone(new NoOpJob(name));
   }
@@ -986,6 +1245,7 @@ class NoOpJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   NoOpJob clone(NoOpJob cloneJob) {
     return super.clone(cloneJob);
   }
@@ -1005,14 +1265,19 @@ class NoOpJob extends Job {
  *     writes files: [
  *       'bazz' : '/user/bazz/foobar'
  *     ]
+ *     set confProperties: [
+ *       'mapred.property1' : 'value1',
+ *       'mapred.property2' : 'value2'
+ *     ]
  *     set parameters: [
  *       'param1' : 'val1',
  *       'param2' : 'val2'
  *     ]
+ *     queue 'marathon'
  *   }
  * </pre>
  */
-class PigJob extends Job {
+class PigJob extends HadoopJavaProcessJob {
   Map<String, String> parameters;
   String script;
 
@@ -1024,16 +1289,7 @@ class PigJob extends Job {
   PigJob(String jobName) {
     super(jobName);
     parameters = new LinkedHashMap<String, String>();
-  }
-
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties["type"] = "pig";
-    allProperties["pig.script"] = script;
-    parameters.each() { key, value ->
-      allProperties["param.${key}"] = "${value}";
-    }
-    return super.buildProperties(allProperties);
+    setJobProperty("type", "pig");
   }
 
   /**
@@ -1041,6 +1297,7 @@ class PigJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   PigJob clone() {
     return clone(new PigJob(name));
   }
@@ -1051,22 +1308,11 @@ class PigJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   PigJob clone(PigJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;
     return super.clone(cloneJob);
-  }
-
-  /**
-   * DSL parameter method sets Pig parameters for the job. When the job file is built, job
-   * properties of the form param.name=value are added to the job file. With your parameters
-   * set this way, you can use $name in your Pig script and get the associated value.
-   *
-   * @param name The Pig parameter name
-   * @param value The Pig parameter value
-   */
-  void parameter(String name, String value) {
-    parameters.put(name, value);
   }
 
   /**
@@ -1082,9 +1328,8 @@ class PigJob extends Job {
 
     // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
-
-    for (Map.Entry<String, String> entry : files) {
-      parameter(entry.key, entry.value);
+    files.each() { String name, String value ->
+      setParameter(name, value);
     }
   }
 
@@ -1101,25 +1346,55 @@ class PigJob extends Job {
 
     // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
-
-    for (Map.Entry<String, String> entry : files) {
-      parameter(entry.key, entry.value);
+    files.each() { String name, String value ->
+      setParameter(name, value);
     }
   }
 
   /**
-   * DSL method to specify job and JVM properties to set on the job. For Pig jobs, additionally
-   * allows you to specify Pig parameters by using the syntax "set parameters: [ ... ]".
+   * DSL method to specify job properties to set on the job. Specifying job properties causes lines
+   * of the form key=val to be written to the job file.
+   * <p>
+   * Additionally for JavaProcessJobs, you can specify JVM properties by using the syntax
+   * "set jvmProperties: [ ... ]", which causes a line of the form
+   * jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the job file.
+   * <p>
+   * Additionally for HadoopJavaProcessJob subclasses, you can specify Hadoop job configuration
+   * properties by using the syntax "set confProperties: [ ... ]", which causes lines of the form
+   * hadoop-conf.key=val to be written to the job file.
+   * <p>
+   * Additionally for PigJobs, you can specify Pig parameters by using the syntax
+   * "set parameters: [ ... ]". For each parameter you set, a line of the form param.key=val will
+   * be written to the job file.
    *
-   * @param args Args whose key 'properties' has a map value specifying the job properties to set; a key 'jvmProperties' with a map value that specifies the JVM properties to set; or a key 'parameters' with a map value that specifies the Pig parameters to set.
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set;
+   *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
+   *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set;
+   *   or a key 'parameters' with a map value that specifies the Pig parameters to set
    */
   @Override
   void set(Map args) {
     super.set(args);
+
     if (args.containsKey("parameters")) {
       Map<String, String> parameters = args.parameters;
-      this.parameters.putAll(parameters);
+      parameters.each() { String name, String value ->
+        setParameter(name, value);
+      }
     }
+  }
+
+  /**
+   * DSL parameter method sets Pig parameters for the job. When the job file is built, job
+   * properties of the form param.name=value are added to the job file. With your parameters
+   * set this way, you can use $name in your Pig script and get the associated value.
+   *
+   * @param name The Pig parameter name
+   * @param value The Pig parameter value
+   */
+  void setParameter(String name, String value) {
+    parameters.put(name, value);
+    setJobProperty("param.${name}", value);
   }
 
   /**
@@ -1129,8 +1404,10 @@ class PigJob extends Job {
    *
    * @param script The Pig script for the job
    */
+  @Override
   void uses(String script) {
     this.script = script;
+    setJobProperty("pig.script", script);
   }
 }
 
@@ -1138,12 +1415,13 @@ class PigJob extends Job {
 /**
  * Job class for type=VoldemortBuildandPush jobs.
  * <p>
- * These are documentated internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Voldemort+Build+and+Push.
+ * These are documented internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/display/ENGS/Voldemort+Build+and+Push.
  * <p>
  * The code for this job is at https://github.com/voldemort/voldemort/blob/master/contrib/hadoop-store-builder/src/java/voldemort/store/readonly/mr/azkaban/VoldemortBuildAndPushJob.java.
  * <p>
  * In the example below, the values are NOT necessarily default values; they are simply meant to
- * illustrate the DSL. In the DSL, a VoldemortBuildandPush can be specified with:
+ * illustrate the DSL. Please check that these values are appropriate for your application. In the
+ * DSL, a VoldemortBuildandPush can be specified with:
  * <pre>
  *   voldemortBuildPushJob('jobName') {
  *     usesStoreName 'test-store'          // Required
@@ -1173,7 +1451,7 @@ class PigJob extends Job {
  *   }
  * </pre>
  */
-class VoldemortBuildPushJob extends Job {
+class VoldemortBuildPushJob extends HadoopJavaJob {
   // Required
   String storeName;
   String clusterName;
@@ -1209,74 +1487,27 @@ class VoldemortBuildPushJob extends Job {
    */
   VoldemortBuildPushJob(String jobName) {
     super(jobName);
+    setJobProperty("type", "VoldemortBuildandPush");
   }
 
+  /**
+   * Builds the job properties that go into the generated job file, except for the dependencies
+   * property, which is built by the other overload of the buildProperties method.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   *
+   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
+   * @return The input job properties map, with jobProperties and jvmProperties added
+   */
   @Override
   Map<String, String> buildProperties(Map<String, String> allProperties) {
-    // Required
-    allProperties["type"] = "VoldemortBuildandPush";
-    allProperties["push.store.name"] = storeName;
-    allProperties["push.cluster"] = clusterName;
-    allProperties["build.input.path"] = buildInputPath;
-    allProperties["build.output.dir"] = buildOutputPath;
-    allProperties["push.store.owners"] = storeOwners;
-    allProperties["push.store.description"] = storeDesc;
-
-    // Optional
-    if (buildTempDir != null) {
-      allProperties["build.temp.dir"] = buildTempDir;
-    }
-    if (repFactor != null) {
-      allProperties["build.replication.factor"] = repFactor;
-    }
-    if (compressValue != null) {
-      allProperties["build.compress.value"] = compressValue;
-    }
-    if (keySelection != null) {
-      allProperties["key.selection"] = keySelection;
-    }
-    if (valueSelection != null) {
-      allProperties["value.selection"] = valueSelection;
-    }
-    if (numChunks != null) {
-      allProperties["num.chunks"] = numChunks;
-    }
-    if (chunkSize != null) {
-      allProperties["build.chunk.size"] = chunkSize;
-    }
-    if (keepOutput != null) {
-      allProperties["build.output.keep"] = keepOutput;
-    }
-    if (pushHttpTimeoutSeconds != null) {
-      allProperties["push.http.timeout.seconds"] = pushHttpTimeoutSeconds;
-    }
-    if (pushNode != null) {
-      allProperties["push.node"] = pushNode;
-    }
-    if (buildStore != null) {
-      allProperties["build"] = buildStore;
-    }
-    if (pushStore != null) {
-      allProperties["push"] = pushStore;
-    }
-    if (fetcherProtocol != null) {
-      allProperties["voldemort.fetcher.protocol"] = fetcherProtocol;
-    }
-    if (fetcherPort != null) {
-      allProperties["voldemort.fetcher.port"] = fetcherPort;
-    }
-    if (isAvroSerializerVersioned != null) {
-      allProperties["avro.serializer.versioned"] = isAvroSerializerVersioned;
-    }
-    if (isAvroData != null) {
-      allProperties["build.type.avro"] = isAvroData;
-    }
+    super.buildProperties(allProperties);
     if (isAvroData != null && isAvroData == true) {
       allProperties["avro.key.field"] = avroKeyField;
       allProperties["avro.value.field"] = avroValueField;
     }
-
-    return super.buildProperties(allProperties);
+    return allProperties;
   }
 
   /**
@@ -1284,6 +1515,7 @@ class VoldemortBuildPushJob extends Job {
    *
    * @return The cloned job
    */
+  @Override
   VoldemortBuildPushJob clone() {
     return clone(new VoldemortBuildPushJob(name));
   }
@@ -1294,6 +1526,7 @@ class VoldemortBuildPushJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
+  @Override
   VoldemortBuildPushJob clone(VoldemortBuildPushJob cloneJob) {
     cloneJob.storeName = storeName;
     cloneJob.clusterName = clusterName;
@@ -1301,7 +1534,6 @@ class VoldemortBuildPushJob extends Job {
     cloneJob.buildOutputPath = buildOutputPath;
     cloneJob.storeOwners = storeOwners;
     cloneJob.storeDesc = storeDesc;
-
     cloneJob.buildTempDir = buildTempDir;
     cloneJob.repFactor = repFactor;
     cloneJob.compressValue = compressValue;
@@ -1330,6 +1562,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesStoreName(String storeName) {
     this.storeName = storeName;
+    setJobProperty("push.store.name", storeName);
   }
 
   /**
@@ -1339,6 +1572,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesClusterName(String clusterName) {
     this.clusterName = clusterName;
+    setJobProperty("push.cluster", clusterName);
   }
 
   /**
@@ -1348,6 +1582,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesInputPath(String buildInputPath) {
     this.buildInputPath = buildInputPath;
+    setJobProperty("build.input.path", buildInputPath);
   }
 
   /**
@@ -1357,6 +1592,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesOutputPath(String buildOutputPath) {
     this.buildOutputPath = buildOutputPath;
+    setJobProperty("build.output.dir", buildOutputPath);
   }
 
   /**
@@ -1366,6 +1602,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesStoreOwners(String storeOwners) {
     this.storeOwners = storeOwners;
+    setJobProperty("push.store.owners", storeOwners);
   }
 
   /**
@@ -1375,6 +1612,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesStoreDesc(String storeDesc) {
     this.storeDesc = storeDesc;
+    setJobProperty("push.store.description", storeDesc);
   }
 
   /**
@@ -1384,6 +1622,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesTempDir(String buildTempDir) {
     this.buildTempDir = buildTempDir;
+    setJobProperty("build.temp.dir", buildTempDir);
   }
 
   /**
@@ -1393,6 +1632,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesRepFactor(Integer repFactor) {
     this.repFactor = repFactor;
+    setJobProperty("build.replication.factor", repFactor);
   }
 
   /**
@@ -1402,6 +1642,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesCompressValue(Boolean compressValue) {
     this.compressValue = compressValue;
+    setJobProperty("build.compress.value", compressValue);
   }
 
   /**
@@ -1411,6 +1652,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesKeySelection(String keySelection) {
     this.keySelection = keySelection;
+    setJobProperty("key.selection", keySelection);
   }
 
   /**
@@ -1420,6 +1662,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesValueSelection(String valueSelection) {
     this.valueSelection = valueSelection;
+    setJobProperty("value.selection", valueSelection);
   }
 
   /**
@@ -1429,6 +1672,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesNumChunks(Integer numChunks) {
     this.numChunks = numChunks;
+    setJobProperty("num.chunks", numChunks);
   }
 
   /**
@@ -1438,6 +1682,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesChunkSize(Integer chunkSize) {
     this.chunkSize = chunkSize;
+    setJobProperty("build.chunk.size", chunkSize);
   }
 
   /**
@@ -1447,6 +1692,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesKeepOutput(Boolean keepOutput) {
     this.keepOutput = keepOutput;
+    setJobProperty("build.output.keep", keepOutput);
   }
 
   /**
@@ -1457,6 +1703,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesPushHttpTimeoutSeconds(Integer pushHttpTimeoutSeconds) {
     this.pushHttpTimeoutSeconds = pushHttpTimeoutSeconds;
+    setJobProperty("push.http.timeout.seconds", pushHttpTimeoutSeconds);
   }
 
   /**
@@ -1466,6 +1713,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesPushNode(Integer pushNode) {
     this.pushNode = pushNode;
+    setJobProperty("push.node", pushNode);
   }
 
   /**
@@ -1475,6 +1723,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesBuildStore(Boolean buildStore) {
     this.buildStore = buildStore;
+    setJobProperty("build", buildStore);
   }
 
   /**
@@ -1484,6 +1733,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesPushStore(Boolean pushStore) {
     this.pushStore = pushStore;
+    setJobProperty("push", pushStore);
   }
 
   /**
@@ -1494,6 +1744,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesFetcherProtocol(String fetcherProtocol) {
     this.fetcherProtocol = fetcherProtocol;
+    setJobProperty("voldemort.fetcher.protocol", fetcherProtocol);
   }
 
   /**
@@ -1503,6 +1754,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesFetcherPort(String fetcherPort) {
     this.fetcherPort = fetcherPort;
+    setJobProperty("voldemort.fetcher.port", fetcherPort);
   }
 
   /**
@@ -1513,6 +1765,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesAvroSerializerVersioned(Boolean isAvroSerializerVersioned) {
     this.isAvroSerializerVersioned = isAvroSerializerVersioned;
+    setJobProperty("avro.serializer.versioned", isAvroSerializerVersioned);
   }
 
   /**
@@ -1522,6 +1775,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesAvroData(Boolean isAvroData) {
     this.isAvroData = isAvroData;
+    setJobProperty("build.type.avro", isAvroData);
   }
 
   /**
@@ -1532,6 +1786,7 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesAvroKeyField(String avroKeyField) {
     this.avroKeyField = avroKeyField;
+    // Only set the job property at build time if isAvroData is true
   }
 
   /**
@@ -1542,5 +1797,6 @@ class VoldemortBuildPushJob extends Job {
    */
   void usesAvroValueField(String avroValueField) {
     this.avroValueField = avroValueField;
+    // Only set the job property at build time if isAvroData is true
   }
 }

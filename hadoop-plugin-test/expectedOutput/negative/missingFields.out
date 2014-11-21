@@ -3,7 +3,7 @@ Running test for the file negative/missingFields.gradle
 JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job job5 to one of these classes.
 RequiredFieldsChecker ERROR: CommandJob job2 must set command or commands
 RequiredFieldsChecker ERROR: HadoopJavaJob job3 must set jobClass
-RequiredFieldsChecker ERROR: HiveJob job4 must set one of queries, query or queryFile
+RequiredFieldsChecker ERROR: HiveJob job4 must set script
 RequiredFieldsChecker ERROR: JavaJob job5 must set jobClass
 RequiredFieldsChecker ERROR: JavaProcessJob job6 must set javaClass
 RequiredFieldsChecker ERROR: KafkaPushJob job7 must set inputPath

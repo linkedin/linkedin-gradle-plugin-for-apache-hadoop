@@ -1,5 +1,13 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
 dependencies=jobs1_job4
 type=hive
-azk.hive.action=execute.query
-hive.query=show tables
+hive.script=hello.q
+path1=/user/foo
+hivevar.path1=/user/foo
+path2=/user/bar
+hivevar.path2=/user/bar
+hadoop-conf.mapreduce.reduce.memory.mb=4096
+hadoop-conf.mapreduce.reduce.java.opts=-Xmx3G
+hivevar.param1=val1
+hivevar.param2=val2
+hadoop-conf.mapred.job.queue.name=marathon

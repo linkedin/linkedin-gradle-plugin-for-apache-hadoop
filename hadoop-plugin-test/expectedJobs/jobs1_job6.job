@@ -2,3 +2,13 @@
 dependencies=jobs1_job5
 type=java
 job.class=com.linkedin.hello.JavaJob
+foo.jar=/user/hacker/foo.jar
+foobar=/user/hacker/foobar.zip
+hadoop-conf.mapreduce.job.user.classpath.first=true
+hadoop-conf.mapreduce.reduce.memory.mb=4096
+hadoop-conf.mapreduce.reduce.java.opts=-Xmx3G
+force.output.overwrite=true
+hadoop-conf.mapred.job.queue.name=marathon
+hadoop-conf.mapred.cache.archives=/user/hacker/foobar.zip#foobar
+hadoop-conf.mapred.create.symlink=yes
+hadoop-conf.mapred.cache.files=/user/hacker/foo.jar#foo.jar

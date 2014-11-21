@@ -24,6 +24,10 @@ lookup('job1Clone') {
 }
 
 propertyFile('properties1') {
+  set confProperties: [
+    'mapred.property1' : 'value1',
+    'mapred.property2' : 'value2'
+  ]
   set jvmProperties: [
     'jvmProperty1' : 'jvm1',
     'jvmProperty2' : 'jvm2'
@@ -41,6 +45,9 @@ addPropertyFile('properties1', 'properties1Clone') {
 }
 
 lookup('properties1Clone') {
+  set confProperties: [
+    'mapred.property1' : 'value1Update'
+  ]
   set jvmProperties: [
     'jvmProperty1' : 'jvm1Update'
   ]
@@ -69,6 +76,10 @@ workflow('cloneLookup1') {
 
 addWorkflow('cloneLookup1', 'cloneLookup1Clone') {
   addPropertyFile('properties1Clone', 'properties1') {
+    set confProperties: [
+      'mapred.property2' : 'value2Update',
+      'mapred.property3' : 'value3'
+    ]
     set jvmProperties: [
       'jvmProperty2' : 'jvm2Update',
       'jvmProperty3' : 'jvm3',
@@ -98,6 +109,10 @@ hadoop {
     }
 
     lookup('properties1') {
+      set confProperties: [
+        'mapred.property3' : 'value3Update',
+        'mapred.property4' : 'value4'
+      ]
       set jvmProperties: [
         'jvmProperty3' : 'jvm3Update',
         'jvmProperty4' : 'jvm4',

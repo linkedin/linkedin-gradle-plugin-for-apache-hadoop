@@ -28,8 +28,8 @@ import org.gradle.api.Project;
  * in its own class.
  * <p>
  * The static checker applies the following checker classes:
- * <li>
- *   <ul>ValidNameChecker: checks that names for all DSL objects are limited to approved characters</ul>
+ * <ul>
+ *   <li>ValidNameChecker: checks that names for all DSL objects are limited to approved characters</li>
  *   <li>RequiredFieldsChecker: checks that all the required fields in the DSL are set</li>
  *   <li>WorkflowJobChecker: checks various properties of workflows</li>
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>

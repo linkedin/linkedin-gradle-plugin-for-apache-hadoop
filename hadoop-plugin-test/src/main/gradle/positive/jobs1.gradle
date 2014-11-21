@@ -48,19 +48,9 @@ hadoop {
       writes files: [
         'bazz' : '/data/databases/bazz'
       ]
-      caches files: [
-        'foo.jar' : '/user/hacker/foo.jar'
-      ]
-      cachesArchive files: [
-        'foobar' : '/user/hacker/foobar.zip'
-      ]
       set properties: [
         'propertyName1' : 'propertyValue1'
       ]
-      set jvmProperties: [
-        'jvmPropertyName1' : 'jvmPropertyValue1'
-      ]
-      queue 'marathon'
       depends 'job1'
     }
 
@@ -71,21 +61,72 @@ hadoop {
 
     hadoopJavaJob('job4') {
       uses 'com.linkedin.hello.HadoopJavaJob'
+      caches files: [
+        'foo.jar' : '/user/hacker/foo.jar'
+      ]
+      cachesArchive files: [
+        'foobar' : '/user/hacker/foobar.zip'
+      ]
+      set confProperties: [
+        'mapreduce.job.user.classpath.first': 'true',
+        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.reduce.java.opts': '-Xmx3G'
+      ]
+      set properties: [
+        'force.output.overwrite': 'true',
+      ]
+      queue 'marathon'
       depends 'job3'
     }
 
     hiveJob('job5') {
-      usesQuery "show tables"
+      uses "hello.q"
+      reads files: [
+        'path1' : '/user/foo'
+      ]
+      writes files: [
+        'path2' : '/user/bar'
+      ]
+      set confProperties: [
+        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.reduce.java.opts': '-Xmx3G'
+      ]
+      set parameters: [
+        'param1': 'val1',
+        'param2': 'val2'
+      ]
+      queue 'marathon'
       depends 'job4'
     }
 
     javaJob('job6') {
       uses 'com.linkedin.hello.JavaJob'
+      caches files: [
+        'foo.jar' : '/user/hacker/foo.jar'
+      ]
+      cachesArchive files: [
+        'foobar' : '/user/hacker/foobar.zip'
+      ]
+      set confProperties: [
+        'mapreduce.job.user.classpath.first': 'true',
+        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.reduce.java.opts': '-Xmx3G'
+      ]
+      set properties: [
+        'force.output.overwrite': 'true',
+      ]
+      queue 'marathon'
       depends 'job5'
     }
 
     javaProcessJob('job7') {
       uses 'com.linkedin.hello.JavaProcessJob'
+      jvmClasspath './lib/*'
+      set jvmProperties: [
+        'jvmPropertyName1' : 'jvmPropertyValue1'
+      ]
+      Xms 128
+      Xmx 1024
       depends 'job6'
     }
 
@@ -93,6 +134,7 @@ hadoop {
       usesInputPath '/data/derived/kafka'
       usesTopic 'memberTopic'
       depends 'job7'
+      queue 'marathon'
     }
 
     noOpJob('job9') {
@@ -101,6 +143,16 @@ hadoop {
 
     pigJob('job10') {
       uses 'src/main/pig/pigScript.pig'
+      caches files: [
+        'foo.jar' : '/user/hacker/foo.jar'
+      ]
+      cachesArchive files: [
+        'foobar' : '/user/hacker/foobar.zip'
+      ]
+      set parameters: [
+        'param1' : 'val1'
+      ]
+      queue 'marathon'
       depends 'job9'
     }
 
@@ -112,6 +164,7 @@ hadoop {
       usesStoreOwners 'foo@linkedin.com'  // Required
       usesStoreDesc 'Store for testing'   // Required
       depends 'job10'
+      queue 'marathon'
     }
 
     targets 'job11'

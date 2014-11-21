@@ -17,7 +17,9 @@ hadoop {
 
   workflow('triangleDependencies') {
     job('job1') {
-      queue 'default'
+      set properties: [
+        'foo': 'bar'
+      ]
     }
     job('job2') {
       depends 'job1'
@@ -30,7 +32,9 @@ hadoop {
 
   workflow('diamondDependencies') {
     job('job1') {
-      queue 'default'
+      set properties: [
+        'bar': 'bazz'
+      ]
     }
     job('job2') {
       depends 'job1'

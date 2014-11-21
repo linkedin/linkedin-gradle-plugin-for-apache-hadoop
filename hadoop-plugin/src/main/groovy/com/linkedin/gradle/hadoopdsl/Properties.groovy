@@ -19,6 +19,10 @@ package com.linkedin.gradle.hadoopdsl;
  * The Properties class represents property files. In the DSL, properties can be specified with:
  * <pre>
  *   propertyFile('common') {
+ *     set confProperties: [
+ *       'mapred.foo.bar' : 'foobar',
+ *       'mapred.foo.bazz' : 'foobazz'
+ *     ]
  *     set jvmProperties: [
  *       'jvmPropertyName1' : 'jvmPropertyValue1',
  *       'jvmPropertyName2' : 'jvmPropertyValue2'
@@ -32,6 +36,7 @@ package com.linkedin.gradle.hadoopdsl;
  */
 class Properties {
   String name;
+  Map<String, String> confProperties;
   Map<String, String> jvmProperties;
   Map<String, String> properties;
 
@@ -42,6 +47,7 @@ class Properties {
    */
   Properties(String name) {
     this.name = name;
+    this.confProperties = new LinkedHashMap<String, String>();
     this.jvmProperties = new LinkedHashMap<String, String>();
     this.properties = new LinkedHashMap<String, String>();
   }
@@ -69,13 +75,11 @@ class Properties {
    * @return The input properties map, with jvmProperties and properties added
    */
   Map<String, String> buildProperties(Map<String, String> allProperties) {
+    allProperties.putAll(properties);
+
     if (jvmProperties.size() > 0) {
       String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
-    }
-
-    properties.each() { key, value ->
-      allProperties[key] = value;
     }
 
     return allProperties;
@@ -97,34 +101,78 @@ class Properties {
    * @return The cloned properties
    */
   Properties clone(Properties cloneProps) {
+    cloneProps.confProperties.putAll(this.confProperties);
     cloneProps.jvmProperties.putAll(this.jvmProperties);
     cloneProps.properties.putAll(this.properties);
     return cloneProps;
   }
 
   /**
-   * DSL method to set properties.
+   * DSL method to specify job properties for the property file. Specifying job properties causes
+   * lines of the form key=val to be written to the properties file.
+   * <p>
+   * You can specify JVM properties by using the syntax "set jvmProperties: [ ... ]", which causes
+   * a line of the form jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the properties file.
+   * <p>
+   * You can specify Hadoop job configuration properties by using the syntax "set confProperties: [ ... ]",
+   * which causes lines of the form hadoop-conf.key=val to be written to the properties file.
    *
-   * @param args Args whose key 'properties' has a map value containing the properties to set
-   */
-
-  /**
-   * DSL method to specify job and JVM properties for the property file. Specifying job properties
-   * causes lines of the form key=val to be written to the properties file, while specifying JVM
-   * properties causes a line of the form jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the
-   * properties file.
-   *
-   * @param args Args whose key 'properties' has a map value specifying the job properties to set, or a key 'jvmProperties' with a map value that specifies the JVM properties to set
+   * @param args Args whose key 'properties' has a map value specifying the job properties to set;
+   *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
+   *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set
    */
   void set(Map args) {
+    if (args.containsKey("confProperties")) {
+      Map<String, String> confProperties = args.confProperties;
+      confProperties.each() { String name, String value ->
+        setConfProperty(name, value);
+      }
+    }
     if (args.containsKey("jvmProperties")) {
       Map<String, String> jvmProperties = args.jvmProperties;
-      this.jvmProperties.putAll(jvmProperties);
+      jvmProperties.each() { name, value ->
+        setJvmProperty(name, value);
+      }
     }
     if (args.containsKey("properties")) {
       Map<String, String> properties = args.properties;
-      this.properties.putAll(properties);
+      properties.each() { String name, String value ->
+        setJobProperty(name, value);
+      }
     }
+  }
+
+  /**
+   * Sets the given Hadoop job configuration property. For a given key and value, this method
+   * causes the line hadoop-conf.key=val to be added to the properties file.
+   *
+   * @param name The Hadoop job configuration property to set
+   * @param value The Hadoop job configuration property value
+   */
+  void setConfProperty(String name, String value) {
+    confProperties.put(name, value);
+    setJobProperty("hadoop-conf.${name}", value);
+  }
+
+  /**
+   * Sets the given property. Setting a property causes a line of the form key=val to be written to
+   * the properties file.
+   *
+   * @param name The job property to set
+   * @param value The job property value
+   */
+  void setJobProperty(String name, String value) {
+    properties.put(name, value);
+  }
+
+  /**
+   * Sets the given JVM property.
+   *
+   * @param name The JVM property name to set
+   * @param value The JVM property value
+   */
+  void setJvmProperty(String name, String value) {
+    jvmProperties.put(name, value);
   }
 
   /**
@@ -132,7 +180,8 @@ class Properties {
    *
    * @return A string representation of the properties
    */
+  @Override
   String toString() {
-    return "(Properties: name = ${name}, jvmProperties = ${jvmProperties.toString()}, properties = ${properties.toString()})";
+    return "(Properties: name = ${name}, confProperties = ${confProperties.toString()}, jvmProperties = ${jvmProperties.toString()}, properties = ${properties.toString()})";
   }
 }

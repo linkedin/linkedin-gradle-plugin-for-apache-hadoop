@@ -12,18 +12,18 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 // Simple positive tests for programming with the API.
 
 def job1 = new com.linkedin.gradle.hadoopdsl.PigJob("job1")
-job1.script = "src/main/pig/count_by_country.pig"
-job1.parameters["member_summary"] = "/data/derived/member/summary#LATEST"
-job1.parameters["output"] = "count_by_country.dat"
+job1.uses("src/main/pig/count_by_country.pig")
+job1.setParameter("member_summary", "/data/derived/member/summary#LATEST")
+job1.setParameter("output", "count_by_country.dat")
 global job1
 
 def job1Lookup = lookup('job1')
-job1Lookup.script = "src/main/pig/count_by_country1.pig"
+job1Lookup.uses("src/main/pig/count_by_country1.pig")
 
 def propertyFile1 = new com.linkedin.gradle.hadoopdsl.Properties("properties1")
-propertyFile1.jvmProperties.put("jvmProperty1", "jvm1")
-propertyFile1.properties.put("myPropertyA", "valA")
-propertyFile1.properties.put("myPropertyB", "valB")
+propertyFile1.setJvmProperty("jvmProperty1", "jvm1")
+propertyFile1.setJobProperty("myPropertyA", "valA")
+propertyFile1.setJobProperty("myPropertyB", "valB")
 
 def workflow1 = new com.linkedin.gradle.hadoopdsl.Workflow('classes1Workflow1', project)
 workflow1.jobs.add(job1)

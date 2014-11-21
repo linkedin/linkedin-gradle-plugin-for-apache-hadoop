@@ -24,6 +24,12 @@ import com.linkedin.gradle.hadoopdsl.PigJob;
  * <pre>
  *   pigLiJob('jobName') {
  *     uses 'myScript.pig'     // Required
+ *     caches files: [
+ *       'foo.jar' : '/user/bazz/foo.jar'
+ *     ]
+ *     cachesArchive files: [
+ *       'foobar' : '/user/bazz/foobar.zip'
+ *     ]
  *     reads files: [
  *       'foo' : '/data/databases/foo'
  *     ]
@@ -34,6 +40,7 @@ import com.linkedin.gradle.hadoopdsl.PigJob;
  *       'param1' : 'val1'
  *       'param2' : 'val2'
  *     ]
+ *     queue 'marathon
  *   }
  * </pre>
  */
@@ -45,14 +52,7 @@ class PigLiJob extends PigJob {
    */
   PigLiJob(String jobName) {
     super(jobName);
-  }
-
-  // Override the job type with the LinkedIn-specific pigLi type.
-  @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    super.buildProperties(allProperties);
-    allProperties["type"] = "pigLi";
-    return allProperties;
+    setJobProperty("type", "pigLi");
   }
 
   /**
@@ -62,17 +62,5 @@ class PigLiJob extends PigJob {
    */
   PigLiJob clone() {
     return clone(new PigLiJob(name));
-  }
-
-  /**
-   * Helper method to set the properties on a cloned job.
-   *
-   * @param cloneJob The job being cloned
-   * @return The cloned job
-   */
-  PigLiJob clone(PigLiJob cloneJob) {
-    cloneJob.parameters.putAll(parameters);
-    cloneJob.script = script;
-    return super.clone(cloneJob);
   }
 }

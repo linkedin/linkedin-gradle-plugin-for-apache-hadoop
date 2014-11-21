@@ -2,3 +2,7 @@
 dependencies=jobs1_job6
 type=javaprocess
 java.class=com.linkedin.hello.JavaProcessJob
+classpath=./lib/*
+Xms=128M
+Xmx=1024M
+jvm.args=-DjvmPropertyName1=jvmPropertyValue1

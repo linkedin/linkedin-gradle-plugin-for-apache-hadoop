@@ -3,3 +3,4 @@ dependencies=jobs1_job7
 type=KafkaPushJob
 input.path=/data/derived/kafka
 topic=memberTopic
+hadoop-conf.mapred.job.queue.name=marathon

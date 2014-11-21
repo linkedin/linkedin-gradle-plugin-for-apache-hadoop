@@ -80,37 +80,8 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(HiveJob job) {
-    boolean emptyQueries = job.queries == null || job.queries.isEmpty();
-    boolean emptyQuery = job.query == null || job.query.isEmpty();
-    boolean emptyQueryFile = job.queryFile == null || job.queryFile.isEmpty();
-
-    if (emptyQueries && emptyQuery && emptyQueryFile) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} must set one of queries, query or queryFile");
-      foundError = true;
-    }
-
-    if (!emptyQueries && !emptyQuery && !emptyQueryFile) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets queries, query and queryFile");
-      foundError = true;
-    }
-    else {
-      if (!emptyQueries && !emptyQuery) {
-        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both queries and query");
-        foundError = true;
-      }
-      if (!emptyQueries && !emptyQueryFile) {
-        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both queries and queryFile");
-        foundError = true;
-      }
-      if (!emptyQuery && !emptyQueryFile) {
-        project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets both query and queryFile");
-        foundError = true;
-      }
-    }
-
-    // The Hive Azkaban plugin supports a maximum of 99 queries.
-    if (!emptyQueries && job.queries.size() > 99) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} sets more than 99 queries");
+    if (job.script == null || job.script.isEmpty()) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HiveJob ${job.name} must set script");
       foundError = true;
     }
   }
