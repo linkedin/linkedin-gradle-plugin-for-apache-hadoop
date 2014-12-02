@@ -22,6 +22,7 @@ package com.linkedin.gradle.hadoopdsl;
  * overloads by argument type.
  */
 interface Visitor {
+  void visitPlugin(HadoopDslPlugin plugin);
   void visitExtension(HadoopDslExtension hadoop);
   void visitProperties(Properties props);
   void visitWorkflow(Workflow workflow);

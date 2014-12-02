@@ -29,7 +29,7 @@ interface HadoopDslCompiler extends Visitor {
   /**
    * Builds the Hadoop DSL.
    *
-   * @param extension The Hadoop DSL extension
+   * @param plugin The Hadoop DSL plugin
    */
-  void compile(HadoopDslExtension extension);
+  void compile(HadoopDslPlugin plugin);
 }

@@ -16,8 +16,8 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -39,12 +39,12 @@ class AzkabanPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doLast {
-        HadoopDslExtension extension = project.extensions.hadoop;
+        HadoopDslPlugin plugin = project.extensions.hadoopDslPlugin;
         HadoopDslFactory factory = project.extensions.hadoopDslFactory;
 
         // Run the static checker on the DSL
         HadoopDslChecker checker = factory.makeChecker(project);
-        checker.check(extension);
+        checker.check(plugin);
 
         if (checker.failedCheck()) {
           throw new Exception("Hadoop DSL static checker FAILED");
@@ -54,7 +54,7 @@ class AzkabanPlugin implements Plugin<Project> {
         }
 
         AzkabanDslCompiler compiler = makeCompiler(project);
-        compiler.compile(extension);
+        compiler.compile(plugin);
       }
     }
   }

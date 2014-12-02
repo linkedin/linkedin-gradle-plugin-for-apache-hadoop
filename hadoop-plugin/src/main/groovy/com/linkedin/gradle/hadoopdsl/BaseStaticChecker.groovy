@@ -44,11 +44,11 @@ abstract class BaseStaticChecker extends BaseVisitor implements StaticChecker {
   /**
    * Makes this static check on the DSL.
    *
-   * @param extension The Hadoop DSL extension
+   * @param plugin The Hadoop DSL plugin
    */
   @Override
-  void check(HadoopDslExtension extension) {
-    visitExtension(extension);
+  void check(HadoopDslPlugin plugin) {
+    visitPlugin(plugin);
   }
 
   /**
@@ -59,5 +59,13 @@ abstract class BaseStaticChecker extends BaseVisitor implements StaticChecker {
   @Override
   boolean failedCheck() {
     return foundError;
+  }
+
+  @Override
+  void visitPlugin(HadoopDslPlugin plugin) {
+    // During static checking, we specifically only visit DSL elements nested under the extension,
+    // so that users have the flexibility to write down "template" DSL elements in global scope
+    // that are not valid, but fill them out correctly when cloning them under the extension.
+    visitExtension(plugin.extension);
   }
 }

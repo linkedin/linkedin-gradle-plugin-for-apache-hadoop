@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.pig;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
 import com.linkedin.gradle.hadoopdsl.PigJob;
@@ -82,8 +83,9 @@ class PigTaskHelper {
   static Map<String, PigJob> findConfiguredPigJobs(Project project) {
     Map<String, PigJob> pigJobs = new LinkedHashMap<String, PigJob>();
 
-    if (project.extensions.globalScope) {
-      findConfiguredPigJobs(project.extensions.globalScope, "", pigJobs);
+    if (project.extensions.hadoopDslPlugin) {
+      HadoopDslPlugin hadoopDslPlugin = project.extensions.hadoopDslPlugin;
+      findConfiguredPigJobs(hadoopDslPlugin.scope, "", pigJobs);
     }
 
     return pigJobs;

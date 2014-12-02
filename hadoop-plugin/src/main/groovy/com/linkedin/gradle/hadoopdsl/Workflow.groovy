@@ -31,22 +31,11 @@ import org.gradle.api.Project;
  *   }
  * </pre>
  */
-class Workflow implements NamedScopeContainer {
-  HadoopDslFactory factory;
+class Workflow extends BaseNamedScopeContainer {
   String name;
-  Project project;
-  List<Properties> properties;
-
-  // We keep track of all of the jobs declared in the workflow, even if they are not transitive
-  // parents of the launch job.
-  List<Job> jobs;
 
   // The names of the jobs targeted by the workflow.
   Set<String> launchJobDependencies;
-
-  // This will allow jobs to be referred to by name (e.g. when declaring dependencies). This also
-  // implicitly provides scoping for job names.
-  NamedScope scope;
 
   /**
    * Base constructor for a Workflow.
@@ -66,23 +55,9 @@ class Workflow implements NamedScopeContainer {
    * @param parentScope The parent scope
    */
   Workflow(String name, Project project, NamedScope parentScope) {
-    this.factory = project.extensions.hadoopDslFactory;
-    this.jobs = new ArrayList<Job>();
+    super(project, parentScope, name);
     this.launchJobDependencies = new LinkedHashSet<String>();
     this.name = name;
-    this.project = project;
-    this.properties = new ArrayList<Properties>();
-    this.scope = new NamedScope(name, parentScope);
-  }
-
-  /**
-   * Returns the scope at this level.
-   *
-   * @return The scope at this level
-   */
-  @Override
-  public NamedScope getScope() {
-    return scope;
   }
 
   /**
@@ -140,6 +115,7 @@ class Workflow implements NamedScopeContainer {
    *
    * @return The cloned workflow
    */
+  @Override
   Workflow clone() {
     return clone(new Workflow(name, project, null));
   }
@@ -150,65 +126,23 @@ class Workflow implements NamedScopeContainer {
    * @param workflow The workflow being cloned
    * @return The cloned workflow
    */
+  @Override
   Workflow clone(Workflow workflow) {
     workflow.launchJobDependencies.addAll(launchJobDependencies);
-    workflow.scope = scope.clone();
-
-    // Clear the scope for the cloned workflow. Then clone all the jobs and
-    // properties declared in the original workflow and use them to rebuild
-    // the scope.
-    workflow.scope.thisLevel.clear();
-
-    for (Job job : jobs) {
-      Job jobClone = job.clone();
-      workflow.jobs.add(jobClone);
-      workflow.scope.bind(jobClone.name, jobClone);
-    }
-
-    for (Properties props : properties) {
-      Properties propsClone = props.clone();
-      workflow.properties.add(propsClone);
-      workflow.scope.bind(propsClone.name, propsClone);
-    }
-
-    return workflow;
+    return super.clone(workflow);
   }
 
   /**
-   * Helper method to configure a Job in the DSL. Can be called by subclasses to configure custom
-   * Job subclass types.
+   * Helper method to configure a Workflow in the DSL. Can be called by subclasses to configure
+   * custom Workflow subclass types.
    *
-   * @param job The job to configure
+   * @param workflow The workflow to configure
    * @param configure The configuration closure
-   * @return The input job, which is now configured
+   * @return The input workflow, which is now configured
    */
-  Job configureJob(Job job, Closure configure) {
-    Methods.configureJob(project, job, configure, scope);
-    jobs.add(job);
-    return job;
-  }
-
-  /**
-   * Helper method to configure a Properties object in the DSL. Can be called by subclasses to
-   * configure custom Properties subclass types.
-   *
-   * @param props The properties to configure
-   * @param configure The configuration closure
-   * @return The input properties, which is now configured
-   */
-  Properties configureProperties(Properties props, Closure configure) {
-    Methods.configureProperties(project, props, configure, scope);
-    properties.add(props);
-    return props;
-  }
-
-  /**
-   * Returns a string representation of the workflow.
-   *
-   * @return A string representation of the workflow
-   */
-  String toString() {
-    return "(Workflow: name = ${name})";
+  @Override
+  Workflow configureWorkflow(Workflow workflow, Closure configure) {
+    throw new Exception("Workflows cannot yet be nested inside workflows. Support for this (and Azkaban embedded workflows) is coming soon.");
   }
 
   /**
@@ -250,206 +184,11 @@ class Workflow implements NamedScopeContainer {
   }
 
   /**
-   * DSL lookup method. Looks up an object in scope.
+   * Returns a string representation of the workflow.
    *
-   * @param name The name to lookup
-   * @return The object that is bound in workflow scope to the given name, or null if no such name is bound in scope
+   * @return A string representation of the workflow
    */
-  Object lookup(String name) {
-    return Methods.lookup(name, scope);
-  }
-
-  /**
-   * DSL lookup method. Looks up an object in scope and then applies the given configuration
-   * closure.
-   *
-   * @param name The name to lookup
-   * @param configure The configuration closure
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
-   */
-  Object lookup(String name, Closure configure) {
-    return Methods.lookup(project, name, scope, configure);
-  }
-
-  /**
-   * DSL addJob method. Looks up the job with given name, clones it, configures the clone with the
-   * given configuration closure and adds the clone to the workflow.
-   *
-   * @param name The job name to lookup
-   * @param configure The configuration closure
-   * @return The cloned and configured job that was added to the workflow
-   */
-  Job addJob(String name, Closure configure) {
-    return configureJob(Methods.cloneJob(name, scope), configure);
-  }
-
-  /**
-   * DSL addJob method. Looks up the job with given name, clones it, renames the clone to the
-   * specified name, configures the clone with the given configuration closure and adds the clone
-   * to the workflow.
-   *
-   * @param name The job name to lookup
-   * @param rename The new name to give the cloned job
-   * @param configure The configuration closure
-   * @return The cloned, renamed and configured job that was added to the workflow
-   */
-  Job addJob(String name, String rename, Closure configure) {
-    return configureJob(Methods.cloneJob(name, rename, scope), configure);
-  }
-
-  /**
-   * DSL addPropertyFile method. Looks up the properties with given name, clones it, configures the
-   * clone with the given configuration closure and adds the clone to the workflow.
-   *
-   * @param name The properties name to lookup
-   * @param configure The configuration closure
-   * @return The cloned and configured properties object that was added to the workflow
-   */
-  Properties addPropertyFile(String name, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, scope), configure);
-  }
-
-  /**
-   * DSL addPropertyFile method. Looks up the properties with given name, clones it, renames the
-   * clone to the specified name, configures the clone with the given configuration closure and
-   * adds the clone to the workflow.
-   *
-   * @param name The properties name to lookup
-   * @param rename The new name to give the cloned properties object
-   * @param configure The configuration closure
-   * @return The cloned, renamed and configured properties object that was added to the workflow
-   */
-  Properties addPropertyFile(String name, String rename, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
-  }
-
-  /**
-   * DSL job method. Creates a Job in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  Job job(String name, Closure configure) {
-    return configureJob(factory.makeJob(name), configure);
-  }
-
-  /**
-   * DSL commandJob method. Creates a CommandJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  CommandJob commandJob(String name, Closure configure) {
-    return configureJob(factory.makeCommandJob(name), configure);
-  }
-
-  /**
-   * DSL hadoopJavaJob method. Creates a HadoopJavaJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
-    return configureJob(factory.makeHadoopJavaJob(name), configure);
-  }
-
-  /**
-   * DSL hiveJob method. Creates a HiveJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  HiveJob hiveJob(String name, Closure configure) {
-    return configureJob(factory.makeHiveJob(name), configure);
-  }
-
-  /**
-   * @deprecated JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob.
-   *
-   * DSL javaJob method. Creates a JavaJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  @Deprecated
-  JavaJob javaJob(String name, Closure configure) {
-    project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
-    return configureJob(factory.makeJavaJob(name), configure);
-  }
-
-  /**
-   * DSL javaProcessJob method. Creates a JavaProcessJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  JavaProcessJob javaProcessJob(String name, Closure configure) {
-    return configureJob(factory.makeJavaProcessJob(name), configure);
-  }
-
-  /**
-   * DSL kafkaPushJob method. Creates a KafkaPushJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  KafkaPushJob kafkaPushJob(String name, Closure configure) {
-    return configureJob(factory.makeKafkaPushJob(name), configure);
-  }
-
-  /**
-   * DSL noOpJob method. Creates a NoOpJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  NoOpJob noOpJob(String name, Closure configure) {
-    return configureJob(factory.makeNoOpJob(name), configure);
-  }
-
-  /**
-   * DSL pigJob method. Creates a PigJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  PigJob pigJob(String name, Closure configure) {
-    return configureJob(factory.makePigJob(name), configure);
-  }
-
-  /**
-   * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in scope with the given name
-   * and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
-    return configureJob(factory.makeVoldemortBuildPushJob(name), configure);
-  }
-
-  /**
-   * DSL propertyFile method. Creates a Properties object in scope with the given name and
-   * configuration.
-   *
-   * @param name The properties name
-   * @param configure The configuration closure
-   * @return The new properties object
-   */
-  Properties propertyFile(String name, Closure configure) {
-    return configureProperties(factory.makeProperties(name), configure);
+  String toString() {
+    return "(Workflow: name = ${name})";
   }
 }

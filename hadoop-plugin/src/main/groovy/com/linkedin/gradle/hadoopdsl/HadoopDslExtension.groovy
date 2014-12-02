@@ -32,14 +32,9 @@ import org.gradle.api.Project;
  *   }
  * </pre>
  */
-class HadoopDslExtension implements NamedScopeContainer {
+class HadoopDslExtension extends BaseNamedScopeContainer {
   String buildDirectory;
   boolean cleanFirst;
-  HadoopDslFactory factory;
-  NamedScope scope;
-  Project project;
-  List<Properties> properties;
-  List<Workflow> workflows;
 
   /**
    * Base constructor for the HadoopDslExtension
@@ -57,27 +52,13 @@ class HadoopDslExtension implements NamedScopeContainer {
    * @param parentScope The parent scope
    */
   HadoopDslExtension(Project project, NamedScope parentScope) {
+    super(project, parentScope, "hadoop");
     this.buildDirectory = null;
-    this.factory = project.extensions.hadoopDslFactory;
-    this.scope = new NamedScope("hadoop", parentScope);
     this.cleanFirst = true;
-    this.project = project;
-    this.properties = new ArrayList<Properties>();
-    this.workflows = new ArrayList<Job>();
 
     // Bind the name hadoop in the parent scope so that we can do fully-qualified name lookups of
     // objects bound in the hadoop block.
     parentScope.bind("hadoop", this);
-  }
-
-  /**
-   * Returns the scope at this level.
-   *
-   * @return The scope at this level
-   */
-  @Override
-  public NamedScope getScope() {
-    return scope;
   }
 
   /**
@@ -107,127 +88,13 @@ class HadoopDslExtension implements NamedScopeContainer {
   }
 
   /**
-   * Helper method to configure Properties objects in the DSL. Can be called by subclasses to
-   * configure custom Properties subclass types.
+   * Clones the scope container.
    *
-   * @param props The properties to configure
-   * @param configure The configuration closure
-   * @return The input properties, which is now configured
+   * {@inheritDoc}
+   * @see java.lang.Object#clone()
    */
-  Properties configureProperties(Properties props, Closure configure) {
-    Methods.configureProperties(project, props, configure, scope);
-    properties.add(props);
-    return props;
-  }
-
-  /**
-   * Helper method to configure a Workflow in the DSL. Can be called by subclasses to configure
-   * custom Workflow subclass types.
-   *
-   * @param workflow The workflow to configure
-   * @param configure The configuration closure
-   * @return The input workflow, which is now configured
-   */
-  Workflow configureWorkflow(Workflow workflow, Closure configure) {
-    Methods.configureWorkflow(project, workflow, configure, scope);
-    workflows.add(workflow);
-    return workflow;
-  }
-
-  /**
-   * DSL addPropertyFile method. Looks up the properties with given name, clones it, configures the
-   * clone with the given configuration closure and binds the clone in scope.
-   *
-   * @param name The properties name to lookup
-   * @param configure The configuration closure
-   * @return The cloned and configured properties object that was bound in scope
-   */
-  Properties addPropertyFile(String name, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, scope), configure);
-  }
-
-  /**
-   * DSL addPropertyFile method. Looks up the properties with given name, clones it, renames the
-   * clone to the specified name, configures the clone with the given configuration closure and
-   * binds the clone in scope.
-   *
-   * @param name The properties name to lookup
-   * @param rename The new name to give the cloned properties object
-   * @param configure The configuration closure
-   * @return The cloned, renamed and configured properties object that was bound in scope
-   */
-  Properties addPropertyFile(String name, String rename, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
-  }
-
-  /**
-   * DSL addWorkflow method. Looks up the workflow with given name, clones it, configures the clone
-   * with the given configuration closure and binds the clone in scope.
-   *
-   * @param name The workflow name to lookup
-   * @param configure The configuration closure
-   * @return The cloned and configured workflow that was bound in scope
-   */
-  Workflow addWorkflow(String name, Closure configure) {
-    return configureWorkflow(Methods.cloneWorkflow(name, scope), configure);
-  }
-
-  /**
-   * DSL addWorkflow method. Looks up the workflow with given name, clones it, renames the clone to
-   * the specified name, configures the clone with the given configuration closure and binds the
-   * clone in scope.
-   *
-   * @param name The workflow name to lookup
-   * @param rename The new name to give the cloned workflow
-   * @param configure The configuration closure
-   * @return The cloned, renamed and configured workflow that was bound in scope
-   */
-  Workflow addWorkflow(String name, String rename, Closure configure) {
-    return configureWorkflow(Methods.cloneWorkflow(name, rename, scope), configure);
-  }
-
-  /**
-   * DSL lookup method. Looks up an object in scope.
-   *
-   * @param name The name to lookup
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
-   */
-  Object lookup(String name) {
-    return Methods.lookup(name, scope);
-  }
-
-  /**
-   * DSL lookup method. Looks up an object in scope and then applies the given configuration
-   * closure.
-   *
-   * @param name The name to lookup
-   * @param configure The configuration closure
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
-   */
-  Object lookup(String name, Closure configure) {
-    return Methods.lookup(project, name, scope, configure);
-  }
-
-  /**
-   * DSL propertyFile method. Creates a Properties object in scope with the given name and
-   * configuration.
-   *
-   * @param name The properties name
-   * @param configure The configuration closure
-   * @return The new properties object
-   */
-  Properties propertyFile(String name, Closure configure) {
-    return configureProperties(factory.makeProperties(name), configure);
-  }
-
-  /**
-   * DSL workflow method. Creates a Workflow in scope with the given name and configuration.
-   *
-   * @param name The workflow name
-   * @param configure The configuration closure
-   * @return The new workflow
-   */
-  Workflow workflow(String name, Closure configure) {
-    return configureWorkflow(factory.makeWorkflow(name, project, scope), configure);
+  @Override
+  HadoopDslExtension clone() {
+    throw new Exception("The Hadoop DSL Extension is a singleton and cannot be cloned.")
   }
 }

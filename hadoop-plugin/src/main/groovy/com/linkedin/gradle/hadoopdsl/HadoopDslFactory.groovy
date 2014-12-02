@@ -26,11 +26,11 @@ class HadoopDslFactory {
    * Factory method to build a HadoopDslExtension.
    *
    * @param project The Gradle project
-   * @param globalScope Reference to the global scope
+   * @param scope Reference to the global scope
    * @return The HadoopDslExtension
    */
-  HadoopDslExtension makeExtension(Project project, NamedScope globalScope) {
-    return new HadoopDslExtension(project, globalScope);
+  HadoopDslExtension makeExtension(Project project, NamedScope scope) {
+    return new HadoopDslExtension(project, scope);
   }
 
   /**
