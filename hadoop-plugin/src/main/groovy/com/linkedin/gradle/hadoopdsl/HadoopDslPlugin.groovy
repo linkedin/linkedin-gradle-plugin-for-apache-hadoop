@@ -21,11 +21,15 @@ import org.gradle.api.Project;
 /**
  * HadoopDslPlugin implements features for the Hadoop DSL.
  */
-class HadoopDslPlugin implements Plugin<Project> {
+class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project> {
   HadoopDslExtension extension;
-  HadoopDslFactory factory;
-  NamedScope globalScope = new NamedScope("");
-  Project project;
+
+  /**
+   * Constructor for the Hadoop DSL Plugin.
+   */
+  HadoopDslPlugin() {
+    super(null, "");
+  }
 
   /**
    * Applies the Hadoop DSL Plugin, which sets up the extensions and methods necessary to use the
@@ -36,21 +40,26 @@ class HadoopDslPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     this.factory = makeFactory();
-    project.extensions.add("hadoopDslFactory", factory);
-
-    // You must have the hadoopDslFactory extension set before you can make the HadoopDslExtension
-    this.extension = factory.makeExtension(project, globalScope);
     this.project = project;
 
-    // Add the extensions that expose the DSL to users.
-    project.extensions.add("hadoop", extension);
-    project.extensions.add("globalScope", globalScope);
+    project.extensions.add("hadoopDslFactory", factory);
+    project.extensions.add("hadoopDslPlugin", this);
 
+    // You must have the hadoopDslFactory extension set before you can make the HadoopDslExtension
+    this.extension = factory.makeExtension(project, scope);
+    project.extensions.add("hadoop", extension);
+
+    // Expose the DSL global method, which is only implemented by the HadoopDslPlugin class.
     project.extensions.add("global", this.&global);
+
+    // Add the extensions that expose the DSL to users. Specifically, expose all of the DSL
+    // functions on the NamedScopeContainer interface.
+    project.extensions.add("addJob", this.&addJob);
+    project.extensions.add("addPropertyFile", this.&addPropertyFile);
+    project.extensions.add("addWorkflow", this.&addWorkflow);
     project.extensions.add("lookup", this.&lookup);
     project.extensions.add("propertyFile", this.&propertyFile);
     project.extensions.add("workflow", this.&workflow);
-
     project.extensions.add("commandJob", this.&commandJob);
     project.extensions.add("hadoopJavaJob", this.&hadoopJavaJob);
     project.extensions.add("hiveJob", this.&hiveJob);
@@ -64,39 +73,24 @@ class HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Helper method to configure a Job in the DSL. Can be called by subclasses to configure
-   * custom Job subclass types.
+   * Clones the scope container.
    *
-   * @param job The job to configure
-   * @param configure The configuration closure
-   * @return The input job, which is now configured
+   * {@inheritDoc}
+   * @see java.lang.Object#clone()
    */
-  Job configureJob(Job job, Closure configure) {
-    return Methods.configureJob(project, job, configure, globalScope);
+  @Override
+  HadoopDslPlugin clone() {
+    throw new Exception("The Hadoop DSL Plugin is a singleton and cannot be cloned.")
   }
 
   /**
-   * Helper method to configure a Properties object in the DSL. Can be called by subclasses to
-   * configure custom Properties subclass types.
+   * DSL global method. Binds the object in global scope.
    *
-   * @param props The properties to configure
-   * @param configure The configuration closure
-   * @return The input properties, which is now configured
+   * @param object The object to bind in global scope
+   * @return The object, now bound in global scope
    */
-  Properties configureProperties(Properties props, Closure configure) {
-    return Methods.configureProperties(project, props, configure, globalScope);
-  }
-
-  /**
-   * Helper method to configure a Workflow object in the DSL. Can be called by subclasses to
-   * configure custom Workflow subclass types.
-   *
-   * @param workflow The workflow to configure
-   * @param configure The configuration closure
-   * @return The input workflow, which is now configured
-   */
-  Workflow configureWorkflow(Workflow workflow, Closure configure) {
-    return Methods.configureWorkflow(project, workflow, configure, globalScope);
+  Object global(Object object) {
+    return Methods.global(object, scope);
   }
 
   /**
@@ -107,178 +101,5 @@ class HadoopDslPlugin implements Plugin<Project> {
    */
   HadoopDslFactory makeFactory() {
     return new HadoopDslFactory();
-  }
-
-  /**
-   * DSL global method. Binds the object in global scope.
-   *
-   * @param object The object to bind in global scope
-   * @return The object, now bound in global scope
-   */
-  Object global(Object object) {
-    return Methods.global(object, globalScope);
-  }
-
-  /**
-   * DSL lookup method. Looks up an object in scope.
-   *
-   * @param name The name to lookup
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
-   */
-  Object lookup(String name) {
-    return Methods.lookup(name, globalScope);
-  }
-
-  /**
-   * DSL lookup method. Looks up an object in scope and then applies the given configuration
-   * closure.
-   *
-   * @param name The name to lookup
-   * @param configure The configuration closure
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
-   */
-  Object lookup(String name, Closure configure) {
-    return Methods.lookup(project, name, globalScope, configure);
-  }
-
-  /**
-   * DSL job method. Creates an Job in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  Job job(String name, Closure configure) {
-    return configureJob(factory.makeJob(name), configure);
-  }
-
-  /**
-   * DSL commandJob method. Creates a CommandJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  CommandJob commandJob(String name, Closure configure) {
-    return configureJob(factory.makeCommandJob(name), configure);
-  }
-
-  /**
-   * DSL hadoopJavaJob method. Creates a HadoopJavaJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
-    return configureJob(factory.makeHadoopJavaJob(name), configure);
-  }
-
-  /**
-   * DSL hiveJob method. Creates a HiveJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  HiveJob hiveJob(String name, Closure configure) {
-    return configureJob(factory.makeHiveJob(name), configure);
-  }
-
-  /**
-   * @deprecated JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob.
-   *
-   * DSL javaJob method. Creates a JavaJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  @Deprecated
-  JavaJob javaJob(String name, Closure configure) {
-    project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
-    return configureJob(factory.makeJavaJob(name), configure);
-  }
-
-  /**
-   * DSL javaProcessJob method. Creates a JavaProcessJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  JavaProcessJob javaProcessJob(String name, Closure configure) {
-    return configureJob(factory.makeJavaProcessJob(name), configure);
-  }
-
-  /**
-   * DSL kafkaPushJob method. Creates a KafkaPushJob in scope with the given name and
-   * configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  KafkaPushJob kafkaPushJob(String name, Closure configure) {
-    return configureJob(factory.makeKafkaPushJob(name), configure);
-  }
-
-  /**
-   * DSL noOpJob method. Creates a NoOpJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  NoOpJob noOpJob(String name, Closure configure) {
-    return configureJob(factory.makeNoOpJob(name), configure);
-  }
-
-  /**
-   * DSL pigJob method. Creates a PigJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  PigJob pigJob(String name, Closure configure) {
-    return configureJob(factory.makePigJob(name), configure);
-  }
-
-  /**
-   * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in scope with the given name
-   * and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
-    return configureJob(factory.makeVoldemortBuildPushJob(name), configure);
-  }
-
-  /**
-   * DSL propertyFile method. Creates a Properties object in scope with the given name and
-   * configuration.
-   *
-   * @param name The properties name
-   * @param configure The configuration closure
-   * @return The new properties object
-   */
-  Properties propertyFile(String name, Closure configure) {
-    return configureProperties(factory.makeProperties(name), configure);
-  }
-
-  /**
-   * DSL workflow method. Creates a Workflow object in scope with the given name and configuration.
-   *
-   * @param name The workflow name
-   * @param configure The configuration closure
-   * @return The new workflow
-   */
-  Workflow workflow(String name, Closure configure) {
-    return configureWorkflow(factory.makeWorkflow(name, project, globalScope), configure);
   }
 }

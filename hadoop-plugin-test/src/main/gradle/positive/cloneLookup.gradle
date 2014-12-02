@@ -15,7 +15,11 @@ pigJob('job1') {
   uses 'src/main/pig/pigScript.pig'
 }
 
-lookup('job1') {
+addJob('job1', 'job1Clone') {
+  uses 'src/main/pig/pigScriptClone.pig'
+}
+
+lookup('job1Clone') {
   uses 'src/main/pig/sameName.pig'
 }
 
@@ -30,18 +34,23 @@ propertyFile('properties1') {
   ]
 }
 
-lookup('properties1') {
+addPropertyFile('properties1', 'properties1Clone') {
+  set properties: [
+    'myPropertyB' : 'valBUpdate'
+  ]
+}
+
+lookup('properties1Clone') {
   set jvmProperties: [
     'jvmProperty1' : 'jvm1Update'
   ]
   set properties: [
-    'myPropertyB' : 'valBUpdate',
     'myPropertyC' : 'valC'
   ]
 }
 
 workflow('cloneLookup1') {
-  addJob('job1') {
+  addJob('job1Clone', 'job1') {
     set parameters: [
       'param1' : 'val1'
     ]
@@ -55,7 +64,11 @@ workflow('cloneLookup1') {
     depends 'job1'
   }
 
-  addPropertyFile('properties1') {
+  targets 'job2'
+}
+
+addWorkflow('cloneLookup1', 'cloneLookup1Clone') {
+  addPropertyFile('properties1Clone', 'properties1') {
     set jvmProperties: [
       'jvmProperty2' : 'jvm2Update',
       'jvmProperty3' : 'jvm3',
@@ -65,15 +78,13 @@ workflow('cloneLookup1') {
       'myPropertyD' : 'valD'
     ]
   }
-
-  targets 'job2'
 }
 
 hadoop {
   buildPath "jobs"
   cleanPath false
 
-  addWorkflow('cloneLookup1', 'cloneLookup2') {
+  addWorkflow('cloneLookup1Clone', 'cloneLookup2') {
     lookup('job1') {
       set parameters: [
         'bar' : 'bazz'

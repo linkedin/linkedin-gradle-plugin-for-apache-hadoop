@@ -22,17 +22,32 @@ package com.linkedin.gradle.hadoopdsl;
  */
 abstract class BaseVisitor implements Visitor {
 
-  @Override
-  void visitExtension(HadoopDslExtension hadoop) {
-    // Visit each workflow
-    hadoop.workflows.each() { Workflow workflow ->
-      visitWorkflow(workflow);
+  void visitScopeContainer(BaseNamedScopeContainer container) {
+    // Visit each job
+    container.jobs.each() { Job job ->
+      visitJob(job);
     }
 
     // Visit each properties object
-    hadoop.properties.each() { Properties props ->
+    container.properties.each() { Properties props ->
       visitProperties(props);
     }
+
+    // Visit each workflow
+    container.workflows.each() { Workflow workflow ->
+      visitWorkflow(workflow);
+    }
+  }
+
+  @Override
+  void visitPlugin(HadoopDslPlugin plugin) {
+    visitScopeContainer(plugin);
+    visitExtension(plugin.extension);
+  }
+
+  @Override
+  void visitExtension(HadoopDslExtension hadoop) {
+    visitScopeContainer(hadoop);
   }
 
   @Override
@@ -41,35 +56,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitWorkflow(Workflow workflow) {
-    // Visit each job in the workflow
-    workflow.jobs.each() { Job job ->
-      visitJob(job);
-    }
-
-    // Visit each properties object in the workflow
-    workflow.properties.each() { Properties props ->
-      visitProperties(props);
-    }
+    visitScopeContainer(workflow);
   }
 
   @Override
   void visitJob(Job job) {
-    // Use a LinkedHashMap so that the properties will be enumerated in the
-    // order in which we add them.
-    Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>(), parentScope);
-
-    String fileName = buildJobFileName(name, parentScope);
-    File file = new File(directory, "${fileName}.job");
-
-    file.withWriter { out ->
-      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      allProperties.each() { key, value ->
-        out.writeLine("${key}=${value}");
-      }
-    }
-
-    // Set to read-only to remind people that they should not be editing the job files.
-    file.setWritable(false);
   }
 
   @Override

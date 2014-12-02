@@ -17,18 +17,6 @@ package com.linkedin.gradle.hadoopdsl;
 
 import org.gradle.api.GradleException
 
-/**
- * Interface that enables us to declare which DSL classes can declare a new scope (i.e. that have a
- * NamedScope object as a member variable).
- */
-interface NamedScopeContainer {
-  /**
-   * Returns the scope at this level.
-   *
-   * @return The scope at this level
-   */
-  NamedScope getScope();
-}
 
 /**
  * The DSL implements explicit scope, allowing us to refer to workflows and jobs by name instead of

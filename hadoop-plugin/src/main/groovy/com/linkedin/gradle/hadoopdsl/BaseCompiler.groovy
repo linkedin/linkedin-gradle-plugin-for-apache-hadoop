@@ -58,11 +58,17 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
   /**
    * Builds the Hadoop DSL.
    *
-   * @param extension The Hadoop DSL extension
+   * @param plugin The Hadoop DSL plugin
    */
   @Override
-  void compile(HadoopDslExtension extension) {
-    visitExtension(extension);
+  void compile(HadoopDslPlugin plugin) {
+    visitPlugin(plugin);
+  }
+
+  @Override
+  void visitPlugin(HadoopDslPlugin plugin) {
+    // Compilation only considers DSL elements nested under the extension.
+    visitExtension(plugin.extension);
   }
 
   /**
@@ -98,8 +104,16 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
       cleanBuildDirectory(file);
     }
 
-    // Visit the workflows and properties under the extension
-    super.visitExtension(hadoop);
+    // Visit the workflows and properties under the extension. For compilation, the jobs in the
+    // extension are ignored.
+    hadoop.workflows.each() { Workflow workflow ->
+      visitWorkflow(workflow);
+    }
+
+    // Visit each properties object
+    hadoop.properties.each() { Properties props ->
+      visitProperties(props);
+    }
   }
 
   /**
@@ -127,6 +141,11 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     // Visit each properties object in the workflow
     workflow.properties.each() { Properties props ->
       visitProperties(props);
+    }
+
+    // Visit each embedded workflow in the workflow
+    workflow.workflows.each() { Workflow childWorkflow ->
+      visitWorkflow(childWorkflow);
     }
 
     // Restore the old parent scope
