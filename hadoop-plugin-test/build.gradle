@@ -40,7 +40,7 @@ testCases.each { File file ->
 // Get rid of the variable "Total time: 4.544 secs" that appears at the end of the build output.
 // Get rid of LinkedIn-specific messages about CIA instrumentation.
 def cleanBuildOutput(String buildOutput) {
-  String ciaRegex= "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}\n"
+  String ciaRegex= "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n"
   buildOutput = buildOutput.replaceFirst(ciaRegex, "");
 
   int endIndex = buildOutput.lastIndexOf("Total time:");
