@@ -18,6 +18,7 @@ package com.linkedin.gradle.hadoop;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.pig.PigPlugin;
+import com.linkedin.gradle.scm.ScmPlugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -27,7 +28,7 @@ import org.gradle.api.Project;
  */
 class HadoopPlugin implements Plugin<Project> {
   /**
-   * Applies the Hadoop Plugin, which in turn applies the Hadoop DSL, Azkaban and Apache Pig
+   * Applies the Hadoop Plugin, which in turn applies the Hadoop DSL, Azkaban, Apache Pig and SCM
    * plugins.
    *
    * @param project The Gradle project
@@ -37,6 +38,7 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getHadoopDslPluginClass());
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getPigPluginClass());
+    project.getPlugins().apply(getScmPluginClass());
   }
 
   /**
@@ -67,5 +69,15 @@ class HadoopPlugin implements Plugin<Project> {
    */
   Class<? extends PigPlugin> getPigPluginClass() {
     return PigPlugin.class;
+  }
+
+  /**
+   * Factory method to return the ScmPlugin class. Subclasses can override this method to return
+   * their own ScmPlugin class.
+   *
+   * @return Class that implements the ScmPlugin
+   */
+  Class<? extends ScmPlugin> getScmPluginClass() {
+    return ScmPlugin.class;
   }
 }
