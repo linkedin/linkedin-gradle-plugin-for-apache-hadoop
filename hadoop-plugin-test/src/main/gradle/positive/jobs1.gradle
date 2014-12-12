@@ -131,8 +131,13 @@ hadoop {
     }
 
     kafkaPushJob('job8') {
-      usesInputPath '/data/derived/kafka'
-      usesTopic 'memberTopic'
+      usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
+      usesTopic 'kafkatestpush'                                       // Required
+      usesBatchNumBytes 1000000                                       // Optional
+      usesDisableSchemaRegistration true                              // Optional
+      usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
+      usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
+      usesSchemaRegistryUrl 'http://eat1-app501:10252/schemaRegistry/schemas'  // Optional
       depends 'job7'
       queue 'marathon'
     }
@@ -163,6 +168,24 @@ hadoop {
       usesOutputPath '/user/foo/output'   // Required
       usesStoreOwners 'foo@linkedin.com'  // Required
       usesStoreDesc 'Store for testing'   // Required
+      usesTempDir '/tmp/foo'              // Optional
+      usesRepFactor 2                     // Optional
+      usesCompressValue false             // Optional
+      usesKeySelection 'memberId'         // Optional
+      usesValueSelection 'lastName'       // Optional
+      usesNumChunks(-1)                   // Optional
+      usesChunkSize 1073741824            // Optional
+      usesKeepOutput false                // Optional
+      usesPushHttpTimeoutSeconds 86400    // Optional
+      usesPushNode 0                      // Optional
+      usesBuildStore true                 // Optional
+      usesPushStore true                  // Optional
+      usesFetcherProtocol 'hftp'          // Optional
+      usesFetcherPort '50070'             // Optional
+      usesAvroSerializerVersioned false   // Optional
+      usesAvroData true                   // Optional
+      usesAvroKeyField 'memberId'         // Optional unless isAvroData is true
+      usesAvroValueField 'firstName'      // Optional unless isAvroData is true
       depends 'job10'
       queue 'marathon'
     }
