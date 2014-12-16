@@ -2,7 +2,7 @@
 type=javaprocess
 java.class=com.linkedin.hello.JavaProcessJob
 myPropertyA=globalA2Update
-hadoop-conf.mapred.propertyA=valueA2
-hadoop-conf.mapred.propertyB=valueB2
+hadoop-inject.mapred.propertyA=valueA2
+hadoop-inject.mapred.propertyB=valueB2
 myPropertyB=globalB2
 jvm.args=-DjvmPropertyNameA=jvmA2Update -DjvmPropertyNameB=jvmB2

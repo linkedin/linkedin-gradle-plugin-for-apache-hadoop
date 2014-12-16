@@ -86,7 +86,7 @@ abstract class BasePropertySet {
    * a line of the form jvm.args=-Dkey1=val1 ... -DkeyN=valN to be written to the properties file.
    * <p>
    * You can specify Hadoop job configuration properties by using the syntax
-   * "set confProperties: [ ... ]", which causes lines of the form hadoop-conf.key=val to be
+   * "set confProperties: [ ... ]", which causes lines of the form hadoop-inject.key=val to be
    * written to the properties file.
    *
    * @param args Args whose key 'properties' has a map value specifying the job properties to set;
@@ -123,7 +123,7 @@ abstract class BasePropertySet {
    */
   void setConfProperty(String name, String value) {
     confProperties.put(name, value);
-    setJobProperty("hadoop-conf.${name}", value);
+    setJobProperty("hadoop-inject.${name}", value);
   }
 
   /**

@@ -173,7 +173,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    * DSL queue method to declare the queue in which this job should run. This does the following:
    * <ul>
    *   <li>Sets the property mapred.job.queue.name in the job file</li>
-   *   <li>Sets the property hadoop-conf.mapred.job.queue.name in the job file</li>
+   *   <li>Sets the property hadoop-inject.mapred.job.queue.name in the job file</li>
    *   <li>Adds "-D mapred.job.queue.name=val" to the property main.args</li>
    * </ul>
    *
@@ -194,7 +194,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    * <p>
    * Additionally for HadoopJavaProcessJob subclasses, you can specify Hadoop job configuration
    * properties by using the syntax "set confProperties: [ ... ]", which causes lines of the form
-   * hadoop-conf.key=val to be written to the job file.
+   * hadoop-inject.key=val to be written to the job file.
    *
    * @param args Args whose key 'properties' has a map value specifying the job properties to set;
    *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
@@ -214,14 +214,14 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
 
   /**
    * Sets the given Hadoop job configuration property. For a given key and value, this method
-   * causes the line hadoop-conf.key=val to be added to the job file.
+   * causes the line hadoop-inject.key=val to be added to the job file.
    *
    * @param name The Hadoop job configuration property to set
    * @param value The Hadoop job configuration property value
    */
   void setConfProperty(String name, String value) {
     confProperties.put(name, value);
-    setJobProperty("hadoop-conf.${name}", value);
+    setJobProperty("hadoop-inject.${name}", value);
   }
 
   /**

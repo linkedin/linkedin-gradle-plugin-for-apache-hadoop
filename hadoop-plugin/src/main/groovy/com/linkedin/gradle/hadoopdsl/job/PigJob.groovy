@@ -124,7 +124,7 @@ class PigJob extends HadoopJavaProcessJob {
    * <p>
    * Additionally for HadoopJavaProcessJob subclasses, you can specify Hadoop job configuration
    * properties by using the syntax "set confProperties: [ ... ]", which causes lines of the form
-   * hadoop-conf.key=val to be written to the job file.
+   * hadoop-inject.key=val to be written to the job file.
    * <p>
    * Additionally for PigJobs, you can specify Pig parameters by using the syntax
    * "set parameters: [ ... ]". For each parameter you set, a line of the form param.key=val will
