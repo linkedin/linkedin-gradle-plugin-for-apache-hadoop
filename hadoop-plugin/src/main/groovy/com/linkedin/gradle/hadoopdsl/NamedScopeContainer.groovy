@@ -15,6 +15,16 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HiveJob;
+import com.linkedin.gradle.hadoopdsl.job.JavaJob;
+import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
+import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
+import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 /**
  * Interface that enables us to declare which DSL classes can declare a new scope (i.e. that have a

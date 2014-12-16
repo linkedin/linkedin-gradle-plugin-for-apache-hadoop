@@ -11,7 +11,7 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 // Simple positive tests for programming with the API.
 
-def job1 = new com.linkedin.gradle.hadoopdsl.PigJob("job1")
+def job1 = new com.linkedin.gradle.hadoopdsl.job.PigJob("job1")
 job1.uses("src/main/pig/count_by_country.pig")
 job1.setParameter("member_summary", "/data/derived/member/summary#LATEST")
 job1.setParameter("output", "count_by_country.dat")

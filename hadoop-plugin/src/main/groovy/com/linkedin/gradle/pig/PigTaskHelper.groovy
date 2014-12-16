@@ -18,7 +18,7 @@ package com.linkedin.gradle.pig;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
-import com.linkedin.gradle.hadoopdsl.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.PigJob;
 
 import org.gradle.api.Project;
 

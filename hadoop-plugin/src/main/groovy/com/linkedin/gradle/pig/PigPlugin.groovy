@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.pig;
 
-import com.linkedin.gradle.hadoopdsl.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.PigJob;
 
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin;

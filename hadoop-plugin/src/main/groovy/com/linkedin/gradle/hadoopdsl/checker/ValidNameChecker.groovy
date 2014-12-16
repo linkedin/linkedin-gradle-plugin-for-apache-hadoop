@@ -15,11 +15,11 @@
  */
 package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.hadoopdsl.Job;
-import com.linkedin.gradle.hadoopdsl.PropertySet;
-import com.linkedin.gradle.hadoopdsl.Properties;
-import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.PropertySet;
+import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.job.Job;
 
 import java.util.regex.Pattern;
 

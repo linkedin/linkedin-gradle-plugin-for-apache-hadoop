@@ -16,9 +16,9 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
-import com.linkedin.gradle.hadoopdsl.Job;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
+import com.linkedin.gradle.hadoopdsl.job.Job;
 
 import org.gradle.api.Project;
 

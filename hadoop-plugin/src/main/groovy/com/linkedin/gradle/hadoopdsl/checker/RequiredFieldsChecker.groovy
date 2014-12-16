@@ -15,19 +15,20 @@
  */
 package com.linkedin.gradle.hadoopdsl.checker;
 
-import com.linkedin.gradle.hadoopdsl.Job;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
-import com.linkedin.gradle.hadoopdsl.CommandJob;
-import com.linkedin.gradle.hadoopdsl.HadoopJavaJob;
-import com.linkedin.gradle.hadoopdsl.HiveJob;
-import com.linkedin.gradle.hadoopdsl.JavaJob;
-import com.linkedin.gradle.hadoopdsl.JavaProcessJob;
-import com.linkedin.gradle.hadoopdsl.KafkaPushJob;
-import com.linkedin.gradle.hadoopdsl.NoOpJob;
-import com.linkedin.gradle.hadoopdsl.PigJob;
-import com.linkedin.gradle.hadoopdsl.VoldemortBuildPushJob;
+
+import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HiveJob;
+import com.linkedin.gradle.hadoopdsl.job.JavaJob;
+import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
+import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
+import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
 

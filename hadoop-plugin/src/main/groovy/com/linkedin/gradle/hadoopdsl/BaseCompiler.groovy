@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.job.Job;
+
 import org.gradle.api.Project;
 
 /**
