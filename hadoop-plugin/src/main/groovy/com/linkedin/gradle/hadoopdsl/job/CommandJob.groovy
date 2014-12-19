@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+
 /**
  * Job class for type=command jobs.
  * <p>
@@ -49,12 +51,12 @@ class CommandJob extends Job {
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jvmProperties and jobProperties correctly.
    *
-   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @return The input job properties map, with jobProperties and jvmProperties added
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
   @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    super.buildProperties(allProperties);
+  Map<String, String> buildProperties(NamedScope parentScope) {
+    Map<String, String> allProperties = super.buildProperties(parentScope);
 
     if (commands != null && commands.size() > 0) {
       allProperties["command"] = commands.get(0);

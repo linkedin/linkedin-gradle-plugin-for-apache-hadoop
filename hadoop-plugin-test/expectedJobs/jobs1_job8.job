@@ -1,5 +1,4 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=jobs1_job7
 type=KafkaPushJob
 input.path=/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST
 topic=kafkatestpush
@@ -9,3 +8,4 @@ kafka.url=eat1-ei2-kafka-vip-c.stg.linkedin.com:10251
 name.node=hdfs://eat1-magicnn01.grid.linkedin.com:9000
 schemaregistry.rest.url=http://eat1-app501:10252/schemaRegistry/schemas
 hadoop-inject.mapred.job.queue.name=marathon
+dependencies=jobs1_job7

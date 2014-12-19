@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
  * Abstract base class for JavaProcessJob subclasses that are for Hadoop, such as HadoopJava, Pig
@@ -66,11 +67,11 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jvmProperties and jobProperties correctly.
    *
-   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @return The input job properties map, with jobProperties and jvmProperties added
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
   @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
+  Map<String, String> buildProperties(NamedScope parentScope) {
     if (cacheArchives.size() > 0) {
       String mrCacheArchives = cacheArchives.collect() { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
       setConfProperty("mapred.cache.archives", mrCacheArchives);
@@ -83,7 +84,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
       setConfProperty("mapred.create.symlink", "yes");
     }
 
-    return super.buildProperties(allProperties);
+    return super.buildProperties(parentScope);
   }
 
   /**

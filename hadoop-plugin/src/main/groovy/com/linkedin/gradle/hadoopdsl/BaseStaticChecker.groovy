@@ -42,6 +42,18 @@ abstract class BaseStaticChecker extends BaseVisitor implements StaticChecker {
   }
 
   /**
+   * Helper function to build a message describing a cycle.
+   *
+   * @param cycleNames The (LinkedHashSet) set of names that form a cycle
+   * @param startCycle The name of the element that starts the cycle
+   */
+  String buildCyclesText(Set<String> cycleNames, String startCycle) {
+    List<String> cycleList = new ArrayList<String>(cycleNames);
+    cycleList.add(startCycle);
+    return cycleList.join("->");
+  }
+
+  /**
    * Makes this static check on the DSL.
    *
    * @param plugin The Hadoop DSL plugin

@@ -88,13 +88,13 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
   }
 
   /**
-   * Clones the scope container.
+   * Clones the scope container given its new parent scope.
    *
-   * {@inheritDoc}
-   * @see java.lang.Object#clone()
+   * @param parentScope The new parent scope
+   * @return The cloned scope container
    */
   @Override
-  HadoopDslExtension clone() {
+  HadoopDslExtension clone(NamedScope parentScope) {
     throw new Exception("The Hadoop DSL Extension is a singleton and cannot be cloned.")
   }
 }

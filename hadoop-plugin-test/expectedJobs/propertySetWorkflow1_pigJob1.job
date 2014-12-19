@@ -3,6 +3,6 @@ type=pig
 pig.script=src/main/pig/pigScript.pig
 hadoop-inject.mapred.property1=value1Update
 myProperty1=global1Update
-hadoop-inject.mapred.property2=value2
 myProperty2=global2
+hadoop-inject.mapred.property2=value2
 jvm.args=-DjvmPropertyName1=jvm1Update -DjvmPropertyName2=jvm2

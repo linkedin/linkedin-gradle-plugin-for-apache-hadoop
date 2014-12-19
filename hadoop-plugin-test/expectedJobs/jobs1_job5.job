@@ -1,5 +1,4 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=jobs1_job4
 type=hive
 hive.script=hello.q
 path1=/user/foo
@@ -11,3 +10,4 @@ hadoop-inject.mapreduce.reduce.java.opts=-Xmx3G
 hivevar.param1=val1
 hivevar.param2=val2
 hadoop-inject.mapred.job.queue.name=marathon
+dependencies=jobs1_job4

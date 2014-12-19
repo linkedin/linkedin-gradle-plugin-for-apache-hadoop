@@ -81,14 +81,13 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
-   * Clones the scope container. DSL elements that extend BaseNamedScopeContainer must provide an
-   * actual clone method implementation.
+   * Clones the scope container given its new parent scope. DSL elements that extend
+   * BaseNamedScopeContainer must provide an actual clone method implementation.
    *
-   * {@inheritDoc}
-   * @see java.lang.Object#clone()
+   * @param parentScope The new parent scope
+   * @return The cloned scope container
    */
-  @Override
-  abstract BaseNamedScopeContainer clone();
+  abstract BaseNamedScopeContainer clone(NamedScope parentScope);
 
   /**
    * Helper method to set the properties on a cloned scope container.
@@ -97,35 +96,28 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned scope container
    */
   BaseNamedScopeContainer clone(BaseNamedScopeContainer container) {
-    container.scope = scope.clone();
-
-    // Clear the scope for the cloned container. Then clone all the jobs,
-    // properties and workflows declared in the original container and use
-    // them to rebuild the scope.
-    container.scope.thisLevel.clear();
-
     for (Job job : jobs) {
-      Job jobClone = job.clone();
-      container.jobs.add(jobClone);
-      container.scope.bind(jobClone.name, jobClone);
+      Job clone = job.clone();
+      container.jobs.add(clone);
+      container.scope.bind(clone.name, clone);
     }
 
     for (Properties props : properties) {
-      Properties propsClone = props.clone();
-      container.properties.add(propsClone);
-      container.scope.bind(propsClone.name, propsClone);
+      Properties clone = props.clone();
+      container.properties.add(clone);
+      container.scope.bind(clone.name, clone);
     }
 
     for (PropertySet propertySet : propertySets) {
-      PropertySet propertySetClone = propertySet.clone();
-      workflow.propertySets.add(propertySetClone);
-      workflow.scope.bind(propertySetClone.name, propertySetClone);
+      PropertySet clone = propertySet.clone(container.getScope());
+      workflow.propertySets.add(clone);
+      workflow.scope.bind(propertySetClone.name, clone);
     }
 
     for (Workflow workflow : workflows) {
-      Workflow workflowClone = workflow.clone();
-      container.workflows.add(workflowClone);
-      container.scope.bind(workflowClone.name, workflowClone);
+      Workflow clone = workflow.clone(container.getScope());
+      container.workflows.add(clone);
+      container.scope.bind(clone.name, workflowClone);
     }
 
     return container;
@@ -344,7 +336,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The new PropertySet object
    */
   PropertySet propertySet(String name, Closure configure) {
-    return configurePropertySet(factory.makePropertySet(name), configure);
+    return configurePropertySet(factory.makePropertySet(name, scope), configure);
   }
 
   /**

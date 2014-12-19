@@ -36,34 +36,50 @@ package com.linkedin.gradle.hadoopdsl;
  * </pre>
  */
 class PropertySet extends BasePropertySet {
+  NamedScope parentScope;
+
   /**
-   * Base constructor for PropertySet.
+   * Constructor for a PropertySet.
    *
    * @param name The PropertySet name
+   * @param parentScope The parent scope
    */
-  PropertySet(String name) {
+  PropertySet(String name, NamedScope parentScope) {
     super(name);
+    this.parentScope = parentScope;
   }
 
   /**
-   * Clones the PropertySet.
+   * Clones the PropertySet given its new parent scope.
    *
+   * @param parentScope The parent scope
    * @return The cloned PropertySet
    */
-  @Override
-  PropertySet clone() {
-    return clone(new PropertySet(name));
+  PropertySet clone(NamedScope parentScope) {
+    return clone(new PropertySet(name, parentScope));
   }
 
   /**
    * Helper method to set the properties on a cloned PropertySet object.
    *
-   * @param The PropertySet being cloned
+   * @param clonePropertySet The PropertySet being cloned
    * @return The cloned PropertySet
    */
   @Override
   PropertySet clone(PropertySet clonePropertySet) {
     return super.clone(clonePropertySet);
+  }
+
+  /**
+   * Fills out the complete set of properties for this PropertySet by recursively filling out its
+   * base properties and then unioning them to the current PropertySet.
+   */
+  void fillProperties() {
+    if (basePropertySetName != null) {
+      PropertySet propertySet = (PropertySet) parentScope.lookup(basePropertySetName);
+      propertySet.fillProperties();    // The base property set looks up its base properties in its own scope
+      unionProperties(propertySet);
+    }
   }
 
   /**
@@ -73,6 +89,6 @@ class PropertySet extends BasePropertySet {
    */
   @Override
   String toString() {
-    return "(PropertySet: name = ${name}, confProperties = ${confProperties.toString()}, jobProperties = ${jobProperties.toString()}, jvmProperties = ${jvmProperties.toString()})";
+    return "(PropertySet: name = ${name}, basePropertySetName = ${basePropertySetName}, confProperties = ${confProperties.toString()}, jobProperties = ${jobProperties.toString()}, jvmProperties = ${jvmProperties.toString()})";
   }
 }

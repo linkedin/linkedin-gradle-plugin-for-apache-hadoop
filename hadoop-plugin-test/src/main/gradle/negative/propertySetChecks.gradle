@@ -16,7 +16,7 @@ hadoop {
   cleanPath false
 
   propertyFile('propertyFile1') {
-    baseProperties 'propertySet1'   // Doesn't exist
+    baseProperties 'propertySet0'   // Doesn't exist
     set properties: [
       'property1': 'val1'
     ]
@@ -29,7 +29,7 @@ hadoop {
   workflow('propertySetChecks') {
     pigJob('pigJob1') {
       uses 'src/main/pig/pigScript.pig'
-      baseProperties 'propertySet1' // Doesn't exist
+      baseProperties 'propertySet0' // Doesn't exist
     }
 
     pigJob('pigJob2') {
@@ -38,5 +38,17 @@ hadoop {
     }
 
     targets 'pigJob1', 'pigJob2'
+  }
+
+  propertySet('propertySet1') {
+    baseProperties 'propertySet1'  // Has its own name for baseProperties
+  }
+
+  propertySet('propertySet2') {
+    baseProperties 'propertySet0'  // Doesn't exist
+  }
+
+  propertySet('propertySet3') {
+    baseProperties 'propertyFile1' // Not a property set
   }
 }

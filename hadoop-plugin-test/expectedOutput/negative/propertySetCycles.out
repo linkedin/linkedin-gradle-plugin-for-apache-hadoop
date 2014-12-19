@@ -1,0 +1,8 @@
+:hadoop-plugin-test:test_propertySetCycles
+Running test for the file negative/propertySetCycles.gradle
+PropertySetChecker ERROR: propertySet1 has a baseProperties cycle: propertySet1->propertySet2->propertySet1
+PropertySetChecker ERROR: propertySet3 has a baseProperties cycle: propertySet3->propertySet4->propertySet5->propertySet6->propertySet3
+:hadoop-plugin-test:test_propertySetCycles FAILED
+
+BUILD FAILED
+

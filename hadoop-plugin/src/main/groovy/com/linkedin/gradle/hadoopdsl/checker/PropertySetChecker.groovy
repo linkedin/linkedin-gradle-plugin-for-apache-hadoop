@@ -25,11 +25,17 @@ import org.gradle.api.Project;
 /**
  * The PropertySetChecker makes the following checks:
  * <ul>
- *   <li>ERROR if a Properties object refers to a name for its baseProperties that is not in scope or is not bound to a PropertySet</li>
- *   <li>ERROR if a Job refers to a name for its baseProperties that is not in scope or is not bound to a PropertySet</li>
+ *   <li>ERROR if a Job has a value for baseProperties that is not in scope or is not bound to a PropertySet</li>
+ *   <li>ERROR if a Properties object has a value for baseProperties that is not in scope or is not bound to a PropertySet</li>
+ *   <li>ERROR if a PropertySet has a value for baseProperties, but has a null parent scope</li>
+ *   <li>ERROR if a PropertySet has a value for baseProperties that equals its own name</li>
+ *   <li>ERROR if a PropertySet has a cycle among its baseProperties</li>
+ *   <li>ERROR if a PropertySet has a value for baseProperties that is not in scope or is not bound to a PropertySet</li>
  * </ul>
  */
 class PropertySetChecker extends BaseStaticChecker {
+  Set<PropertySet> propertySetsChecked;
+
   /**
    * Constructor for the PropertySetChecker.
    *
@@ -37,6 +43,7 @@ class PropertySetChecker extends BaseStaticChecker {
    */
   PropertySetChecker(Project project) {
     super(project);
+    propertySetsChecked = new LinkedHashSet<PropertySet>();
   }
 
   @Override
@@ -46,17 +53,22 @@ class PropertySetChecker extends BaseStaticChecker {
       return;
 
     Object object = parentScope.lookup(basePropertySetName);
+
+    // ERROR if a Job has a value for baseProperties that is not in scope
     if (object == null) {
       project.logger.lifecycle("PropertySetChecker ERROR: job ${job.name} declares baseProperties ${basePropertySetName} that is not bound in scope");
       foundError = true;
       return;
     }
 
+    // ERROR if a Job has a value for baseProperties that is not bound to a PropertySet
     if (!(object instanceof PropertySet)) {
       project.logger.lifecycle("PropertySetChecker ERROR: job ${job.name} declares baseProperties ${basePropertySetName} that refers to an object that is not a PropertySet");
       foundError = true;
       return;
     }
+
+    visitPropertySet((PropertySet) object);
   }
 
   @Override
@@ -66,16 +78,86 @@ class PropertySetChecker extends BaseStaticChecker {
       return;
 
     Object object = parentScope.lookup(basePropertySetName);
+
+    // ERROR if a Properties object has a value for baseProperties that is not in scope
     if (object == null) {
       project.logger.lifecycle("PropertySetChecker ERROR: properties ${props.name} declares baseProperties ${basePropertySetName} that is not bound in scope");
       foundError = true;
       return;
     }
 
+    // ERROR if a Properties object has a value for baseProperties that is not bound to a PropertySet
     if (!(object instanceof PropertySet)) {
       project.logger.lifecycle("PropertySetChecker ERROR: properties ${props.name} declares baseProperties ${basePropertySetName} that refers to an object that is not a PropertySet");
       foundError = true;
       return;
+    }
+
+    visitPropertySet((PropertySet) object);
+  }
+
+  @Override
+  void visitPropertySet(PropertySet propertySet) {
+    if (!propertySetsChecked.contains(propertySet)) {
+      visitPropertySet(propertySet, new HashSet<String>());
+      propertySetsChecked.add(propertySet);
+    }
+  }
+
+  void visitPropertySet(PropertySet propertySet, Set<String> propertySetNames) {
+    if (propertySet.basePropertySetName == null) {
+      propertySetsChecked.add(propertySet);
+      return;
+    }
+
+    String basePropertySetName = propertySet.basePropertySetName;
+
+    // ERROR if a PropertySet has a value for baseProperties, but has a null parent scope
+    if (propertySet.parentScope == null) {
+      project.logger.lifecycle("PropertySetChecker ERROR: ${propertySet.name} declares baseProperties ${basePropertySetName}, but has a null parent scope value");
+      foundError = true;
+      return;
+    }
+
+    // ERROR if a PropertySet has a value for baseProperties that equals its own name
+    if (basePropertySetName.equals(propertySet.name)) {
+      project.logger.lifecycle("PropertySetChecker ERROR: ${propertySet.name} declares baseProperties ${basePropertySetName} with the same name as itself");
+      foundError = true;
+      return;
+    }
+
+    // ERROR if a PropertySet has a cycle among its baseProperties
+    if (propertySetNames.contains(propertySet.name)) {
+      String cycleText = buildCyclesText(propertySetNames, propertySet.name);
+      project.logger.lifecycle("PropertySetChecker ERROR: ${propertySet.name} has a baseProperties cycle: ${cycleText}");
+      foundError = true;
+      return;
+    }
+
+    propertySetNames.add(propertySet.name);
+
+    // Be sure to lookup the baseProperties in the scope in which the property set was declared
+    Object object = propertySet.parentScope.lookup(basePropertySetName);
+
+    // ERROR if a PropertySet has a value for baseProperties that is not in scope
+    if (object == null) {
+      project.logger.lifecycle("PropertySetChecker ERROR: ${propertySet.name} declares baseProperties ${basePropertySetName} that is not bound in scope");
+      foundError = true;
+      return;
+    }
+
+    // ERROR if a PropertySet has a value for baseProperties that is not bound to a PropertySet
+    if (!(object instanceof PropertySet)) {
+      project.logger.lifecycle("PropertySetChecker ERROR: ${propertySet.name} declares baseProperties ${basePropertySetName} that refers to an object that is not a PropertySet");
+      foundError = true;
+      return;
+    }
+
+    PropertySet basePropertySet = (PropertySet) object;
+
+    if (!propertySetsChecked.contains(basePropertySet)) {
+      visitPropertySet(basePropertySet, propertySetNames);
+      propertySetsChecked.add(basePropertySet);
     }
   }
 }

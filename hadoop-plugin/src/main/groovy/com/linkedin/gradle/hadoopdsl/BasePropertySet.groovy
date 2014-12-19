@@ -19,6 +19,7 @@ package com.linkedin.gradle.hadoopdsl;
  * The BasePropertySet class is a common base class for PropertySet and Properties.
  */
 abstract class BasePropertySet {
+  String basePropertySetName;
   String name;
   Map<String, String> confProperties;
   Map<String, String> jobProperties;
@@ -30,6 +31,7 @@ abstract class BasePropertySet {
    * @param name The BasePropertySet name
    */
   BasePropertySet(String name) {
+    this.basePropertySetName = null;
     this.name = name;
     this.confProperties = new LinkedHashMap<String, String>();
     this.jobProperties = new LinkedHashMap<String, String>();
@@ -37,39 +39,22 @@ abstract class BasePropertySet {
   }
 
   /**
-   * Builds the properties that go into the generated properties file.
-   * <p>
-   * Subclasses can override this method to add their own properties, and are recommended to
-   * additionally call this base class method to add the jvmProperties and properties correctly.
+   * Sets the name of the BasePropertySet from which to get the base properties.
    *
-   * @param allProperties The map that holds all the properties that will go into the built properties file
-   * @return The input properties map with all the properties added
+   * @param propertySetName The name of the base PropertySet
    */
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    allProperties.putAll(jobProperties);
-
-    if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
-      allProperties["jvm.args"] = jvmArgs;
-    }
-
-    return allProperties;
+  void baseProperties(String propertySetName) {
+    this.basePropertySetName = propertySetName;
   }
-
-  /**
-   * Clones the BasePropertySet.
-   *
-   * @return The cloned BasePropertySet
-   */
-  abstract BasePropertySet clone();
 
   /**
    * Helper method to set the properties on a cloned BasePropertySet object.
    *
-   * @param The BasePropertySet being cloned
+   * @param clonePropertySet The BasePropertySet being cloned
    * @return The cloned BasePropertySet
    */
   BasePropertySet clone(BasePropertySet clonePropertySet) {
+    clonePropertySet.basePropertySetName = this.basePropertySetName;
     clonePropertySet.confProperties.putAll(this.confProperties);
     clonePropertySet.jobProperties.putAll(this.jobProperties);
     clonePropertySet.jvmProperties.putAll(this.jvmProperties);
@@ -123,7 +108,6 @@ abstract class BasePropertySet {
    */
   void setConfProperty(String name, String value) {
     confProperties.put(name, value);
-    setJobProperty("hadoop-inject.${name}", value);
   }
 
   /**
@@ -153,7 +137,7 @@ abstract class BasePropertySet {
    */
   @Override
   String toString() {
-    return "(BasePropertySet: name = ${name}, confProperties = ${confProperties.toString()}, jobProperties = ${jobProperties.toString()}, jvmProperties = ${jvmProperties.toString()})";
+    return "(BasePropertySet: name = ${name}, basePropertySetName = ${basePropertySetName}, confProperties = ${confProperties.toString()}, jobProperties = ${jobProperties.toString()}, jvmProperties = ${jvmProperties.toString()})";
   }
 
   /**

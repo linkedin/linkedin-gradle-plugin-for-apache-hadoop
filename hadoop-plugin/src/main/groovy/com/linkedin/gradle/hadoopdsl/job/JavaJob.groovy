@@ -41,7 +41,7 @@ package com.linkedin.gradle.hadoopdsl.job;
  *     set properties: [
  *       'propertyName1' : 'propertyValue1'
  *     ]
- *     queue 'marathon
+ *     queue 'marathon'
  *   }
  * </pre>
  */

@@ -181,10 +181,11 @@ class HadoopDslFactory {
    * Factory method to build a PropertySet.
    *
    * @param name The PropertySet name
+   * @param parentScope The parent scope
    * @return The PropertySet object
    */
-  PropertySet makePropertySet(String name) {
-    return new PropertySet(name);
+  PropertySet makePropertySet(String name, NamedScope parentScope) {
+    return new PropertySet(name, parentScope);
   }
 
   /**
@@ -192,7 +193,7 @@ class HadoopDslFactory {
    *
    * @param name The workflow name
    * @param project The Gradle project
-   * @param parentScope Reference to the parent scope
+   * @param parentScope The parent scope
    * @return The workflow
    */
   Workflow makeWorkflow(String name, Project project, NamedScope parentScope) {

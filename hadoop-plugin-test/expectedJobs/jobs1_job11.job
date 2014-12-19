@@ -1,5 +1,4 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=jobs1_job10
 type=VoldemortBuildandPush
 push.store.name=test-store
 push.cluster=tcp://foo:10103
@@ -26,3 +25,4 @@ build.type.avro=true
 hadoop-inject.mapred.job.queue.name=marathon
 avro.key.field=memberId
 avro.value.field=firstName
+dependencies=jobs1_job10

@@ -114,13 +114,14 @@ class Workflow extends BaseNamedScopeContainer {
   }
 
   /**
-   * Clones the workflow.
+   * Clones the workflow given its new parent scope.
    *
+   * @param parentScope The new parent scope
    * @return The cloned workflow
    */
   @Override
-  Workflow clone() {
-    return clone(new Workflow(name, project, null));
+  Workflow clone(NamedScope parentScope) {
+    return clone(new Workflow(name, project, parentScope));
   }
 
   /**

@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
  * Job class for type=javaprocess jobs.
@@ -64,12 +65,12 @@ class JavaProcessJob extends Job {
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jvmProperties and jobProperties correctly.
    *
-   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @return The input job properties map, with jobProperties and jvmProperties added
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
   @Override
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
-    super.buildProperties(allProperties);
+  Map<String, String> buildProperties(NamedScope parentScope) {
+    Map<String, String> allProperties = super.buildProperties(parentScope);
 
     if (jvmProperties.size() > 0) {
       String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");

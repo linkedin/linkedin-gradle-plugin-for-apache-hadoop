@@ -5,6 +5,8 @@ hadoop-inject.mapred.property1=value1Update
 myProperty1=global1Update
 hadoop-inject.mapred.propertyA=valueA2Update
 myPropertyA=globalA2Update
-hadoop-inject.mapred.propertyB=valueB2
 myPropertyB=globalB2
-jvm.args=-DjvmPropertyName1=jvm1Update -DjvmPropertyNameA=jvmA2Update -DjvmPropertyNameB=jvmB2
+myProperty2=global2
+hadoop-inject.mapred.propertyB=valueB2
+hadoop-inject.mapred.property2=value2
+jvm.args=-DjvmPropertyName1=jvm1Update -DjvmPropertyNameA=jvmA2Update -DjvmPropertyNameB=jvmB2 -DjvmPropertyName2=jvm2

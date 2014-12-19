@@ -36,11 +36,11 @@ class LaunchJob extends NoOpJob {
    * Override for LaunchJob. The name of the generated LaunchJob file is simply the workflow name.
    *
    * @param name The job name
-   * @param parentScope The fully-qualified name of the scope in which the job is bound
+   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
    * @return The name to use when generating the job file
    */
   @Override
-  String buildFileName(String name, String parentScope) {
+  String buildFileName(String name, String parentScopeName) {
     return name;
   }
 

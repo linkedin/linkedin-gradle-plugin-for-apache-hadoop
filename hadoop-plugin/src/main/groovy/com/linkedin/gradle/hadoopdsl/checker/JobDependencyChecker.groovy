@@ -88,7 +88,7 @@ class JobDependencyChecker extends BaseStaticChecker {
    */
   void detectJobCycles(Workflow workflow, Job job, Set<String> jobsChecked, Set<String> jobsOnPath, Map<String, Job> jobMap) {
     if (jobsOnPath.contains(job.name)) {
-      String jobCycleText = detectJobCyclesText(jobsOnPath, job.name);
+      String jobCycleText = buildCyclesText(jobsOnPath, job.name);
       project.logger.lifecycle("JobDependencyChecker ERROR: workflow ${workflow.name} has a dependency cycle: ${jobCycleText}. The workflow dependencies must form directed, acyclic graph.");
       foundError = true;
       return;
@@ -106,18 +106,6 @@ class JobDependencyChecker extends BaseStaticChecker {
 
     // Now that we have checked its children, we are done checking this job for cycles.
     jobsChecked.add(job.name);
-  }
-
-  /**
-   * Helper function to build a message describing a job cycle.
-   *
-   * @param jobsOnPath The (LinkedHashSet) set jobs that form a cyclic dependency
-   * @param jobName The name of the job that is cyclic
-   */
-  String detectJobCyclesText(Set<String> jobsOnPath, String jobName) {
-    List<String> jobsList = new ArrayList<String>(jobsOnPath);
-    jobsList.add(jobName);
-    return jobsList.join("->");
   }
 
   /**

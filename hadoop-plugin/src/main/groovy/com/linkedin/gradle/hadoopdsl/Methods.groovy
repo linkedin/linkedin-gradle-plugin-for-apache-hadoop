@@ -70,7 +70,7 @@ class Methods {
     if (propertySet == null) {
       throw new Exception("Could not find PropertySet ${name} from scope ${scope.levelName}");
     }
-    return propertySet.clone();
+    return propertySet.clone(scope);
   }
 
   static PropertySet clonePropertySet(String name, String rename, NamedScope scope) {
@@ -84,9 +84,7 @@ class Methods {
     if (workflow == null) {
       throw new Exception("Could not find workflow ${name} from scope ${scope.levelName}");
     }
-    Workflow clone = workflow.clone();
-    clone.scope.nextLevel = scope;
-    return clone;
+    return workflow.clone(scope);
   }
 
   static Workflow cloneWorkflow(String name, String rename, NamedScope scope) {

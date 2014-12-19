@@ -1,4 +1,4 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=jobs1_job2
 type=command
 command=echo "hello world"
+dependencies=jobs1_job2

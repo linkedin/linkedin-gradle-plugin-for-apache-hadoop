@@ -15,7 +15,9 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.PropertySet;
 
 /**
  * Base class for all Hadoop DSL job types.
@@ -69,18 +71,18 @@ class Job {
 
   /**
    * Helper method to construct the name to use with the job file. By default, the name constructed
-   * is "${parentScope}_${name}", but subclasses can override this method if they need to customize
-   * how the name is constructed.
+   * is "${parentScopeName}_${name}", but subclasses can override this method if they need to
+   * customize how the name is constructed.
    * <p>
    * As an example, if the job named "job1" is nested inside the workflow "testWorkflow", this
    * method will form the name "testWorkflow_job1" as the file name.
    *
    * @param name The job name
-   * @param parentScope The fully-qualified name of the scope in which the job is bound
+   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
    * @return The name to use when generating the job file
    */
-  String buildFileName(String name, String parentScope) {
-    return parentScope == null ? name : "${parentScope}_${name}";
+  String buildFileName(String name, String parentScopeName) {
+    return parentScopeName == null ? name : "${parentScopeName}_${name}";
   }
 
   /**
@@ -88,15 +90,16 @@ class Job {
    * dependencies to the job properties map. Subclasses can override this method if they want to
    * customize how the dependencies property is generated.
    *
-   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @param parentScope The fully-qualified name of the scope in which the job is bound
-   * @return The input job properties map
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
-  Map<String, String> buildProperties(Map<String, String> allProperties, String parentScope) {
+  Map<String, String> buildProperties(NamedScope parentScope, String parentScopeName) {
+    Map<String, String> allProperties = buildProperties(parentScope);
     if (dependencyNames.size() > 0) {
-      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return (parentScope == null) ? jobName : "${parentScope}_${jobName}"; }.join(",");
+      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return (parentScopeName == null) ? jobName : "${parentScopeName}_${jobName}"; }.join(",");
     }
-    return buildProperties(allProperties);
+    return allProperties;
   }
 
   /**
@@ -106,10 +109,17 @@ class Job {
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jvmProperties and jobProperties correctly.
    *
-   * @param allProperties The job properties map that holds all the job properties that will go into the built job file
-   * @return The input job properties map, with jobProperties and jvmProperties added
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
-  Map<String, String> buildProperties(Map<String, String> allProperties) {
+  Map<String, String> buildProperties(NamedScope parentScope) {
+    if (basePropertySetName != null) {
+      PropertySet propertySet = (PropertySet) parentScope.lookup(basePropertySetName);
+      propertySet.fillProperties();    // The base property set looks up its base properties in its own scope
+      unionProperties(propertySet);
+    }
+
+    Map<String, String> allProperties = new LinkedHashMap<String, String>();
     allProperties.putAll(jobProperties);
     return allProperties;
   }

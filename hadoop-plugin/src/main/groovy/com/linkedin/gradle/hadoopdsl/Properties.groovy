@@ -42,8 +42,6 @@ package com.linkedin.gradle.hadoopdsl;
  * </pre>
  */
 class Properties extends BasePropertySet {
-  String basePropertySetName;
-
   /**
    * Base constructor for Properties.
    *
@@ -51,15 +49,6 @@ class Properties extends BasePropertySet {
    */
   Properties(String name) {
     super(name);
-  }
-
-  /**
-   * Sets the name of the base PropertySet from which to get the base properties.
-   *
-   * @param propertySetName The name of the base PropertySet
-   */
-  void baseProperties(String propertySetName) {
-    this.basePropertySetName = propertySetName;
   }
 
   /**
@@ -76,8 +65,36 @@ class Properties extends BasePropertySet {
   }
 
   /**
-   * Clones the properties.
+   * Builds the properties that go into the generated properties file.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jvmProperties and properties correctly.
    *
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The map that holds all the properties that will go into the built properties file
+   */
+  Map<String, String> buildProperties(NamedScope parentScope) {
+    if (basePropertySetName != null) {
+      PropertySet propertySet = (PropertySet) parentScope.lookup(basePropertySetName);
+      propertySet.fillProperties();    // The base property set looks up its base properties in its own scope
+      unionProperties(propertySet);
+    }
+
+    Map<String, String> allProperties = new LinkedHashMap<String, String>();
+    allProperties.putAll(jobProperties);
+
+    if (jvmProperties.size() > 0) {
+      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+      allProperties["jvm.args"] = jvmArgs;
+    }
+
+    return allProperties;
+  }
+
+  /**
+   * Clones the properties given its new parent scope.
+   *
+   * @param parentScope The new parent scope
    * @return The cloned properties
    */
   @Override
@@ -88,13 +105,24 @@ class Properties extends BasePropertySet {
   /**
    * Helper method to set the properties on a cloned Properties object.
    *
-   * @param The properties object being cloned
+   * @param cloneProperties The properties object being cloned
    * @return The cloned properties
    */
   @Override
-  Properties clone(Properties cloneProps) {
-    cloneProps.basePropertySetName = this.basePropertySetName;
-    return super.clone(cloneProps);
+  Properties clone(Properties cloneProperties) {
+    return super.clone(cloneProperties);
+  }
+
+  /**
+   * Sets the given Hadoop job configuration property.
+   *
+   * @param name The Hadoop job configuration property to set
+   * @param value The Hadoop job configuration property value
+   */
+  @Override
+  void setConfProperty(String name, String value) {
+    super.setConfProperty(name, value);
+    setJobProperty("hadoop-inject.${name}", value);
   }
 
   /**

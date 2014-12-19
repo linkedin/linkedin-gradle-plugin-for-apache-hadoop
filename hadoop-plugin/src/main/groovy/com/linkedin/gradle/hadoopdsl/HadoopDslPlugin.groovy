@@ -75,13 +75,13 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
-   * Clones the scope container.
+   * Clones the scope container given its new parent scope.
    *
-   * {@inheritDoc}
-   * @see java.lang.Object#clone()
+   * @param parentScope The new parent scope
+   * @return The cloned scope container
    */
   @Override
-  HadoopDslPlugin clone() {
+  HadoopDslPlugin clone(NamedScope parentScope) {
     throw new Exception("The Hadoop DSL Plugin is a singleton and cannot be cloned.")
   }
 

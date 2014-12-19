@@ -1,5 +1,4 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
-dependencies=jobs1_job3
 type=hadoopJava
 job.class=com.linkedin.hello.HadoopJavaJob
 foo.jar=/user/hacker/foo.jar
@@ -12,3 +11,4 @@ hadoop-inject.mapred.job.queue.name=marathon
 hadoop-inject.mapred.cache.archives=/user/hacker/foobar.zip#foobar
 hadoop-inject.mapred.create.symlink=yes
 hadoop-inject.mapred.cache.files=/user/hacker/foo.jar#foo.jar
+dependencies=jobs1_job3
