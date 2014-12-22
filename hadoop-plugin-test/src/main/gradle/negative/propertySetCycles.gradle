@@ -15,7 +15,7 @@ hadoop {
   buildPath "jobs"
   cleanPath false
 
-  // Cycle 2 - 1 - 2
+  // Cycle 1 - 2 - 1
   propertySet('propertySet1') {
     baseProperties 'propertySet2'
   }
@@ -24,7 +24,7 @@ hadoop {
     baseProperties 'propertySet1'
   }
 
-  // Cycle 6 - 5 - 4 - 3 - 6
+  // Cycle 3 - 6 - 5 - 4 - 3
   propertySet('propertySet3') {
     baseProperties 'propertySet6'
   }

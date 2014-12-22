@@ -85,7 +85,6 @@ class CommandJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   CommandJob clone(CommandJob cloneJob) {
     cloneJob.command = command;
     cloneJob.commands = commands;

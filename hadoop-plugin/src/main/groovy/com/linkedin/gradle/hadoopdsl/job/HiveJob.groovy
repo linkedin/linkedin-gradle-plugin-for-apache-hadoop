@@ -71,7 +71,6 @@ class HiveJob extends HadoopJavaProcessJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   HiveJob clone(HiveJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;

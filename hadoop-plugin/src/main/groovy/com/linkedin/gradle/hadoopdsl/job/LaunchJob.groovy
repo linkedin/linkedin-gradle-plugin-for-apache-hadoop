@@ -60,7 +60,6 @@ class LaunchJob extends NoOpJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   LaunchJob clone(LaunchJob cloneJob) {
     return super.clone(cloneJob);
   }

@@ -130,7 +130,6 @@ class Workflow extends BaseNamedScopeContainer {
    * @param workflow The workflow being cloned
    * @return The cloned workflow
    */
-  @Override
   Workflow clone(Workflow workflow) {
     workflow.launchJobDependencies.addAll(launchJobDependencies);
     return super.clone(workflow);

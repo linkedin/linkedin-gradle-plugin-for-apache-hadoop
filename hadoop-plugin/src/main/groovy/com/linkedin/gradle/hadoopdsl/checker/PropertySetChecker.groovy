@@ -99,7 +99,7 @@ class PropertySetChecker extends BaseStaticChecker {
   @Override
   void visitPropertySet(PropertySet propertySet) {
     if (!propertySetsChecked.contains(propertySet)) {
-      visitPropertySet(propertySet, new HashSet<String>());
+      visitPropertySet(propertySet, new LinkedHashSet<String>());
       propertySetsChecked.add(propertySet);
     }
   }

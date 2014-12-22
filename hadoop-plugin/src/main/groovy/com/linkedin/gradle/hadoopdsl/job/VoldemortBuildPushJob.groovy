@@ -131,7 +131,6 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   VoldemortBuildPushJob clone(VoldemortBuildPushJob cloneJob) {
     cloneJob.storeName = storeName;
     cloneJob.clusterName = clusterName;

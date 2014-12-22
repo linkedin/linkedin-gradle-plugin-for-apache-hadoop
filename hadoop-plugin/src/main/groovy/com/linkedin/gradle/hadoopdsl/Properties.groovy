@@ -108,7 +108,6 @@ class Properties extends BasePropertySet {
    * @param cloneProperties The properties object being cloned
    * @return The cloned properties
    */
-  @Override
   Properties clone(Properties cloneProperties) {
     return super.clone(cloneProperties);
   }

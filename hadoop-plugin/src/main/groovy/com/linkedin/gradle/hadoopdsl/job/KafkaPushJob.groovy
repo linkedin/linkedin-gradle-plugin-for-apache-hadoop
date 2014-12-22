@@ -75,7 +75,6 @@ class KafkaPushJob extends HadoopJavaJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   KafkaPushJob clone(KafkaPushJob cloneJob) {
     cloneJob.inputPath = inputPath;
     cloneJob.topic = topic;

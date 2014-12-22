@@ -52,7 +52,6 @@ class NoOpJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   NoOpJob clone(NoOpJob cloneJob) {
     return super.clone(cloneJob);
   }

@@ -71,7 +71,6 @@ class PigJob extends HadoopJavaProcessJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   PigJob clone(PigJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;

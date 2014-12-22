@@ -161,7 +161,6 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   HadoopJavaProcessJob clone(HadoopJavaProcessJob cloneJob) {
     cloneJob.cacheArchives.putAll(cacheArchives);
     cloneJob.cacheFiles.putAll(cacheFiles);

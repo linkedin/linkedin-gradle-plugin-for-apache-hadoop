@@ -96,7 +96,6 @@ class JavaProcessJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   JavaProcessJob clone(JavaProcessJob cloneJob) {
     cloneJob.javaClass = javaClass;
     cloneJob.javaClasspath = javaClasspath;

@@ -75,7 +75,6 @@ class JavaJob extends HadoopJavaProcessJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  @Override
   JavaJob clone(JavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
     return super.clone(cloneJob);

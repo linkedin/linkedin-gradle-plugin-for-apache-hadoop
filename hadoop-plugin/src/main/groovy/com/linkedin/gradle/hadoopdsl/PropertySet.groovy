@@ -65,7 +65,6 @@ class PropertySet extends BasePropertySet {
    * @param clonePropertySet The PropertySet being cloned
    * @return The cloned PropertySet
    */
-  @Override
   PropertySet clone(PropertySet clonePropertySet) {
     return super.clone(clonePropertySet);
   }
