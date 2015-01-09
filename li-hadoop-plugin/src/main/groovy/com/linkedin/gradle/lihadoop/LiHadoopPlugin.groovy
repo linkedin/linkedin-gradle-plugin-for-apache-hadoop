@@ -18,9 +18,11 @@ package com.linkedin.gradle.lihadoop;
 import com.linkedin.gradle.hadoop.HadoopPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.pig.PigPlugin;
+import com.linkedin.gradle.scm.ScmPlugin;
 
 import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
+import com.linkedin.gradle.liscm.LiScmPlugin;
 
 /**
  * LinkedIn-specific customizations to the Hadoop Plugin.
@@ -45,5 +47,16 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends PigPlugin> getPigPluginClass() {
     return LiPigPlugin.class;
+  }
+
+  /**
+   * Returns the LinkedIn-specific LiScmPlugin class. Subclasses can override this method to return
+   * their own ScmPlugin class.
+   *
+   * @return Class that implements the ScmPlugin
+   */
+  @Override
+  Class<? extends ScmPlugin> getScmPluginClass() {
+    return LiScmPlugin.class;
   }
 }

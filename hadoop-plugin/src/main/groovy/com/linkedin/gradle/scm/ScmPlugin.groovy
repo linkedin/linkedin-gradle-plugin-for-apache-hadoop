@@ -39,7 +39,7 @@ class ScmPlugin implements Plugin<Project> {
       doLast {
         ScmMetadataContainer scm = buildScmMetadata(project);
         String scmJson = new JsonBuilder(scm).toPrettyString();
-        new File("${project.projectDir}/.buildMetadata").write(scmJson);
+        new File(getMetadataFilePath(project)).write(scmJson);
       }
     }
 
@@ -115,5 +115,16 @@ class ScmPlugin implements Plugin<Project> {
    */
   SvnMetadata createSvnMetadata() {
     return new SvnMetadata();
+  }
+
+  /**
+   * Helper method to determine the location of the build metadata file. This helper method will
+   * make it easy for subclasses to get (or customize) the file location.
+   *
+   * @param project The Gradle project
+   * @return The path to the build metadata file
+   */
+  String getMetadataFilePath(Project project) {
+    return "${project.buildDir}/buildMetadata.json";
   }
 }
