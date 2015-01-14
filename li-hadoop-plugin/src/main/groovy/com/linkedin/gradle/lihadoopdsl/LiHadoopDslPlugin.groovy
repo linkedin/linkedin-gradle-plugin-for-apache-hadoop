@@ -31,6 +31,12 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disableHadoopDslPlugin")) {
+      println("HadoopDslPlugin disabled");
+      return;
+    }
+
     super.apply(project);
     project.extensions.add("pigLiJob", this.&pigLiJob);
   }

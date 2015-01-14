@@ -39,6 +39,12 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disableHadoopDslPlugin")) {
+      println("HadoopDslPlugin disabled");
+      return;
+    }
+
     this.factory = makeFactory();
     this.project = project;
 

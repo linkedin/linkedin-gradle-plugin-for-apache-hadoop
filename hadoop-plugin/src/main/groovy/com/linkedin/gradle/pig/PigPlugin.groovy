@@ -38,6 +38,12 @@ class PigPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disablePigPlugin")) {
+      println("PigPlugin disabled");
+      return;
+    }
+
     this.pigExtension = makePigExtension(project);
     this.project = project;
 

@@ -34,6 +34,12 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disableAzkabanPlugin")) {
+      println("AzkabanPlugin disabled");
+      return;
+    }
+
     project.tasks.create("buildAzkabanFlows") {
       description = "Builds the Hadoop DSL for Azkaban. Have your build task depend on this task.";
       group = "Hadoop Plugin";

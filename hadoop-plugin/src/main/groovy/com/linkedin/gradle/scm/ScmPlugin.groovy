@@ -19,6 +19,9 @@ import groovy.json.JsonBuilder;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.bundling.Zip
 
 /**
  * ScmPlugin implements features that generate source control management (scm) metadata, in
@@ -32,6 +35,12 @@ class ScmPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disableScmPlugin")) {
+      println("ScmPlugin disabled");
+      return;
+    }
+
     project.tasks.create("buildScmMetadata") {
       description = "Writes SCM metadata about the project";
       group = "Hadoop Plugin";
@@ -51,6 +60,14 @@ class ScmPlugin implements Plugin<Project> {
         ScmMetadataContainer scm = buildScmMetadata(project);
         println(new JsonBuilder(scm).toPrettyString());
       }
+    }
+
+    // We'll create the buildSourceZip task on the root project, so that there is only one sources
+    // zip created that can be shared by all projects. Thus, only create the buildSourceZip task on
+    // the root project if it hasn't been created already (you will get an exception if you try to
+    // create it more than once).
+    if (project.getRootProject().tasks.findByName("buildSourceZip") == null) {
+      createSourceTask(project);
     }
   }
 
@@ -118,6 +135,35 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to create a task that builds a sources zip for the root project.
+   *
+   * @param project The Gradle project
+   * @return Task that creates a sources zip
+   */
+  Task createSourceTask(Project project) {
+    return project.getRootProject().tasks.create(name: "buildSourceZip", type: Zip) {
+      classifier = "sources"
+      description = "Builds a sources zip starting from the root project, excluding all build directories";
+      group = "Hadoop Plugin";
+
+      String projectRoot = "${project.getRootProject().projectDir}/";
+      List<String> excludeList = new ArrayList<String>();
+
+      project.getRootProject().getAllprojects().each { subproject ->
+        String excludeDir = "${subproject.buildDir}".minus(projectRoot);
+        excludeList.add(excludeDir);
+      }
+
+      FileTree fileTree = project.getRootProject().fileTree([
+        dir: projectRoot,
+        excludes: excludeList
+      ]);
+
+      from fileTree;
+    }
+  }
+
+  /**
    * Helper method to determine the location of the build metadata file. This helper method will
    * make it easy for subclasses to get (or customize) the file location.
    *
@@ -126,5 +172,16 @@ class ScmPlugin implements Plugin<Project> {
    */
   String getMetadataFilePath(Project project) {
     return "${project.buildDir}/buildMetadata.json";
+  }
+
+  /**
+   * Helper method to determine the location of the sources zip file. This helper method will make
+   * it easy for subclasses to get (or customize) the file location.
+   *
+   * @param project The Gradle project
+   * @return The path to the sources zip file
+   */
+  String getSourceZipFilePath(Project project) {
+    return "${project.rootProject.buildDir}/distributions/${project.rootProject.name}-${project.rootProject.version}-sources.zip"
   }
 }

@@ -35,10 +35,19 @@ class LiScmPlugin extends ScmPlugin {
    */
   @Override
   void apply(Project project) {
+    // Enable users to skip the plugin
+    if (project.hasProperty("disableScmPlugin")) {
+      println("ScmPlugin disabled");
+      return;
+    }
+
     super.apply(project);
 
     // After we apply the SCM plugin, grab the buildScmMetadata task.
     Task buildScmTask = project.tasks["buildScmMetadata"];
+
+    // After we apply the SCM plugin, grab the root project's buildSourceZip task.
+    Task buildSrcTask = project.getRootProject().tasks["buildSourceZip"];
 
     // Look up any li-azkaban2 zip tasks (e.g. "azkabanZip" or "azkabanMagicZip") and make them
     // depend on the buildScmTask (and add the buildMetadata.json file to the zip).
@@ -48,7 +57,9 @@ class LiScmPlugin extends ScmPlugin {
       if (task.getName().matches(zipRegex)) {
         Zip zipTask = (Zip)task;
         zipTask.dependsOn(buildScmTask);
+        zipTask.dependsOn(buildSrcTask);
         zipTask.from(getMetadataFilePath(project));
+        zipTask.from(getSourceZipFilePath(project));
       }
     }
   }
