@@ -111,16 +111,125 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     for (PropertySet propertySet : propertySets) {
       PropertySet clone = propertySet.clone(container.getScope());
       workflow.propertySets.add(clone);
-      workflow.scope.bind(propertySetClone.name, clone);
+      workflow.scope.bind(clone.name, clone);
     }
 
     for (Workflow workflow : workflows) {
       Workflow clone = workflow.clone(container.getScope());
       container.workflows.add(clone);
-      container.scope.bind(clone.name, workflowClone);
+      container.scope.bind(clone.name, clone);
     }
 
     return container;
+  }
+
+  /**
+   * Helper method to clone a Job in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  Job cloneJob(String name) {
+    Job job = scope.lookup(name);
+    if (job == null) {
+      throw new Exception("Could not find job ${name} from scope ${scope.levelName}");
+    }
+    return job.clone();
+  }
+
+  /**
+   * Helper method to clone a Job in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  Job cloneJob(String name, String rename) {
+    Job job = cloneJob(name);
+    job.name = rename;
+    return job;
+  }
+
+  /**
+   * Helper method to clone a Properties object in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  Properties clonePropertyFile(String name) {
+    Properties props = scope.lookup(name);
+    if (props == null) {
+      throw new Exception("Could not find propertyFile ${name} from scope ${scope.levelName}");
+    }
+    return props.clone();
+  }
+
+  /**
+   * Helper method to clone a Properties object in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  Properties clonePropertyFile(String name, String rename) {
+    Properties props = clonePropertyFile(name)
+    props.name = rename;
+    return props;
+  }
+
+  /**
+   * Helper method to clone a PropertySet in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  PropertySet clonePropertySet(String name) {
+    PropertySet propertySet = scope.lookup(name);
+    if (propertySet == null) {
+      throw new Exception("Could not find PropertySet ${name} from scope ${scope.levelName}");
+    }
+    return propertySet.clone(scope);
+  }
+
+  /**
+   * Helper method to clone a PropertySet in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  PropertySet clonePropertySet(String name, String rename) {
+    PropertySet propertySet = clonePropertySet(name)
+    propertySet.name = rename;
+    return propertySet;
+  }
+
+  /**
+   * Helper method to clone a Workflow in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  Workflow cloneWorkflow(String name) {
+    Workflow workflow = scope.lookup(name);
+    if (workflow == null) {
+      throw new Exception("Could not find workflow ${name} from scope ${scope.levelName}");
+    }
+    return workflow.clone(scope);
+  }
+
+  /**
+   * Helper method to clone a Workflow in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  Workflow cloneWorkflow(String name, String rename) {
+    Workflow workflow = cloneWorkflow(name);
+    workflow.name = rename;
+    workflow.scope.levelName = rename;
+    return workflow;
   }
 
   /**
@@ -132,7 +241,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The input job, which is now configured
    */
   Job configureJob(Job job, Closure configure) {
-    Methods.configureJob(project, job, configure, scope);
+    scope.bind(job.name, job);
+    project.configure(job, configure);
     jobs.add(job);
     return job;
   }
@@ -146,7 +256,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The input properties, which is now configured
    */
   Properties configureProperties(Properties props, Closure configure) {
-    Methods.configureProperties(project, props, configure, scope);
+    scope.bind(props.name, props);
+    project.configure(props, configure);
     properties.add(props);
     return props;
   }
@@ -160,7 +271,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The input PropertySet, which is now configured
    */
   PropertySet configurePropertySet(PropertySet propertySet, Closure configure) {
-    Methods.configurePropertySet(project, propertySet, configure, scope);
+    scope.bind(propertySet.name, propertySet);
+    project.configure(propertySet, configure);
     propertySets.add(propertySet);
     return propertySet;
   }
@@ -174,7 +286,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The input workflow, which is now configured
    */
   Workflow configureWorkflow(Workflow workflow, Closure configure) {
-    Methods.configureWorkflow(project, workflow, configure, scope);
+    scope.bind(workflow.name, workflow);
+    project.configure(workflow, configure);
     workflows.add(workflow);
     return workflow;
   }
@@ -188,7 +301,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned and configured job that was added to the workflow
    */
   Job addJob(String name, Closure configure) {
-    return configureJob(Methods.cloneJob(name, scope), configure);
+    return configureJob(cloneJob(name), configure);
   }
 
   /**
@@ -202,7 +315,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned, renamed and configured job that was added to the workflow
    */
   Job addJob(String name, String rename, Closure configure) {
-    return configureJob(Methods.cloneJob(name, rename, scope), configure);
+    return configureJob(cloneJob(name, rename), configure);
   }
 
   /**
@@ -214,7 +327,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned and configured properties object that was bound in scope
    */
   Properties addPropertyFile(String name, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, scope), configure);
+    return configureProperties(clonePropertyFile(name), configure);
   }
 
   /**
@@ -228,7 +341,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned, renamed and configured properties object that was bound in scope
    */
   Properties addPropertyFile(String name, String rename, Closure configure) {
-    return configureProperties(Methods.clonePropertyFile(name, rename, scope), configure);
+    return configureProperties(clonePropertyFile(name, rename), configure);
   }
 
   /**
@@ -240,7 +353,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned and configured PropertySet that was bound in scope
    */
   Properties addPropertySet(String name, Closure configure) {
-    return configurePropertySet(Methods.clonePropertySet(name, scope), configure);
+    return configurePropertySet(clonePropertySet(name), configure);
   }
 
   /**
@@ -254,7 +367,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned, renamed and configured PropertySet that was bound in scope
    */
   Properties addPropertySet(String name, String rename, Closure configure) {
-    return configurePropertySet(Methods.clonePropertySet(name, rename, scope), configure);
+    return configurePropertySet(clonePropertySet(name, rename), configure);
   }
 
   /**
@@ -266,7 +379,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned and configured workflow that was bound in scope
    */
   Workflow addWorkflow(String name, Closure configure) {
-    return configureWorkflow(Methods.cloneWorkflow(name, scope), configure);
+    return configureWorkflow(cloneWorkflow(name), configure);
   }
 
   /**
@@ -280,7 +393,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned, renamed and configured workflow that was bound in scope
    */
   Workflow addWorkflow(String name, String rename, Closure configure) {
-    return configureWorkflow(Methods.cloneWorkflow(name, rename, scope), configure);
+    return configureWorkflow(cloneWorkflow(name, rename), configure);
   }
 
   /**
@@ -300,7 +413,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name) {
-    return Methods.lookup(name, scope);
+    return scope.lookup(name);
   }
 
   /**
@@ -312,7 +425,12 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
    */
   Object lookup(String name, Closure configure) {
-    return Methods.lookup(project, name, scope, configure);
+    Object boundObject = lookup(name);
+    if (boundObject == null) {
+      return null;
+    }
+    project.configure(boundObject, configure);
+    return boundObject;
   }
 
   /**

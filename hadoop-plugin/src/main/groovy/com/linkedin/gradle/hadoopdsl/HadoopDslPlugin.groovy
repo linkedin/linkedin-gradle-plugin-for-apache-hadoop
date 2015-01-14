@@ -98,7 +98,11 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @return The object, now bound in global scope
    */
   Object global(Object object) {
-    return Methods.global(object, scope);
+    if (scope.contains(object.name)) {
+      throw new Exception("An object with name ${object.name} requested to be global is already bound in scope ${scope.levelName}");
+    }
+    scope.bind(object.name, object);
+    return object;
   }
 
   /**
