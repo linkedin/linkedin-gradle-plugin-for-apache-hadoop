@@ -32,6 +32,7 @@ import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
  * Groovy has multi-methods (i.e. argument-type runtime specialization) so we can define method
  * overloads by argument type.
  */
+@SuppressWarnings("deprecation")
 interface Visitor {
   void visitPlugin(HadoopDslPlugin plugin);
   void visitExtension(HadoopDslExtension hadoop);

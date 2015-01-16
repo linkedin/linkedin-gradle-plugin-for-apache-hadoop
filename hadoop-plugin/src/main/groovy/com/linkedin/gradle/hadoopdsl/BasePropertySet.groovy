@@ -62,6 +62,16 @@ abstract class BasePropertySet {
   }
 
   /**
+   * Returns the fully-qualified name for the BasePropertySet.
+   *
+   * @param parentScope The parent scope in which the BasePropertySet is bound
+   * @return The fully-qualified name for the BasePropertySet
+   */
+  String getQualifiedName(NamedScope parentScope) {
+    return (parentScope == null) ? name : "${parentScope.getQualifiedName()}.${name}";
+  }
+
+  /**
    * DSL method to specify properties for the BasePropertySet.
    * <p>
    * You can specify job properties by using the syntax "set properties: [ ... ]", which causes

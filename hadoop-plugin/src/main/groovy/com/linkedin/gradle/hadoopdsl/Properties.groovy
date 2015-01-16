@@ -52,16 +52,19 @@ class Properties extends BasePropertySet {
   }
 
   /**
-   * Helper method to construct the name to use with the properties file. By default, the name
-   * constructed is "${parentScope}_${name}", but subclasses can override this method if they need
-   * to customize how the name is constructed.
+   * Method to construct the file name to use for the properties file.
+   * <p>
+   * We'll use the fully-qualified name to help us form the file name. However, to make the file
+   * name more readable, we'll use underscores and drop the hadoop scope prefix from the file name.
+   * <p>
+   * As an example, if the properties object named "properties1" is nested inside the workflow
+   * "testWorkflow" in Hadoop scope, the file name will be "testWorkflow_properties1".
    *
-   * @param name The job name
-   * @param parentScope The fully-qualified name of the scope in which the properties object is bound
+   * @param parentScope The parent scope in which the properties object is bound
    * @return The name to use when generating the properties file
    */
-  String buildFileName(String name, String parentScope) {
-    return parentScope == null ? name : "${parentScope}_${name}";
+  String buildFileName(NamedScope parentScope) {
+    return getQualifiedName(parentScope).replaceFirst("hadoop.", "").replace('.', '_');
   }
 
   /**

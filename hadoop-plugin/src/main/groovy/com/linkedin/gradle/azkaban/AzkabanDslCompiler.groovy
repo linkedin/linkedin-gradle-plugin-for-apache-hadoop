@@ -16,8 +16,10 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
+import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 
 import org.gradle.api.Project;
@@ -51,6 +53,63 @@ class AzkabanDslCompiler extends BaseCompiler {
   }
 
   /**
+   * Builds the workflow.
+   * <p>
+   * NOTE: not all jobs in the workflow are built by default. Only those jobs that can be found
+   * from a transitive walk starting from the jobs the workflow targets actually get built.
+   *
+   * @param workflow The workflow to build
+   */
+  @Override
+  void visitWorkflow(Workflow workflow) {
+    // Save the last scope information
+    NamedScope oldParentScope = this.parentScope;
+    String oldParentDirectory = this.parentDirectory;
+
+    // Set the new parent scope information
+    this.parentScope = workflow.scope;
+    this.parentDirectory = "${this.parentDirectory}/${workflow.name}";
+
+    // Build a directory for the workflow
+    File file = new File(this.parentDirectory);
+    if (file.exists()) {
+      if (!file.isDirectory()) {
+        throw new IOException("Directory ${this.parentDirectory} for the workflow ${workflow.name} must specify a directory");
+      }
+    }
+    else {
+      // Try to make the directory automatically if we can. For git users, this is convenient as
+      // git will not push empty directories in the repository (and users will often add the
+      // generated job files to their gitignore).
+      if (!file.mkdir()) {
+        throw new IOException("Directory ${this.parentDirectory} for the workflow ${workflow.name} does not exist and could not be created");
+      }
+    }
+
+    // Build the list of jobs to build for the workflow
+    Set<Job> jobsToBuild = workflow.buildJobList();
+
+    // Visit each job to build in the workflow
+    jobsToBuild.each() { Job job ->
+      visitJobToBuild(job);
+    }
+
+    // Visit each properties object in the workflow
+    workflow.properties.each() { Properties props ->
+      visitProperties(props);
+    }
+
+    // Visit each embedded workflow in the workflow
+    workflow.workflows.each() { Workflow childWorkflow ->
+      visitWorkflow(childWorkflow);
+    }
+
+    // Restore the last parent scope
+    this.parentScope = oldParentScope;
+    this.parentDirectory = oldParentDirectory;
+  }
+
+  /**
    * Builds a properties file.
    *
    * @param props The Properties object to build
@@ -62,15 +121,14 @@ class AzkabanDslCompiler extends BaseCompiler {
       return;
     }
 
-    // Don't bother prefixing all scope names with "hadoop" from hadoop scope.
-    String parentScopeName = (this.parentScope == extension.scope) ? null : this.parentScopeName;
-    String fileName = props.buildFileName(props.name, parentScopeName);
-    File file = new File(this.buildDirectory, "${fileName}.properties");
+    String fileName = props.buildFileName(this.parentScope);
+    File file = new File(this.parentDirectory, "${fileName}.properties");
+    List<String> sortedKeys = sortPropertiesToBuild(allProperties.keySet());
 
     file.withWriter { out ->
       out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      allProperties.each() { key, value ->
-        out.writeLine("${key}=${value}");
+      sortedKeys.each { key ->
+        out.writeLine("${key}=${allProperties.get(key)}");
       }
     }
 
@@ -79,28 +137,57 @@ class AzkabanDslCompiler extends BaseCompiler {
   }
 
   /**
-   * Builds a job file.
+   * Builds a job that has been found on a transitive walk starting from the jobs the workflow
+   * targets. These are the jobs that should actually be built by the compiler.
    *
-   * @param job The job to build
+   * @param The job to build
    */
-  @Override
   void visitJobToBuild(Job job) {
-    Map<String, String> allProperties = job.buildProperties(this.parentScope, this.parentScopeName);
+    Map<String, String> allProperties = job.buildProperties(this.parentScope);
     if (allProperties.size() == 0) {
       return;
     }
 
-    String fileName = job.buildFileName(job.name, this.parentScopeName);
-    File file = new File(this.buildDirectory, "${fileName}.job");
+    String fileName = job.buildFileName(this.parentScope);
+    File file = new File(this.parentDirectory, "${fileName}.job");
+    List<String> sortedKeys = sortPropertiesToBuild(allProperties.keySet());
 
     file.withWriter { out ->
       out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      allProperties.each() { key, value ->
-        out.writeLine("${key}=${value}");
+      sortedKeys.each { key ->
+        out.writeLine("${key}=${allProperties.get(key)}");
       }
     }
 
     // Set to read-only to remind people that they should not be editing the job files.
     file.setWritable(false);
+  }
+
+  /**
+   * Helper method to sort a list of properties from a Job or a Properties object into a
+   * standardized, sorted order that will make reading job and property files easy.
+   *
+   * @param propertyNames The property names for a Job or Properties object
+   * @return The property names in a standardized, sorted order
+   */
+  static List<String> sortPropertiesToBuild(Set<String> propertyNames) {
+    // First, sort the properties alphabetically.
+    List<String> propertyList = new ArrayList<String>(propertyNames);
+    Collections.sort(propertyList);
+
+    List<String> sortedKeys = new ArrayList<String>(propertyList.size());
+
+    // List the job type and dependencies first if they exist.
+    if (propertyList.remove("type")) {
+      sortedKeys.add("type");
+    }
+
+    if (propertyList.remove("dependencies")) {
+      sortedKeys.add("dependencies");
+    }
+
+    // Then add the rest of the keys to the final list of sorted keys.
+    sortedKeys.addAll(propertyList);
+    return sortedKeys;
   }
 }

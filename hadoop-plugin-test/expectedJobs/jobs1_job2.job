@@ -1,6 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-foo=/data/databases/foo
-bar=/data/databases/bar
-bazz=/data/databases/bazz
-propertyName1=propertyValue1
-dependencies=jobs1_job1

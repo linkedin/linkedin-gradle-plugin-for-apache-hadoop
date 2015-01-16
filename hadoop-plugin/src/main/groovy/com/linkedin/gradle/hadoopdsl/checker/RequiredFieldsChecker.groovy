@@ -18,7 +18,6 @@ package com.linkedin.gradle.hadoopdsl.checker;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
-
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
@@ -35,6 +34,7 @@ import org.gradle.api.Project;
 /**
  * Checks that all the required fields in the DSL are set.
  */
+@SuppressWarnings("deprecation")
 class RequiredFieldsChecker extends BaseStaticChecker {
   /**
    * Constructor for the RequiredFieldsChecker.

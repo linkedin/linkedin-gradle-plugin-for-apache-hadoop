@@ -30,6 +30,7 @@ import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
  * Interface that enables us to declare which DSL classes can declare a new scope (i.e. that have a
  * NamedScope object as a member variable).
  */
+@SuppressWarnings("deprecation")
 interface NamedScopeContainer {
   /**
    * Returns the scope at this level.

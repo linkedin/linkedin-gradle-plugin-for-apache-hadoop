@@ -70,36 +70,33 @@ class Job {
   }
 
   /**
-   * Helper method to construct the name to use with the job file. By default, the name constructed
-   * is "${parentScopeName}_${name}", but subclasses can override this method if they need to
-   * customize how the name is constructed.
+   * Method to construct the file name to use for the job file. In Azkaban, all job files must have
+   * unique names.
    * <p>
-   * As an example, if the job named "job1" is nested inside the workflow "testWorkflow", this
-   * method will form the name "testWorkflow_job1" as the file name.
+   * See the other overload for this method for information about how the job file name is formed.
    *
-   * @param name The job name
-   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The parent scope in which the job is bound
    * @return The name to use when generating the job file
    */
-  String buildFileName(String name, String parentScopeName) {
-    return parentScopeName == null ? name : "${parentScopeName}_${name}";
+  String buildFileName(NamedScope parentScope) {
+    return buildFileName(parentScope, name);
   }
 
   /**
-   * Helper overload of the buildProperties method that specifically handles adding the job
-   * dependencies to the job properties map. Subclasses can override this method if they want to
-   * customize how the dependencies property is generated.
+   * Helper method to construct the file name to use for the given job name. In Azkaban, all job
+   * files must have unique names.
+   * <p>
+   * We'll use the fully-qualified name to help us form the file name. However, to make the file
+   * name more readable, we'll use underscores and drop the hadoop scope prefix from the file name.
+   * <p>
+   * As an example, if the job named "job1" is nested inside the workflow "testWorkflow" in Hadoop
+   * scope, the file name will be "testWorkflow_job1".
    *
-   * @param parentScope The parent scope in which to lookup the base properties
-   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
-   * @return The job properties map that holds all the properties that will go into the built job file
+   * @param parentScope The parent scope in which the job is bound
+   * @return The name to use when generating the job file
    */
-  Map<String, String> buildProperties(NamedScope parentScope, String parentScopeName) {
-    Map<String, String> allProperties = buildProperties(parentScope);
-    if (dependencyNames.size() > 0) {
-      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return (parentScopeName == null) ? jobName : "${parentScopeName}_${jobName}"; }.join(",");
-    }
-    return allProperties;
+  String buildFileName(NamedScope parentScope, String jobName) {
+    return getQualifiedName(parentScope, jobName).replaceFirst("hadoop.", "").replace('.', '_');
   }
 
   /**
@@ -121,6 +118,11 @@ class Job {
 
     Map<String, String> allProperties = new LinkedHashMap<String, String>();
     allProperties.putAll(jobProperties);
+
+    if (dependencyNames.size() > 0) {
+      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return buildFileName(parentScope, jobName) }.join(",");
+    }
+
     return allProperties;
   }
 
@@ -155,6 +157,27 @@ class Job {
    */
   void depends(String... jobNames) {
     dependencyNames.addAll(jobNames.toList());
+  }
+
+  /**
+   * Returns the fully-qualified name for this job.
+   *
+   * @param parentScope The parent scope in which the job is bound
+   * @return The fully-qualified name for the job
+   */
+  String getQualifiedName(NamedScope parentScope) {
+    return getQualifiedName(parentScope, name);
+  }
+
+  /**
+   * Helper method to get the fully-qualified name given a particular job name.
+   *
+   * @param jobName The job name for which to generate a fully-qualified name
+   * @param parentScope The parent scope in which the job is bound
+   * @return The fully-qualified name for the job
+   */
+  String getQualifiedName(NamedScope parentScope, String jobName) {
+    return (parentScope == null) ? name : "${parentScope.getQualifiedName()}.${jobName}";
   }
 
   /**

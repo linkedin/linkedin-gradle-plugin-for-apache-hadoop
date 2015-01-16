@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+
 /**
  * A LaunchJob is a special kind of NoOpJob that is used to launch a workflow. The name of the
  * generated LaunchJob file is simply the workflow name.
@@ -33,14 +35,16 @@ class LaunchJob extends NoOpJob {
   }
 
   /**
-   * Override for LaunchJob. The name of the generated LaunchJob file is simply the workflow name.
+   * Method to construct the file name to use for the job file. In Azkaban, all job files must have
+   * unique names. For a LaunchJob, the file name is simply the workflow name.
    *
-   * @param name The job name
-   * @param parentScopeName The fully-qualified name of the scope in which the job is bound
+   * @param parentScope The parent scope in which the job is bound
    * @return The name to use when generating the job file
    */
   @Override
-  String buildFileName(String name, String parentScopeName) {
+  String buildFileName(NamedScope parentScope) {
+    // NOTE: if we allow Workflows inside of Workflows (or embedded workflows), this must change to
+    // be the fully-qualified workflow name (formatted to be more readable, per the base method).
     return name;
   }
 

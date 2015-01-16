@@ -28,10 +28,10 @@ import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
 
-
 /**
  * Base class for DSL elements that create a new scope.
  */
+@SuppressWarnings("deprecation")
 abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   HadoopDslFactory factory;
   NamedScope scope;

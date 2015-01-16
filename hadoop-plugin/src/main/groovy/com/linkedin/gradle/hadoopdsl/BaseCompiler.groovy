@@ -24,9 +24,9 @@ import org.gradle.api.Project;
  */
 abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
   /**
-   * Directory location in which to place the generated files
+   * Current build directory location in which to place the generated files.
    */
-  String buildDirectory;
+  String parentDirectory;
 
   /**
    * Member variable for the Gradle project so we can access the logger.
@@ -78,12 +78,12 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
       throw new IOException("You must set the buildDirectory property to use the Hadoop DSL. Use the hadoop { buildPath \"path\" } method to do this.");
     }
 
-    this.buildDirectory = hadoop.buildDirectory;
-    File file = new File(buildDirectory);
+    this.parentDirectory = hadoop.buildDirectory;
+    File file = new File(this.parentDirectory);
 
     if (file.exists()) {
       if (!file.isDirectory()) {
-        throw new IOException("Directory ${this.buildDirectory} must specify a directory");
+        throw new IOException("Directory ${this.parentDirectory} must specify a directory");
       }
     }
     else {
@@ -91,7 +91,7 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
       // git will not push empty directories in the repository (and users will often add the
       // generated job files to their gitignore).
       if (!file.mkdir()) {
-        throw new IOException("Directory ${this.buildDirectory} does not exist and could not be created");
+        throw new IOException("Directory ${this.parentDirectory} does not exist and could not be created");
       }
     }
 
@@ -102,57 +102,4 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     // Visit the workflows and properties under the extension
     super.visitExtension(hadoop);
   }
-
-  /**
-   * Builds the workflow.
-   * <p>
-   * NOTE: not all jobs in the workflow are built by default. Only those jobs that can be found
-   * from a transitive walk starting from the jobs the workflow targets actually get built.
-   *
-   * @param workflow The workflow to build
-   */
-  @Override
-  void visitWorkflow(Workflow workflow) {
-    // Save the last scope information
-    NamedScope oldParentScope = this.parentScope;
-    String oldParentScopeName = this.parentScopeName;
-
-    // Don't bother prefixing all scope names with "hadoop" even though everything being compiled
-    // is under hadoop scope.
-    boolean hadoopScope = this.parentScope == extension.scope;
-
-    // Set the new parent scope
-    this.parentScopeName = (this.parentScopeName == null || hadoopScope) ? workflow.name : "${parentScopeName}_${workflow.name}";
-    this.parentScope = workflow.scope;
-
-    // Build the list of jobs to build for the workflow
-    Set<Job> jobsToBuild = workflow.buildJobList();
-
-    // Visit each job to build in the workflow
-    jobsToBuild.each() { Job job ->
-      visitJobToBuild(job);
-    }
-
-    // Visit each properties object in the workflow
-    workflow.properties.each() { Properties props ->
-      visitProperties(props);
-    }
-
-    // Visit each embedded workflow in the workflow
-    workflow.workflows.each() { Workflow childWorkflow ->
-      visitWorkflow(childWorkflow);
-    }
-
-    // Restore the last parent scope
-    this.parentScope = oldParentScope;
-    this.parentScopeName = oldParentScopeName;
-  }
-
-  /**
-   * Builds a job that has been found on a transitive walk starting from the jobs the workflow
-   * targets. These are the jobs that should actually be built by the compiler.
-   *
-   * @param The job to build
-   */
-  abstract void visitJobToBuild(Job job);
 }

@@ -1,8 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=javaprocess
-java.class=com.linkedin.hello.JavaProcessJob
-myPropertyA=globalA2Update
-myPropertyB=globalB2
-myProperty1=global1
-myProperty2=global2
-jvm.args=-DjvmPropertyNameA=jvmA2Update -DjvmPropertyNameB=jvmB2 -DjvmPropertyName2=jvm2 -DjvmPropertyName1=jvm1

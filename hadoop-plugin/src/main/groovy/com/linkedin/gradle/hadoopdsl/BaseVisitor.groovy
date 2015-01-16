@@ -31,6 +31,7 @@ import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
  * multi-method overloads will simply call the overload for the base type. This will make it easy
  * for subclasses that want to only override the overload for the base type.
  */
+@SuppressWarnings("deprecation")
 abstract class BaseVisitor implements Visitor {
   /**
    * Keep track of the top-level extension.
@@ -43,11 +44,6 @@ abstract class BaseVisitor implements Visitor {
   NamedScope parentScope;
 
   /**
-   * Keeps track of the current parent scope name for the DSL element being built.
-   */
-  String parentScopeName;
-
-  /**
    * Helper method for DSL elements that subclass BaseNamedScopeContainer.
    *
    * @param container The DSL element subclassing BaseNamedScopeContainer
@@ -55,10 +51,8 @@ abstract class BaseVisitor implements Visitor {
   void visitScopeContainer(BaseNamedScopeContainer container) {
     // Save the last scope information
     NamedScope oldParentScope = this.parentScope;
-    String oldParentScopeName = this.parentScopeName;
 
     // Set the new parent scope
-    this.parentScopeName = container.scope.levelName;
     this.parentScope = container.scope;
 
     // Visit each job
@@ -83,7 +77,6 @@ abstract class BaseVisitor implements Visitor {
 
     // Restore the last parent scope
     this.parentScope = oldParentScope;
-    this.parentScopeName = oldParentScopeName;
   }
 
   @Override

@@ -86,6 +86,16 @@ class NamedScope {
   }
 
   /**
+   * Returns the fully-qualified name for this scope.
+   *
+   * @return The fully-qualified name for the scope
+   */
+  String getQualifiedName() {
+    String nextLevelName = (nextLevel == null) ? "" : nextLevel.getQualifiedName();
+    return (nextLevelName.isEmpty()) ? levelName : "${nextLevelName}.${levelName}";
+  }
+
+  /**
    * From this level, recursively looks up the object in scope.
    * <p>
    * If you pass a name that starts with a dot, this method does a fully-qualified name lookup

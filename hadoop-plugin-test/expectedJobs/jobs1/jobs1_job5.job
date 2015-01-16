@@ -1,0 +1,13 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hive
+dependencies=jobs1_job4
+hadoop-inject.mapred.job.queue.name=marathon
+hadoop-inject.mapreduce.reduce.java.opts=-Xmx3G
+hadoop-inject.mapreduce.reduce.memory.mb=4096
+hive.script=hello.q
+hivevar.param1=val1
+hivevar.param2=val2
+hivevar.path1=/user/foo
+hivevar.path2=/user/bar
+path1=/user/foo
+path2=/user/bar

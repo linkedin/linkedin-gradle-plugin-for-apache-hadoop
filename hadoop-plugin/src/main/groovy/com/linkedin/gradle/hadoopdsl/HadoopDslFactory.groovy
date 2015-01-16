@@ -33,6 +33,7 @@ import org.gradle.api.Project;
  * Factory class to create instances of DSL objects. Subclasses can override these methods to
  * provide instances of their own custom subclasses of standard DSL classes.
  */
+@SuppressWarnings("deprecation")
 class HadoopDslFactory {
   /**
    * Factory method to build a HadoopDslExtension.
