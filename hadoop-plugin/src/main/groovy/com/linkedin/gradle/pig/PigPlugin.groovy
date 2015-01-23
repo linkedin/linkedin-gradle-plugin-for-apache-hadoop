@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.pig;
 
+import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 
 import org.gradle.api.GradleException
@@ -142,7 +143,7 @@ class PigPlugin implements Plugin<Project> {
         group = "Hadoop Plugin";
 
         doFirst {
-          writePigExecScript(filePath, taskName, null, null);
+          writePigExecScript(filePath, taskName, null, null, null);
         }
       }
     }
@@ -158,18 +159,21 @@ class PigPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doLast {
-        Map<String, PigJob> pigJobs = PigTaskHelper.findConfiguredPigJobs(project);
-        if (pigJobs.isEmpty()) {
+        Map<PigJob, NamedScope> jobScopeMap = PigTaskHelper.findConfiguredPigJobs(project);
+        if (jobScopeMap.isEmpty()) {
           logger.lifecycle("The project ${project.name} does not have any Pig jobs configured with the Hadoop DSL.");
           return;
         }
 
-        logger.lifecycle("The following Pig jobs in the project ${project.name} are configured in the Hadoop DSL and can be run with gradle runPigJob -Pjob=<job name>:");
+        logger.lifecycle("The following Pig jobs in the project ${project.name} are configured in the Hadoop DSL and can be run with gradle runPigJob -PjobName=<job name>:");
 
-        pigJobs.each { String jobName, PigJob job ->
-          Map<String, String> allProperties = job.buildProperties(new LinkedHashMap<String, String>());
+        jobScopeMap.each { PigJob job, NamedScope parentScope ->
+          Map<String, String> allProperties = job.buildProperties(parentScope);
+          String jobName = job.getQualifiedName(parentScope);
+
           logger.lifecycle("\n----------");
           logger.lifecycle("Job name: ${jobName}");
+
           allProperties.each() { key, value ->
             logger.lifecycle("${key}=${value}");
           }
@@ -189,15 +193,27 @@ class PigPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doFirst {
-        if (!project.job) {
-          throw new GradleException("You must use -Pjob=<job name> to specify the job name with runPigJob");
+        if (!project.hasProperty("jobName")) {
+          throw new GradleException("You must use -PjobName=<job name> to specify the job name with runPigJob");
         }
 
-        Map<String, PigJob> pigJobs = PigTaskHelper.findConfiguredPigJobs(project);
-        PigJob pigJob = pigJobs.get(project.job);
+        Map<PigJob, NamedScope> jobScopeMap = PigTaskHelper.findConfiguredPigJobs(project);
+        PigJob pigJob = null;
+        NamedScope parentScope = null;
+
+        for (Map.Entry<PigJob, NamedScope> entry : jobScopeMap.entrySet()) {
+          PigJob job = entry.key;
+          NamedScope scope = entry.value;
+
+          if (job.getQualifiedName(scope).equals(project.jobName)) {
+            pigJob = job;
+            parentScope = scope;
+            break;
+          }
+        }
 
         if (pigJob == null) {
-          throw new GradleException("Could not find Pig job with name ${project.job} configured in the project ${project.name}. Please check the job name and run the task from within the module directory in which your jobs are configured.");
+          throw new GradleException("Could not find Pig job with name ${project.jobName} configured in the project ${project.name}. Please check the job name and run the task from within the module directory in which your jobs are configured.");
         }
 
         if (pigJob.script == null) {
@@ -210,10 +226,10 @@ class PigPlugin implements Plugin<Project> {
         }
 
         String filePath = file.getAbsolutePath();
-        writePigExecScript(filePath, project.job, pigJob.parameters, pigJob.jvmProperties);
+        writePigExecScript(filePath, project.jobName, pigJob.parameters, pigJob.jvmProperties, pigJob.confProperties);
 
         String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
-        commandLine "bash", "${projectDir}/run_${project.job}.sh"
+        commandLine "bash", "${projectDir}/run_${project.jobName}.sh"
       }
     }
   }
@@ -225,8 +241,9 @@ class PigPlugin implements Plugin<Project> {
    * @param taskName The name of the corresponding Gradle task for this execution of the script
    * @param parameters The Pig parameters
    * @param jvmProperties The JVM properties
+   * @param confProperties The Hadoop Configuration properties
    */
-  void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmProperties) {
+  void writePigExecScript(String filePath, String taskName, Map<String, String> parameters, Map<String, String> jvmProperties, Map<String, String> confProperties) {
     String relFilePath = filePath.replace("${project.projectDir}/", "");
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
     String pigCommand = pigExtension.pigCommand;
@@ -245,7 +262,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteCacheDir} on host ${remoteHostName}");
         out.writeLine(buildRemoteRsyncCmd());
         out.writeLine("echo Executing ${pigCommand} on host ${remoteHostName}");
-        out.writeLine(buildRemotePigCmd(relFilePath, parameters, jvmProperties));
+        out.writeLine(buildRemotePigCmd(relFilePath, parameters, jvmProperties, confProperties));
       }
     }
     else {
@@ -254,7 +271,7 @@ class PigPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${taskName}.sh");
         out.writeLine("echo Executing ${pigCommand} on the local host");
-        out.writeLine(buildLocalPigCmd(relFilePath, parameters, jvmProperties));
+        out.writeLine(buildLocalPigCmd(relFilePath, parameters, jvmProperties, confProperties));
       }
     }
   }
@@ -293,18 +310,20 @@ class PigPlugin implements Plugin<Project> {
    * @param relFilePath The relative path to the Pig script file
    * @param parameters The Pig parameters
    * @param jvmProperties The JVM properties
+   * @param confProperties The Hadoop Configuration properties
    * @return Command that invokes Pig on the remote host
    */
-  String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
+  String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties, Map<String, String> confProperties) {
     String pigCommand = pigExtension.pigCommand;
     String pigOptions = pigExtension.pigOptions ?: "";
     String pigParams = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
     String jvmParams = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
+    String confParams = confProperties == null ? "" : PigTaskHelper.buildJvmParameters(confProperties);
     String remoteHostName = pigExtension.remoteHostName;
     String remoteSshOpts = pigExtension.remoteSshOpts;
     String remoteCacheDir = pigExtension.remoteCacheDir;
     String remoteProjDir = "${remoteCacheDir}/${project.name}";
-    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
+    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${pigCommand} -Dpig.additional.jars=${remoteProjDir}/*.jar ${confParams} ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
   }
 
   /**
@@ -314,14 +333,16 @@ class PigPlugin implements Plugin<Project> {
    * @param relFilePath The relative path to the Pig script file
    * @param parameters The Pig parameters
    * @param jvmProperties The JVM properties
+   * @param confProperties The Hadoop Configuration properties
    * @return Command that invokes Pig on the local host
    */
-  String buildLocalPigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
+  String buildLocalPigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties, Map<String, String> confProperties) {
     String projectDir = "${pigExtension.pigCacheDir}/${project.name}";
     String pigCommand = pigExtension.pigCommand;
     String pigOptions = pigExtension.pigOptions ?: "";
     String pigParams = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
     String jvmParams = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
-    return "cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}";
+    String confParams = confProperties == null ? "" : PigTaskHelper.buildJvmParameters(confProperties);
+    return "cd ${projectDir}; ${pigCommand} -Dpig.additional.jars=${projectDir}/*.jar ${confParams} ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}";
   }
 }

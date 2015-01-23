@@ -43,18 +43,20 @@ class LiPigPlugin extends PigPlugin {
    * @param relFilePath The relative path to the Pig script file
    * @param parameters The Pig parameters
    * @param jvmProperties The JVM properties
+   * @param confProperties The Hadoop Configuration properties
    * @return Command that invokes Pig on the remote host
    */
   @Override
-  String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties) {
+  String buildRemotePigCmd(String relFilePath, Map<String, String> parameters, Map<String, String> jvmProperties, Map<String, String> confProperties) {
     String pigCommand = pigExtension.pigCommand;
     String pigOptions = pigExtension.pigOptions ?: "";
     String pigParams = parameters == null ? "" : PigTaskHelper.buildPigParameters(parameters);
     String jvmParams = jvmProperties == null ? "" : PigTaskHelper.buildJvmParameters(jvmProperties);
+    String confParams = confProperties == null ? "" : PigTaskHelper.buildJvmParameters(confProperties);
     String remoteHostName = pigExtension.remoteHostName;
     String remoteSshOpts = pigExtension.remoteSshOpts;
     String remoteCacheDir = pigExtension.remoteCacheDir;
     String remoteProjDir = "${remoteCacheDir}/${project.name}";
-    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'export PIG_UDFS=${remoteProjDir}; cd ${remoteProjDir}; ${pigCommand} ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
+    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'set -xe; export PIG_UDFS=${remoteProjDir}; cd ${remoteProjDir}; ${pigCommand} ${confParams} ${jvmParams} ${pigOptions} -f ${relFilePath} ${pigParams}'";
   }
 }

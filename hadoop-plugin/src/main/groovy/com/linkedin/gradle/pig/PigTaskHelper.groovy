@@ -74,39 +74,38 @@ class PigTaskHelper {
   }
 
   /**
-   * Finds the Pig jobs configured in the Hadoop DSL and returns them as a map of the fully
-   * qualified job name to the job.
+   * Finds the Pig jobs configured in the Hadoop DSL and returns them as a map of the job to their
+   * containing scope.
    *
    * @param project The Gradle project
-   * @return A map of the fully-qualified job names to the PigJob
+   * @return A map of each Pig job to its containing scope
    */
-  static Map<String, PigJob> findConfiguredPigJobs(Project project) {
-    Map<String, PigJob> pigJobs = new LinkedHashMap<String, PigJob>();
+  static Map<PigJob, NamedScope> findConfiguredPigJobs(Project project) {
+    Map<PigJob, NamedScope> jobScopeMap = new LinkedHashMap<PigJob, NamedScope>();
 
     if (project.extensions.hadoopDslPlugin) {
       HadoopDslPlugin hadoopDslPlugin = project.extensions.hadoopDslPlugin;
-      findConfiguredPigJobs(hadoopDslPlugin.scope, "", pigJobs);
+      findConfiguredPigJobs(hadoopDslPlugin.scope, jobScopeMap);
     }
 
-    return pigJobs;
+    return jobScopeMap;
   }
 
   /**
    * Finds PigJobs configured in the DSL by recursively checking the scope containers.
    *
    * @param scope The scope to check
-   * @param prefix The current fully-qualified scope prefix
-   * @param pigJobs A map of the fully-qualified job names to the PigJob
+   * @param jobScopeMap A map of each Pig job to its containing scope
    */
-  static void findConfiguredPigJobs(NamedScope scope, String prefix, Map<String, PigJob> pigJobs) {
+  static void findConfiguredPigJobs(NamedScope scope, Map<PigJob, NamedScope> jobScopeMap) {
     scope.thisLevel.each { String name, Object val ->
       if (val instanceof PigJob) {
         PigJob pigJob = (PigJob)val;
-        pigJobs.put(prefix + pigJob.name, pigJob);
+        jobScopeMap.put(pigJob, scope);
       }
       else if (val instanceof NamedScopeContainer) {
         NamedScopeContainer container = (NamedScopeContainer)val;
-        findConfiguredPigJobs(container.scope, "${prefix}${container.scope.levelName}.", pigJobs);
+        findConfiguredPigJobs(container.scope, jobScopeMap);
       }
     }
   }
