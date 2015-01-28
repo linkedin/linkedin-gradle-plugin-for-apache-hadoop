@@ -37,11 +37,19 @@ testCases.each { File file ->
   testFiles.add(relaPath);
 };
 
-// Get rid of the variable "Total time: 4.544 secs" that appears at the end of the build output.
 // Get rid of LinkedIn-specific messages about CIA instrumentation.
+// Get rid of LinkedIn-specific messages about posting task-result start and end.
+// Get rid of the variable "Total time: 4.544 secs" that appears at the end of the output.
 def cleanBuildOutput(String buildOutput) {
-  String ciaRegex= "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n"
-  buildOutput = buildOutput.replaceFirst(ciaRegex, "");
+  String[] linesToRemove = [
+    "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
+    "posting task-result-start for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
+    "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n"
+  ] as String[];
+
+  for (String lineToRemove : linesToRemove) {
+    buildOutput = buildOutput.replace(lineToRemove, "");
+  }
 
   int endIndex = buildOutput.lastIndexOf("Total time:");
   return (endIndex == -1) ? buildOutput : buildOutput.substring(0, endIndex);
