@@ -1,0 +1,64 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Positive test case for cloning that involves subflows.
+
+workflow('flow1') {
+  job('job1') {
+  }
+
+  workflow('flow2') {
+    flowDepends 'job1'
+
+    job('job1') {
+    }
+
+    targets 'job1'
+  }
+
+  targets 'flow2'
+}
+
+workflow('flow2') {
+  job('job2') {
+  }
+
+  job('job3') {
+    depends 'job2'
+  }
+
+  targets 'job3'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('cloneSubflows1') {
+    addWorkflow('flow1') {
+    }
+
+    targets 'flow1'
+  }
+
+  workflow('cloneSubflows2') {
+
+    addWorkflow('flow1') {
+      addWorkflow('.flow2', 'flow3') {
+        flowDepends 'flow2'
+      }
+
+      targets 'flow3'
+    }
+
+    targets 'flow1'
+  }
+}

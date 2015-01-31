@@ -62,6 +62,19 @@ class AzkabanDslCompiler extends BaseCompiler {
    */
   @Override
   void visitWorkflow(Workflow workflow) {
+    visitWorkflow(workflow, false);
+  }
+
+  /**
+   * Builds the workflow. If the flow is a subflow, it will be constructed with a root FlowJob.
+   * <p>
+   * NOTE: not all jobs in the workflow are built by default. Only those jobs that can be found
+   * from a transitive walk starting from the jobs the workflow targets actually get built.
+   *
+   * @param workflow The workflow to build
+   * @param subflow Whether or not the workflow is a subflow
+   */
+  void visitWorkflow(Workflow workflow, boolean subflow) {
     // Save the last scope information
     NamedScope oldParentScope = this.parentScope;
     String oldParentDirectory = this.parentDirectory;
@@ -86,11 +99,11 @@ class AzkabanDslCompiler extends BaseCompiler {
       }
     }
 
-    // Build the list of jobs to build for the workflow
-    Set<Job> jobsToBuild = workflow.buildJobList();
+    // Build the list of jobs and subflows to build for the workflow
+    workflow.buildWorkflowTargets(subflow);
 
     // Visit each job to build in the workflow
-    jobsToBuild.each() { Job job ->
+    workflow.jobsToBuild.each() { Job job ->
       visitJobToBuild(job);
     }
 
@@ -99,9 +112,9 @@ class AzkabanDslCompiler extends BaseCompiler {
       visitProperties(props);
     }
 
-    // Visit each embedded workflow in the workflow
-    workflow.workflows.each() { Workflow childWorkflow ->
-      visitWorkflow(childWorkflow);
+    // Visit each subflow to build in the workflow
+    workflow.flowsToBuild.each() { Workflow flow ->
+      visitWorkflow(flow, true);
     }
 
     // Restore the last parent scope

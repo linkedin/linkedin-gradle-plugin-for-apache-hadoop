@@ -36,16 +36,17 @@ class LaunchJob extends NoOpJob {
 
   /**
    * Method to construct the file name to use for the job file. In Azkaban, all job files must have
-   * unique names. For a LaunchJob, the file name is simply the workflow name.
+   * unique names.
+   * <p>
+   * For a LaunchJob, the file name is simply the cleaned fully-qualified workflow name.
    *
    * @param parentScope The parent scope in which the job is bound
    * @return The name to use when generating the job file
    */
   @Override
   String buildFileName(NamedScope parentScope) {
-    // NOTE: if we allow Workflows inside of Workflows (or embedded workflows), this must change to
-    // be the fully-qualified workflow name (formatted to be more readable, per the base method).
-    return name;
+    // The file name for a launch job is just the cleaned up fully-qualified workflow name.
+    return cleanFileName(parentScope.getQualifiedName());
   }
 
   /**

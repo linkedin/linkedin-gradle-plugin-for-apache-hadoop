@@ -1,0 +1,129 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Simple positive test cases for workflows inside of workflows.
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('subflows1') {
+    noOpJob('job1') {
+      set properties: [
+        'foo': '1'
+      ]
+    }
+
+    workflow('flow1') {
+      flowDepends 'job1'
+
+      noOpJob('k1') {
+      }
+
+      targets 'k1'
+    }
+
+    targets 'flow1'
+  }
+
+  workflow('subflows2') {
+    noOpJob('job1') {
+      set properties: [
+        'foo': '1'
+      ]
+    }
+    targets 'job1'
+  }
+
+  workflow('subflows3') {
+    noOpJob('job1') {
+      set properties: [
+        'foo': '1'
+      ]
+    }
+
+    addWorkflow('subflows2', 'flow1') {
+      flowDepends 'job1'
+    }
+
+    workflow('flow2') {
+      flowDepends 'flow1'
+
+      noOpJob('job1') {
+        set properties: [
+          'foo': '1'
+        ]
+      }
+
+      targets 'job1'
+    }
+
+    noOpJob('job2') {
+      depends 'flow1'
+    }
+
+    targets 'job2', 'flow2'
+  }
+
+  workflow('subflows4') {
+    workflow('flow1') {
+
+      workflow('flow2') {
+        noOpJob('job1') {
+          set properties: [
+            'foo': '1'
+          ]
+        }
+        targets 'job1'
+      }
+
+      targets 'flow2'
+    }
+
+    targets 'flow1'
+  }
+
+  propertySet('common') {
+    set properties: [
+      'a' : '1',
+      'b' : '1'
+    ]
+  }
+
+  // Make sure building subflows with property sets and property files still works fine.
+  workflow('subflows5') {
+    workflow('flow1') {
+      job('job1') {
+        baseProperties 'common'
+        set properties: [
+          'b' : '2',
+          'c' : '1'
+        ]
+      }
+
+      workflow('flow2') {
+        flowDepends 'job1'
+
+        propertyFile('flow2common') {
+          baseProperties 'common'
+          set properties: [
+            'b' : '2',
+            'c' : '1'
+          ]
+        }
+      }
+
+      targets 'flow2'
+    }
+
+    targets 'flow1'
+  }
+}

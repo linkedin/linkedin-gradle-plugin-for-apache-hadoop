@@ -96,7 +96,7 @@ class Job {
    * @return The name to use when generating the job file
    */
   String buildFileName(NamedScope parentScope, String jobName) {
-    return getQualifiedName(parentScope, jobName).replaceFirst("hadoop.", "").replace('.', '_');
+    return cleanFileName(getQualifiedName(parentScope, jobName));
   }
 
   /**
@@ -104,7 +104,7 @@ class Job {
    * property, which is built by the other overload of the buildProperties method.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
-   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   * additionally call this base class method to add the jobProperties correctly.
    *
    * @param parentScope The parent scope in which to lookup the base properties
    * @return The job properties map that holds all the properties that will go into the built job file
@@ -120,10 +120,21 @@ class Job {
     allProperties.putAll(jobProperties);
 
     if (dependencyNames.size() > 0) {
-      allProperties["dependencies"] = dependencyNames.collect() { String jobName -> return buildFileName(parentScope, jobName) }.join(",");
+      allProperties["dependencies"] = dependencyNames.collect() { String targetName -> return buildFileName(parentScope, targetName) }.join(",");
     }
 
     return allProperties;
+  }
+
+  /**
+   * Helper routine to improve job file name readability by dropping the hadoop prefix and
+   * replacing dots with underscores.
+   *
+   * @param fileName The file name to clean up
+   * @return The clean file name
+   */
+  String cleanFileName(String fileName) {
+    return fileName.replaceFirst("hadoop.", "").replace('.', '_');
   }
 
   /**
@@ -151,12 +162,12 @@ class Job {
   }
 
   /**
-   * DSL depends method declares the jobs on which this job depends.
+   * DSL depends method declares the targets on which this job depends.
    *
-   * @param jobNames The list of job names on which this job depends
+   * @param targetNames The list of targets on which this job depends
    */
-  void depends(String... jobNames) {
-    dependencyNames.addAll(jobNames.toList());
+  void depends(String... targetNames) {
+    dependencyNames.addAll(targetNames.toList());
   }
 
   /**

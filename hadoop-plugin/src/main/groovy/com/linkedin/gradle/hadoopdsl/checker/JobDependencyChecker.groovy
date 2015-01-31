@@ -24,7 +24,7 @@ import org.gradle.api.Project;
 /**
  * The JobDependencyChecker makes the following checks:
  * <ul>
- *   <li>ERROR if there are cyclic job dependencies</li>
+ *   <li>ERROR if there are cyclic target dependencies among jobs and subflows in a workflow</li>
  *   <li>ERROR if there are jobs that declare that they read paths that other jobs write but are
  *       not directly or transitively dependent on those jobs. This can lead to a
  *       "read-before-write" race condition.</li>
@@ -42,70 +42,87 @@ class JobDependencyChecker extends BaseStaticChecker {
 
   @Override
   void visitWorkflow(Workflow workflow) {
-    // Build a map of job names to jobs in the workflow
+    // First, recursively check the subflows
+    workflow.workflows.each() { Workflow flow ->
+      visitWorkflow(flow);
+    }
+
+    // Build a map of job names to jobs in the workflow and flow names to flows in the workflow
+    Map<String, Workflow> flowMap = workflow.buildFlowMap();
     Map<String, Job> jobMap = workflow.buildJobMap();
 
-    // ERROR if there are cyclic job dependencies
-    detectJobCycles(workflow, jobMap);
+    // ERROR if there are cyclic job dependencies among jobs and subflows in a workflow
+    detectTargetCycles(workflow, flowMap, jobMap);
 
     // WARN if there are jobs that declare that they read paths that other jobs write but are not
     // directly or transitively dependent on those jobs
-    detectReadWriteRaces(workflow, jobMap);
+    detectReadWriteRaces(workflow, flowMap, jobMap);
   }
 
   /**
-   * Helper function to detect cyclic job dependencies in a workflow. Jobs in a workflow must a
-   * directed, acyclic graph.
+   * Helper function to detect cyclic target dependencies in a workflow. Targets in a workflow must
+   * form a directed, acyclic graph.
    * <p>
-   * This function performs a depth-first search of the job graph, starting from each job in the
+   * This function performs a depth-first search of the target graph, starting from each job in the
    * workflow. If any job is encountered twice on a depth-first path, there is a cycle.
    *
    * @param workflow The workflow to check for dependency
+   * @param flowMap The map of flow names to subflows in the workflow
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectJobCycles(Workflow workflow, Map<String, Job> jobMap) {
-    Set<String> jobsChecked = new LinkedHashSet<String>();
+  void detectTargetCycles(Workflow workflow, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
+    Set<String> targetsChecked = new LinkedHashSet<String>();
 
     workflow.jobs.each() { Job job ->
-      if (!jobsChecked.contains(job.name)) {
-        Set<String> jobsOnPath = new LinkedHashSet<String>();
-        detectJobCycles(workflow, job, jobsChecked, jobsOnPath, jobMap);
+      if (!targetsChecked.contains(job.name)) {
+        Set<String> targetsOnPath = new LinkedHashSet<String>();
+        detectTargetCycles(workflow, job.name, targetsChecked, targetsOnPath, flowMap, jobMap);
+      }
+    }
+
+    workflow.workflows.each() { Workflow flow ->
+      if (!targetsChecked.contains(flow.name)) {
+        Set<String> targetsOnPath = new LinkedHashSet<String>();
+        detectTargetCycles(workflow, flow.name, targetsChecked, targetsOnPath, flowMap, jobMap);
       }
     }
   }
 
   /**
-   * Helper function called from the main detectJobCycles method for workflows.
+   * Helper function called from the main detectTargetCycles method for workflows.
    * <p>
    * This helper function assumes that you have already checked that all declared workflow and job
-   * dependency names refer to jobs that belong to the workflow.
+   * target dependency names refer to jobs and subflows that belong to the workflow.
    *
-   * @param workflow The workflow to check for job cycles
-   * @param job The current job being checked
-   * @param jobsChecked The set of jobs already checked for cycles
-   * @param jobsOnPath The jobs encountered on the path so far to the current job
+   * @param workflow The workflow to check for target cycles
+   * @param targetName The name of the current job or subflow being checked
+   * @param targetsChecked The set of targets already checked for cycles
+   * @param targetsOnPath The targets encountered on the path so far to the current target
+   * @param flowMap The map of flow names to subflows in the workflow
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectJobCycles(Workflow workflow, Job job, Set<String> jobsChecked, Set<String> jobsOnPath, Map<String, Job> jobMap) {
-    if (jobsOnPath.contains(job.name)) {
-      String jobCycleText = buildCyclesText(jobsOnPath, job.name);
-      project.logger.lifecycle("JobDependencyChecker ERROR: workflow ${workflow.name} has a dependency cycle: ${jobCycleText}. The workflow dependencies must form directed, acyclic graph.");
+  void detectTargetCycles(Workflow workflow, String targetName, Set<String> targetsChecked, Set<String> targetsOnPath, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
+    if (targetsOnPath.contains(targetName)) {
+      String cycleText = buildCyclesText(targetsOnPath, targetName);
+      project.logger.lifecycle("JobDependencyChecker ERROR: workflow ${workflow.name} has a dependency cycle: ${cycleText}. The workflow dependencies must form a directed, acyclic graph.");
       foundError = true;
       return;
     }
 
-    // Add this job to the path before we check its children.
-    jobsOnPath.add(job.name);
+    // Add this target to the path before we check its children.
+    targetsOnPath.add(targetName);
 
-    job.dependencyNames.each() { String dependencyName ->
-      if (!jobsChecked.contains(dependencyName)) {
-        Job parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
-        detectJobCycles(workflow, parentJob, jobsChecked, jobsOnPath, jobMap);
+    // Get the next set of target dependencies to check.
+    Set<String> dependencyNames = jobMap.containsKey(targetName) ? jobMap.get(targetName).dependencyNames : flowMap.get(targetName).parentDependencies;
+
+    dependencyNames.each() { String dependencyName ->
+      if (!targetsChecked.contains(dependencyName)) {
+        detectTargetCycles(workflow, dependencyName, targetsChecked, targetsOnPath, flowMap, jobMap);  // Assumes you have already checked that all dependency names refer to targets that belong to the workflow.
       }
     }
 
-    // Now that we have checked its children, we are done checking this job for cycles.
-    jobsChecked.add(job.name);
+    // Now that we have checked its children, we are done checking this target for cycles.
+    targetsChecked.add(targetName);
   }
 
   /**
@@ -120,17 +137,18 @@ class JobDependencyChecker extends BaseStaticChecker {
    * flag.
    *
    * @param workflow The workflow to check for read-before-write races
+   * @param flowMap The map of flow names to subflows in the workflow
    * @param jobMap The map of job names to jobs in the workflow
    */
-  void detectReadWriteRaces(Workflow workflow, Map<String, Job> jobMap) {
-    Map<Job, Set<Job>> ancestorMap = buildAncestorMap(workflow, jobMap);
+  void detectReadWriteRaces(Workflow workflow, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
+    Map<String, Set<Job>> ancestorMap = buildAncestorMap(workflow, flowMap, jobMap);
     Map<String, Set<Job>> writeMap = buildWriteMap(workflow);
 
     // For each job, look at the paths declared as read by the job. For each read path, verify that
     // the jobs that write to that path are declared as (immediate or transitive) ancestors of the
     // job. If not, emit a warning.
     workflow.jobs.each() { Job job ->
-      Set<Job> ancestors = ancestorMap.get(job);
+      Set<Job> ancestors = ancestorMap.get(job.name);
 
       // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
       job.reading.each() { String readPath ->
@@ -150,19 +168,26 @@ class JobDependencyChecker extends BaseStaticChecker {
   }
 
   /**
-   * Helper function to build a map of jobs in a workflow to the set of (direct or transitive)
-   * ancestors for each job.
+   * Helper function to build a map of target names in a workflow to the set of (direct or
+   * transitive) job ancestors for each target.
    *
    * @param workflow The workflow for which to build the ancestor map
+   * @param flowMap The map of flow names to subflows in the workflow
    * @param jobMap The map of job names to jobs in the workflow
-   * @return The map of jobs to the set of (direct or transitive) ancestors for each job
+   * @return The map of target names to the set of (direct or transitive) job ancestors for each target
    */
-  Map<Job, Set<Job>> buildAncestorMap(Workflow workflow, Map<String, Job> jobMap) {
-    Map<Job, Set<Job>> ancestorMap = new HashMap<Job, Set<Job>>();
+  Map<String, Set<Job>> buildAncestorMap(Workflow workflow, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
+    Map<String, Set<Job>> ancestorMap = new HashMap<String, Set<Job>>();
 
     workflow.jobs.each() { Job job ->
       if (!ancestorMap.containsKey(job)) {
-        buildAncestorSet(job, ancestorMap, jobMap);
+        buildAncestorSet(job.name, ancestorMap, flowMap, jobMap);
+      }
+    }
+
+    workflow.workflows.each() { Workflow flow ->
+      if (!ancestorMap.containsKey(flow)) {
+        buildAncestorSet(flow.name, ancestorMap, flowMap, jobMap);
       }
     }
 
@@ -170,31 +195,47 @@ class JobDependencyChecker extends BaseStaticChecker {
   }
 
   /**
-   * Helper function to build the set of (direct or transitive) ancestors for a job in a workflow.
+   * Helper function to build the set of (direct or transitive) ancestors for a target in a
+   * workflow.
    *
-   * @param job The job for which to build the set of (direct or transitive) ancestors
-   * @param ancestorMap The map of jobs to the set of (direct or transitive) ancestors for each job
+   * @param targetName The target for which to build the set of (direct or transitive) ancestors
+   * @param ancestorMap The map of target names to the set of (direct or transitive) ancestor jobs for each target
+   * @param flowMap The map of flow names to subflows in the workflow
    * @param jobMap The map of job names to jobs in the workflow
-   * @return The set of (direct or transitive) ancestors for the job
+   * @return The set of (direct or transitive) job ancestors for the target
    */
-  Set<Job> buildAncestorSet(Job job, Map<Job, Set<Job>> ancestorMap, Map<String, Job> jobMap) {
+  Set<Job> buildAncestorSet(String targetName, Map<String, Set<Job>> ancestorMap, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
     Set<Job> ancestors = new HashSet<Job>();
 
-    // Put the set in the ancestor map right away. This way, if you have a job cycle, when you
-    // cycle back to this job you will find the set instead of going into an infinite loop.
-    ancestorMap.put(job, ancestors);
+    // Put the set in the ancestor map right away. This way, if you have a cycle, when you get back
+    // to this target you will find the set instead of going into an infinite loop.
+    ancestorMap.put(targetName, ancestors);
 
-    job.dependencyNames.each() { String dependencyName ->
-      Job parentJob = jobMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow.
-      Set<Job> parentAncestors = ancestorMap.get(parentJob);
+    // Get the next set of target dependencies to check
+    Set<String> dependencyNames = jobMap.containsKey(targetName) ? jobMap.get(targetName).dependencyNames : flowMap.get(targetName).parentDependencies;
 
-      if (parentAncestors == null) {
-        parentAncestors = buildAncestorSet(parentJob, ancestorMap, jobMap);
-        ancestorMap.put(parentJob, parentAncestors);
+    dependencyNames.each() { String dependencyName ->
+      if (jobMap.containsKey(dependencyName)) {
+        Job parentJob = jobMap.get(dependencyName);             // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow
+        Set<Job> parentAncestors = ancestorMap.get(parentJob.name);
+
+        if (parentAncestors == null) {
+          parentAncestors = buildAncestorSet(parentJob.name, ancestorMap, flowMap, jobMap);
+        }
+
+        ancestors.addAll(parentAncestors);
+        ancestors.add(parentJob);
       }
+      else {
+        Workflow parentWorkflow = flowMap.get(dependencyName);  // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow
+        Set<Job> parentAncestors = ancestorMap.get(parentWorkflow.name);
 
-      ancestors.addAll(parentAncestors);
-      ancestors.add(parentJob);
+        if (parentAncestors == null) {
+          parentAncestors = buildAncestorSet(parentWorkflow.name, ancestorMap, flowMap, jobMap);
+        }
+
+        ancestors.addAll(parentAncestors);
+      }
     }
 
     return ancestors;

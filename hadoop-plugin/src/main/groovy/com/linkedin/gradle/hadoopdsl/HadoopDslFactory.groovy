@@ -25,6 +25,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.StartJob
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -159,6 +160,16 @@ class HadoopDslFactory {
   }
 
   /**
+   * Factory method to build a StartJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  StartJob makeStartJob(String name) {
+    return new StartJob(name);
+  }
+
+  /**
    * Factory method to build a VoldemortBuildPushJob
    *
    * @param name The job name
@@ -190,7 +201,7 @@ class HadoopDslFactory {
   }
 
   /**
-   * Factory method to build a Workflow object;
+   * Factory method to build a Workflow.
    *
    * @param name The workflow name
    * @param project The Gradle project

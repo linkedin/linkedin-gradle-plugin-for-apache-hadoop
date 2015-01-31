@@ -63,7 +63,7 @@ class JavaProcessJob extends Job {
    * property, which is built by the other overload of the buildProperties method.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
-   * additionally call this base class method to add the jvmProperties and jobProperties correctly.
+   * additionally call this base class method to add the jobProperties correctly.
    *
    * @param parentScope The parent scope in which to lookup the base properties
    * @return The job properties map that holds all the properties that will go into the built job file
