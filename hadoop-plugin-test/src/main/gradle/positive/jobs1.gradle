@@ -61,7 +61,7 @@ hadoop {
 
     commandJob('job3') {
       uses 'echo "hello world"'
-      depends 'job2'
+      depends clear: true, targetNames: ['job2']
     }
 
     hadoopJavaJob('job4') {

@@ -9,7 +9,7 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-// Negative test that the static checker catches more complicated read-write races in a workflow.
+// Test that the static checker catches more complicated read-write races in a workflow.
 hadoop {
   buildPath "jobs"
   cleanPath false

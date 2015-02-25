@@ -1,0 +1,8 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+dependencies=readWriteRace1_job1
+bar=/data/databases/bar
+foo=/data/databases/foo
+param.bar=/data/databases/bar
+param.foo=/data/databases/foo
+pig.script=src/main/pig/pigScript.pig

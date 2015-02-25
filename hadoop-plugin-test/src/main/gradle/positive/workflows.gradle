@@ -56,7 +56,7 @@ hadoop {
         'param1' : 'val1'
       ]
     }
-    targets 'job1', 'job2'
+    targets clear: true, targetNames: ['job1', 'job2']
   }
 
   workflow('workflowsWorkflow4') {

@@ -1,0 +1,5 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+foo=/data/databases/foo
+param.foo=/data/databases/foo
+pig.script=src/main/pig/pigScript.pig

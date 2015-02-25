@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+dependencies=readWriteRace2_job1
+bar=/data/databases/bazz
+foo=/data/databases/foo

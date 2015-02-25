@@ -167,7 +167,32 @@ class Job {
    * @param targetNames The list of targets on which this job depends
    */
   void depends(String... targetNames) {
-    dependencyNames.addAll(targetNames.toList());
+    depends(false, targetNames.toList());
+  }
+
+  /**
+   * DSL depends method declares the targets on which this job depends.
+   *
+   * @param clear Whether or not to clear the previously declared dependencies
+   * @param targetNames The list of targets on which this job depends
+   */
+  void depends(boolean clear, List<String> targetNames) {
+    if (clear) {
+      dependencyNames.clear();
+    }
+    dependencyNames.addAll(targetNames);
+  }
+
+  /**
+   * DSL depends method declares the targets on which this job depends.
+   *
+   * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared dependencies
+   *                  and required key 'targetNames' specifies the list of targets on which this job depends
+   */
+  void depends(Map args) {
+    boolean clear = args.containsKey("clear") ? args["clear"] : false;
+    List<String> targetNames = args["targetNames"];
+    depends(clear, targetNames);
   }
 
   /**

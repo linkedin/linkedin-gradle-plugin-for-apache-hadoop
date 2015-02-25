@@ -295,7 +295,21 @@ class Workflow extends BaseNamedScopeContainer {
    * @param targetNames The list of targets in the parent workflow upon on which this subflow depends
    */
   void flowDepends(String... targetNames) {
-    parentDependencies.addAll(targetNames.toList());
+    flowDepends(false, targetNames.toList());
+  }
+
+  /**
+   * DSL method for a subflow that declares the targets in the parent workflow upon which this
+   * workflow depends.
+   *
+   * @param clear Whether or not to clear the previously declared parent targets
+   * @param targetNames The list of targets in the parent workflow upon on which this subflow depends
+   */
+  void flowDepends(boolean clear, List<String> targetNames) {
+    if (clear) {
+      parentDependencies.clear();
+    }
+    parentDependencies.addAll(targetNames);
   }
 
   /**
@@ -304,7 +318,32 @@ class Workflow extends BaseNamedScopeContainer {
    * @param targetNames The list of targets for the workflow
    */
   void targets(String... targetNames) {
-    launchDependencies.addAll(targetNames.toList());
+    targets(false, targetNames.toList());
+  }
+
+  /**
+   * DSL method that declares the targets for the workflow.
+   *
+   * @param clear Whether or not to clear the previously declared targets
+   * @param targetNames The list of targets for the workflow
+   */
+  void targets(boolean clear, List<String> targetNames) {
+    if (clear) {
+      launchDependencies.clear();
+    }
+    launchDependencies.addAll(targetNames);
+  }
+
+  /**
+   * DSL method that declares the targets for the workflow.
+   *
+   * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared targets and
+   *                  required key 'targetNames' specifies the list of targets for the workflow
+   */
+  void targets(Map args) {
+    boolean clear = args.containsKey("clear") ? args["clear"] : false;
+    List<String> targetNames = args["targetNames"];
+    targets(clear, targetNames);
   }
 
   /**

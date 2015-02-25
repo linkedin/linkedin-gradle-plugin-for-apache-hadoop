@@ -158,8 +158,7 @@ class JobDependencyChecker extends BaseStaticChecker {
               project.logger.lifecycle("JobDependencyChecker WARNING: The job ${job.name} in the workflow ${workflow.name} declares that it both reads and writes the path ${readPath}. Please check that this is correct.");
             }
             else if (!ancestors.contains(writeJob)) {
-              project.logger.lifecycle("JobDependencyChecker ERROR: The job ${job.name} in the workflow ${workflow.name} reads the path ${readPath} that is written by the job ${writeJob.name}, but does not have a direct or transitive dependency on this job. This is a potential read-before-write race condition.");
-              foundError = true;
+              project.logger.lifecycle("JobDependencyChecker WARNING: The job ${job.name} in the workflow ${workflow.name} reads the path ${readPath} that is written by the job ${writeJob.name}, but does not have a direct or transitive dependency on this job. This is a potential read-before-write race condition.");
             }
           }
         }
