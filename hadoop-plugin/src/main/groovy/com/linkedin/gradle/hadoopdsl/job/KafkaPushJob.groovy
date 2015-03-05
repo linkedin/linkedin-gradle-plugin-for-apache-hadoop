@@ -34,11 +34,12 @@ package com.linkedin.gradle.hadoopdsl.job;
  *     usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
  *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
  *     usesSchemaRegistryUrl 'http://eat1-app501.stg.linkedin.com:10252/schemaRegistry/schemas'  // Optional
+ *     usesDisableAuditing true                                        // Optional
  *   }
  * </pre>
  */
 class KafkaPushJob extends HadoopJavaJob {
-  // Required
+    // Required
   String inputPath;
   String topic;
 
@@ -48,6 +49,7 @@ class KafkaPushJob extends HadoopJavaJob {
   String kafkaUrl;
   String nameNode;
   String schemaRegistryUrl;
+  Boolean disableAuditing;
 
   /**
    * Constructor for a KafkaPushJob.
@@ -82,6 +84,7 @@ class KafkaPushJob extends HadoopJavaJob {
     cloneJob.kafkaUrl = kafkaUrl;
     cloneJob.nameNode = nameNode;
     cloneJob.schemaRegistryUrl = schemaRegistryUrl;
+    cloneJob.disableAuditing = disableAuditing
     return super.clone(cloneJob);
   }
 
@@ -155,5 +158,16 @@ class KafkaPushJob extends HadoopJavaJob {
   void usesSchemaRegistryUrl(String schemaRegistryUrl) {
     this.schemaRegistryUrl = schemaRegistryUrl;
     setJobProperty("schemaregistry.rest.url", schemaRegistryUrl);
+  }
+
+  /**
+   * DSL usesDisableAuditing method causes disable.auditing=value to be set in the job
+   * file.
+   *
+   * @param disableAuditing
+   */
+  void usesDisableAuditing(Boolean disableAuditing) {
+    this.disableAuditing= disableAuditing;
+    setJobProperty("disable.auditing", disableAuditing.toString());
   }
 }

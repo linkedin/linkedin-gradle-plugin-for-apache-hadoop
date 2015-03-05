@@ -143,6 +143,7 @@ hadoop {
       usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
       usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
       usesSchemaRegistryUrl 'http://eat1-app501:10252/schemaRegistry/schemas'  // Optional
+      usesDisableAuditing true                              	      // Optional
       depends 'job7'
       queue 'marathon'
     }

@@ -8,4 +8,5 @@ input.path=/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST
 kafka.url=eat1-ei2-kafka-vip-c.stg.linkedin.com:10251
 name.node=hdfs://eat1-magicnn01.grid.linkedin.com:9000
 schemaregistry.rest.url=http://eat1-app501:10252/schemaRegistry/schemas
+disable.auditing=true
 topic=kafkatestpush
