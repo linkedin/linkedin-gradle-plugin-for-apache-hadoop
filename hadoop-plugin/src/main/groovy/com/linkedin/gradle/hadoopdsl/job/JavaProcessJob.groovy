@@ -43,7 +43,7 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
 class JavaProcessJob extends Job {
   String javaClass;
   String javaClasspath;
-  Map<String, String> jvmProperties;
+  Map<String, Object> jvmProperties;
   Integer xms;
   Integer xmx;
 
@@ -54,7 +54,7 @@ class JavaProcessJob extends Job {
    */
   JavaProcessJob(String jobName) {
     super(jobName);
-    jvmProperties = new LinkedHashMap<String, String>();
+    jvmProperties = new LinkedHashMap<String, Object>();
     setJobProperty("type", "javaprocess");
   }
 
@@ -73,7 +73,7 @@ class JavaProcessJob extends Job {
     Map<String, String> allProperties = super.buildProperties(parentScope);
 
     if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+      String jvmArgs = jvmProperties.collect() { String key, Object val -> return "-D${key}=${val.toString()}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
     }
 
@@ -133,7 +133,7 @@ class JavaProcessJob extends Job {
     super.set(args);
 
     if (args.containsKey("jvmProperties")) {
-      Map<String, String> jvmProperties = args.jvmProperties;
+      Map<String, Object> jvmProperties = args.jvmProperties;
       jvmProperties.each() { name, value ->
         setJvmProperty(name, value);
       }
@@ -146,7 +146,7 @@ class JavaProcessJob extends Job {
    * @param name The JVM property name to set
    * @param value The JVM property value
    */
-  void setJvmProperty(String name, String value) {
+  void setJvmProperty(String name, Object value) {
     jvmProperties.put(name, value);
   }
 
@@ -160,7 +160,7 @@ class JavaProcessJob extends Job {
   void unionProperties(BasePropertySet propertySet) {
     super.unionProperties(propertySet);
 
-    propertySet.jvmProperties.each() { String name, String value ->
+    propertySet.jvmProperties.each() { String name, Object value ->
       if (!jvmProperties.containsKey(name)) {
         setJvmProperty(name, value);
       }

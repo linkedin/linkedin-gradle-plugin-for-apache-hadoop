@@ -115,7 +115,7 @@ class KafkaPushJob extends HadoopJavaJob {
    */
   void usesBatchNumBytes(Integer batchNumBytes) {
     this.batchNumBytes = batchNumBytes;
-    setJobProperty("batch.num.bytes", batchNumBytes.toString());
+    setJobProperty("batch.num.bytes", batchNumBytes);
   }
 
   /**
@@ -126,7 +126,7 @@ class KafkaPushJob extends HadoopJavaJob {
    */
   void usesDisableSchemaRegistration(Boolean disableSchemaRegistration) {
     this.disableSchemaRegistration = disableSchemaRegistration;
-    setJobProperty("disable.schema.registration", disableSchemaRegistration.toString());
+    setJobProperty("disable.schema.registration", disableSchemaRegistration);
   }
 
   /**
@@ -161,13 +161,12 @@ class KafkaPushJob extends HadoopJavaJob {
   }
 
   /**
-   * DSL usesDisableAuditing method causes disable.auditing=value to be set in the job
-   * file.
+   * DSL usesDisableAuditing method causes disable.auditing=value to be set in the job file.
    *
    * @param disableAuditing
    */
   void usesDisableAuditing(Boolean disableAuditing) {
-    this.disableAuditing= disableAuditing;
-    setJobProperty("disable.auditing", disableAuditing.toString());
+    this.disableAuditing = disableAuditing;
+    setJobProperty("disable.auditing", disableAuditing);
   }
 }

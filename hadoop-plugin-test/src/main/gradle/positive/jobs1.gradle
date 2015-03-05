@@ -73,12 +73,12 @@ hadoop {
         'foobar' : '/user/hacker/foobar.zip'
       ]
       set confProperties: [
-        'mapreduce.job.user.classpath.first': 'true',
-        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.job.user.classpath.first': true,
+        'mapreduce.reduce.memory.mb': 4096,
         'mapreduce.reduce.java.opts': '-Xmx3G'
       ]
       set properties: [
-        'force.output.overwrite': 'true',
+        'force.output.overwrite': true,
       ]
       queue 'marathon'
       depends 'job3'
@@ -93,7 +93,7 @@ hadoop {
         'path2' : '/user/bar'
       ]
       set confProperties: [
-        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.reduce.memory.mb': 4096,
         'mapreduce.reduce.java.opts': '-Xmx3G'
       ]
       set parameters: [
@@ -113,12 +113,12 @@ hadoop {
         'foobar' : '/user/hacker/foobar.zip'
       ]
       set confProperties: [
-        'mapreduce.job.user.classpath.first': 'true',
-        'mapreduce.reduce.memory.mb': '4096',
+        'mapreduce.job.user.classpath.first': true,
+        'mapreduce.reduce.memory.mb': 4096,
         'mapreduce.reduce.java.opts': '-Xmx3G'
       ]
       set properties: [
-        'force.output.overwrite': 'true',
+        'force.output.overwrite': true,
       ]
       queue 'marathon'
       depends 'job5'

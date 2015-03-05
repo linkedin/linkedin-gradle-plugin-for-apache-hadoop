@@ -21,9 +21,9 @@ package com.linkedin.gradle.hadoopdsl;
 abstract class BasePropertySet {
   String basePropertySetName;
   String name;
-  Map<String, String> confProperties;
-  Map<String, String> jobProperties;
-  Map<String, String> jvmProperties;
+  Map<String, Object> confProperties;
+  Map<String, Object> jobProperties;
+  Map<String, Object> jvmProperties;
 
   /**
    * Base constructor for BasePropertySet.
@@ -33,9 +33,9 @@ abstract class BasePropertySet {
   BasePropertySet(String name) {
     this.basePropertySetName = null;
     this.name = name;
-    this.confProperties = new LinkedHashMap<String, String>();
-    this.jobProperties = new LinkedHashMap<String, String>();
-    this.jvmProperties = new LinkedHashMap<String, String>();
+    this.confProperties = new LinkedHashMap<String, Object>();
+    this.jobProperties = new LinkedHashMap<String, Object>();
+    this.jvmProperties = new LinkedHashMap<String, Object>();
   }
 
   /**
@@ -92,19 +92,19 @@ abstract class BasePropertySet {
   void set(Map args) {
     if (args.containsKey("confProperties")) {
       Map<String, String> confProperties = args.confProperties;
-      confProperties.each() { String name, String value ->
+      confProperties.each() { String name, Object value ->
         setConfProperty(name, value);
       }
     }
     if (args.containsKey("jvmProperties")) {
       Map<String, String> jvmProperties = args.jvmProperties;
-      jvmProperties.each() { name, value ->
+      jvmProperties.each() { String name, Object value ->
         setJvmProperty(name, value);
       }
     }
     if (args.containsKey("properties")) {
       Map<String, String> properties = args.properties;
-      properties.each() { String name, String value ->
+      properties.each() { String name, Object value ->
         setJobProperty(name, value);
       }
     }
@@ -116,7 +116,7 @@ abstract class BasePropertySet {
    * @param name The Hadoop job configuration property to set
    * @param value The Hadoop job configuration property value
    */
-  void setConfProperty(String name, String value) {
+  void setConfProperty(String name, Object value) {
     confProperties.put(name, value);
   }
 
@@ -126,7 +126,7 @@ abstract class BasePropertySet {
    * @param name The job property to set
    * @param value The job property value
    */
-  void setJobProperty(String name, String value) {
+  void setJobProperty(String name, Object value) {
     jobProperties.put(name, value);
   }
 
@@ -136,7 +136,7 @@ abstract class BasePropertySet {
    * @param name The JVM property name to set
    * @param value The JVM property value
    */
-  void setJvmProperty(String name, String value) {
+  void setJvmProperty(String name, Object value) {
     jvmProperties.put(name, value);
   }
 
@@ -157,17 +157,17 @@ abstract class BasePropertySet {
    * @param propertySet The BasePropertySet to union to the current object
    */
   void unionProperties(BasePropertySet propertySet) {
-    propertySet.confProperties.each() { String name, String value ->
+    propertySet.confProperties.each() { String name, Object value ->
       if (!confProperties.containsKey(name)) {
         setConfProperty(name, value);
       }
     }
-    propertySet.jvmProperties.each() { name, value ->
+    propertySet.jvmProperties.each() { String name, Object value ->
       if (!jvmProperties.containsKey(name)) {
         setJvmProperty(name, value);
       }
     }
-    propertySet.jobProperties.each() { String name, String value ->
+    propertySet.jobProperties.each() { String name, Object value ->
       if (!jobProperties.containsKey(name)) {
         setJobProperty(name, value);
       }

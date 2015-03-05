@@ -236,7 +236,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesRepFactor(Integer repFactor) {
     this.repFactor = repFactor;
-    setJobProperty("build.replication.factor", repFactor.toString());
+    setJobProperty("build.replication.factor", repFactor);
   }
 
   /**
@@ -246,7 +246,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesCompressValue(Boolean compressValue) {
     this.compressValue = compressValue;
-    setJobProperty("build.compress.value", compressValue.toString());
+    setJobProperty("build.compress.value", compressValue);
   }
 
   /**
@@ -276,7 +276,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesNumChunks(Integer numChunks) {
     this.numChunks = numChunks;
-    setJobProperty("num.chunks", numChunks.toString());
+    setJobProperty("num.chunks", numChunks);
   }
 
   /**
@@ -286,7 +286,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesChunkSize(Integer chunkSize) {
     this.chunkSize = chunkSize;
-    setJobProperty("build.chunk.size", chunkSize.toString());
+    setJobProperty("build.chunk.size", chunkSize);
   }
 
   /**
@@ -296,7 +296,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesKeepOutput(Boolean keepOutput) {
     this.keepOutput = keepOutput;
-    setJobProperty("build.output.keep", keepOutput.toString());
+    setJobProperty("build.output.keep", keepOutput);
   }
 
   /**
@@ -307,7 +307,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesPushHttpTimeoutSeconds(Integer pushHttpTimeoutSeconds) {
     this.pushHttpTimeoutSeconds = pushHttpTimeoutSeconds;
-    setJobProperty("push.http.timeout.seconds", pushHttpTimeoutSeconds.toString());
+    setJobProperty("push.http.timeout.seconds", pushHttpTimeoutSeconds);
   }
 
   /**
@@ -317,7 +317,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesPushNode(Integer pushNode) {
     this.pushNode = pushNode;
-    setJobProperty("push.node", pushNode.toString());
+    setJobProperty("push.node", pushNode);
   }
 
   /**
@@ -327,7 +327,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesBuildStore(Boolean buildStore) {
     this.buildStore = buildStore;
-    setJobProperty("build", buildStore.toString());
+    setJobProperty("build", buildStore);
   }
 
   /**
@@ -337,7 +337,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesPushStore(Boolean pushStore) {
     this.pushStore = pushStore;
-    setJobProperty("push", pushStore.toString());
+    setJobProperty("push", pushStore);
   }
 
   /**
@@ -369,7 +369,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesAvroSerializerVersioned(Boolean isAvroSerializerVersioned) {
     this.isAvroSerializerVersioned = isAvroSerializerVersioned;
-    setJobProperty("avro.serializer.versioned", isAvroSerializerVersioned.toString());
+    setJobProperty("avro.serializer.versioned", isAvroSerializerVersioned);
   }
 
   /**
@@ -379,7 +379,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    */
   void usesAvroData(Boolean isAvroData) {
     this.isAvroData = isAvroData;
-    setJobProperty("build.type.avro", isAvroData.toString());
+    setJobProperty("build.type.avro", isAvroData);
   }
 
   /**

@@ -45,7 +45,7 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
 abstract class HadoopJavaProcessJob extends JavaProcessJob {
   Map<String, String> cacheArchives;
   Map<String, String> cacheFiles;
-  Map<String, String> confProperties;
+  Map<String, Object> confProperties;
   String queueName;
 
   /**
@@ -57,7 +57,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
     super(jobName);
     this.cacheArchives = new LinkedHashMap<String, String>();
     this.cacheFiles = new LinkedHashMap<String, String>();
-    this.confProperties = new LinkedHashMap<String, String>();
+    this.confProperties = new LinkedHashMap<String, Object>();
   }
 
   /**
@@ -205,8 +205,8 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
     super.set(args);
 
     if (args.containsKey("confProperties")) {
-      Map<String, String> confProperties = args.confProperties;
-      confProperties.each() { String name, String value ->
+      Map<String, Object> confProperties = args.confProperties;
+      confProperties.each() { String name, Object value ->
         setConfProperty(name, value);
       }
     }
@@ -219,7 +219,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    * @param name The Hadoop job configuration property to set
    * @param value The Hadoop job configuration property value
    */
-  void setConfProperty(String name, String value) {
+  void setConfProperty(String name, Object value) {
     confProperties.put(name, value);
     setJobProperty("hadoop-inject.${name}", value);
   }
@@ -234,7 +234,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
   void unionProperties(BasePropertySet propertySet) {
     super.unionProperties(propertySet);
 
-    propertySet.confProperties.each() { String name, String value ->
+    propertySet.confProperties.each() { String name, Object value ->
       if (!confProperties.containsKey(name)) {
         setConfProperty(name, value);
       }

@@ -41,7 +41,7 @@ package com.linkedin.gradle.hadoopdsl.job;
  * </pre>
  */
 class PigJob extends HadoopJavaProcessJob {
-  Map<String, String> parameters;
+  Map<String, Object> parameters;
   String script;
 
   /**
@@ -51,7 +51,7 @@ class PigJob extends HadoopJavaProcessJob {
    */
   PigJob(String jobName) {
     super(jobName);
-    parameters = new LinkedHashMap<String, String>();
+    parameters = new LinkedHashMap<String, Object>();
     setJobProperty("type", "pig");
   }
 
@@ -139,8 +139,8 @@ class PigJob extends HadoopJavaProcessJob {
     super.set(args);
 
     if (args.containsKey("parameters")) {
-      Map<String, String> parameters = args.parameters;
-      parameters.each() { String name, String value ->
+      Map<String, Object> parameters = args.parameters;
+      parameters.each() { String name, Object value ->
         setParameter(name, value);
       }
     }
@@ -154,7 +154,7 @@ class PigJob extends HadoopJavaProcessJob {
    * @param name The Pig parameter name
    * @param value The Pig parameter value
    */
-  void setParameter(String name, String value) {
+  void setParameter(String name, Object value) {
     parameters.put(name, value);
     setJobProperty("param.${name}", value);
   }

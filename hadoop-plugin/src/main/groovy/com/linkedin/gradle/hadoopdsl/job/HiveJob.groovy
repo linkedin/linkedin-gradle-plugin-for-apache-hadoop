@@ -41,7 +41,7 @@ package com.linkedin.gradle.hadoopdsl.job;
  * </pre>
  */
 class HiveJob extends HadoopJavaProcessJob {
-  Map<String, String> parameters;
+  Map<String, Object> parameters;
   String script;
 
   /**
@@ -51,7 +51,7 @@ class HiveJob extends HadoopJavaProcessJob {
    */
   HiveJob(String jobName) {
     super(jobName);
-    this.parameters = new LinkedHashMap<String, String>();
+    this.parameters = new LinkedHashMap<String, Object>();
     setJobProperty("type", "hive");
   }
 
@@ -139,8 +139,8 @@ class HiveJob extends HadoopJavaProcessJob {
     super.set(args);
 
     if (args.containsKey("parameters")) {
-      Map<String, String> parameters = args.parameters;
-      parameters.each() { String name, String value ->
+      Map<String, Object> parameters = args.parameters;
+      parameters.each() { String name, Object value ->
         setParameter(name, value);
       }
     }
@@ -153,7 +153,7 @@ class HiveJob extends HadoopJavaProcessJob {
    * @param name The Hive parameter name
    * @param value The Hive parameter value
    */
-  void setParameter(String name, String value) {
+  void setParameter(String name, Object value) {
     parameters.put(name, value);
     setJobProperty("hivevar.${name}", value);
   }

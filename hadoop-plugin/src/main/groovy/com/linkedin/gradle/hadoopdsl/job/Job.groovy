@@ -43,7 +43,7 @@ class Job {
   String basePropertySetName;
   String name;
   Set<String> dependencyNames;
-  Map<String, String> jobProperties;
+  Map<String, Object> jobProperties;
   List<String> reading;
   List<String> writing;
 
@@ -54,7 +54,7 @@ class Job {
    */
   Job(String jobName) {
     dependencyNames = new LinkedHashSet<String>();
-    jobProperties = new LinkedHashMap<String, String>();
+    jobProperties = new LinkedHashMap<String, Object>();
     name = jobName;
     reading = new ArrayList<String>();
     writing = new ArrayList<String>();
@@ -117,7 +117,10 @@ class Job {
     }
 
     Map<String, String> allProperties = new LinkedHashMap<String, String>();
-    allProperties.putAll(jobProperties);
+
+    jobProperties.each { String key, Object val ->
+      allProperties.put(key, val.toString());
+    }
 
     if (dependencyNames.size() > 0) {
       allProperties["dependencies"] = dependencyNames.collect() { String targetName -> return buildFileName(parentScope, targetName) }.join(",");
@@ -262,8 +265,8 @@ class Job {
    */
   void set(Map args) {
     if (args.containsKey("properties")) {
-      Map<String, String> properties = args.properties;
-      properties.each() { String name, String value ->
+      Map<String, Object> properties = args.properties;
+      properties.each() { String name, Object value ->
         setJobProperty(name, value);
       }
     }
@@ -276,7 +279,7 @@ class Job {
    * @param name The job property to set
    * @param value The job property value
    */
-  void setJobProperty(String name, String value) {
+  void setJobProperty(String name, Object value) {
     jobProperties.put(name, value);
   }
 
@@ -297,7 +300,7 @@ class Job {
    * @param propertySet The BasePropertySet to union to the job
    */
   void unionProperties(BasePropertySet propertySet) {
-    propertySet.jobProperties.each() { String name, String value ->
+    propertySet.jobProperties.each() { String name, Object value ->
       if (!jobProperties.containsKey(name)) {
         setJobProperty(name, value);
       }

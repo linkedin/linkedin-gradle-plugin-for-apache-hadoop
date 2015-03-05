@@ -84,10 +84,13 @@ class Properties extends BasePropertySet {
     }
 
     Map<String, String> allProperties = new LinkedHashMap<String, String>();
-    allProperties.putAll(jobProperties);
+
+    jobProperties.each { String key, Object val ->
+      allProperties.put(key, val.toString());
+    }
 
     if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val.toString()}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
     }
 
@@ -122,7 +125,7 @@ class Properties extends BasePropertySet {
    * @param value The Hadoop job configuration property value
    */
   @Override
-  void setConfProperty(String name, String value) {
+  void setConfProperty(String name, Object value) {
     super.setConfProperty(name, value);
     setJobProperty("hadoop-inject.${name}", value);
   }
