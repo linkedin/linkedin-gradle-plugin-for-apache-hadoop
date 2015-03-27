@@ -147,12 +147,7 @@ class ScmPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       String projectRoot = "${project.getRootProject().projectDir}/";
-      List<String> excludeList = new ArrayList<String>();
-
-      project.getRootProject().getAllprojects().each { subproject ->
-        String excludeDir = "${subproject.buildDir}".minus(projectRoot);
-        excludeList.add(excludeDir);
-      }
+      List<String> excludeList = buildExcludeList(project);
 
       FileTree fileTree = project.getRootProject().fileTree([
         dir: projectRoot,
@@ -161,6 +156,28 @@ class ScmPlugin implements Plugin<Project> {
 
       from fileTree;
     }
+  }
+
+  /**
+   * Builds a list of relative paths to exclude from the sources zip for the project.
+   *
+   * @param project The Gradle project
+   * @return The list of relative paths to exclude from the sources zip
+   */
+  List<String> buildExcludeList(Project project) {
+    List<String> excludeList = new ArrayList<String>();
+    excludeList.add(".gradle");
+
+    String projectRoot = "${project.getRootProject().projectDir}/";
+    project.getRootProject().getAllprojects().each { subproject ->
+      String excludeDir = "${subproject.buildDir}".minus(projectRoot);
+      excludeList.add(excludeDir);
+      excludeList.add("${subproject.name}/bin");
+      excludeList.add("${subproject.name}/build");
+      excludeList.add("${subproject.name}/target");
+    }
+
+    return excludeList;
   }
 
   /**

@@ -63,4 +63,17 @@ class LiScmPlugin extends ScmPlugin {
       }
     }
   }
+
+  /**
+   * Builds a list of relative paths to exclude from the sources zip for the project.
+   *
+   * @param project The Gradle project
+   * @return The list of relative paths to exclude from the sources zip
+   */
+  @Override
+  List<String> buildExcludeList(Project project) {
+    List<String> excludeList = super.buildExcludeList(project);
+    excludeList.add("ligradle");
+    return excludeList;
+  }
 }

@@ -73,12 +73,12 @@ class GitMetadata {
   }
 
   /**
-   * Gets the output of 'git branch -v'.
+   * Gets the output of 'git branch'.
    *
-   * @return The output of 'git branch -v'
+   * @return The output of 'git branch'
    */
   static String getGitBranch() {
-    def command = "git branch -v";
+    def command = "git branch";
     return ScmMetadataContainer.runCommand(command);
   }
 
