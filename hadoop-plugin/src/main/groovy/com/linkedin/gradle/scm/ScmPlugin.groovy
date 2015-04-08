@@ -166,17 +166,11 @@ class ScmPlugin implements Plugin<Project> {
    */
   List<String> buildExcludeList(Project project) {
     List<String> excludeList = new ArrayList<String>();
-    excludeList.add(".gradle");
-
-    String projectRoot = "${project.getRootProject().projectDir}/";
-    project.getRootProject().getAllprojects().each { subproject ->
-      String excludeDir = "${subproject.buildDir}".minus(projectRoot);
-      excludeList.add(excludeDir);
-      excludeList.add("${subproject.name}/bin");
-      excludeList.add("${subproject.name}/build");
-      excludeList.add("${subproject.name}/target");
-    }
-
+    excludeList.add("**/.gradle");
+    excludeList.add("**/.metadata");
+    excludeList.add("**/bin");
+    excludeList.add("**/build");
+    excludeList.add("**/target");
     return excludeList;
   }
 
