@@ -94,8 +94,8 @@ class AzkabanDslCompiler extends BaseCompiler {
       // Try to make the directory automatically if we can. For git users, this is convenient as
       // git will not push empty directories in the repository (and users will often add the
       // generated job files to their gitignore).
-      if (!file.mkdir()) {
-        throw new IOException("Directory ${this.parentDirectory} for the workflow ${workflow.name} does not exist and could not be created");
+      if (!file.mkdirs()) {
+        throw new IOException("Directory ${this.parentDirectory} for the workflow ${workflow.name} could not be created");
       }
     }
 
