@@ -16,6 +16,7 @@
 package com.linkedin.gradle.scm;
 
 import groovy.json.JsonBuilder;
+import groovy.json.JsonSlurper;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -41,6 +42,19 @@ class ScmPlugin implements Plugin<Project> {
       return;
     }
 
+
+    project.tasks.create("writeScmPluginData"){
+      description = "writes SCM Plugin data"
+      group = "Hadoop Plugin"
+
+      def scmPluginDataFilePath = getScmPluginDataFilePath(project)
+      if(!new File(scmPluginDataFilePath).exists()){
+        String scmDataJson = new JsonBuilder(new ScmPluginData()).toPrettyString()
+        new File(scmPluginDataFilePath).write(scmDataJson)
+      }
+    }
+
+
     project.tasks.create("buildScmMetadata") {
       description = "Writes SCM metadata about the project";
       group = "Hadoop Plugin";
@@ -61,6 +75,7 @@ class ScmPlugin implements Plugin<Project> {
         println(new JsonBuilder(scm).toPrettyString());
       }
     }
+
 
     // We'll create the buildSourceZip task on the root project, so that there is only one sources
     // zip created that can be shared by all projects. Thus, only create the buildSourceZip task on
@@ -166,12 +181,26 @@ class ScmPlugin implements Plugin<Project> {
    */
   List<String> buildExcludeList(Project project) {
     List<String> excludeList = new ArrayList<String>();
-    excludeList.add("**/.gradle");
-    excludeList.add("**/.metadata");
-    excludeList.add("**/bin");
-    excludeList.add("**/build");
-    excludeList.add("**/target");
+    def slurper = new JsonSlurper();
+    def scmPluginDataFilePath = getScmPluginDataFilePath(project);
+    try {
+      def reader = new BufferedReader(new FileReader(scmPluginDataFilePath));
+      def parsedData = slurper.parse(reader).sourceExclude;
+      parsedData.each {  exclude ->
+        excludeList.add(exclude)
+      }
+    } catch(IOException e){
+      println(e.printStackTrace())
+    }
     return excludeList;
+  }
+
+  /**
+   * @param project
+   * @return path of .scmPlugin.json
+   */
+  String getScmPluginDataFilePath(Project project){
+    return  "${project.getRootProject().projectDir}/.scmPlugin.json"
   }
 
   /**
