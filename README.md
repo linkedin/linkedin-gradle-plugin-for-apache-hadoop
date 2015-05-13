@@ -1,10 +1,27 @@
-## Hadoop Gradle Plugin
+<!--
+Copyright 2014 LinkedIn Corp.
 
-The Hadoop Plugin will help you more effectively build, test and deploy Hadoop applications. In
-particular, the first release of the Plugin will help you quickly debug Apache Pig scripts and
-build Hadoop data workflows with the Hadoop DSL.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
 
-### Project Structure
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+
+### Hadoop Plugin
+
+The Hadoop Plugin will help you more effectively build, test and deploy Hadoop applications.
+
+In particular, the Plugin will help you easily work with Hadoop applications like Apache Pig and
+build workflows for Hadoop workflow schedulers like Azkaban and Apache Oozie.
+
+#### Project Structure
 
 The project structure is setup as follows:
 
@@ -15,11 +32,19 @@ The project structure is setup as follows:
 Although the li-hadoop-plugin code is generally specific to LinkedIn, it is included in the project
 to show you how to use subclassing to extend the core functionality of the Hadoop Plugin.
 
-### Test Cases
+#### Building and Running Test Cases
 
-To run the test cases, just "gradle build" from either the top-level directory or the
-hadoop-plugin-test directory.
+To build the Plugin and run the test cases, just "./gradlew build" from the top-level project
+directory
 
-To see all the tests you can run, "gradle tasks" from the hadoop-plugin-test directory. You can run
-an individual test with "gradle test_<testName>". You can also run multiple tests by running
-"gradle test_<testName1> ... test_<testNameN>".
+To see all the tests you can run, "./gradlew tasks" from the top-level project directory. You can
+run an individual test with "./gradlew test_<testName>". You can also run multiple tests by running
+"./gradlew test_<testName1> ... test_<testNameN>".
+
+#### Hadoop Plugin User Guide
+The Hadoop Plugin User Guide is available at [Hadoop Plugin User Guide]
+(https://github.com/convexquad/hadoop-plugin/wiki/Hadoop-Plugin-User-Guide).
+
+#### Hadoop DSL Language Reference
+The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference]
+(https://github.com/convexquad/hadoop-plugin/wiki/Hadoop-DSL-Language-Reference).
