@@ -20,11 +20,11 @@ class ScmPluginData {
 
   List<String> sourceExclude = new ArrayList<String>();
 
-  ScmPluginData(){
-    sourceExclude.add("**/.gradle")
-    sourceExclude.add("**/.metadata")
-    sourceExclude.add("**/bin")
-    sourceExclude.add("**/build")
-    sourceExclude.add("**/target")
+  ScmPluginData() {
+    sourceExclude.add("**/.gradle");
+    sourceExclude.add("**/.metadata");
+    sourceExclude.add("**/bin");
+    sourceExclude.add("**/build");
+    sourceExclude.add("**/target");
   }
 }

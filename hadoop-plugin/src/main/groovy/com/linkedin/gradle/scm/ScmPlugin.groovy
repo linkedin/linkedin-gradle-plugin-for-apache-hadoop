@@ -42,18 +42,18 @@ class ScmPlugin implements Plugin<Project> {
       return;
     }
 
+    project.tasks.create("writeScmPluginData") {
+      description = "Writes the SCM plugin configuration json file";
+      group = "Hadoop Plugin";
 
-    project.tasks.create("writeScmPluginData"){
-      description = "writes SCM Plugin data"
-      group = "Hadoop Plugin"
-
-      def scmPluginDataFilePath = getScmPluginDataFilePath(project)
-      if(!new File(scmPluginDataFilePath).exists()){
-        String scmDataJson = new JsonBuilder(new ScmPluginData()).toPrettyString()
-        new File(scmPluginDataFilePath).write(scmDataJson)
+      doLast {
+        def scmPluginDataFilePath = getScmPluginDataFilePath(project);
+        if (!new File(scmPluginDataFilePath).exists()) {
+          String scmDataJson = new JsonBuilder(new ScmPluginData()).toPrettyString();
+          new File(scmPluginDataFilePath).write(scmDataJson);
+        }
       }
     }
-
 
     project.tasks.create("buildScmMetadata") {
       description = "Writes SCM metadata about the project";
@@ -180,27 +180,30 @@ class ScmPlugin implements Plugin<Project> {
    * @return The list of relative paths to exclude from the sources zip
    */
   List<String> buildExcludeList(Project project) {
-    List<String> excludeList = new ArrayList<String>();
-    def slurper = new JsonSlurper();
+    List<String> excludeList = new ScmPluginData().sourceExclude;
     def scmPluginDataFilePath = getScmPluginDataFilePath(project);
-    try {
+
+    if (new File(scmPluginDataFilePath).exists()) {
+      def slurper = new JsonSlurper();
       def reader = new BufferedReader(new FileReader(scmPluginDataFilePath));
       def parsedData = slurper.parse(reader).sourceExclude;
-      parsedData.each {  exclude ->
-        excludeList.add(exclude)
+      parsedData.each { exclude ->
+        excludeList.add(exclude);
       }
-    } catch(IOException e){
-      println(e.printStackTrace())
     }
+
     return excludeList;
   }
 
   /**
-   * @param project
-   * @return path of .scmPlugin.json
+   * Helper method to determine the location of the plugin json file. This helper method will make
+   * it easy for subclasses to get (or customize) the file location.
+   *
+   * @param project The Gradle project
+   * @return The path to the plugin json file
    */
-  String getScmPluginDataFilePath(Project project){
-    return  "${project.getRootProject().projectDir}/.scmPlugin.json"
+  String getScmPluginDataFilePath(Project project) {
+    return "${project.getRootProject().projectDir}/.scmPlugin.json";
   }
 
   /**

@@ -13,221 +13,219 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+package com.linkedin.gradle.scm;
 
+import org.gradle.api.Project;
+import org.gradle.api.distribution.Distribution;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.tasks.bundling.Zip;
+import org.gradle.testfixtures.ProjectBuilder;
 
-package com.linkedin.gradle.scm
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.gradle.api.Project
-import org.gradle.api.distribution.Distribution
-import org.gradle.api.file.FileTree
-import org.gradle.api.tasks.bundling.Zip
-import org.junit.*;
-import org.junit.Assert.*;
-import org.gradle.testfixtures.ProjectBuilder
-import com.linkedin.gradle.hadoop.HadoopPlugin
-import com.linkedin.gradle.scm.ScmPlugin
+import com.linkedin.gradle.hadoop.HadoopPlugin;
+import com.linkedin.gradle.scm.ScmPlugin;
 
 class ExcludeSourceTest {
 
-  private Project project
-  private TestScmPlugin plugin
-  private Distribution distPlugin
+  private Distribution distPlugin;
+  private Project project;
+  private TestScmPlugin plugin;
 
   @Before
-  public void setup(){
-    project = ProjectBuilder.builder().build()
-    project.apply plugin: 'distribution'
-    plugin = new TestScmPlugin()
-    def Folder = project.getProjectDir()
+  public void setup() {
+    project = ProjectBuilder.builder().build();
+    project.apply plugin: 'distribution';
+    plugin = new TestScmPlugin();
+    def folder = project.getProjectDir();
 
-    // create directories : src, resources, dist
-    project.mkdir(Folder.absolutePath + "/src")
-    project.mkdir(Folder.absolutePath + "/resources")
-    project.mkdir(Folder.absolutePath + "/dist")
+    // Create directories: src, resources, dist
+    project.mkdir(folder.absolutePath + "/src");
+    project.mkdir(folder.absolutePath + "/resources");
+    project.mkdir(folder.absolutePath + "/dist");
 
     /**
-     * create files inside directories
+     * Create files inside directories:
      *  src/sample0.java src/sample1.java src/sample2.java src/sample3.java src/sample4.java
      *  resources/sample0.avro resources/sample1.avro resources/sample2.avro resources/sample3.avro resources/sample4.avro
      *  dist/sample0.class dist/sample1.class dist/sample2.class dist/sample3.class dist/sample4.class
      */
-    createFilesForTesting(Folder.absolutePath + "/src","java",5);
-    createFilesForTesting(Folder.absolutePath + "/resources","avro",5);
-    createFilesForTesting(Folder.absolutePath + "/dist","class",5);
+    createFilesForTesting(folder.absolutePath + "/src","java", 5);
+    createFilesForTesting(folder.absolutePath + "/resources","avro", 5);
+    createFilesForTesting(folder.absolutePath + "/dist","class", 5);
   }
 
-  private void createFilesForTesting(String dir, String ext,int number){
-    number.times{
-      def filename = dir +  "/sample" + it.toString() + "."  + ext
-      String toWrite = "blah"
-      PrintWriter writer = new PrintWriter(filename)
-      writer.print(toWrite)
-      writer.close()
+  private void createFilesForTesting(String dir, String ext, int number) {
+    number.times {
+      def filename = dir + "/sample" + it.toString() + "." + ext;
+      PrintWriter writer = new PrintWriter(filename);
+      writer.print("blah");
+      writer.close();
     }
   }
 
-
   /**
-   * exclude all directories except for src, exclude only a single file from src(sample0.java)
+   * Exclude all directories except for src and exclude only a single file from src (sample0.java).
    */
   @Test
-  public void testExclusionOfSingleFile(){
-    Set<String> actual = new HashSet<String>()
-    //write custom json .scmPlugin file
+  public void testExclusionOfSingleFile() {
+    Set<String> actual = new HashSet<String>();
+
+    // write a custom json .scmPlugin file
     String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\",\n \"src/sample0.java\", \n \"**/build\" \n ] \n }"
-    PrintWriter writer = new PrintWriter(path)
-    writer.print(jsonFile)
-    writer.close()
+    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\",\n \"src/sample0.java\", \n \"**/build\" \n ] \n }";
+    PrintWriter writer = new PrintWriter(path);
+    writer.print(jsonFile);
+    writer.close();
 
-    // sample0.java is excluded.
-    Set<String> expected = new HashSet<String>()
-    expected.add("sample1.java")
-    expected.add("sample2.java")
-    expected.add("sample3.java")
-    expected.add("sample4.java")
+    // sample0.java is excluded
+    Set<String> expected = new HashSet<String>();
+    expected.add("sample1.java");
+    expected.add("sample2.java");
+    expected.add("sample3.java");
+    expected.add("sample4.java");
 
-    plugin.apply(project)
-    def task = project.getTasksByName("buildSourceZip",false)
-    def zipTask = task.iterator().next()
-    zipTask.execute()
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file-> actual.add( file.name )}
-
-    Assert.assertEquals(expected,actual)
-
-
+    plugin.apply(project);
+    def task = project.getTasksByName("buildSourceZip", false);
+    def zipTask = task.iterator().next();
+    zipTask.execute();
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
+    Assert.assertEquals(expected, actual);
   }
+
   /**
-   * exclude all the directories except for src
+   * Exclude all the directories except for src.
    */
   @Test
-  public void testExclusionOfDirectories(){
+  public void testExclusionOfDirectories() {
+    Set<String> actual = new HashSet<String>();
 
-    Set<String> actual = new HashSet<String>()
-    //write custom json .scmPlugin file
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\", \n \"**/build\" \n ] \n }"
-    PrintWriter writer = new PrintWriter(path)
-    writer.print(jsonFile)
-    writer.close()
+    // write custom json .scmPlugin file
+    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
+    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\", \n \"**/build\" \n ] \n }";
+    PrintWriter writer = new PrintWriter(path);
+    writer.print(jsonFile);
+    writer.close();
 
+    Set<String> expected = new HashSet<String>();
+    expected.add("sample0.java");
+    expected.add("sample1.java");
+    expected.add("sample2.java");
+    expected.add("sample3.java");
+    expected.add("sample4.java");
 
-    Set<String> expected = new HashSet<String>()
-    expected.add("sample0.java")
-    expected.add("sample1.java")
-    expected.add("sample2.java")
-    expected.add("sample3.java")
-    expected.add("sample4.java")
-
-    plugin.apply(project)
-    def task = project.getTasksByName("buildSourceZip",false)
-    def zipTask = task.iterator().next()
-    zipTask.execute()
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file-> actual.add( file.name )}
-
-    Assert.assertEquals(expected,actual)
+    plugin.apply(project);
+    def task = project.getTasksByName("buildSourceZip", false);
+    def zipTask = task.iterator().next();
+    zipTask.execute();
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
+    Assert.assertEquals(expected, actual);
   }
 
-
   /**
-   * include all the directories and files
+   * Include all directories and files.
    */
   @Test
   public void testInclusionOfDirectories(){
+    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
+    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/build\" \n ] \n }";
 
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/build\" \n ] \n }"
+    PrintWriter writer = new PrintWriter(path);
+    writer.print(jsonFile);
+    writer.close();
+    plugin.apply(project);
+    def task = project.getTasksByName("buildSourceZip", false);
+    def zipTask = task.iterator().next();
+    zipTask.execute();
 
-    PrintWriter writer = new PrintWriter(path)
-    writer.print(jsonFile)
-    writer.close()
-    plugin.apply(project)
-    def task = project.getTasksByName("buildSourceZip",false)
-    def zipTask = task.iterator().next()
-    zipTask.execute()
-    Set<String> expected = new HashSet<String>()
-    expected.add("sample0.avro")
-    expected.add("sample1.avro")
-    expected.add("sample2.avro")
-    expected.add("sample3.avro")
-    expected.add("sample4.avro")
-    expected.add("sample0.java")
-    expected.add("sample1.java")
-    expected.add("sample2.java")
-    expected.add("sample3.java")
-    expected.add("sample4.java")
-    expected.add("sample0.class")
-    expected.add("sample1.class")
-    expected.add("sample2.class")
-    expected.add("sample3.class")
-    expected.add("sample4.class")
+    Set<String> expected = new HashSet<String>();
+    expected.add("sample0.avro");
+    expected.add("sample1.avro");
+    expected.add("sample2.avro");
+    expected.add("sample3.avro");
+    expected.add("sample4.avro");
+    expected.add("sample0.java");
+    expected.add("sample1.java");
+    expected.add("sample2.java");
+    expected.add("sample3.java");
+    expected.add("sample4.java");
+    expected.add("sample0.class");
+    expected.add("sample1.class");
+    expected.add("sample2.class");
+    expected.add("sample3.class");
+    expected.add("sample4.class");
 
-    Set<String> actual = new HashSet<String>()
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file-> actual.add( file.name )}
-    Assert.assertEquals(expected,actual)
+    Set<String> actual = new HashSet<String>();
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
+    Assert.assertEquals(expected, actual);
   }
 
 /**
- * exclude files based on the filetype, exclude *.avro and *.class files
+ * Exclude files based on the file type: exclude *.avro and *.class files.
  */
   @Test
-  public void testExclusionOfFileType(){
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.avro\", \n \"**/build\" \n ] \n }"
-    PrintWriter writer = new PrintWriter(path)
-    writer.print(jsonFile)
-    writer.close()
-    plugin.apply(project)
-    def task = project.getTasksByName("buildSourceZip",false)
-    def zipTask = task.iterator().next()
-    zipTask.execute()
-    Set<String> expected = new HashSet<String>()
-    expected.add("sample0.java")
-    expected.add("sample1.java")
-    expected.add("sample2.java")
-    expected.add("sample3.java")
-    expected.add("sample4.java")
-    Set<String> actual = new HashSet<String>()
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file-> actual.add( file.name )}
-    Assert.assertEquals(expected,actual)
+  public void testExclusionOfFileType() {
+    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
+    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.avro\", \n \"**/build\" \n ] \n }";
+    PrintWriter writer = new PrintWriter(path);
+    writer.print(jsonFile);
+    writer.close();
+    plugin.apply(project);
+    def task = project.getTasksByName("buildSourceZip", false);
+    def zipTask = task.iterator().next();
+    zipTask.execute();
+
+    Set<String> expected = new HashSet<String>();
+    expected.add("sample0.java");
+    expected.add("sample1.java");
+    expected.add("sample2.java");
+    expected.add("sample3.java");
+    expected.add("sample4.java");
+
+    Set<String> actual = new HashSet<String>();
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
+    Assert.assertEquals(expected, actual);
   }
 
   /**
-   * Add xml files to resources but exclude only one type of files(avro) from resources directory.
+   * Add xml files to resources but exclude only one type of file (avro) from resources directory.
    */
   @Test
   public void testFilesInsideDirectory(){
-    createFilesForTesting(project.getProjectDir().absolutePath + "/resources","xml",5);
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.java\",\n \"resources/*.avro\",\n \"**/*.avro\", \n \"**/build\" \n ] \n }"
-    PrintWriter writer = new PrintWriter(path)
-    writer.print(jsonFile)
-    writer.close()
-    plugin.apply(project)
-    def task = project.getTasksByName("buildSourceZip",false)
-    def zipTask = task.iterator().next()
-    zipTask.execute()
-    Set<String> expected = new HashSet<String>()
-    expected.add("sample0.xml")
-    expected.add("sample1.xml")
-    expected.add("sample2.xml")
-    expected.add("sample3.xml")
-    expected.add("sample4.xml")
-    Set<String> actual = new HashSet<String>()
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file-> actual.add( file.name )}
-    Assert.assertEquals(expected,actual)
+    createFilesForTesting(project.getProjectDir().absolutePath + "/resources", "xml", 5);
+    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
+    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.java\",\n \"resources/*.avro\",\n \"**/*.avro\", \n \"**/build\" \n ] \n }";
+    PrintWriter writer = new PrintWriter(path);
+    writer.print(jsonFile);
+    writer.close();
+    plugin.apply(project);
+    def task = project.getTasksByName("buildSourceZip", false);
+    def zipTask = task.iterator().next();
+    zipTask.execute();
+
+    Set<String> expected = new HashSet<String>();
+    expected.add("sample0.xml");
+    expected.add("sample1.xml");
+    expected.add("sample2.xml");
+    expected.add("sample3.xml");
+    expected.add("sample4.xml");
+
+    Set<String> actual = new HashSet<String>();
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
+    Assert.assertEquals(expected, actual);
   }
 
-  class TestScmPlugin extends ScmPlugin{
-
+  class TestScmPlugin extends ScmPlugin {
     @Override
-    void apply(Project project){
-      super.apply(project)
+    void apply(Project project) {
+      super.apply(project);
     }
 
     @Override
-    String getScmPluginDataFilePath(Project project){
-      return System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
+    String getScmPluginDataFilePath(Project project) {
+      return System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
     }
   }
 }
