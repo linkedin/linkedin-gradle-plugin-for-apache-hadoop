@@ -61,10 +61,12 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     // Add the extensions that expose the DSL to users. Specifically, expose all of the DSL
     // functions on the NamedScopeContainer interface.
     project.extensions.add("addJob", this.&addJob);
+    project.extensions.add("addNamespace", this.&addNamespace);
     project.extensions.add("addPropertyFile", this.&addPropertyFile);
     project.extensions.add("addPropertySet", this.&addPropertySet);
     project.extensions.add("addWorkflow", this.&addWorkflow);
     project.extensions.add("lookup", this.&lookup);
+    project.extensions.add("namespace", this.&namespace);
     project.extensions.add("propertyFile", this.&propertyFile);
     project.extensions.add("propertySet", this.&propertySet);
     project.extensions.add("workflow", this.&workflow);

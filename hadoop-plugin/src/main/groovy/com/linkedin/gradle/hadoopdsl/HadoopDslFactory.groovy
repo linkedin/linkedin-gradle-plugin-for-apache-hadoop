@@ -180,6 +180,18 @@ class HadoopDslFactory {
   }
 
   /**
+   * Factory method to build a Namespace.
+   *
+   * @param name The namespace name
+   * @param project The Gradle project
+   * @param parentScope The parent scope
+   * @return The namespace
+   */
+  Namespace makeNamespace(String name, Project project, NamedScope parentScope) {
+    return new Namespace(name, project, parentScope);
+  }
+
+  /**
    * Factory method to build a Properties object.
    *
    * @param name The Properties name

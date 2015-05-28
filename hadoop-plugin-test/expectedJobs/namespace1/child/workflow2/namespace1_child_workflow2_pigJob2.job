@@ -1,0 +1,3 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+pig.script=src/main/pig/pigScript2.pig

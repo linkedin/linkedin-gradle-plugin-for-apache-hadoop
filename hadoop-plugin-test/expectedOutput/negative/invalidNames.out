@@ -6,6 +6,8 @@ ValidNameChecker ERROR: The job  has an invalid name. Names of objects declared 
 ValidNameChecker ERROR: The job   has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
 ValidNameChecker ERROR: The job job1# has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
 ValidNameChecker ERROR: The job job 2 has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The namespace null has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The namespace   has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
 :hadoop-plugin-test:test_invalidNames FAILED
 
 BUILD FAILED

@@ -39,6 +39,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
 
   // DSL elements that can be added in scope
   List<Job> jobs;
+  List<Namespace> namespaces;
   List<Properties> properties;
   List<PropertySet> propertySets;
   List<Workflow> workflows;
@@ -58,6 +59,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.scope = new NamedScope(scopeName, parentScope);
     this.project = null;
     this.jobs = new ArrayList<Job>();
+    this.namespaces = new ArrayList<Namespace>();
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Job>();
@@ -73,8 +75,9 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   BaseNamedScopeContainer(Project project, NamedScope parentScope, String scopeName) {
     this.factory = project.extensions.hadoopDslFactory;
     this.scope = new NamedScope(scopeName, parentScope);
-    this.jobs = new ArrayList<Job>();
     this.project = project;
+    this.jobs = new ArrayList<Job>();
+    this.namespaces = new ArrayList<Namespace>();
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Job>();
@@ -99,6 +102,12 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     for (Job job : jobs) {
       Job clone = job.clone();
       container.jobs.add(clone);
+      container.scope.bind(clone.name, clone);
+    }
+
+    for (Namespace namespace : namespaces) {
+      Namespace clone = namespace.clone(container.getScope());
+      container.namespaces.add(clone);
       container.scope.bind(clone.name, clone);
     }
 
@@ -148,6 +157,34 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     Job job = cloneJob(name);
     job.name = rename;
     return job;
+  }
+
+  /**
+   * Helper method to clone a Namespace in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  Namespace cloneNamespace(String name) {
+    Namespace namespace = scope.lookup(name);
+    if (namespace == null) {
+      throw new Exception("Could not find namespace ${name} from scope ${scope.levelName}");
+    }
+    return namespace.clone(scope);
+  }
+
+  /**
+   * Helper method to clone a Namespace in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  Namespace cloneNamespace(String name, String rename) {
+    Namespace namespace = cloneNamespace(name);
+    namespace.name = rename;
+    namespace.scope.levelName = rename;
+    return namespace;
   }
 
   /**
@@ -248,6 +285,21 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
+   * Helper method to configure a Namespace in the DSL. Can be called by subclasses to configure
+   * custom Namespace subclass types.
+   *
+   * @param namespace The namespace to configure
+   * @param configure The configuration closure
+   * @return The input namespace, which is now configured
+   */
+  Namespace configureNamespace(Namespace namespace, Closure configure) {
+    scope.bind(namespace.name, namespace);
+    project.configure(namespace, configure);
+    namespaces.add(namespace);
+    return namespace;
+  }
+
+  /**
    * Helper method to configure Properties objects in the DSL. Can be called by subclasses to
    * configure custom Properties subclass types.
    *
@@ -316,6 +368,32 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   Job addJob(String name, String rename, Closure configure) {
     return configureJob(cloneJob(name, rename), configure);
+  }
+
+  /**
+   * DSL addNamespace method. Looks up the namespace with given name, clones it, configures the
+   * clone with the given configuration closure and binds the clone in scope.
+   *
+   * @param name The namespace name to lookup
+   * @param configure The configuration closure
+   * @return The cloned and configured namespace that was bound in scope
+   */
+  Namespace addNamespace(String name, Closure configure) {
+    return configureNamespace(cloneNamespace(name), configure);
+  }
+
+  /**
+   * DSL addNamespace method. Looks up the namespace with given name, clones it, renames the clone
+   * to the specified name, configures the clone with the given configuration closure and binds the
+   * clone in scope.
+   *
+   * @param name The namespace name to lookup
+   * @param rename The new name to give the cloned namespace
+   * @param configure The configuration closure
+   * @return The cloned, renamed and configured namespace that was bound in scope
+   */
+  Namespace addNamespace(String name, String rename, Closure configure) {
+    return configureNamespace(cloneNamespace(name, rename), configure);
   }
 
   /**
@@ -431,6 +509,31 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     }
     project.configure(boundObject, configure);
     return boundObject;
+  }
+
+  /**
+   * DSL namespace method. Creates a Namespace in scope with the given name and configuration.
+   * <p>
+   * For ease of organizing the user's Gradle scripts, namespaces can be redeclared at the same
+   * scope level. If the namespace already exists, it will simply be configured with the given
+   * closure configuration. .
+   *
+   * @param name The namespace name
+   * @param configure The configuration closure
+   * @return The namespace
+   */
+  Namespace namespace(String name, Closure configure) {
+    // Check if the namespace is in scope at this level
+    Object boundObject = scope.thisLevel.get(name);
+    if (boundObject == null) {
+      return configureNamespace(factory.makeNamespace(name, project, scope), configure);
+    }
+    if (boundObject instanceof Namespace) {
+      Namespace namespace = (Namespace)boundObject;
+      project.configure(namespace, configure);
+      return namespace;
+    }
+    throw new Exception("An object with the name ${name} is already declared in the scope ${scope.levelName}");
   }
 
   /**

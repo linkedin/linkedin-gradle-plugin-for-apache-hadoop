@@ -32,4 +32,10 @@ hadoop {
 
     targets '', '  ', 'job1#', 'job 2'
   }
+
+  namespace(null) {
+  }
+
+  namespace(' ') {
+  }
 }

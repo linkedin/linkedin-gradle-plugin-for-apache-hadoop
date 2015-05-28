@@ -17,6 +17,7 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
 import com.linkedin.gradle.hadoopdsl.Workflow;
@@ -50,6 +51,42 @@ class AzkabanDslCompiler extends BaseCompiler {
         f.delete();
       }
     }
+  }
+
+  /**
+   * Builds the namespace. Creates a subdirectory for everything under the namespace.
+   *
+   * @param namespace The namespace to build
+   */
+  @Override
+  void visitNamespace(Namespace namespace) {
+    // Save the last parent directory information
+    String oldParentDirectory = this.parentDirectory;
+
+    // Set the new parent directory information
+    this.parentDirectory = "${this.parentDirectory}/${namespace.name}";
+
+    // Build a directory for the namespace
+    File file = new File(this.parentDirectory);
+    if (file.exists()) {
+      if (!file.isDirectory()) {
+        throw new IOException("Directory ${this.parentDirectory} for the namespace ${namespace.name} must specify a directory");
+      }
+    }
+    else {
+      // Try to make the directory automatically if we can. For git users, this is convenient as
+      // git will not push empty directories in the repository (and users will often add the
+      // generated job files to their gitignore).
+      if (!file.mkdirs()) {
+        throw new IOException("Directory ${this.parentDirectory} for the namespace ${namespace.name} could not be created");
+      }
+    }
+
+    // Visit the elements in the namespace
+    visitScopeContainer(namespace);
+
+    // Restore the last parent directory
+    this.parentDirectory = oldParentDirectory;
   }
 
   /**
@@ -115,6 +152,11 @@ class AzkabanDslCompiler extends BaseCompiler {
     // Visit each subflow to build in the workflow
     workflow.flowsToBuild.each() { Workflow flow ->
       visitWorkflow(flow, true);
+    }
+
+    // Visit each child namespace in the workflow
+    workflow.namespaces.each() { Namespace namespace ->
+      visitNamespace(namespace);
     }
 
     // Restore the last parent scope

@@ -16,6 +16,7 @@
 package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
 import com.linkedin.gradle.hadoopdsl.Workflow;
@@ -58,6 +59,14 @@ class ValidNameChecker extends BaseStaticChecker {
       return false;
     }
     return name.matches(pattern);
+  }
+
+  @Override
+  void visitNamespace(Namespace namespace) {
+    if (!validateName(namespace.name)) {
+      project.logger.lifecycle("ValidNameChecker ERROR: The namespace ${namespace.name} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
+      foundError = true;
+    }
   }
 
   @Override

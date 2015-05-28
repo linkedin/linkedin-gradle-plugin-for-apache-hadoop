@@ -75,6 +75,11 @@ abstract class BaseVisitor implements Visitor {
       visitProperties(props);
     }
 
+    // Visit each child namespace
+    container.namespaces.each() { Namespace namespace ->
+      visitNamespace(namespace);
+    }
+
     // Restore the last parent scope
     this.parentScope = oldParentScope;
   }
@@ -90,6 +95,11 @@ abstract class BaseVisitor implements Visitor {
     // Save the extension and visit its nested DSL elements
     this.extension = hadoop;
     visitScopeContainer(hadoop);
+  }
+
+  @Override
+  void visitNamespace(Namespace namespace) {
+    visitScopeContainer(namespace);
   }
 
   @Override

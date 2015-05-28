@@ -36,6 +36,7 @@ import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 interface Visitor {
   void visitPlugin(HadoopDslPlugin plugin);
   void visitExtension(HadoopDslExtension hadoop);
+  void visitNamespace(Namespace namespace);
   void visitProperties(Properties props);
   void visitPropertySet(PropertySet propertySet);
   void visitWorkflow(Workflow workflow);
