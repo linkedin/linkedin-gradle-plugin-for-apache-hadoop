@@ -24,11 +24,18 @@ import org.gradle.api.Project;
 class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project> {
   HadoopDslExtension extension;
 
+  // Member variables for Hadoop definition sets
+  String currentDefinitionSetName;
+  Map<String, Map<String, Object>> definitionSetMap;
+
   /**
    * Constructor for the Hadoop DSL Plugin.
    */
   HadoopDslPlugin() {
     super(null, "");
+    currentDefinitionSetName = "default";
+    definitionSetMap = new HashMap<String, Map<String, Object>>();
+    definitionSetMap.put(currentDefinitionSetName, new HashMap<String, Map<String, Object>>());
   }
 
   /**
@@ -57,6 +64,12 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
 
     // Expose the DSL global method, which is only implemented by the HadoopDslPlugin class.
     project.extensions.add("global", this.&global);
+
+    // Expose the DSL methods for using Hadoop definition sets.
+    project.extensions.add("definitionSet", this.&definitionSet);
+    project.extensions.add("definitionSetName", this.&definitionSetName);
+    project.extensions.add("lookupDef", this.&lookupDef);
+    project.extensions.add("setDefinitionSet", this.&setDefinitionSet);
 
     // Add the extensions that expose the DSL to users. Specifically, expose all of the DSL
     // functions on the NamedScopeContainer interface.
@@ -94,17 +107,105 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
+   * DSL definitionSet method. Adds the given definitions to either the specified definition set or
+   * to the default definition set (if no name is specified).
+   * <p>
+   * This convenience method is intended to help users deal with the problem that the scope of a
+   * regular Groovy def is limited to the Gradle file in which it is declared.
+   *
+   * @param args A map whose optional key "name" specifies the definition set and whose key "defs" specifies the definitions to add
+   */
+  void definitionSet(Map args) {
+    Map<String, Object> defs = args.defs;
+
+    if (!args.containsKey("name")) {
+      Map<String, Object> defaultSet = definitionSetMap.get("default");
+      defaultSet.putAll(defs);
+    }
+    else {
+      String name = args.name;
+      definitionSet(name, defs);
+    }
+  }
+
+  /**
+   * DSL definitionSet method. Adds the given definitions to the specified definition set.
+   * <p>
+   * This convenience method is intended to help users deal with the problem that the scope of a
+   * regular Groovy def is limited to the Gradle file in which it is declared.
+   *
+   * @param name The name of the definition set to create or update
+   * @param defs The definitions to add to the definition set
+   */
+  void definitionSet(String name, Map<String, Object> defs) {
+    if (name == null || name.isEmpty()) {
+      throw new IllegalArgumentException("Cannot declare a definitionSet with a name that is null or empty.");
+    }
+
+    Map<String, Object> definitionSet = null;
+
+    if (definitionSetMap.containsKey(name)) {
+      definitionSet = definitionSetMap.get(name);
+    }
+    else {
+      definitionSet = new HashMap<String, Object>();
+      definitionSetMap.put(name, definitionSet);
+    }
+
+    definitionSet.putAll(defs);
+  }
+
+  /**
+   * DSL definitionSetName method. Gets the name of the current definition set. The name of the
+   * default definition set is "default".
+   *
+   * @return The name of the current definition set, or the empty string if it is the default set
+   */
+  String definitionSetName() {
+    return currentDefinitionSetName;
+  }
+
+  /**
+   * @deprecated This method has been deprecated in favor of methods for Hadoop definition sets.
+a  *
    * DSL global method. Binds the object in global scope.
    *
    * @param object The object to bind in global scope
    * @return The object, now bound in global scope
    */
+  @Deprecated
   Object global(Object object) {
     if (scope.contains(object.name)) {
       throw new Exception("An object with name ${object.name} requested to be global is already bound in scope ${scope.levelName}");
     }
     scope.bind(object.name, object);
     return object;
+  }
+
+  /**
+   * DSL lookupDef method. Looks up the value for the given name in the current definition set. If
+   * the given name was not declared in the current definition set (or the current set is the
+   * default set) the the function will look for the name in the default set.
+   *
+   * @param name The definition name
+   * @return The definition value
+   */
+  Object lookupDef(String name) {
+    if (!"default".equals(currentDefinitionSetName)) {
+      Map<String, Object> currentDefinitionSet = definitionSetMap.get(currentDefinitionSetName);
+
+      if (currentDefinitionSet.containsKey(name)) {
+        return currentDefinitionSet.get(name);
+      }
+    }
+
+    Map<String, Object> defaultDefinitionSet = definitionSetMap.get("default");
+
+    if (defaultDefinitionSet.containsKey(name)) {
+      return defaultDefinitionSet.get(name);
+    }
+
+    throw new Exception("No definition with the name ${name} has been defined in the current or default definition set.");
   }
 
   /**
@@ -115,5 +216,18 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    */
   HadoopDslFactory makeFactory() {
     return new HadoopDslFactory();
+  }
+
+  /**
+   * DSL setDefinitionSet method. Sets the current definition set to the definition set with the
+   * given name.
+   *
+   * @param name The name of the definition set to use as the current definition set
+   */
+  void setDefinitionSet(String name) {
+    if (!definitionSetMap.containsKey(name)) {
+      throw new Exception("No definitionSet with the name ${name} has been defined");
+    }
+    currentDefinitionSetName = name;
   }
 }

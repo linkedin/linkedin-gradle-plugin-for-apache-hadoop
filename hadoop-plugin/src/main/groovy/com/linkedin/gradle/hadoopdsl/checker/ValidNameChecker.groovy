@@ -16,6 +16,7 @@
 package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
@@ -59,6 +60,17 @@ class ValidNameChecker extends BaseStaticChecker {
       return false;
     }
     return name.matches(pattern);
+  }
+
+  @Override
+  void visitPlugin(HadoopDslPlugin plugin) {
+    for (String definitionSetName : plugin.definitionSetMap.keySet()) {
+      if (!validateName(definitionSetName)) {
+        project.logger.lifecycle("ValidNameChecker ERROR: The Hadoop definitionSet ${definitionSetName} has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.");
+        foundError = true;
+      }
+    }
+    super.visitPlugin(plugin);
   }
 
   @Override

@@ -10,6 +10,10 @@ buildscript {
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 // Negative test for invalid names.
+
+definitionSet name: ' ', defs: [:]
+definitionSet name: 'invalid name', defs: [:]
+
 hadoop {
   buildPath "jobs"
   cleanPath false

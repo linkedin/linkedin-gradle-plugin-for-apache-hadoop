@@ -1,0 +1,68 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Positive test cases for using Hadoop definition sets
+
+definitionSet defs: [
+  var1: "val1",
+  var2: "val2"
+]
+
+definitionSet defs: [
+  var2: "val2_updated",
+  var3: 3,
+  var4: true
+]
+
+definitionSet name: "context1", defs: [
+  var3: 33,
+  var4: true,
+  var5: "val5"
+]
+
+definitionSet name: "context1", defs: [
+  var5: "val5_updated",
+  var6: "val6"
+]
+
+definitionSet name: "context2", defs: [
+  var3: "val3_c2",
+  var4: "val4_c2",
+  var5: "val5_c2"
+]
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+}
+
+assert(lookupDef("var1") == "val1")
+assert(lookupDef("var2") == "val2_updated")
+assert(lookupDef("var3") == 3)
+assert(lookupDef("var4") == true)
+
+setDefinitionSet "context1"
+assert(lookupDef("var1") == "val1")
+assert(lookupDef("var2") == "val2_updated")
+assert(lookupDef("var3") == 33)
+assert(lookupDef("var4") == true)
+assert(lookupDef("var5") == "val5_updated")
+assert(lookupDef("var6") == "val6")
+
+setDefinitionSet "context2"
+assert(lookupDef("var1") == "val1")
+assert(lookupDef("var2") == "val2_updated")
+assert(lookupDef("var3") == "val3_c2")
+assert(lookupDef("var4") == "val4_c2")
+assert(lookupDef("var5") == "val5_c2")
+
+setDefinitionSet "default"
+assert(lookupDef("var1") == "val1")
+assert(lookupDef("var2") == "val2_updated")
+assert(lookupDef("var3") == 3)
+assert(lookupDef("var4") == true)
