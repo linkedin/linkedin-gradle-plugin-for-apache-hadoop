@@ -29,10 +29,10 @@ package com.linkedin.gradle.hadoopdsl.job;
  *   kafkaPushJob('jobName') {
  *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
  *     usesTopic 'kafkatestpush'                                       // Required
+ *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Required
  *     usesBatchNumBytes 1000000                                       // Optional
  *     usesDisableSchemaRegistration true                              // Optional
  *     usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
- *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Optional
  *     usesSchemaRegistryUrl 'http://eat1-app501.stg.linkedin.com:10252/schemaRegistry/schemas'  // Optional
  *     usesDisableAuditing true                                        // Optional
  *   }
@@ -42,12 +42,12 @@ class KafkaPushJob extends HadoopJavaJob {
     // Required
   String inputPath;
   String topic;
+  String nameNode;
 
   // Optional
   Integer batchNumBytes;
   Boolean disableSchemaRegistration;
   String kafkaUrl;
-  String nameNode;
   String schemaRegistryUrl;
   Boolean disableAuditing;
 

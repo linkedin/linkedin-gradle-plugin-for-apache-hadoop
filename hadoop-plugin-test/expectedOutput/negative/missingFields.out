@@ -8,6 +8,7 @@ RequiredFieldsChecker ERROR: JavaJob job5 must set jobClass
 RequiredFieldsChecker ERROR: JavaProcessJob job6 must set javaClass
 RequiredFieldsChecker ERROR: KafkaPushJob job7 must set inputPath
 RequiredFieldsChecker ERROR: KafkaPushJob job7 must set topic
+RequiredFieldsChecker ERROR: KafkaPushJob job7 must set nameNode
 RequiredFieldsChecker ERROR: PigJob job9 must set script
 RequiredFieldsChecker ERROR: VoldemortBuildPushJob job10 has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
