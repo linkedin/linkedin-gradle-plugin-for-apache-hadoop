@@ -14,6 +14,10 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-* 0.5.3
+**HEAD**
+HADOOP-10914 Add Apache License Files to Hadoop Plugin - Minor Updates
+HADOOP-10914 Add Apache License Files to Hadoop Plugin
+
+**0.5.3**
 HADOOP-11177 Hadoop DSL Definition Sets Language Feature
 HADOOP-11332 Hadoop DSL Kafka job type should require nameNode property

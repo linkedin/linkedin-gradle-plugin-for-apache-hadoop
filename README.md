@@ -14,12 +14,14 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-### Hadoop Plugin
+### Hadoop Gradle Plugin
 
 The Hadoop Plugin will help you more effectively build, test and deploy Hadoop applications.
 
 In particular, the Plugin will help you easily work with Hadoop applications like Apache Pig and
 build workflows for Hadoop workflow schedulers like Azkaban and Apache Oozie.
+
+The Plugin includes the Hadoop DSL, a language for specifying jobs and workflows for Hadoop workflow schedulers like Azkaban and Apache Oozie. Go directly to the [Hadoop DSL Language Reference](https://github.com/convexquad/hadoop-plugin/wiki/Hadoop-DSL-Language-Reference).
 
 #### Project Structure
 
@@ -34,12 +36,13 @@ to show you how to use subclassing to extend the core functionality of the Hadoo
 
 #### Building and Running Test Cases
 
-To build the Plugin and run the test cases, just "./gradlew build" from the top-level project
-directory
+To build the Plugin and run the test cases, run "./gradlew build" from the top-level project directory.
 
-To see all the tests you can run, "./gradlew tasks" from the top-level project directory. You can
-run an individual test with "./gradlew test_<testName>". You can also run multiple tests by running
-"./gradlew test_<testName1> ... test_<testNameN>".
+To see all the test tasks, run "./gradlew tasks" from the top-level project directory. You can
+run an individual test with "./gradlew test_testName". You can also run multiple tests by running
+"./gradlew test_testName1 ... test_testNameN".
+
+### User Documentation
 
 #### Hadoop Plugin User Guide
 The Hadoop Plugin User Guide is available at [Hadoop Plugin User Guide]
