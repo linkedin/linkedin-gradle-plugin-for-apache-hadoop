@@ -1,0 +1,34 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+    }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+hadoopZip {
+    main {
+	from("src") {
+            into "src"
+            include "main/**/**"
+        }
+    }
+
+    cluster("magic") {
+        from("src") {
+            into "src"
+            include "main/**/**"
+        }
+    }
+
+    cluster("canasta") {
+        from("src"){}
+    }
+
+}
+
+hadoop.buildPath "jobs"
+hadoop.cleanPath false
