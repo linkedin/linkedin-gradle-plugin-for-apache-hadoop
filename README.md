@@ -14,15 +14,18 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-### Hadoop Gradle Plugin
+### LinkedIn Gradle Plugin for Apache Hadoop
 
-The Hadoop Plugin will help you more effectively build, test and deploy Hadoop applications.
+The **LinkedIn Gradle Plugin for Apache Hadoop** (which we shall refer to as simply the
+"Hadoop Plugin" for brevity) will help you more effectively build, test and deploy Hadoop
+applications.
 
 In particular, the Plugin will help you easily work with Hadoop applications like Apache Pig and
 build workflows for Hadoop workflow schedulers like Azkaban and Apache Oozie.
 
-The Plugin includes the Hadoop DSL, a language for specifying jobs and workflows for Hadoop
-workflow schedulers like Azkaban and Apache Oozie.
+The Plugin includes the **LinkedIn Gradle DSL for Apache Hadoop** (which we shall refer to as simply
+the "Hadoop DSL" for brevity), a language for specifying jobs and workflows for Hadoop workflow
+schedulers like Azkaban and Apache Oozie.
 
 #### Hadoop Plugin User Guide
 

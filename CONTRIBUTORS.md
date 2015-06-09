@@ -16,9 +16,10 @@ the License.
 
 ### Author
 
-The Hadoop Plugin was designed and created by Alex Bain (abain@linkedin.com). The design of the
-Hadoop DSL was influenced by [azkaban-rb](https://github.com/matthayes/azkaban-rb) from Matthew
-Hayes and by input from Will Vaughan.
+The LinkedIn Gradle Plugin for Apache Hadoop was designed and created by Alex Bain
+(abain@linkedin.com). The design of the LinkedIn Gradle DSL for Apache Hadoop was influenced by
+[azkaban-rb](https://github.com/matthayes/azkaban-rb) from Matthew Hayes and by input from Will
+Vaughan.
 
 ### Contributors
 
