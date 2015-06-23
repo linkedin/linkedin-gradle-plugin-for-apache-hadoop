@@ -124,9 +124,15 @@ class Workflow extends BaseNamedScopeContainer {
     flowsToBuild = new LinkedHashSet<Workflow>();
     jobsToBuild = new LinkedHashSet<Job>();
 
+    // Make sure the user did not declare something in the workflow with the launch job name.
+    if (scope.thisLevel.containsKey(name)) {
+      throw new Exception("An object with the name ${name} is already declared in the workflow ${name}. Do not use this name as it will be used for the workflow launch job.");
+    }
+
     // First, build the launch job for the workflow and it to the list of jobs.
     LaunchJob launchJob = factory.makeLaunchJob(name);
     launchJob.dependencyNames.addAll(launchDependencies);
+    scope.bind(launchJob.name, launchJob);
     jobs.add(launchJob);
 
     if (subflow) {
@@ -150,6 +156,7 @@ class Workflow extends BaseNamedScopeContainer {
       }
 
       // Then add the startJob to the jobs so it will get built.
+      scope.bind(startJob.name, startJob);
       jobs.add(startJob);
     }
 
