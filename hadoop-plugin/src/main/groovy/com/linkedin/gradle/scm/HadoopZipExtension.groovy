@@ -28,7 +28,7 @@ import org.gradle.api.file.CopySpec;
  * <pre>
  *     hadoopZip {
  *         main {
- *             from "src/" {
+ *             from ("src/") {
  *                 into "src"
  *             }
  *         }
@@ -37,15 +37,15 @@ import org.gradle.api.file.CopySpec;
  */
 public class HadoopZipExtension {
     Project project;
-    Map<String,List<CopySpec>> clusterMap;
-
+    Map<String,CopySpec> clusterMap;
+    CopySpec baseCopySpec;
     /**
      * Constructor for the HadoopZipExtension
      * @param project
      */
     HadoopZipExtension(Project project) {
         this.project = project;
-        clusterMap = new HashMap<String,List<CopySpec>>();
+        clusterMap = new HashMap<String,CopySpec>();
     }
 
     /**
@@ -53,7 +53,7 @@ public class HadoopZipExtension {
      * hadoopZip {
      *
      *     main {
-     *             from "src/" {
+     *             from ("src/") {
      *                 into "src"
      *             }
      *     }
@@ -66,45 +66,81 @@ public class HadoopZipExtension {
     }
 
     /**
+     * The files specified by the base copySpec will be added to all the zips including main.
+     * The base spec is added as a child of the specific zip specs.
+     *
      * <pre>
      * hadoopZip {
      *
+     *     base {
+     *           from("common resources") {  // add the files common to all the zips.
+     *                  into "common"
+     *         }
+     *     }
      *
      *     cluster("magic") {
-     *             from "src/" {
+     *             from ("src/") {
      *                 into "src"
      *             }
      *     }
      *
      *     cluster("canasta") {
-     *         from "src/" {
+     *         from ("azkaban/") {
+     *             into "."
+     *         }
+     *     }
+     * }
+     * </pre>
+     * The DSL inside the {@code base\{} } block is the same DSL used for Copy tasks.
+     */
+    void base(Closure closure) {
+        if(baseCopySpec!=null) {
+            throw new RuntimeException("base is already defined");
+        }
+        baseCopySpec = project.copySpec(closure);
+    }
+
+    /**
+     * Utility method to return baseCopySpec.
+     * @return baseCopySpec
+     */
+    CopySpec getBaseCopySpec() {
+        return baseCopySpec;
+    }
+
+    /**
+     * <pre>
+     * hadoopZip {
+     *
+     *     cluster("magic") {
+     *             from ("src/") {
+     *                 into "src"
+     *             }
+     *     }
+     *
+     *     cluster("canasta") {
+     *         from ("src/") {
      *             into "src"
      *         }
      *     }
      *
-     *     cluster("magic") {  // add files to existing cluster magic.
-     *         from "resources"{}
-     *     }
      * }
      * </pre>
      * The DSL inside the {@code cluster(clustername)\{} } block is the same DSL used for Copy tasks.
      */
     void cluster(String name, Closure closure){
         if(clusterMap.containsKey(name)){
-           clusterMap.get(name).add(project.copySpec(closure));
-           return;
+            throw new RuntimeException("${name} is already defined");
         }
-        List<CopySpec> copySpecList = new ArrayList<CopySpec>();
-        copySpecList.add(project.copySpec(closure));
-        clusterMap.put(name,copySpecList);
+        clusterMap.put(name,project.copySpec(closure));
     }
 
     /**
-     * Utility method to return the list of CopySpecs for a given clustername
+     * Utility method to return the list of CopySpec for a given clustername
      * @param clusterName
-     * @return Returns the list of CopySpecs for clustername
+     * @return Returns the list of CopySpec for clustername
      */
-    List<CopySpec> getContentList(String clusterName){
+    CopySpec getClusterCopySpec(String clusterName){
        if(clusterMap.containsKey(clusterName)) {
            return clusterMap.get(clusterName);
        }
@@ -115,7 +151,7 @@ public class HadoopZipExtension {
      * Utility method to return the clusterMap.
      * @return Returns the clusterMap
      */
-    Map<String,List<CopySpec>> getClusterMap(){
+    Map<String,CopySpec> getClusterMap(){
        return clusterMap;
     }
 }

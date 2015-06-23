@@ -10,6 +10,14 @@ buildscript {
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 hadoopZip {
+
+    base {
+        from("src") {
+            into "base source"
+            include "main/**/**"
+        }
+    }
+
     main {
 	from("src") {
             into "src"

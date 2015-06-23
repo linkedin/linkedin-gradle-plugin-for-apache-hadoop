@@ -257,10 +257,11 @@ class ScmPlugin implements Plugin<Project> {
 
       // include files specified by the user through hadoopZip extension.
       HadoopZipExtension hadoopZipExtension = project.getExtensions().getByName("hadoopZip");
-      if(hadoopZipExtension.getContentList(clusterName)!=null){
-        for(CopySpec copySpec: hadoopZipExtension.getContentList(clusterName)){
-          task.with(copySpec);
-        }
+      if (hadoopZipExtension.getBaseCopySpec() != null) {
+        // if there is a base CopySpec, add it as a child of the cluster specific CopySpec.
+        task.with(hadoopZipExtension.getClusterCopySpec(clusterName).with(hadoopZipExtension.getBaseCopySpec()));
+      } else {
+        task.with(hadoopZipExtension.getClusterCopySpec(clusterName));
       }
 
       // add buildMetadata.json file to the zip
