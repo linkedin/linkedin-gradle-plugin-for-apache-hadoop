@@ -1,0 +1,8 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=pig
+param.param1=val1_closure1
+param.path1=/user/foo
+param.path2=/user/bar
+path1=/user/foo
+path2=/user/bar
+pig.script=src/main/pig/pigScript.pig

@@ -1,0 +1,8 @@
+:hadoop-plugin-test:test_closures
+Running test for the file positive/closures.gradle
+RequiredFieldsChecker WARNING: NoOpJob noOpJob1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob noOpJob1 does not declare any dependencies. It won't do anything.
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

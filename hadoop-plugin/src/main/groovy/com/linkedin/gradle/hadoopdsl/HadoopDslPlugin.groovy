@@ -28,6 +28,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   String currentDefinitionSetName;
   Map<String, Map<String, Object>> definitionSetMap;
 
+  // Member variables for Hadoop closures
+  List<Closure> hadoopClosures;
+
   /**
    * Constructor for the Hadoop DSL Plugin.
    */
@@ -36,6 +39,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     currentDefinitionSetName = "default";
     definitionSetMap = new HashMap<String, Map<String, Object>>();
     definitionSetMap.put(currentDefinitionSetName, new HashMap<String, Map<String, Object>>());
+    hadoopClosures = new ArrayList<Closure>();
   }
 
   /**
@@ -70,6 +74,10 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("definitionSetName", this.&definitionSetName);
     project.extensions.add("lookupDef", this.&lookupDef);
     project.extensions.add("setDefinitionSet", this.&setDefinitionSet);
+
+    // Expose the DSL methods for using Hadoop closures.
+    project.extensions.add("evalHadoopClosures", this.&evalHadoopClosures);
+    project.extensions.add("hadoopClosure", this.&hadoopClosure);
 
     // Add the extensions that expose the DSL to users. Specifically, expose all of the DSL
     // functions on the NamedScopeContainer interface.
@@ -166,6 +174,37 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
+   * Evaluates the hadoopClosure closures against the default definition set.
+   * <p>
+   * This method actually clones each closure before evaluating it, so that the originally declared
+   * closure is left unevaluated. This is to minimize side-effects that might potentially arise from
+   * lazily-evaluated values within the closure. Otherwise, the lazy values would be evaluated on
+   * the first evaluation of the closure, but not on subsequent evaluations.
+   */
+  void evalHadoopClosures() {
+    evalHadoopClosures("default");
+  }
+
+  /**
+   * Evaluates the hadoopClosure closures against the specified definition set.
+   * <p>
+   * This method actually clones each closure before evaluating it, so that the originally declared
+   * closure is left unevaluated. This is to minimize side-effects that might potentially arise from
+   * lazily-evaluated values within the closure. Otherwise, the lazy values would be evaluated on
+   * the first evaluation of the closure, but not on subsequent evaluations.
+   *
+   * @param definitionSetName The definition set name to use as the current definition set before evaluating the closures
+   */
+  void evalHadoopClosures(String definitionSetName) {
+    setDefinitionSet(definitionSetName);
+
+    hadoopClosures.each { Closure f ->
+      Closure g = f.clone();
+      g();
+    }
+  }
+
+  /**
    * @deprecated This method has been deprecated in favor of methods for Hadoop definition sets.
 a  *
    * DSL global method. Binds the object in global scope.
@@ -180,6 +219,37 @@ a  *
     }
     scope.bind(object.name, object);
     return object;
+  }
+
+  /**
+   * DSL hadoopClosure method. Saves the given (unevaluated) closure in the Hadoop DSL closure list.
+   * <p>
+   * The Hadoop Plugin exposes build tasks will evaluate these closures against a specified
+   * definition set. The usefulness of this feature stems from the fact that the closures may be
+   * re-evaluated against several different definition sets (or the default definition set).
+   *
+   * @param args A map whose key "closure" specifies the closure to save
+   */
+  void hadoopClosure(Map args) {
+    Closure closure = args.closure;
+    hadoopClosure(closure);
+  }
+
+  /**
+   * DSL hadoopClosure method. Saves the given (unevaluated) closure in the Hadoop DSL closure list.
+   * <p>
+   * The Hadoop Plugin exposes build tasks will evaluate these closures against a specified
+   * definition set. The usefulness of this feature stems from the fact that the closures may be
+   * re-evaluated against several different definition sets (or the default definition set).
+   *
+   * @param closure The closure to save
+   */
+  void hadoopClosure(Closure closure) {
+    // The "magic" in this method is that the "this" pointer of the closure is altered to the
+    // HadoopDslExtension instance, so that evaluating the closure will cause it to resolve Hadoop
+    // DSL methods correctly.
+    closure.delegate = extension;
+    hadoopClosures.add(closure);
   }
 
   /**
