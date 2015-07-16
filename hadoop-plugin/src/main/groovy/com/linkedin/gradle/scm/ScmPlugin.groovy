@@ -17,6 +17,7 @@ package com.linkedin.gradle.scm;
 
 import groovy.json.JsonBuilder;
 import groovy.json.JsonSlurper;
+
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -24,15 +25,17 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.tasks.bundling.Zip;
 
 /**
  * ScmPlugin implements features that generate source control management (scm) metadata, in
- * particular for git and Subversion.
+ * particular for Git and Subversion.
  */
 class ScmPlugin implements Plugin<Project> {
   Configuration hadoopZipConf;
+  HadoopZipExtension hadoopZipExtension;
+
   /**
    * Applies the ScmPlugin.
    *
@@ -45,11 +48,6 @@ class ScmPlugin implements Plugin<Project> {
       println("ScmPlugin disabled");
       return;
     }
-
-    createExtension("hadoopZip",HadoopZipExtension,project,project);
-
-    // prepare hadoopZipConf configuration for the project
-    hadoopZipConf = prepareConfiguration(project);
 
     project.tasks.create("writeScmPluginData") {
       description = "Writes the SCM plugin configuration json file";
@@ -71,7 +69,9 @@ class ScmPlugin implements Plugin<Project> {
       doLast {
         ScmMetadataContainer scm = buildScmMetadata(project);
         String scmJson = new JsonBuilder(scm).toPrettyString();
-        new File(getMetadataFilePath(project)).write(scmJson);
+        File file = new File(getMetadataFilePath(project));
+        file.getParentFile().mkdirs();
+        file.write(scmJson);
       }
     }
 
@@ -85,7 +85,6 @@ class ScmPlugin implements Plugin<Project> {
       }
     }
 
-
     // We'll create the buildSourceZip task on the root project, so that there is only one sources
     // zip created that can be shared by all projects. Thus, only create the buildSourceZip task on
     // the root project if it hasn't been created already (you will get an exception if you try to
@@ -94,26 +93,31 @@ class ScmPlugin implements Plugin<Project> {
       createSourceTask(project);
     }
 
-    // Create task in afterEvaluate so that the 'main' in hadoopZip extension is resolved first, otherwise getContents() method of HadoopZipExtension returns null.
+    // Create the hadoopRuntime configuration and the HadoopZipExtension for the project.
+    hadoopZipConf = createZipConfiguration(project);
+    hadoopZipExtension = createZipExtension(project);
+
+    // Create top-level tasks to build the Hadoop zips. The individual Hadoop zip tasks will
+    // depend on startHadoopZips and be dependencies of buildHadoopZips. This enables the user's
+    // build task to depend on buildHadoopZips and then have startHadoopZips depend on other tasks.
+    project.tasks.create("startHadoopZips") {
+      description = "Container task on which all the Hadoop zip tasks depend";
+      group = "Hadoop Plugin";
+    }
+
+    project.tasks.create("buildHadoopZips") {
+      dependsOn "startHadoopZips"
+      description = "Builds all of the Hadoop zip archives";
+      group = "Hadoop Plugin";
+    }
+
+    // Create task in afterEvaluate so that the 'main' in hadoopZip extension is resolved first,
+    // otherwise the getContents() method of HadoopZipExtension returns null.
     project.afterEvaluate {
-      HadoopZipExtension hadoopZipExtension = project.getExtensions().getByName("hadoopZip");
-      Map<String,CopySpec> clusterMap = hadoopZipExtension.getClusterMap();
-      for(String cluster:clusterMap.keySet()){
-        createZipTask(project,cluster);
+      for (String cluster : hadoopZipExtension.getClusterMap().keySet()) {
+        createZipTask(project, cluster);
       }
     }
-  }
-
-  /**
-   *
-   * @param name "the name of the extension"
-   * @param className "the class of the extension"
-   * @param project
-   * @param args "list of parameters to pass to the constructor of extension"
-   * @return the created extension
-   */
-  def createExtension(String name,Object className, Project project,Object... args){
-    return project.extensions.create(name,className,args)
   }
 
   /**
@@ -132,7 +136,6 @@ class ScmPlugin implements Plugin<Project> {
 
     SvnMetadata svn = createSvnMetadata();
     svn.setMetadataProperties(project);
-
     return createScmMetadataContainer(git, svn, user);
   }
 
@@ -204,90 +207,87 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
-   *  Prepare hadoopZipConf for the project
-   * @param project
-   * @return hadoopZipConf
+   * Prepare the "hadoopRuntime" Hadoop configuration for the project.
+   *
+   * @param project The Gradle project
+   * @return hadoopZipConf The "hadoopRuntime" Hadoop configuration
    */
-  Configuration prepareConfiguration(Project project){
-    Configuration hadoopZipConf = project.getConfigurations().create("hadoopZipConf");
-    project.getPlugins().withType(JavaPlugin.class, new Action<JavaPlugin>() {
-      public void execute(JavaPlugin JavaPlugin) {
-        //in java projects, azkaban package will contain the runtime jars, too
-        hadoopZipConf.extendsFrom(project.getConfigurations().getByName("runtime"));
-      }
-    });
+  Configuration createZipConfiguration(Project project) {
+    Configuration hadoopZipConf = project.getConfigurations().create("hadoopRuntime");
+
+    // For Java projects, the Hadoop zip configuration should contain the runtime jars by default.
+    project.getPlugins().withType(JavaPlugin) {
+      hadoopZipConf.extendsFrom(project.getConfigurations().getByName("runtime"));
+    }
+
     return hadoopZipConf;
   }
 
   /**
-   *  Includes libs in the directory specified by azkaban.ZipLibDir property if present
-   * @param project
-   * @param spec
-   * @param target
-   */
-  void includeLibs(Project project, CopySpec spec, Object target) {
-    spec.from(target){
-      into getAzkabanZipLibDir(project);
-    }
-  }
-
-  /**
+   * Helper method to create the Hadoop zip extension. Having this method allows for the unit tests
+   * to override it.
    *
-   * @param project
-   * @return the directory where libraries should be copied. It is defined by the property azkaban.ZipLibDir
+   * @param project The Gradle project
+   * @return The Hadoop zip extension
    */
-  def getAzkabanZipLibDir(project){
-    return project.hasProperty("azkaban.ZipLibDir")?project.getProperties().get("azkaban.ZipLibDir"):"lib";
+  HadoopZipExtension createZipExtension(Project project) {
+    HadoopZipExtension extension = new HadoopZipExtension(project);
+    project.extensions.add("hadoopZip", extension);
+    return extension;
   }
 
   /**
-   *  Method to create zipTask which creates zip file in azkaban format
-   * @param project
-   * @return hadoopAzkabanZip task
+   * Method to create the Hadoop Zip task for the given cluster.
+   *
+   * @param project The Gradle project
+   * @param clusterName The cluster name
+   * @return The zip task for the cluster
    */
-  Task createZipTask(Project project,String clusterName) {
+  Task createZipTask(Project project, String clusterName) {
     Task zipTask = project.tasks.create(name: "${clusterName}HadoopZip", type: Zip) { task ->
-      description = "Creates zip file in azkaban format";
+      classifier = clusterName.equals("main") ? "" : clusterName;
+      description = "Creates a Hadoop zip archive for ${clusterName}";
       group = "Hadoop Plugin";
-      classifier = clusterName.equals("main")?"":clusterName;
 
-      // this task depends on buildSourceZip and buildScmMetada tasks.
+      // This task is a dependency of buildHadoopZips and depends on the startHadoopZips
+      project.tasks["buildHadoopZips"].dependsOn task
+      dependsOn "startHadoopZips"
+
+      // This task depends on buildSourceZip and buildScmMetada tasks
       task.dependsOn(project.getRootProject().tasks["buildSourceZip"]);
       task.dependsOn(project.project.tasks["buildScmMetadata"]);
 
-      // include files specified by the user through hadoopZip extension.
-      HadoopZipExtension hadoopZipExtension = project.getExtensions().getByName("hadoopZip");
+      // Include files specified by the user through hadoopZip extension. If there is a base
+      // CopySpec, add it as a child of the cluster specific CopySpec.
       if (hadoopZipExtension.getBaseCopySpec() != null) {
-        // if there is a base CopySpec, add it as a child of the cluster specific CopySpec.
         task.with(hadoopZipExtension.getClusterCopySpec(clusterName).with(hadoopZipExtension.getBaseCopySpec()));
-      } else {
+      }
+      else {
         task.with(hadoopZipExtension.getClusterCopySpec(clusterName));
       }
 
-      // add buildMetadata.json file to the zip
-      from(getMetadataFilePath(project)){}
+      // Add the buildMetadata.json file
+      from(getMetadataFilePath(project)) { }
 
-      // add the task to project artifacts
+      // Add the source zip
+      from(getSourceZipFilePath(project)) { }
+
+      // For Java projects, include the project jar into the libPath directory in the zip by default
+      project.getPlugins().withType(JavaPlugin) {
+        includeLibs(project, task, project.tasks.getByName("jar"));
+      }
+
+      // Include hadoopRuntime dependencies into the libPath directory in the zip
+      includeLibs(project, task, hadoopZipConf)
+
+      // Add the task to project artifacts
       project.artifacts.add("archives", task);
 
-      // add the project jar to the libs
-      project.plugins.withType(JavaPlugin) {
-        includeLibs(project, task, project.tasks.getByName('jar'));
-      }
-
-      // include libs into the directory specified by ZipLibDir property
-      includeLibs(project, task, hadoopZipConf);
-
-      // add sourceZip to the zip
-      from(getSourceZipFilePath(project)){}
-
-      // when everything is done, print out the message
+      // When everything is done, print out a message
       doLast {
-        project.logger.lifecycle("Prepared packages for azkaban: $archivePath");
+        project.logger.lifecycle("Prepared Hadoop zip archive at: $archivePath");
       }
-
     }
-    // return the zip task created
     return zipTask;
   }
 
@@ -314,17 +314,6 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
-   * Helper method to determine the location of the plugin json file. This helper method will make
-   * it easy for subclasses to get (or customize) the file location.
-   *
-   * @param project The Gradle project
-   * @return The path to the plugin json file
-   */
-  String getScmPluginDataFilePath(Project project) {
-    return "${project.getRootProject().projectDir}/.scmPlugin.json";
-  }
-
-  /**
    * Helper method to determine the location of the build metadata file. This helper method will
    * make it easy for subclasses to get (or customize) the file location.
    *
@@ -336,6 +325,17 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
+   * Helper method to determine the location of the plugin json file. This helper method will make
+   * it easy for subclasses to get (or customize) the file location.
+   *
+   * @param project The Gradle project
+   * @return The path to the plugin json file
+   */
+  String getScmPluginDataFilePath(Project project) {
+    return "${project.getRootProject().projectDir}/.scmPlugin.json";
+  }
+
+  /**
    * Helper method to determine the location of the sources zip file. This helper method will make
    * it easy for subclasses to get (or customize) the file location.
    *
@@ -344,5 +344,18 @@ class ScmPlugin implements Plugin<Project> {
    */
   String getSourceZipFilePath(Project project) {
     return "${project.rootProject.buildDir}/distributions/${project.rootProject.name}-${project.rootProject.version}-sources.zip"
+  }
+
+  /**
+   * Includes libs in the directory specified by azkaban.ZipLibDir property if present.
+   *
+   * @param project
+   * @param spec
+   * @param target
+   */
+  void includeLibs(Project project, CopySpec spec, Object target) {
+    spec.from(target) {
+      into hadoopZipExtension.libPath;
+    }
   }
 }

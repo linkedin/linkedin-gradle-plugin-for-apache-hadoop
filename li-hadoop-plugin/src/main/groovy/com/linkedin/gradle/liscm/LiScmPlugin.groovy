@@ -43,23 +43,25 @@ class LiScmPlugin extends ScmPlugin {
 
     super.apply(project);
 
-    // After we apply the SCM plugin, grab the buildScmMetadata task.
-    Task buildScmTask = project.tasks["buildScmMetadata"];
+    if (!project.hasProperty("disableLiAzkabanPlugin2")) {
+      // After we apply the SCM plugin, grab the buildScmMetadata task.
+      Task buildScmTask = project.tasks["buildScmMetadata"];
 
-    // After we apply the SCM plugin, grab the root project's buildSourceZip task.
-    Task buildSrcTask = project.getRootProject().tasks["buildSourceZip"];
+      // After we apply the SCM plugin, grab the root project's buildSourceZip task.
+      Task buildSrcTask = project.getRootProject().tasks["buildSourceZip"];
 
-    // Look up any li-azkaban2 zip tasks (e.g. "azkabanZip" or "azkabanMagicZip") and make them
-    // depend on the buildScmTask (and add the buildMetadata.json file to the zip).
-    String zipRegex = "azkaban(.*)Zip";
+      // Look up any li-azkaban2 zip tasks (e.g. "azkabanZip" or "azkabanMagicZip") and make them
+      // depend on the buildScmTask (and add the buildMetadata.json file to the zip).
+      String zipRegex = "azkaban(.*)Zip";
 
-    project.tasks.each { Task task ->
-      if (task.getName().matches(zipRegex)) {
-        Zip zipTask = (Zip)task;
-        zipTask.dependsOn(buildScmTask);
-        zipTask.dependsOn(buildSrcTask);
-        zipTask.from(getMetadataFilePath(project));
-        zipTask.from(getSourceZipFilePath(project));
+      project.tasks.each { Task task ->
+        if (task.getName().matches(zipRegex)) {
+          Zip zipTask = (Zip)task;
+          zipTask.dependsOn(buildScmTask);
+          zipTask.dependsOn(buildSrcTask);
+          zipTask.from(getMetadataFilePath(project));
+          zipTask.from(getSourceZipFilePath(project));
+        }
       }
     }
   }

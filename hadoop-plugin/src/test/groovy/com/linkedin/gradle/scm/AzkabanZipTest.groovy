@@ -44,7 +44,7 @@ public class AzkabanZipTest {
         project.apply plugin: 'distribution';
         plugin = new ScmPluginTest();
         def Folder = project.getProjectDir();
-        azkabanRuntime = project.getConfigurations().create("hadoopZipConf");
+        azkabanRuntime = project.getConfigurations().create("hadoopRuntime");
         closure = {}
         baseClosure = {}
 
@@ -450,18 +450,16 @@ public class AzkabanZipTest {
     class ScmPluginTest extends ScmPlugin{
 
         @Override
-        def getAzkabanZipLibDir(project){
-            return azkabanLibDirectory!=null?azkabanLibDirectory:"lib";
-        }
-
-        @Override
-        Configuration prepareConfiguration(Project project){
+        Configuration createZipConfiguration(Project project){
             return azkabanRuntime;
         }
 
         @Override
-        def createExtension(String var1,Object var2, Project project,Object... var3){
-            return project.extensions.add("hadoopZip",new HadoopZipExtensionTest(project));
+        HadoopZipExtension createZipExtension(Project project){
+            HadoopZipExtensionTest extension = new HadoopZipExtensionTest(project);
+            extension.libPath = "lib";
+            project.extensions.add("hadoopZip", extension);
+            return extension;
         }
 
         @Override
