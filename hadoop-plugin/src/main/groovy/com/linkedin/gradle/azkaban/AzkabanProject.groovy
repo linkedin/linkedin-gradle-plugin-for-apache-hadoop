@@ -16,11 +16,9 @@
 package com.linkedin.gradle.azkaban;
 
 class AzkabanProject {
-
-  String azkabanUsername = "";
   String azkabanProjName = "";
   String azkabanUrl = "";
-  String azkabanZipTask = "";
+  String azkabanUserName = "";
   String azkabanValidatorAutoFix = "";
-
+  String azkabanZipTask = "";
 }

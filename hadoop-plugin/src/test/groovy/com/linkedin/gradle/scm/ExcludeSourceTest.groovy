@@ -224,7 +224,7 @@ class ExcludeSourceTest {
     }
 
     @Override
-    String getScmPluginDataFilePath(Project project) {
+    String getPluginJsonPath(Project project) {
       return System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
     }
   }

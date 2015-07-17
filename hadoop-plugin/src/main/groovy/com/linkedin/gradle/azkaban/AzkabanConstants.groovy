@@ -16,9 +16,9 @@
 package com.linkedin.gradle.azkaban
 
 public final class AzkabanConstants {
-    public static final String AZK_URL = "azkabanUrl";
-    public static final String AZK_USER_NAME = "azkabanUsername";
-    public static final String AZK_PROJ_NAME = "azkabanProjName";
-    public static final String AZK_ZIP_TASK = "azkabanZipTask";
-    public static final String AZK_VAL_AUTO_FIX = "azkabanValidatorAutoFix";
+  public static final String AZK_PROJ_NAME = "azkabanProjName";
+  public static final String AZK_URL = "azkabanUrl";
+  public static final String AZK_USER_NAME = "azkabanUserName";
+  public static final String AZK_VAL_AUTO_FIX = "azkabanValidatorAutoFix";
+  public static final String AZK_ZIP_TASK = "azkabanZipTask";
 }

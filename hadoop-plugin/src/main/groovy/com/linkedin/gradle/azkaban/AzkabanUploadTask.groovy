@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.util.HtmlUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -30,304 +29,280 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
+import com.linkedin.gradle.util.HtmlUtil;
 
 /**
  * AzkabanUploadTask handles uploading of the zip file to azkaban.
  */
 class AzkabanUploadTask extends DefaultTask {
+  File archivePath;
+  AzkabanProject azkProject;
 
-    File archivePath;
-    AzkabanProject azkProject;
+  /**
+   * The Gradle task action for uploading the zip file to Azkaban.
+   */
+  @TaskAction
+  void upload() {
+    if (azkProject.azkabanUrl == null) {
+      // The .azkabanPlugin.json file must specify at least the Azkaban URL.
+      throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
+    }
+    uploadToAzkaban(readSession());
+  }
 
-    @TaskAction
-    void upload() {
-
-        // The .azkabanPlugin.json file must specify at least the Azkaban URL
-        String azkabanUrl = azkProject.azkabanUrl;
-        if (azkabanUrl == null) {
-            throw new GradleException("""Please set azkaban.url in the .azkabanPlugin.json file in your project's root directory.""");
-        }
-
-        uploadToAzkaban(azkabanUrl, loadSession());
+  /**
+   * Uploads the zip file to Azkaban.
+   *
+   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   */
+  void uploadToAzkaban(String sessionId) {
+    def console = System.console();
+    if (console == null) {
+      throw new GradleException("\nCannot access the system console. To use the upload task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.");
     }
 
-    /**
-     * Upload Zip File to Azkaban
-     *
-     * @param azkabanUrl The azkaban server url
-     * @param sessionId The id of the session.
-     */
-    void uploadToAzkaban(String azkabanUrl, String sessionId) {
-
-        def console = System.console();
-        if (console == null) {
-            throw new GradleException("\nCannot access the system console. To use the upload task, explicitly set JAVA_HOME to the version specified in product-spec.json and pass --no-daemon in your command.");
-        }
-
-        String username = azkProject.azkabanUsername;
-        String projName = azkProject.azkabanProjName;
-        if (username == null) {
-            username = console.readLine("\n" + AZK_USER_NAME + ": ");
-            azkProject.azkabanUsername = username;
-        }
-        if (projName == null) {
-            projName = console.readLine("\n" + AZK_PROJ_NAME + ": ");
-            azkProject.azkabanProjName = projName;
-        }
-
-        // If no previous session is available, obtain a session id from server by sending login credentials.
-        if (sessionId == null) {
-            println "\nAZKABAN PROPERTIES:";
-            println AZK_URL + " = " + azkabanUrl;
-            println AZK_USER_NAME + " = " + username;
-            println AZK_PROJ_NAME + " = " + azkProject.azkabanProjName;
-            println AZK_ZIP_TASK + " = " + azkProject.azkabanZipTask + "\n";
-            sessionId =  azkabanLogin(azkabanUrl, username, console.readPassword("\nAzkaban Password: "));
-        }
-
-        HttpPost httpPost = new HttpPost(azkabanUrl + "/manager");
-
-        FileBody fileBody = new FileBody(archivePath, "application/zip");
-        MultipartEntity mpEntity = new MultipartEntity();
-        mpEntity.addPart("file", fileBody);
-        mpEntity.addPart("ajax", new StringBody("upload"));
-        mpEntity.addPart("project", new StringBody(azkProject.azkabanProjName));
-        String azkabanValidatorAutoFix = azkProject.azkabanValidatorAutoFix;
-        if (azkabanValidatorAutoFix == null || !azkabanValidatorAutoFix.equals("off")) {
-            mpEntity.addPart("fix", new StringBody("on"));
-        }
-        httpPost.setEntity(mpEntity);
-
-        httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
-        httpPost.setHeader("Accept", "*/*");
-
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = null;
-        try {
-            SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
-                @Override
-                boolean isTrusted(X509Certificate[] x509Certificates, String s)
-                        throws CertificateException {
-                    return true;
-                }
-            });
-            Scheme scheme = new Scheme("https", 443, socketFactory);
-            httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
-            response = httpClient.execute(httpPost);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                throw new GradleException("Upload Task Failed.\nStatus Line: " + response.getStatusLine().toString() + "\nStatus Code:" + response.getStatusLine().getStatusCode());
-            }
-
-            logger.lifecycle("\nUPLOAD");
-            logger.lifecycle("--------------------------------------------------------------------------------");
-            logger.lifecycle(parseResponse(response.toString()));
-            String result = parseContent(response.getEntity().getContent());
-            logger.lifecycle("\n" + result);
-            logger.lifecycle("--------------------------------------------------------------------------------");
-
-            // Check if the upload is successful
-            JSONObject jsonObj;
-            try {
-                jsonObj = new JSONObject(result);
-                if (jsonObj.has("error")) {
-                    throw new GradleException(jsonObj.get("error").toString());
-                } else {
-                    logger.lifecycle("\nZip " + archivePath.toString() + " uploaded successfully");
-                }
-            } catch (Exception ex) {
-                // Check if session has expired. If so, re-login.
-                String str = "Login Error";
-                if (result.toString().toLowerCase().contains(str.toLowerCase())) {
-                    logger.lifecycle("\nSession Expired. Please Re-login.");
-                    uploadToAzkaban(azkabanUrl, null);
-                } else {
-                    throw new JSONException(ex.toString());
-                }
-            }
-        } finally {
-            httpClient.getConnectionManager().shutdown();
-        }
+    if (!azkProject.azkabanUserName) {
+      azkProject.azkabanUserName = console.readLine("\nAzkaban user name: ");
     }
 
-    /**
-     * Request for login to azkaban
-     *
-     * @param azkabanUrl The azkaban server url
-     * @param userName Azkaban Username
-     * @param password Azkaban Password
-     * @return  The session.id from the response
-     */
-    String azkabanLogin(String azkabanUrl, String username, char[] password) {
-        String sessionId = null;
-        HttpPost httpPost = new HttpPost(azkabanUrl);
-
-        List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-        urlParameters.add(new BasicNameValuePair("action", "login"));
-        urlParameters.add(new BasicNameValuePair("username", username));
-        urlParameters.add(new BasicNameValuePair("password", password.toString()));
-        httpPost.setEntity(new UrlEncodedFormEntity(urlParameters));
-
-        httpPost.setHeader("Accept", "*/*");
-        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = null;
-        try {
-            SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
-                @Override
-                boolean isTrusted(X509Certificate[] x509Certificates, String s)
-                        throws CertificateException {
-                    return true;
-                }
-            });
-            Scheme scheme = new Scheme("https", 443, socketFactory);
-            httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
-            response = httpClient.execute(httpPost);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                throw new GradleException("Login Attempt Failed.\nStatus Line: " + response.getStatusLine().toString() + "\nStatus Code:" + response.getStatusLine().getStatusCode());
-            }
-
-            logger.lifecycle("\nLOGIN");
-            logger.lifecycle("--------------------------------------------------------------------------------");
-            logger.lifecycle(parseResponse(response.toString()));
-            String result = parseContent(response.getEntity().getContent());
-            logger.lifecycle("\n" + result);
-            logger.lifecycle("--------------------------------------------------------------------------------");
-
-            // Check the status of Login.
-            JSONObject jsonObj;
-            try {
-                jsonObj = new JSONObject(result);
-                if (jsonObj.has("error")) {
-                    throw new GradleException(jsonObj.get("error").toString());
-                }
-                if (!jsonObj.has("session.id")) {
-                    throw new GradleException("Login Attempt Failed. Session ID couldn't be obtained.");
-                } else {
-                    sessionId = jsonObj.getString("session.id");
-                }
-            } catch (Exception ex) {
-                throw new Exception(ex.toString());
-            }
-        } finally {
-            httpClient.getConnectionManager().shutdown();
-        }
-
-        saveSession(sessionId);
-        return sessionId;
+    if (!azkProject.azkabanProjName) {
+      azkProject.azkabanProjName = console.readLine("\nAzkaban project name: ");
     }
 
-    /**
-     * Format the response String to remove html tags. This will improve the readability of Azkaban returned
-     * warning messages.
-     *
-     * @param response The HttpResponse from the server
-     * @return The parsed Response
-     */
-     String parseResponse(String response) {
-         String newline = System.getProperty("line.separator");
-         return HtmlUtil.toText(response).replaceAll("azkaban.failure.message=", newline + newline);
+    // If no previous session is available, obtain a session id from server by sending login credentials.
+    if (sessionId == null) {
+      logger.lifecycle("No previous session found. Logging into Azkaban:");
+      logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
+      logger.lifecycle("Azkaban user name: ${azkProject.azkabanUserName}");
+      logger.lifecycle("Azkaban project name: ${azkProject.azkabanProjName}");
+      sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, console.readPassword("\nAzkaban password: "));
+    }
+    else {
+      logger.lifecycle("Resuming previous Azkaban session");
+    }
+
+    MultipartEntity mpEntity = new MultipartEntity();
+    mpEntity.addPart("ajax", new StringBody("upload"));
+    mpEntity.addPart("file", new FileBody(archivePath, "application/zip"));
+    mpEntity.addPart("project", new StringBody(azkProject.azkabanProjName));
+    if (!azkProject.azkabanValidatorAutoFix || !azkProject.azkabanValidatorAutoFix.equals("off")) {
+      mpEntity.addPart("fix", new StringBody("on"));
+    }
+
+    HttpPost httpPost = new HttpPost(azkProject.azkabanUrl + "/manager");
+    httpPost.setEntity(mpEntity);
+    httpPost.setHeader("Accept", "*/*");
+    httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
+
+    HttpClient httpClient = new DefaultHttpClient();
+    try {
+      SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
+        @Override
+        boolean isTrusted(X509Certificate[] x509Certificates, String s)
+          throws CertificateException {
+            return true;
+        }
+      });
+
+      Scheme scheme = new Scheme("https", 443, socketFactory);
+      httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
+      HttpResponse response = httpClient.execute(httpPost);
+
+      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode());
+      }
+
+      logger.lifecycle("--------------------------------------------------------------------------------");
+      logger.lifecycle(parseResponse(response.toString()));
+      String result = parseContent(response.getEntity().getContent());
+      logger.lifecycle("\n" + result);
+      logger.lifecycle("--------------------------------------------------------------------------------");
+
+      // Check if session has expired. If so, re-login.
+      if (result.toLowerCase().contains("login error")) {
+        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        uploadToAzkaban(null);
+        return;
+      }
+
+      // Check if there was an error during the upload.
+      JSONObject jsonObj = new JSONObject(result);
+
+      if (jsonObj.has("error")) {
+        throw new GradleException(jsonObj.get("error").toString());
+      }
+
+      logger.lifecycle("\nZip " + archivePath.toString() + " uploaded successfully.");
+    }
+    finally {
+      httpClient.getConnectionManager().shutdown();
+    }
+  }
+
+  /**
+   * Helper method to make a login request to Azkaban.
+   *
+   * @param azkabanUrl The Azkaban server URL
+   * @param userName The username
+   * @param password The password
+   * @return The session id from the response
+   */
+  String azkabanLogin(String azkabanUrl, String userName, char[] password) {
+    List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
+    urlParameters.add(new BasicNameValuePair("action", "login"));
+    urlParameters.add(new BasicNameValuePair("username", userName));
+    urlParameters.add(new BasicNameValuePair("password", password.toString()));
+
+    // Clear the password array as soon as it is used. There will still object references to the
+    // password floating around in the JVM, but this is still a good practice.
+    Arrays.fill(password, ' ' as char);
+
+    HttpPost httpPost = new HttpPost(azkabanUrl);
+    httpPost.setEntity(new UrlEncodedFormEntity(urlParameters));
+    httpPost.setHeader("Accept", "*/*");
+    httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    HttpClient httpClient = new DefaultHttpClient();
+    try {
+      SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
+        @Override
+        boolean isTrusted(X509Certificate[] x509Certificates, String s)
+          throws CertificateException {
+            return true;
+        }
+      });
+
+      Scheme scheme = new Scheme("https", 443, socketFactory);
+      httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
+      HttpResponse response = httpClient.execute(httpPost);
+
+      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        throw new GradleException("Login attempt failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode());
+      }
+
+      logger.lifecycle("--------------------------------------------------------------------------------");
+      logger.lifecycle(parseResponse(response.toString()));
+      String result = parseContent(response.getEntity().getContent());
+      // logger.lifecycle("\n" + result);  // Commented out to not display the session id on the screen
+      logger.lifecycle("--------------------------------------------------------------------------------");
+
+      // Check if the login is successful
+      JSONObject jsonObj = new JSONObject(result);
+
+      if (jsonObj.has("error")) {
+        throw new GradleException(jsonObj.get("error").toString());
+      }
+
+      if (!jsonObj.has("session.id")) {
+        throw new GradleException("Login attempt failed. The session ID could not be obtained.");
+      }
+
+      String sessionId = jsonObj.getString("session.id");
+      saveSession(sessionId);
+      return sessionId;
+    }
+    finally {
+      httpClient.getConnectionManager().shutdown();
+    }
+  }
+
+  /**
+   * Gets the content from the HTTP response.
+   *
+   * @param The HTTP response as an input stream
+   * @return The content from the response
+   */
+  String parseContent(InputStream response) {
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(response));
+      StringBuilder result = new StringBuilder();
+      String line = null;
+      while ((line = reader.readLine()) != null) {
+        result.append(line);
+      }
+      return result.toString();
+    }
+    finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+  }
+
+  /**
+   * Format the response String to remove HTML tags. This will improve the readability of warning
+   * messages returned from Azkaban.
+   *
+   * @param response The HttpResponse from the server
+   * @return The parsed response
+   */
+   String parseResponse(String response) {
+     String newline = System.getProperty("line.separator");
+     return HtmlUtil.toText(response).replaceAll("azkaban.failure.message=", newline + newline);
+   }
+
+   /**
+    * Reads the session id from session.file in the user's ~/.azkaban directory.
+    *
+    * @return sessionId The saved session id
+    */
+   String readSession() {
+     File file = new File(System.getProperty("user.home") + "/.azkaban/session.properties");
+     String sessionId = null;
+     if (file.exists()) {
+       file.withInputStream() { inputStream ->
+         Properties properties = new Properties();
+         properties.load(inputStream);
+         sessionId = properties.getProperty("sessionId");
+       }
      }
+     return sessionId;
+   }
 
-    /**
-     * Load the session.id from cookie.file
-     *
-     * @return sessionId
-     */
-    String loadSession() {
-        File file = new File(System.getProperty("user.home") + "/.azkaban/cookie.file");
-        String sessionId = null;
-        Scanner sc = null;
-        try {
-            if (file.exists()) {
-                sc = new Scanner(file);
-                if (sc.hasNext()) {
-                    sessionId = sc.next();
-                }
-            }
-        } finally {
-            if (sc != null) {
-                sc.close();
-            }
-        }
-        return sessionId;
+  /**
+   * Stores the session id in a properties file under ~/.azkaban.
+   *
+   * @param sessionId The session id
+   */
+  void saveSession(String sessionId) {
+    if (!sessionId) {
+      throw new GradleException("No session ID obtained to save");
     }
 
-    /**
-     * Get the content from http response
-     *
-     * @param response
-     * @return result
-     */
-    String parseContent(InputStream response) {
-        BufferedReader rd = null;
-        StringBuilder result = null;
-        try {
-            rd = new BufferedReader(new InputStreamReader(response));
-            result = new StringBuilder();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-        } catch (IOException ex) {
-            throw new IOException(ex.toString());
-        } finally {
-            if (rd != null) {
-                rd.close();
-            }
-        }
-        return result.toString();
+    File dir = new File(System.getProperty("user.home") + "/.azkaban");
+    if (!dir.exists() && !dir.mkdirs()) {
+      log.error("Unable to create directory: " + dir.toString());
+      return;
     }
 
-    /**
-     * Stores the session.id in a file under ~/.azkaban
-     *
-     * @param sessionId
-     */
-    void saveSession(String sessionId) {
-        if (sessionId == null) {
-            throw new GradleException("No session ID obtained to save.");
-        }
-        // Create a file to save the session ID
-        File file = null;
-        FileWriter writer = null;
-        try {
-            File dir = new File(System.getProperty("user.home") + "/.azkaban");
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    log.error("Unable to create directories: " + dir.toString());
-                    return;
-                }
-            }
-            file = new File(dir, "cookie.file");
-            if (file.exists()) {
-                if (!file.delete()) {
-                    log.error("Unable to delete session file. Path : " + file.toString());
-                    return;
-                }
-            }
-            file.createNewFile();
-            writer = new FileWriter(file);
-            writer.write(sessionId);
-            file.setReadOnly();
-        } catch (IOException ex) {
-            log.error("Unable to store session ID to " + file.toString() + "\n" + ex.toString());
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
+    File file = new File(dir, "session.properties");
+    if (file.exists() && !file.delete()) {
+      log.error("Unable to delete the existing file at: " + file.toString());
+      return;
     }
+
+    try {
+      file.withWriter() { writer ->
+        Properties properties = new Properties();
+        properties.setProperty("sessionId", sessionId);
+        properties.store(writer, null);
+      }
+      file.setReadOnly();
+    }
+    catch (IOException ex) {
+      log.error("Unable to store session ID to file: " + file.toString() + "\n" + ex.toString());
+    }
+  }
 }

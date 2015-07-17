@@ -49,21 +49,8 @@ class ScmPlugin implements Plugin<Project> {
       return;
     }
 
-    project.tasks.create("writeScmPluginData") {
-      description = "Writes the SCM plugin configuration json file";
-      group = "Hadoop Plugin";
-
-      doLast {
-        def scmPluginDataFilePath = getScmPluginDataFilePath(project);
-        if (!new File(scmPluginDataFilePath).exists()) {
-          String scmDataJson = new JsonBuilder(new ScmPluginData()).toPrettyString();
-          new File(scmPluginDataFilePath).write(scmDataJson);
-        }
-      }
-    }
-
     project.tasks.create("buildScmMetadata") {
-      description = "Writes SCM metadata about the project";
+      description = "Writes SCM metadata about the project to the project's build directory";
       group = "Hadoop Plugin";
 
       doLast {
@@ -82,6 +69,19 @@ class ScmPlugin implements Plugin<Project> {
       doLast {
         ScmMetadataContainer scm = buildScmMetadata(project);
         println(new JsonBuilder(scm).toPrettyString());
+      }
+    }
+
+    project.tasks.create("writeScmPluginJson") {
+      description = "Writes a default .scmPlugin.json file in the root project directory"
+      group = "Hadoop Plugin";
+
+      doLast {
+        String pluginJsonPath = getPluginJsonPath(project);
+        if (!new File(pluginJsonPath).exists()) {
+          String pluginJson = new JsonBuilder(new ScmPluginData()).toPrettyString();
+          new File(pluginJsonPath).write(pluginJson);
+        }
       }
     }
 
@@ -299,14 +299,13 @@ class ScmPlugin implements Plugin<Project> {
    */
   List<String> buildExcludeList(Project project) {
     List<String> excludeList = new ScmPluginData().sourceExclude;
-    def scmPluginDataFilePath = getScmPluginDataFilePath(project);
 
-    if (new File(scmPluginDataFilePath).exists()) {
-      def slurper = new JsonSlurper();
-      def reader = new BufferedReader(new FileReader(scmPluginDataFilePath));
-      def parsedData = slurper.parse(reader).sourceExclude;
-      parsedData.each { exclude ->
-        excludeList.add(exclude);
+    def pluginJson = readScmPluginJson(project);
+    if (pluginJson != null) {
+      pluginJson.sourceExclude.each { exclude ->
+        if (!excludeList.contains(exclude)) {
+          excludeList.add(exclude);
+        }
       }
     }
 
@@ -331,7 +330,7 @@ class ScmPlugin implements Plugin<Project> {
    * @param project The Gradle project
    * @return The path to the plugin json file
    */
-  String getScmPluginDataFilePath(Project project) {
+  String getPluginJsonPath(Project project) {
     return "${project.getRootProject().projectDir}/.scmPlugin.json";
   }
 
@@ -356,6 +355,36 @@ class ScmPlugin implements Plugin<Project> {
   void includeLibs(Project project, CopySpec spec, Object target) {
     spec.from(target) {
       into hadoopZipExtension.libPath;
+    }
+  }
+
+  /**
+   * Helper method to read the plugin json file as a JSON object. For backwards compatibility
+   * reasons, we should read it as a JSON object instead of coercing it into a domain object.
+   *
+   * @param project The Gradle project
+   * @return A JSON object or null if the file does not exist
+   */
+  def readScmPluginJson(Project project) {
+    String pluginJsonPath = getPluginJsonPath(project);
+    if (!new File(pluginJsonPath).exists()) {
+      return null;
+    }
+
+    def reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(pluginJsonPath));
+      def slurper = new JsonSlurper();
+      def pluginJson = slurper.parse(reader);
+      return pluginJson;
+    }
+    catch (Exception ex) {
+      throw new Exception("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
+    }
+    finally {
+      if (reader != null) {
+        reader.close();
+      }
     }
   }
 }
