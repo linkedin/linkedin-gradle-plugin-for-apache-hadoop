@@ -299,7 +299,10 @@ class AzkabanUploadTask extends DefaultTask {
         properties.setProperty("sessionId", sessionId);
         properties.store(writer, null);
       }
-      file.setReadOnly();
+
+      // Make the file readable only by the user. The Java File API makes this a little awkward to express.
+      file.setReadable(false, false);
+      file.setReadable(true, true);
     }
     catch (IOException ex) {
       log.error("Unable to store session ID to file: " + file.toString() + "\n" + ex.toString());
