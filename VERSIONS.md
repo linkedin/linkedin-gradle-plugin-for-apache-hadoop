@@ -1,5 +1,5 @@
 <!--
-Copyright 2014 LinkedIn Corp.
+Copyright 2015 LinkedIn Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
@@ -14,8 +14,51 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-HEAD
+Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
+see a few skipped version numbers in the list below.
 
+0.5.15
+
+* HADOOP-12795 Complete Tasks for Open-Sourcing Hadoop Plugin
+* HADOOP-12846 Hadoop DSL Make KafkaPushJob nameNode property not required again
+* HADOOP-12837 Set file permissions correctly for new Hadoop Plugin azkabanUpload task
+
+0.5.14
+
+* HADOOP-12773 Minor refactoring to new Azkaban upload task
+
+0.5.13
+
+* HADOOP-12726 Style cleanups for Hadoop zip tests
+
+0.5.12
+
+* HADOOP-12724 Minor refactoring to new Hadoop zip tasks
+
+0.5.11
+
+* HADOOP-12243 Fix Hadoop Plugin PCL Breakage
+
+0.5.10
+
+* HADOOP-10773: Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin
+
+0.5.8
+
+* HADOOP-11178 Hadoop DSL Closures Language Feature
+
+0.5.7
+
+* HADOOP-12029 Prevent users from declaring elements directly under a workflow with the same name as the workflow
+
+0.5.6
+
+* HADOOP-11814 Base configuration for Hadoop plugin zip task
+* HADOOP-11658 Rename Hadoop Plugin and DSL appropriately to respect trademarks
+
+0.5.5
+
+* HADOOP-10772 Port li-azkaban2 zip-building tasks to the Hadoop Plugin
 * HADOOP-10914 Add Apache License Files to Hadoop Plugin - Minor Updates Part 2
 * HADOOP-10914 Add Apache License Files to Hadoop Plugin - Minor Updates
 * HADOOP-10914 Add Apache License Files to Hadoop Plugin

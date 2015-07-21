@@ -1,5 +1,5 @@
 <!--
-Copyright 2014 LinkedIn Corp.
+Copyright 2015 LinkedIn Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
@@ -23,5 +23,15 @@ Vaughan.
 
 ### Contributors
 
-`HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip` contributed by Anant Nag.
-Thanks, Anant!
+The following were contributed by Anant Nag (annag@linkedin.com). Thanks, Anant!
+`HADOOP-12726 Style cleanups for Hadoop zip tests`
+`HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
+`HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
+
+The following were contributed by Akshay Rai (akrai@linkedin.com). Thanks, Akshay!
+`HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
+`HADOOP-10773 Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin`
+`HADOOP-8251 Hadoop DSL doesn't use -p flag for mkdir`
+
+The following were contributed by Keith Dsouza (kdsouza@linkedin.com). Thanks, Keith!
+`Added support to the KafkaPushJob to accept the disable.auditing property`
