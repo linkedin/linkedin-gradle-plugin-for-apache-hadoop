@@ -24,14 +24,14 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag (annag@linkedin.com). Thanks, Anant!
-`HADOOP-12726 Style cleanups for Hadoop zip tests`
-`HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
-`HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
+* `HADOOP-12726 Style cleanups for Hadoop zip tests`
+* `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
+* `HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
 
 The following were contributed by Akshay Rai (akrai@linkedin.com). Thanks, Akshay!
-`HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
-`HADOOP-10773 Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin`
-`HADOOP-8251 Hadoop DSL doesn't use -p flag for mkdir`
+* `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
+* `HADOOP-10773 Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin`
+* `HADOOP-8251 Hadoop DSL doesn't use -p flag for mkdir`
 
 The following were contributed by Keith Dsouza (kdsouza@linkedin.com). Thanks, Keith!
-`Added support to the KafkaPushJob to accept the disable.auditing property`
+* `Added support to the KafkaPushJob to accept the disable.auditing property`

@@ -30,12 +30,12 @@ schedulers like Azkaban and Apache Oozie.
 #### Hadoop Plugin User Guide
 
 The Hadoop Plugin User Guide is available at [Hadoop Plugin User Guide]
-(https://github.com/convexquad/hadoop-plugin/wiki/Hadoop-Plugin-User-Guide).
+(https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide).
 
 #### Hadoop DSL Language Reference
 
 The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference]
-(https://github.com/convexquad/hadoop-plugin/wiki/Hadoop-DSL-Language-Reference).
+(https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference).
 
 #### Project Structure
 
