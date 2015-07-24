@@ -29,7 +29,7 @@ schedulers like Azkaban and Apache Oozie.
 
 #### Hadoop Plugin User Guide
 
-The Hadoop Plugin User Guide is available at [Hadoop Plugin User Guide]
+The Hadoop Plugin User Guide is available at [User Guide]
 (https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide).
 
 #### Hadoop DSL Language Reference

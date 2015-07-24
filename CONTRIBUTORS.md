@@ -16,22 +16,22 @@ the License.
 
 ### Author
 
-The LinkedIn Gradle Plugin for Apache Hadoop was designed and created by Alex Bain
-(abain@linkedin.com). The design of the LinkedIn Gradle DSL for Apache Hadoop was influenced by
+The LinkedIn Gradle Plugin for Apache Hadoop was designed and created by Alex Bain. The design of
+the LinkedIn Gradle DSL for Apache Hadoop was influenced by
 [azkaban-rb](https://github.com/matthayes/azkaban-rb) from Matthew Hayes and by input from Will
 Vaughan.
 
 ### Contributors
 
-The following were contributed by Anant Nag (annag@linkedin.com). Thanks, Anant!
+The following were contributed by Anant Nag. Thanks, Anant!
 * `HADOOP-12726 Style cleanups for Hadoop zip tests`
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
 * `HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
 
-The following were contributed by Akshay Rai (akrai@linkedin.com). Thanks, Akshay!
+The following were contributed by Akshay Rai. Thanks, Akshay!
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
 * `HADOOP-10773 Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin`
 * `HADOOP-8251 Hadoop DSL doesn't use -p flag for mkdir`
 
-The following were contributed by Keith Dsouza (kdsouza@linkedin.com). Thanks, Keith!
+The following were contributed by Keith Dsouza. Thanks, Keith!
 * `Added support to the KafkaPushJob to accept the disable.auditing property`
