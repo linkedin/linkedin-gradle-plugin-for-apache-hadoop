@@ -32,12 +32,12 @@ public class AzkabanZipTest {
   private Closure baseClosure;
   private File azkabanLibDirectory;
   private Configuration azkabanRuntime;
-  private String clustername;
+  private String zipName;
   String zipPath;
 
   @Before
   public void setup() {
-    clustername = "magic";
+    zipName = "magic";
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
     plugin = new ScmPluginTest();
@@ -122,7 +122,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -146,7 +146,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -178,7 +178,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -232,7 +232,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -291,7 +291,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -371,7 +371,7 @@ public class AzkabanZipTest {
     project.getRootProject().tasks["buildSourceZip"].execute();
     zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
 
-    def task = project.getTasksByName("${clustername}HadoopZip", false);
+    def task = project.getTasksByName("${zipName}HadoopZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -391,20 +391,20 @@ public class AzkabanZipTest {
     }
 
     @Override
-    public CopySpec getClusterCopySpec(String cluster) {
+    public CopySpec getBaseCopySpec() {
+      return project.copySpec(baseClosure);
+    }
+
+    @Override
+    public CopySpec getZipCopySpec(String zipName) {
       return project.copySpec(closure);
     }
 
     @Override
-    public Map<String, CopySpec> getClusterMap() {
-      Map<String, CopySpec> clusterMap = new HashMap<String,CopySpec>();
-      clusterMap.put(clustername, project.copySpec(closure));
-      return clusterMap;
-    }
-
-    @Override
-    public CopySpec getBaseCopySpec() {
-      return project.copySpec(baseClosure);
+    public Map<String, CopySpec> getZipMap() {
+      Map<String, CopySpec> map = new HashMap<String, CopySpec>();
+      map.put(zipName, project.copySpec(closure));
+      return map;
     }
   }
 
@@ -424,7 +424,6 @@ public class AzkabanZipTest {
 
     @Override
     String getSourceZipFilePath(Project project) {
-      project.logger.lifecycle("called ${zipPath}");
       return zipPath;
     }
   }

@@ -25,14 +25,14 @@ hadoopZip {
     }
   }
 
-  cluster("magic") {
+  zip("magic") {
     from("src") {
       into "src"
       include "main/**/**"
     }
   }
 
-  cluster("canasta") {
+  zip("canasta") {
     from("src") { }
   }
 
