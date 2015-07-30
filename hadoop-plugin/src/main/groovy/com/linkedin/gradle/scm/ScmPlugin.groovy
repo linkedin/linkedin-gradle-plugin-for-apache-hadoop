@@ -114,7 +114,7 @@ class ScmPlugin implements Plugin<Project> {
     // Create task in afterEvaluate so that the 'main' in hadoopZip extension is resolved first,
     // otherwise the getContents() method of HadoopZipExtension returns null.
     project.afterEvaluate {
-      for (String cluster : hadoopZipExtension.getClusterMap().keySet()) {
+      for (String cluster : hadoopZipExtension.getZipMap().keySet()) {
         createZipTask(project, cluster);
       }
     }
@@ -237,21 +237,21 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
-   * Method to create the Hadoop Zip task for the given cluster.
+   * Method to create the Hadoop Zip task for the given named zip.
    *
    * @param project The Gradle project
-   * @param clusterName The cluster name
-   * @return The zip task for the cluster
+   * @param zipName The zip name
+   * @return The zip task
    */
-  Task createZipTask(Project project, String clusterName) {
-    Task zipTask = project.tasks.create(name: "${clusterName}HadoopZip", type: Zip) { task ->
-      classifier = clusterName.equals("main") ? "" : clusterName;
-      description = "Creates a Hadoop zip archive for ${clusterName}";
+  Task createZipTask(Project project, String zipName) {
+    Task zipTask = project.tasks.create(name: "${zipName}HadoopZip", type: Zip) { task ->
+      classifier = zipName.equals("main") ? "" : zipName;
+      description = "Creates a Hadoop zip archive for ${zipName}";
       group = "Hadoop Plugin";
 
       // This task is a dependency of buildHadoopZips and depends on the startHadoopZips
-      project.tasks["buildHadoopZips"].dependsOn task
-      dependsOn "startHadoopZips"
+      project.tasks["buildHadoopZips"].dependsOn task;
+      dependsOn "startHadoopZips";
 
       // This task depends on buildSourceZip and buildScmMetada tasks
       task.dependsOn(project.getRootProject().tasks["buildSourceZip"]);
@@ -260,10 +260,10 @@ class ScmPlugin implements Plugin<Project> {
       // Include files specified by the user through hadoopZip extension. If there is a base
       // CopySpec, add it as a child of the cluster specific CopySpec.
       if (hadoopZipExtension.getBaseCopySpec() != null) {
-        task.with(hadoopZipExtension.getClusterCopySpec(clusterName).with(hadoopZipExtension.getBaseCopySpec()));
+        task.with(hadoopZipExtension.getZipCopySpec(zipName).with(hadoopZipExtension.getBaseCopySpec()));
       }
       else {
-        task.with(hadoopZipExtension.getClusterCopySpec(clusterName));
+        task.with(hadoopZipExtension.getZipCopySpec(zipName));
       }
 
       // Add the buildMetadata.json file
@@ -278,14 +278,14 @@ class ScmPlugin implements Plugin<Project> {
       }
 
       // Include hadoopRuntime dependencies into the libPath directory in the zip
-      includeLibs(project, task, hadoopZipConf)
+      includeLibs(project, task, hadoopZipConf);
 
       // Add the task to project artifacts
       project.artifacts.add("archives", task);
 
       // When everything is done, print out a message
       doLast {
-        project.logger.lifecycle("Prepared Hadoop zip archive at: $archivePath");
+        project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
       }
     }
     return zipTask;

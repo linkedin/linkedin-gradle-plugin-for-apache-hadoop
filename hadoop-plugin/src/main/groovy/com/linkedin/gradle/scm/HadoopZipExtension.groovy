@@ -37,18 +37,19 @@ import org.gradle.api.file.CopySpec;
  */
 public class HadoopZipExtension {
   CopySpec baseCopySpec;
-  Map<String, CopySpec> clusterMap;
   String libPath;
   Project project;
+  Map<String, CopySpec> zipMap;
 
   /**
-   * Constructor for the HadoopZipExtension
-   * @param project
+   * Constructor for the HadoopZipExtension.
+   *
+   * @param project The Gradle project
    */
   HadoopZipExtension(Project project) {
     this.project = project;
-    clusterMap = new HashMap<String, CopySpec>();
     libPath = ".";
+    zipMap = new HashMap<String, CopySpec>();
   }
 
   /**
@@ -62,13 +63,13 @@ public class HadoopZipExtension {
    *       }
    *     }
    *
-   *     cluster("magic") {
+   *     zip("magic") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
    *
-   *     cluster("canasta") {
+   *     zip("canasta") {
    *       from ("azkaban/") {
    *         into "."
    *       }
@@ -87,31 +88,6 @@ public class HadoopZipExtension {
   /**
    * <pre>
    *   hadoopZip {
-   *     cluster("magic") {
-   *       from ("src/") {
-   *         into "src"
-   *       }
-   *     }
-   *
-   *     cluster("canasta") {
-   *       from ("src/") {
-   *         into "src"
-   *       }
-   *     }
-   *   }
-   * </pre>
-   * The DSL inside the {@code cluster(clustername)\{} } block is the same DSL used for Copy tasks.
-   */
-  void cluster(String name, Closure closure) {
-    if (clusterMap.containsKey(name)){
-      throw new RuntimeException("${name} is already defined");
-    }
-    clusterMap.put(name, project.copySpec(closure));
-  }
-
-  /**
-   * <pre>
-   *   hadoopZip {
    *     main {
    *       from ("src/") {
    *         into "src"
@@ -122,7 +98,32 @@ public class HadoopZipExtension {
    * The DSL inside the {@code main\{} } block is the same DSL used for Copy tasks.
    */
   void main(Closure closure) {
-    cluster("main", closure);
+    zip("main", closure);
+  }
+
+  /**
+   * <pre>
+   *   hadoopZip {
+   *     zip("magic") {
+   *       from ("src/") {
+   *         into "src"
+   *       }
+   *     }
+   *
+   *     zip("canasta") {
+   *       from ("src/") {
+   *         into "src"
+   *       }
+   *     }
+   *   }
+   * </pre>
+   * The DSL inside the {@code zip(zipName)\{} } block is the same DSL used for Copy tasks.
+   */
+  void zip(String zipName, Closure closure) {
+    if (zipMap.containsKey(zipName)){
+      throw new RuntimeException("${zipName} is already defined");
+    }
+    zipMap.put(zipName, project.copySpec(closure));
   }
 
   /**
@@ -135,24 +136,24 @@ public class HadoopZipExtension {
   }
 
   /**
-   * Utility method to return the CopySpec for the given cluster name.
+   * Utility method to return the CopySpec for the given named zip.
    *
-   * @param clusterName
-   * @return Returns the CopySpec for the given cluster name
+   * @param zipName
+   * @return Returns the CopySpec for the given zip name
    */
-  CopySpec getClusterCopySpec(String clusterName) {
-    if (clusterMap.containsKey(clusterName)) {
-      return clusterMap.get(clusterName);
+  CopySpec getZipCopySpec(String zipName) {
+    if (zipMap.containsKey(zipName)) {
+      return zipMap.get(zipName);
     }
     return null;
   }
 
   /**
-   * Utility method to return the clusterMap.
+   * Utility method to return the zipMap.
    *
-   * @return Returns the clusterMap
+   * @return Returns the zipMap
    */
-  Map<String, CopySpec> getClusterMap() {
-    return clusterMap;
+  Map<String, CopySpec> getZipMap() {
+    return zipMap;
   }
 }
