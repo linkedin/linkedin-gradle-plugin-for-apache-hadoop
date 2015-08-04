@@ -89,9 +89,11 @@ class ScmPlugin implements Plugin<Project> {
     // zip created that can be shared by all projects. Thus, only create the buildSourceZip task on
     // the root project if it hasn't been created already (you will get an exception if you try to
     // create it more than once).
-    if (project.getRootProject().tasks.findByName("buildSourceZip") == null) {
-      createSourceTask(project);
-    }
+    Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip") ?: createSourceTask(project);
+
+    // If the user runs the Hadoop DSL buildAzkabanFlows task, the buildSourceZip task must run
+    // after it, since that task creates and deletes files.
+    sourceTask.mustRunAfter project.tasks["buildAzkabanFlows"];
 
     // Create the hadoopRuntime configuration and the HadoopZipExtension for the project.
     hadoopZipConf = createZipConfiguration(project);
@@ -255,7 +257,7 @@ class ScmPlugin implements Plugin<Project> {
 
       // This task depends on buildSourceZip and buildScmMetada tasks
       task.dependsOn(project.getRootProject().tasks["buildSourceZip"]);
-      task.dependsOn(project.project.tasks["buildScmMetadata"]);
+      task.dependsOn(project.tasks["buildScmMetadata"]);
 
       // Include files specified by the user through hadoopZip extension. If there is a base
       // CopySpec, add it as a child of the cluster specific CopySpec.
