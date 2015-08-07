@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>hadoop.security.authentication</name>
+    <value>kerberos</value>
+  </property>
+  <property>
+    <name>hadoop.security.authorization</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>hadoop.security.auth_to_local</name>
+    <value>
+       RULE:[1:$1@$0](.*@LINKEDIN.BIZ)s/@.*//
+       RULE:[2:$1@$0](.*@LINKEDIN.BIZ)s/@.*//
+       RULE:[2:$1@$0](.@PROD.LINKEDIN.COM)s/@.//
+       RULE:[1:$1@$0](.@GRID.LINKEDIN.COM)s/@.//
+       DEFAULT
+    </value>
+  </property>
+    <property>
+        <name>hadoop.http.filter.initializers</name>
+        <value>org.apache.hadoop.security.AuthenticationFilterInitializer</value>
+    </property>
+    <property>
+        <name>debug</name>
+        <value>true</value>
+    </property>
+</configuration>

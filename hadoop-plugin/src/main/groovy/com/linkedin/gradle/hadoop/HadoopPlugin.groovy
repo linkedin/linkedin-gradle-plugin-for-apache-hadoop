@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 
@@ -39,6 +40,7 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
+    project.getPlugins().apply(getOoziePluginClass());
   }
 
   /**
@@ -79,5 +81,15 @@ class HadoopPlugin implements Plugin<Project> {
    */
   Class<? extends ScmPlugin> getScmPluginClass() {
     return ScmPlugin.class;
+  }
+
+  /**
+   * Factory method to return the OoziePlugin class. Subclasses can override this method to return
+   * their own OoziePlugin class.
+   *
+   * @return Class that implements the OoziePlugin
+   */
+  Class<? extends OoziePlugin> getOoziePluginClass() {
+    return OoziePlugin.class;
   }
 }
