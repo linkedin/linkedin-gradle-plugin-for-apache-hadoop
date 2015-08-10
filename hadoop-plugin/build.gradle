@@ -4,8 +4,16 @@ apply plugin: 'groovy'
 dependencies {
   compile gradleApi()
   compile localGroovy()
-  compile group: 'org.apache.httpcomponents', name: 'httpmime', version:'4.1'
-  compile group: 'org.json', name: 'json', version: '20090211'
+  compile(group: 'com.googlecode.json-simple', name:'json-simple', version: '1.1')
+  compile(group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.3.0') { transitive = false}
+  compile(group: 'org.apache.hadoop', name: 'hadoop-auth', version: '2.3.0') {transitive = false}
+  compile(group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '2.3.0') {transitive = false}
+  compile(group: 'com.sun.jersey', name: 'jersey-client', version: '1.9')
+  compile(group: 'com.sun.jersey', name: 'jersey-core', version: '1.9')
+  compile(group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1')
+  compile(group: 'org.apache.httpcomponents', name: 'httpmime', version:'4.1')
+  compile(group: 'org.json', name: 'json', version: '20090211')
+  compile(group: 'org.mortbay.jetty', name: 'jetty-util', version :'6.1.25')
 }
 
 task sourceJar(type: Jar) {
