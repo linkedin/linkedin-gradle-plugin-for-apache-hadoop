@@ -88,7 +88,7 @@ class ExcludeSourceTest {
     expected.add("sample4.java");
 
     plugin.apply(project);
-    def task = project.getTasksByName("buildSourceZip", false);
+    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
@@ -117,7 +117,7 @@ class ExcludeSourceTest {
     expected.add("sample4.java");
 
     plugin.apply(project);
-    def task = project.getTasksByName("buildSourceZip", false);
+    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
@@ -136,7 +136,7 @@ class ExcludeSourceTest {
     writer.print(jsonFile);
     writer.close();
     plugin.apply(project);
-    def task = project.getTasksByName("buildSourceZip", false);
+    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -173,7 +173,7 @@ class ExcludeSourceTest {
     writer.print(jsonFile);
     writer.close();
     plugin.apply(project);
-    def task = project.getTasksByName("buildSourceZip", false);
+    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 
@@ -201,7 +201,7 @@ class ExcludeSourceTest {
     writer.print(jsonFile);
     writer.close();
     plugin.apply(project);
-    def task = project.getTasksByName("buildSourceZip", false);
+    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
     def zipTask = task.iterator().next();
     zipTask.execute();
 

@@ -23,6 +23,7 @@ import com.linkedin.gradle.scm.ScmPlugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 
 /**
  * HadoopPlugin is the class that implements our Gradle Plugin.
@@ -41,6 +42,7 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
     project.getPlugins().apply(getOoziePluginClass());
+    setupTaskDependencies(project);
   }
 
   /**
@@ -91,5 +93,22 @@ class HadoopPlugin implements Plugin<Project> {
    */
   Class<? extends OoziePlugin> getOoziePluginClass() {
     return OoziePlugin.class;
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupTaskDependencies(Project project) {
+    // The ScmPlugin buildSourceZip task must run after the AzkabanPlugin buildAzkabanFlows task
+    // that builds the Hadoop DSL, since that task creates and deletes files.
+    Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
+    Task azFlowTask = project.getRootProject().tasks.findByName("buildAzkabanFlows");
+
+    if (sourceTask != null && azFlowTask != null) {
+      sourceTask.mustRunAfter azFlowTask;
+    }
   }
 }
