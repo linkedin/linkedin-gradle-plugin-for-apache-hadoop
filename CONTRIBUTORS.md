@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `HADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie`
 * `HADOOP-12726 Style cleanups for Hadoop zip tests`
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
 * `HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
