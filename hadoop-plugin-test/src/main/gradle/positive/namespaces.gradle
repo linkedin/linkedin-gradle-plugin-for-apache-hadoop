@@ -1,6 +1,6 @@
 buildscript {
   dependencies {
-    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar")
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
   }
 }
 

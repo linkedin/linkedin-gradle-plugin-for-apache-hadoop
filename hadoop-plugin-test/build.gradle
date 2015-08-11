@@ -10,7 +10,7 @@ task forceGradlew(type: Exec) {
 // Create an initial task that sets up the directories for a new test run.
 task initTestCases() {
   dependsOn ":hadoop-plugin:build";
-  dependsOn forceGradlew
+  dependsOn forceGradlew;
   description = "Hadoop DSL task to prepare the test cases";
   group = "Hadoop DSL Tests";
 
@@ -92,13 +92,17 @@ testFiles.each { fileName ->
   String baseDirName = fileName.replace("${baseFileName}.gradle", "").replace("/", "");
   String outputFile = baseDirName.isEmpty() ? "${baseFileName}.out" : "${baseDirName}/${baseFileName}.out";
 
+  // Make the tests work with LinkedIn snapshot builds
+  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
+  String libVersion = isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
+
   project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
     description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
     group = "Hadoop DSL Tests";
 
     // In LinkedIn internal builds, the dependencies are in a different place, so pass the
     // location on to the test case task.
-    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}"
+    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}", "-PlibVersion=${libVersion}";
     ignoreExitValue true;
 
     // Store the output instead of printing to the console
