@@ -24,12 +24,13 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
-* `HADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie`
+* `LIHADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie`
 * `HADOOP-12726 Style cleanups for Hadoop zip tests`
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
 * `HADOOP-10148 Support exclusion list for Hadoop Plugin sources Zip`
 
 The following were contributed by Akshay Rai. Thanks, Akshay!
+* `LIHADOOP-12945 Hadoop Plugin azkabanUpload enhancement to print project URL`
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
 * `HADOOP-10773 Rewrite li-azkaban2 zip upload tasks for the Hadoop Plugin`
 * `HADOOP-8251 Hadoop DSL doesn't use -p flag for mkdir`
