@@ -17,9 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
-0.6.0
+0.5.17
 
-* HADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie
+* Fix unit tests for hadoop-plugin module and fix how cross-plugin task dependencies are added
+* LIHADOOP-12945 Hadoop Plugin azkabanUpload enhancement to print project URL
+* LIHADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie
 
 0.5.16
 
