@@ -21,11 +21,14 @@ class OozieUploadTask extends DefaultTask {
     fs.initialize(getURI());
 
     Path directoryPath = new Path(oozieProject.dirToUpload);
-    Path projectPath = new Path(oozieProject.uploadPath + oozieProject.projectName);
+    Path projectPath = new Path(oozieProject.uploadPath + oozieProject.projectName + "/v${getProject().version}");
 
     try {
       logger.info("Project path: ${projectPath.toString()}");
       logger.info("Directory path: ${directoryPath.toString()}");
+      if(fs.exists(projectPath)) {
+        throw new IOException("$projectPath already exists")
+      }
       fs.mkdir(projectPath);
       fs.copyFromLocalFile(directoryPath, projectPath);
     }

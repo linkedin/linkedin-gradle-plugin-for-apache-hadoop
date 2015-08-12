@@ -192,4 +192,12 @@ class HdfsFileSystem {
     throws IOException {
     fs.copyFromLocalFile(delSrc, overwrite, src, dst);
   }
+
+  /**
+   * @param p path to check
+   * @return true if p exists else returns false
+   */
+  public Boolean exists(Path p) {
+    fs.exists(p);
+  }
 }
