@@ -24,6 +24,8 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `LIHADOOP-13353 Hadoop Plugin oozieUpload task should upload to versioned directory.`
+* `LIHADOOP-13457 Fix Stackoverflow exception thrown by OozieUploadTask.`
 * `LIHADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie`
 * `HADOOP-12726 Style cleanups for Hadoop zip tests`
 * `HADOOP-12243 Fix Hadoop Plugin PCL Breakage`
