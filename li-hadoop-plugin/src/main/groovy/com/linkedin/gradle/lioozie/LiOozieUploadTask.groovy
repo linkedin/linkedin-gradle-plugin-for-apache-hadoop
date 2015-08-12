@@ -15,6 +15,6 @@ class LiOozieUploadTask extends OozieUploadTask {
    */
   @Override
   HdfsFileSystem getHdfsFileSystem(){
-    return new HdfsFileSystem(LiKerberosUtil.getKrb5FileLocation());
+    return new HdfsFileSystem(LiKerberosUtil.getKrb5File());
   }
 }
