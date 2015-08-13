@@ -102,7 +102,8 @@ class AzkabanPlugin implements Plugin<Project> {
       doLast {
         String pluginJsonPath = getPluginJsonPath(project);
         if (!new File(pluginJsonPath).exists()) {
-          String pluginJson = new JsonBuilder(new AzkabanProject()).toPrettyString();
+          AzkabanProject azkabanProject = makeDefaultAzkabanProject();
+          String pluginJson = new JsonBuilder(azkabanProject).toPrettyString();
           new File(pluginJsonPath).write(pluginJson);
         }
       }
@@ -121,6 +122,16 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to build an AzkabanProject. Can be overridden by subclasses.
+   *
+   * @param project The Gradle project
+   * @return The AzkabanProject object
+   */
+  AzkabanProject makeAzkabanProject(Project project) {
+    return new AzkabanProject();
+  }
+
+  /**
    * Factory method to build the Hadoop DSL compiler for Azkaban. Subclasses can override this
    * method to provide their own compiler.
    *
@@ -129,6 +140,17 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   AzkabanDslCompiler makeCompiler(Project project) {
     return new AzkabanDslCompiler(project);
+  }
+
+  /**
+   * Factory method to build a default AzkabanProject for use with the writePluginJson method. Can
+   * be overridden by subclasses.
+   *
+   * @param project The Gradle project
+   * @return The AzkabanProject object
+   */
+  AzkabanProject makeDefaultAzkabanProject(Project project) {
+    return makeAzkabanProject();
   }
 
   /**
@@ -172,7 +194,7 @@ class AzkabanPlugin implements Plugin<Project> {
       throw new GradleException("\n\nPlease run \"gradle writeAzkabanPluginJson\" to create a default .azkabanPlugin.json file in your project directory which you can then edit.\n")
     }
 
-    AzkabanProject azkProject = new AzkabanProject();
+    AzkabanProject azkProject = makeAzkabanProject();
     azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
     azkProject.azkabanUrl = pluginJson[AZK_URL];
     azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
