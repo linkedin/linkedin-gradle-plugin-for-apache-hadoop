@@ -38,7 +38,7 @@ class LiAzkabanPlugin extends AzkabanPlugin {
     AzkabanProject azkabanProject = makeAzkabanProject();
     azkabanProject.azkabanProjName = "";
     azkabanProject.azkabanUrl = "https://eat1-nertzaz01.grid.linkedin.com:8443/";
-    azkabanProject.azkabanUserName = System.getProperty("user");
+    azkabanProject.azkabanUserName = System.getProperty("user.name");
     azkabanProject.azkabanValidatorAutoFix = "true";
     azkabanProject.azkabanZipTask = "";
     return azkabanProject;
