@@ -197,7 +197,25 @@ class HdfsFileSystem {
    * @param p path to check
    * @return true if p exists else returns false
    */
-  public Boolean exists(Path p) {
-    fs.exists(p);
+  public boolean exists(Path p) {
+    return fs.exists(p);
+  }
+
+  /**
+   * @param p the path to delete
+   * @param recursive true if delete recursively
+   * @return true if successful else false
+   */
+  public boolean delete(Path p, Boolean recursive) {
+    logger.info("deleting ${p.toString()}")
+    return fs.delete(p,recursive);
+  }
+
+  /**
+   * @param p the path to delete
+   * @return true if successful else false
+   */
+  public boolean delete(Path p) {
+    return delete(p,true);
   }
 }
