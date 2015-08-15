@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.2
+
+* LIHADOOP-13353 Hadoop Plugin oozieUpload task should upload to versioned directory.
+* LIHADOOP-13457 Fix Stackoverflow exception thrown by OozieUploadTask.
+
 0.6.1
 
 * Enable Hadoop Plugin tests to work wth LinkedIn mint snapshot builds
