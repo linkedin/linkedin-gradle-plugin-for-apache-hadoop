@@ -35,6 +35,7 @@ import org.gradle.api.Project;
 class HadoopDslExtension extends BaseNamedScopeContainer {
   String buildDirectory;
   boolean cleanFirst;
+  String oozieDirectory;
 
   /**
    * Base constructor for the HadoopDslExtension
@@ -55,6 +56,7 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
     super(project, parentScope, "hadoop");
     this.buildDirectory = null;
     this.cleanFirst = true;
+    this.oozieDirectory = null;
 
     // Bind the name hadoop in the parent scope so that we can do fully-qualified name lookups of
     // objects bound in the hadoop block.
@@ -96,5 +98,20 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
   @Override
   HadoopDslExtension clone(NamedScope parentScope) {
     throw new Exception("The Hadoop DSL Extension is a singleton and cannot be cloned.")
+  }
+
+  /**
+   * DSL ooziePath method sets the directory in which Oozie workflow files will be generated when
+   * the extension is built. Both absolute and relative paths are accepted.
+   *
+   * @param buildDir The (relative or absolute) directory in which to build the generated files
+   */
+  void ooziePath(String buildDir) {
+    if (buildDir.startsWith("/")) {
+      this.oozieDirectory = buildDir;
+    }
+    else {
+      this.oozieDirectory = new File("${project.projectDir}", buildDir).getPath();
+    }
   }
 }

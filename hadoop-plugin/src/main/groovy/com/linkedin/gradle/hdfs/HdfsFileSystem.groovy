@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 LinkedIn Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.linkedin.gradle.hdfs;
 
 import org.apache.hadoop.conf.Configuration;
@@ -5,12 +20,15 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.security.UserGroupInformation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.AccessControlException;
 
-/** A filesystem for hdfs over the web */
+/**
+ * A filesystem for HDFS over the web
+ */
 class HdfsFileSystem {
 
   // FileSystem object to interact with hdfs
@@ -25,7 +43,7 @@ class HdfsFileSystem {
   Logger logger = LoggerFactory.getLogger(HdfsFileSystem.class);
 
   /**
-   * Create a HdfsFileSystem instance
+   * Create a HdfsFileSystem instance.
    */
   public HdfsFileSystem() {
     krb5Conf = null;
@@ -35,8 +53,9 @@ class HdfsFileSystem {
   }
 
   /**
-   * Create a HdfsFileSystem instance with kerberos authentication
-   * @param krb5Conf the krb5 conf file
+   * Create a HdfsFileSystem instance with Kerberos authentication.
+   *
+   * @param krb5Conf The krb5 conf file
    */
   public HdfsFileSystem(File krb5Conf) {
     this.krb5Conf = krb5Conf;
@@ -45,7 +64,9 @@ class HdfsFileSystem {
     logger.debug("initialized conf with " + conf.toString());
   }
 
-  /** Called after a new FileSystem instance is constructed.
+  /**
+   * Called after a new FileSystem instance is constructed.
+   *
    * @param clusterURI a uri whose authority section names the host, port, etc. for this FileSystem
    * @param conf the configuration
    */
@@ -71,11 +92,12 @@ class HdfsFileSystem {
     fs = WebHdfsFileSystem.get(conf);
   }
 
-/**
- * Check if the webhdfs is used.
- * @param clusterURI the cluster URI
- * @throws IOException
- */
+  /**
+   * Checks if webhdfs is used.
+   *
+   * @param clusterURI The cluster URI
+   * @throws IOException
+   */
   private void validateURI(URI clusterURI) throws IOException {
     if(clusterURI.getScheme()!="webhdfs") {
       throw new IOException("Invalid scheme. Expected webhdfs, found ${clusterURI.getScheme()}");
@@ -83,7 +105,7 @@ class HdfsFileSystem {
   }
 
   /**
-   * Update Configuration to use kerberos authentication.
+   * Updates the configuration to use Kerberos authentication.
    */
   private void setKerberosAuthentication() {
     conf.set("hadoop.security.authentication", "kerberos");
@@ -92,7 +114,8 @@ class HdfsFileSystem {
   }
 
   /**
-   * Check if user has kinited
+   * Checks if the user has kinited.
+   *
    * @throws AccessControlException
    */
   void checkForKinit() throws AccessControlException {
@@ -115,10 +138,10 @@ class HdfsFileSystem {
   }
 
   /**
-   * Make directory
+   * Makes a directory on HDFS.
+   *
    * @return true or false
    */
-
   public String mkdir(Path p) throws IOException {
     logger.info("mkdir called on path ${p.toString()}")
     return fs.mkdirs(p);
@@ -141,55 +164,50 @@ class HdfsFileSystem {
   }
 
   /**
-   * The src file is on the local disk.  Add it to FS at
-   * the given dst name and the source is kept intact afterwards
+   * The src file is on the local disk. Add it to FS at the given dst name and the source is kept
+   * intact afterwards.
+   * 
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(Path src, Path dst)
-    throws IOException {
+  public void copyFromLocalFile(Path src, Path dst) throws IOException {
     copyFromLocalFile(false, src, dst);
   }
   /**
-   * The src file is on the local disk.  Add it to FS at
-   * the given dst name.
+   * The src file is on the local disk. Add it to FS at the given dst name.
    * delSrc indicates if the source should be removed
+   *
    * @param delSrc whether to delete the src
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, Path src, Path dst)
-    throws IOException {
+  public void copyFromLocalFile(boolean delSrc, Path src, Path dst) throws IOException {
     copyFromLocalFile(delSrc, true, src, dst);
   }
 
   /**
-   * The src files are on the local disk.  Add it to FS at
-   * the given dst name.
+   * The src files are on the local disk. Add it to FS at the given dst name.
    * delSrc indicates if the source should be removed
+   *
    * @param delSrc whether to delete the src
    * @param overwrite whether to overwrite an existing file
    * @param srcs array of paths which are source
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, boolean overwrite,
-                                Path[] srcs, Path dst)
-    throws IOException {
+  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
     fs.copyFromLocalFile(delSrc, overwrite, srcs, dst);
   }
 
   /**
-   * The src file is on the local disk.  Add it to FS at
-   * the given dst name.
+   * The src file is on the local disk. Add it to FS at the given dst name.
    * delSrc indicates if the source should be removed
+   *
    * @param delSrc whether to delete the src
    * @param overwrite whether to overwrite an existing file
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, boolean overwrite,
-                                Path src, Path dst)
-    throws IOException {
+  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path src, Path dst) throws IOException {
     fs.copyFromLocalFile(delSrc, overwrite, src, dst);
   }
 

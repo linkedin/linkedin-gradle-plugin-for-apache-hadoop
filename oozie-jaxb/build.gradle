@@ -1,0 +1,31 @@
+// Wse the jaxb plugin to convert the Oozie XSD schemas into Java classes
+// https://github.com/jacobono/gradle-jaxb-plugin
+plugins {
+  id "com.github.jacobono.jaxb" version "1.3.5"
+}
+
+apply plugin: 'eclipse'
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // Dependencies necessary to use the xjc task
+  jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41'
+  jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7-b41'
+  jaxb 'javax.xml.bind:jaxb-api:2.2.7'
+}
+
+jaxb {
+  episodesDir = "oozie-jaxb/schema/episodes"
+  xsdDir = "oozie-jaxb/src/main/xsd"
+
+  xjc {
+    generatePackage = "com.linkedin.gradle.oozie.xsd"
+  }
+}
+
+compileJava.dependsOn xjc

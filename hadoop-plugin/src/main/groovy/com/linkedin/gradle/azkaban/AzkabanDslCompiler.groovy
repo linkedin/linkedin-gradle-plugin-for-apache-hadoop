@@ -16,6 +16,7 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
@@ -51,6 +52,17 @@ class AzkabanDslCompiler extends BaseCompiler {
         f.delete();
       }
     }
+  }
+
+  /**
+   * Selects the appropriate build directory for the given compiler.
+   *
+   * @param hadoop The HadoopDslExtension object
+   * @return The build directory for this compiler
+   */
+  @Override
+  String getBuildDirectory(HadoopDslExtension hadoop) {
+    return hadoop.buildDirectory;
   }
 
   /**

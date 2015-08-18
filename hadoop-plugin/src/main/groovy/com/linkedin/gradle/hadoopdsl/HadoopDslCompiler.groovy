@@ -32,4 +32,12 @@ interface HadoopDslCompiler extends Visitor {
    * @param plugin The Hadoop DSL plugin
    */
   void compile(HadoopDslPlugin plugin);
+
+  /**
+   * Selects the appropriate build directory for the given compiler.
+   *
+   * @param hadoop The HadoopDslExtension object
+   * @return The build directory for this compiler
+   */
+  String getBuildDirectory(HadoopDslExtension hadoop);
 }

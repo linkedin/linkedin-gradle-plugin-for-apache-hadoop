@@ -5,3 +5,5 @@
 bin
 build
 ligradle
+oozie-jaxb/schema
+oozie-jaxb/src/main/java
