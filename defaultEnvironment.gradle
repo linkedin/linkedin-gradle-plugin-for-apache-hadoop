@@ -13,11 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-subprojects {
-  repositories {
-    mavenCentral()
-  }
-}
 
 // Set the directory in which the test project will look for buildscript
 // dependencies. In LinkedIn internal builds, the buildscript dependencies are

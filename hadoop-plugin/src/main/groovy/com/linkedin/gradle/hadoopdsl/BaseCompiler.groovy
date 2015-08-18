@@ -60,6 +60,15 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     visitPlugin(plugin);
   }
 
+  /**
+   * Selects the appropriate build directory for the given compiler.
+   *
+   * @param hadoop The HadoopDslExtension object
+   * @return The build directory for this compiler
+   */
+  @Override
+  abstract String getBuildDirectory(HadoopDslExtension hadoop);
+
   @Override
   void visitPlugin(HadoopDslPlugin plugin) {
     // Compilation only considers DSL elements nested under the extension.
@@ -74,11 +83,13 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
    */
   @Override
   void visitExtension(HadoopDslExtension hadoop) {
-    if (hadoop.buildDirectory == null || hadoop.buildDirectory.isEmpty()) {
-      throw new IOException("You must set the buildDirectory property to use the Hadoop DSL. Use the hadoop { buildPath \"path\" } method to do this.");
+    String buildDirectory = getBuildDirectory(hadoop);
+
+    if (buildDirectory == null || buildDirectory.isEmpty()) {
+      throw new IOException("You must set the build directory to use the Hadoop DSL. For Azkaban, use hadoop { buildPath \"path\" }. For Oozie, use hadoop { ooziePath \"path\" }.");
     }
 
-    this.parentDirectory = hadoop.buildDirectory;
+    this.parentDirectory = buildDirectory;
     File file = new File(this.parentDirectory);
 
     if (file.exists()) {

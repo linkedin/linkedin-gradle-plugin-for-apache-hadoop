@@ -1,6 +1,10 @@
 apply plugin: 'eclipse'
 apply plugin: 'groovy'
 
+repositories {
+  mavenCentral()
+}
+
 dependencies {
   compile gradleApi()
   compile localGroovy()
