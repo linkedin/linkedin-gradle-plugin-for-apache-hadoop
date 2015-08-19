@@ -62,13 +62,11 @@ public class HadoopZipExtension {
    *         into "common"
    *       }
    *     }
-   *
    *     zip("magic") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *
    *     zip("canasta") {
    *       from ("azkaban/") {
    *         into "."
@@ -109,7 +107,6 @@ public class HadoopZipExtension {
    *         into "src"
    *       }
    *     }
-   *
    *     zip("canasta") {
    *       from ("src/") {
    *         into "src"

@@ -23,18 +23,15 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 /**
- * OozieUploadTask will upload the project to HDFS.
+ * The OozieUploadTask will upload the project to HDFS to a versioned directory.
  */
 class OozieUploadTask extends DefaultTask {
-  /**
-   * Reference to the Oozie project.
-   */
-  protected OozieProject oozieProject;
 
-  /**
-   * Reference to the HdfsFileSystem.
-   */
+  // Reference to the HdfsFileSystem.
   protected HdfsFileSystem fs;
+
+  // Reference to the Oozie project.
+  protected OozieProject oozieProject;
 
   @TaskAction
   void upload() {
@@ -44,23 +41,16 @@ class OozieUploadTask extends DefaultTask {
 
     Path directoryPath = new Path(oozieProject.dirToUpload);
     Path projectPath = new Path(oozieProject.uploadPath + oozieProject.projectName + "/v${getProject().version}");
+    logger.info("Directory path: ${directoryPath.toString()}");
+    logger.info("Project path: ${projectPath.toString()}");
 
-    try {
-      logger.info("Project path: ${projectPath.toString()}");
-      logger.info("Directory path: ${directoryPath.toString()}");
-
-      // delete the directory if it exists
-      if(fs.exists(projectPath)) {
-        fs.delete(projectPath);
-      }
-
-      fs.mkdir(projectPath);
-      fs.copyFromLocalFile(directoryPath, projectPath);
-
+    // Delete the directory if it exists
+    if (fs.exists(projectPath)) {
+      fs.delete(projectPath);
     }
-    catch (IOException e) {
-      throw new IOException(e.getMessage());
-    }
+
+    fs.mkdir(projectPath);
+    fs.copyFromLocalFile(directoryPath, projectPath);
   }
 
   /**

@@ -55,3 +55,9 @@ To build the Plugin and run the test cases, run `./gradlew build` from the top-l
 To see all the test tasks, run `./gradlew tasks` from the top-level project directory. You can run
 an individual test with `./gradlew test_testName`. You can also run multiple tests by running
 `./gradlew test_testName1 ... test_testNameN`.
+
+#### Recent News
+
+  * `August 2015` Initial pull requests for Oozie versioned deployments and the Oozie Hadoop DSL compiler have been merged
+  * `August 2015` The Hadoop Plugin and Hadoop DSL were released on Github! See the [LinkedIn Engineering Blog post](https://engineering.linkedin.com/hadoop/open-sourcing-linkedin-gradle-plugin-and-dsl-apache-hadoop) for the announcement!
+  * `July 2015` See our talk at the [Gradle Summit](http://gradle.org/linkedin-gradle-for-the-hadoop-ecosystem/)!

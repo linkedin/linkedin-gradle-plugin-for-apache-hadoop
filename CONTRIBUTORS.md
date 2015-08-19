@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `Minor fixes on OozieUploadTask and LiKerberosUtil`
 * `LIHADOOP-13353 Hadoop Plugin oozieUpload task should upload to versioned directory.`
 * `LIHADOOP-13457 Fix Stackoverflow exception thrown by OozieUploadTask.`
 * `LIHADOOP-12771 Prototype Hadoop Plugin Upload Task for Oozie`

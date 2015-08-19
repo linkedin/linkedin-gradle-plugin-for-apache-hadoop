@@ -17,8 +17,14 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.3
+* LIHADOOP-13173 Initial work for Hadoop DSL Oozie compiler
+
 0.6.2
 
+* Minor fixes on OozieUploadTask and LiKerberosUtil
+* Fix property to get the current user name in the writeAzkabanPluginJson task
+* Update the li-hadoop-plugin override of the writeAzkabanPluginJson method to fill in some common property values
 * LIHADOOP-13353 Hadoop Plugin oozieUpload task should upload to versioned directory.
 * LIHADOOP-13457 Fix Stackoverflow exception thrown by OozieUploadTask.
 
