@@ -39,9 +39,10 @@ class OozieUploadTask extends DefaultTask {
     fs = makeHdfsFileSystem();
     fs.initialize(getURI());
 
-    Path directoryPath = new Path(oozieProject.dirToUpload);
+    File zipFile = project.getProject().tasks[oozieProject.oozieZipTask].archivePath;
     Path projectPath = new Path(oozieProject.uploadPath + oozieProject.projectName + "/v${getProject().version}");
-    logger.info("Directory path: ${directoryPath.toString()}");
+
+    logger.info("zip path: ${zipFile.toString()}");
     logger.info("Project path: ${projectPath.toString()}");
 
     // Delete the directory if it exists
@@ -49,8 +50,8 @@ class OozieUploadTask extends DefaultTask {
       fs.delete(projectPath);
     }
 
-    fs.mkdir(projectPath);
-    fs.copyFromLocalFile(directoryPath, projectPath);
+    // copy the zip contents to projectPath.
+    fs.copyFromLocalZip(zipFile, projectPath);
   }
 
   /**

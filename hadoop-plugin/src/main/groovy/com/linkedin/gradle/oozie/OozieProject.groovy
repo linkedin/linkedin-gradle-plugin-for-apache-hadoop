@@ -22,6 +22,11 @@ class OozieProject {
   String clusterURI = "";
 
   /**
+   * The Name of the zipTask. e.g. azkabanHadoopZip
+   */
+  String oozieZipTask = "";
+
+  /**
    * The Name of the project. A directory will be created at uploadPath with this name e.g. OozieProject.
    */
   String projectName = "";
@@ -32,9 +37,4 @@ class OozieProject {
    */
   String uploadPath = "";
 
-  /**
-   * The path of local directory which must be uploaded. This shouldn't be here. We should get this
-   * value from some other task such as OozieBuildProject or OozieBuildFlows.
-   */
-  String dirToUpload = "";
 }
