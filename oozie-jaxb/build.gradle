@@ -14,8 +14,8 @@ repositories {
 
 dependencies {
   // Dependencies necessary to use the xjc task
-  jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41'
-  jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7-b41'
+  jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7'
+  jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7'
   jaxb 'javax.xml.bind:jaxb-api:2.2.7'
 }
 
