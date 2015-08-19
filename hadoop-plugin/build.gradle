@@ -1,23 +1,27 @@
 apply plugin: 'eclipse'
 apply plugin: 'groovy'
 
+repositories {
+  mavenCentral()
+}
+
 dependencies {
   compile gradleApi()
   compile localGroovy()
-
   compile project(":oozie-jaxb")
 
-  compile(group: 'com.googlecode.json-simple', name:'json-simple', version: '1.1')
-  compile(group: 'com.sun.jersey', name: 'jersey-client', version: '1.9')
-  compile(group: 'com.sun.jersey', name: 'jersey-core', version: '1.9')
-  compile(group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1')
-  compile(group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.7')
-  compile(group: 'org.apache.hadoop', name: 'hadoop-auth', version: '2.3.0') { transitive = false }
-  compile(group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.3.0') { transitive = false }
-  compile(group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '2.3.0') { transitive = false }
-  compile(group: 'org.apache.httpcomponents', name: 'httpmime', version:'4.1')
-  compile(group: 'org.json', name: 'json', version: '20090211')
-  compile(group: 'org.mortbay.jetty', name: 'jetty-util', version :'6.1.25')
+  compile 'javax.xml.bind:jaxb-api:2.2.7'
+  compile('org.apache.hadoop:hadoop-auth:2.3.0')   { transitive = false }
+  compile('org.apache.hadoop:hadoop-common:2.3.0') { transitive = false }
+  compile('org.apache.hadoop:hadoop-hdfs:2.3.0')   { transitive = false }
+  compile 'org.apache.httpcomponents:httpmime:4.1'
+  compile 'org.json:json:20090211'
+
+  runtime 'com.googlecode.json-simple:json-simple:1.1'
+  runtime 'com.sun.jersey:jersey-client:1.9'
+  runtime 'com.sun.jersey:jersey-core:1.9'
+  runtime 'javax.ws.rs:jsr311-api:1.1.1'
+  runtime 'org.mortbay.jetty:jetty-util:6.1.25'
 }
 
 task sourceJar(type: Jar) {

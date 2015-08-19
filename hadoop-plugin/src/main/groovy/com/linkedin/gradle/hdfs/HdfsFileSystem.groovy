@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hdfs;
 
+import java.security.AccessControlException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -24,31 +26,31 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.AccessControlException;
-
 /**
- * A filesystem for HDFS over the web
+ * HDFS file system abstraction for the Hadoop Plugin that uses WebHDFS.
  */
 class HdfsFileSystem {
+  Logger logger = LoggerFactory.getLogger(HdfsFileSystem.class);
 
-  // FileSystem object to interact with hdfs
-  protected FileSystem fs;
-  // Configuration to use
-  protected Configuration conf;
   // File System URI: {SCHEME}://namenode:port/path/to/file
   protected URI clusterURI;
+
+  // Hadoop configuration to use
+  protected Configuration conf;
+
+  // FileSystem object to interact with HDFS
+  protected FileSystem fs;
+
   // Krb5.conf file
   protected File krb5Conf;
 
-  Logger logger = LoggerFactory.getLogger(HdfsFileSystem.class);
-
   /**
-   * Create a HdfsFileSystem instance.
+   * Create a HdfsFileSystem instance with simple authentication.
    */
   public HdfsFileSystem() {
-    krb5Conf = null;
     logger.info("Initialized HdfsFileSystem with authentication: simple")
-    conf = new Configuration();
+    this.conf = new Configuration();
+    this.krb5Conf = null;
     logger.debug("initialized conf with " + conf.toString());
   }
 
@@ -58,115 +60,93 @@ class HdfsFileSystem {
    * @param krb5Conf The krb5 conf file
    */
   public HdfsFileSystem(File krb5Conf) {
+    logger.info("Initialized HdfsFileSystem with authentication: Kerberos")
+    this.conf = new Configuration();
     this.krb5Conf = krb5Conf;
-    logger.info("Initialized HdfsFileSystem with authentication: kerberos")
-    conf = new Configuration();
     logger.debug("initialized conf with " + conf.toString());
   }
 
   /**
-   * Called after a new FileSystem instance is constructed.
+   * Initialize a new HdfsFileSystem instance after it is constructed.
    *
-   * @param clusterURI a uri whose authority section names the host, port, etc. for this FileSystem
-   * @param conf the configuration
+   * @param clusterURI URI whose authority section names the host, port, etc. for this HdfsFileSystem
    */
-  public initialize(URI clusterURI) {
-
-    logger.debug("Cluster URI ${clusterURI}, conf: ${conf.toString()}");
-
-    // set clusterURI
+  public void initialize(URI clusterURI) {
+    validateURI(clusterURI);
     this.clusterURI = clusterURI;
 
-    // validate the URI
-    validateURI(clusterURI);
-
-    // if kerberos is enabled then set kerberos authentication.
-    if(krb5Conf!=null) {
-      setKerberosAuthentication();
+    // If Kerberos is enabled then set Kerberos authentication.
+    if (krb5Conf != null) {
+      useKerberosAuthentication();
     }
 
-    // set configuration values
-    setConfiguration();
+    // Update the Hadoop configuration
+    updateConfiguration();
 
-    // create filesystem with the conf
+    // Create filesystem with the conf
     fs = WebHdfsFileSystem.get(conf);
-  }
-
-  /**
-   * Checks if webhdfs is used.
-   *
-   * @param clusterURI The cluster URI
-   * @throws IOException
-   */
-  private void validateURI(URI clusterURI) throws IOException {
-    if(clusterURI.getScheme()!="webhdfs") {
-      throw new IOException("Invalid scheme. Expected webhdfs, found ${clusterURI.getScheme()}");
-    }
-  }
-
-  /**
-   * Updates the configuration to use Kerberos authentication.
-   */
-  private void setKerberosAuthentication() {
-    conf.set("hadoop.security.authentication", "kerberos");
-    System.setProperty("java.security.krb5.conf", krb5Conf.getAbsolutePath());
-    checkForKinit();
   }
 
   /**
    * Checks if the user has kinited.
    *
-   * @throws AccessControlException
+   * @return Whether the user has kinited or not
    */
-  void checkForKinit() throws AccessControlException {
-    def processBuilder = new ProcessBuilder();
+  private boolean checkForKinit() throws AccessControlException {
     String[] command = ["klist", "-s"];
+
+    def processBuilder = new ProcessBuilder();
     processBuilder.command(command);
+
     def process = processBuilder.start();
     process.waitFor();
-    if (process.exitValue() != 0) {
-      logger.error(" The user has not kinited...please kinit.")
-      throw new AccessControlException("The user has not kinited")
-    }
+    return (process.exitValue == 0);
   }
 
-  private setConfiguration() {
-    // set default filesystem as clusterURI
+  /**
+   * Helper method to update the Hadoop configuration.
+   */
+  private void updateConfiguration() {
+    // Set default filesystem as clusterURI
     conf.set("fs.defaultFS", clusterURI.toString());
-    // set UserGroupInformation with the updated conf.
+
+    // Set UserGroupInformation with the updated conf.
     UserGroupInformation.setConfiguration(conf);
   }
 
   /**
-   * Makes a directory on HDFS.
+   * Updates the configuration to use Kerberos authentication. The user must have already kinited
+   * to use Kerberos authentication.
    *
-   * @return true or false
+   * @throws AccessControlException If the user has not kinited
    */
-  public String mkdir(Path p) throws IOException {
-    logger.info("mkdir called on path ${p.toString()}")
-    return fs.mkdirs(p);
+  private void useKerberosAuthentication() {
+    if (!checkForKinit()) {
+      logger.error("The user has not kinited... please kinit first");
+      throw new AccessControlException("The user has not kinited");
+    }
+    conf.set("hadoop.security.authentication", "kerberos");
+    System.setProperty("java.security.krb5.conf", krb5Conf.getAbsolutePath());
   }
 
   /**
-   * The home directory
-   * @return home directory
+   * Checks that the given URI is valid for use with HdfsFileSystem.
+   * <p>
+   * In particular, it checks that the URI represents a WebHDFS URI.
+   *
+   * @param clusterURI The cluster URI
+   * @throws IOException If the URI is invalid for use with HdfsFileSystem
    */
-  public String getHomeDirectory() {
-    return fs.getHomeDirectory();
-  }
-
-  /**
-   * The working directory
-   * @return working directory
-   */
-  public String getWorkingDirectory() {
-    return fs.getWorkingDirectory();
+  private void validateURI(URI clusterURI) {
+    if (!"webhdfs".equals(clusterURI.getScheme())) {
+      throw new IOException("Invalid scheme. Expected webhdfs, found ${clusterURI.getScheme()}");
+    }
   }
 
   /**
    * The src file is on the local disk. Add it to FS at the given dst name and the source is kept
    * intact afterwards.
-   * 
+   *
    * @param src path
    * @param dst path
    */
@@ -186,19 +166,6 @@ class HdfsFileSystem {
   }
 
   /**
-   * The src files are on the local disk. Add it to FS at the given dst name.
-   * delSrc indicates if the source should be removed
-   *
-   * @param delSrc whether to delete the src
-   * @param overwrite whether to overwrite an existing file
-   * @param srcs array of paths which are source
-   * @param dst path
-   */
-  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
-    fs.copyFromLocalFile(delSrc, overwrite, srcs, dst);
-  }
-
-  /**
    * The src file is on the local disk. Add it to FS at the given dst name.
    * delSrc indicates if the source should be removed
    *
@@ -212,6 +179,43 @@ class HdfsFileSystem {
   }
 
   /**
+   * The src files are on the local disk. Add it to FS at the given dst name.
+   * delSrc indicates if the source should be removed
+   *
+   * @param delSrc whether to delete the src
+   * @param overwrite whether to overwrite an existing file
+   * @param srcs array of paths which are source
+   * @param dst path
+   */
+  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
+    fs.copyFromLocalFile(delSrc, overwrite, srcs, dst);
+  }
+
+  /**
+   * Delete a file.
+   *
+   * @param p the path to delete
+   * @return true if successful else false
+   */
+  public boolean delete(Path p) {
+    return delete(p, true);
+  }
+
+  /**
+   * Delete a file.
+   *
+   * @param p the path to delete
+   * @param recursive true if delete recursively
+   * @return true if successful else false
+   */
+  public boolean delete(Path p, Boolean recursive) {
+    logger.info("Deleting ${p.toString()}")
+    return fs.delete(p, recursive);
+  }
+
+  /**
+   * Check if exists.
+   *
    * @param p path to check
    * @return true if p exists else returns false
    */
@@ -220,20 +224,30 @@ class HdfsFileSystem {
   }
 
   /**
-   * @param p the path to delete
-   * @param recursive true if delete recursively
-   * @return true if successful else false
+   * Gets the user's home directory
+   *
+   * @return The user's home directory path
    */
-  public boolean delete(Path p, Boolean recursive) {
-    logger.info("deleting ${p.toString()}")
-    return fs.delete(p,recursive);
+  public String getHomeDirectory() {
+    return fs.getHomeDirectory();
   }
 
   /**
-   * @param p the path to delete
-   * @return true if successful else false
+   * Gets the current working directory
+   *
+   * @return The current working directory path
    */
-  public boolean delete(Path p) {
-    return delete(p,true);
+  public String getWorkingDirectory() {
+    return fs.getWorkingDirectory();
+  }
+
+  /**
+   * Makes a directory on HDFS with the default permissions.
+   *
+   * @return Whether the directory was created or not
+   */
+  public String mkdir(Path p) throws IOException {
+    logger.info("mkdir called on path ${p.toString()}")
+    return fs.mkdirs(p);
   }
 }

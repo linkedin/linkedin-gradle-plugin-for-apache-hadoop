@@ -81,7 +81,6 @@ class LiHadoopZipExtension extends HadoopZipExtension {
    *         into "src"
    *       }
    *     }
-   *
    *     zip("canasta") {
    *       from ("src/") {
    *         into "src"

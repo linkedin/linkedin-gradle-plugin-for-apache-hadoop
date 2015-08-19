@@ -23,8 +23,31 @@ import org.slf4j.LoggerFactory;
  **/
 class LiKerberosUtil {
 
-  static final Logger logger = LoggerFactory.getLogger(LiKerberosUtil.class);
   static final String OOZIE_KRB5_CONF = "oozie-krb5.conf";
+  static final Logger logger = LoggerFactory.getLogger(LiKerberosUtil.class);
+
+  /**
+   * Gets a reference to the oozie-krb5.conf file.
+   *
+   * @return The oozie-krb5.conf file
+   */
+  static File getKrb5File() {
+    logger.debug("looking for oozie-krb5.conf file in ${System.getProperty('java.io.tmpdir')}");
+    if (!getKrb5FileLocation().exists()) {
+      logger.debug("oozie-krb5.conf was not found in ${System.getProperty('java.io.tmpdir')}");
+      writeConfToTemp();
+    }
+    return getKrb5FileLocation();
+  }
+
+  /**
+   * Gets a reference to the oozie-krb5.conf file inside a temp directory.
+   *
+   * @return Reference to the oozie-krb5.conf file
+   */
+  static File getKrb5FileLocation() {
+    return new File(System.getProperty("java.io.tmpdir"), OOZIE_KRB5_CONF);
+  }
 
   /**
    * Copies the oozie-krb5.conf file to a temporary location since we cannot point the property
@@ -37,24 +60,5 @@ class LiKerberosUtil {
         outputStream << inputStream
       }
     }
-  }
-
-  /**
-   * @return The oozie-krb5.conf file
-   */
-  static File getKrb5File() {
-    logger.debug("looking for oozie-krb5.conf file in ${System.getProperty("java.io.tmpdir")}");
-    if (!getKrb5FileLocation().exists()) {
-      logger.debug("oozie-krb5.conf was not found in ${System.getProperty("java.io.tmpdir")}");
-      writeConfToTemp();
-    }
-    return getKrb5FileLocation();
-  }
-
-  /**
-   * @return location of oozie-krb5.conf file.
-   */
-  static File getKrb5FileLocation() {
-    return new File(System.getProperty("java.io.tmpdir"),OOZIE_KRB5_CONF);
   }
 }
