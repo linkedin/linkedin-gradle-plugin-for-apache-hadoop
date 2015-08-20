@@ -17,7 +17,12 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.4
+
+* LIHADOOP-13660 Hadoop Plugin oozieUpload task should upload the contents of the hadoopZip task
+
 0.6.3
+
 * LIHADOOP-13173 Initial work for Hadoop DSL Oozie compiler
 
 0.6.2

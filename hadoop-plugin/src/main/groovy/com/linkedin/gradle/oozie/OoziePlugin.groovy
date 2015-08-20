@@ -26,6 +26,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.bundling.Zip;
 
 /**
  * OoziePlugin implements features for Apache Oozie, including building the Hadoop DSL for Oozie.
@@ -89,11 +90,24 @@ class OoziePlugin implements Plugin<Project> {
    */
   Task createOozieUploadTask(Project project) {
     return project.tasks.create(name: "oozieUpload", type: OozieUploadTask) { task ->
+      dependsOn "buildHadoopZips"
       description = "Uploads the Oozie project folder to HDFS.";
       group = "Hadoop Plugin";
 
       doFirst{
         oozieProject = readOozieProject(project);
+        String zipTaskName = oozieProject.oozieZipTask;
+        if (!zipTaskName) {
+          throw new GradleException("\nPlease set the property 'oozieZipTask' in the .ooziePlugin.json file");
+        }
+
+        def zipTaskOozie = project.getProject().tasks[zipTaskName];
+        if (zipTaskOozie == null) {
+          throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
+        }
+        if (!zipTaskOozie instanceof Zip) {
+          throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
+        }
       }
     }
   }
@@ -183,9 +197,9 @@ class OoziePlugin implements Plugin<Project> {
 
     OozieProject oozieProject = new OozieProject();
     oozieProject.clusterURI = pluginJson[OozieConstants.OOZIE_CLUSTER_URI]
-    oozieProject.uploadPath = pluginJson[OozieConstants.PATH_TO_UPLOAD]
+    oozieProject.oozieZipTask = pluginJson[OozieConstants.OOZIE_ZIP_TASK]
     oozieProject.projectName = pluginJson[OozieConstants.OOZIE_PROJECT_NAME]
-    oozieProject.dirToUpload = pluginJson[OozieConstants.DIR_TO_UPLOAD]
+    oozieProject.uploadPath = pluginJson[OozieConstants.PATH_TO_UPLOAD]
     return oozieProject;
   }
 }

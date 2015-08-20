@@ -21,10 +21,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * HDFS file system abstraction for the Hadoop Plugin that uses WebHDFS.
@@ -100,7 +104,7 @@ class HdfsFileSystem {
 
     def process = processBuilder.start();
     process.waitFor();
-    return (process.exitValue == 0);
+    return (process.exitValue() == 0);
   }
 
   /**
@@ -192,6 +196,50 @@ class HdfsFileSystem {
   }
 
   /**
+   * The zipFile is the zip file on the local system. This file is extracted to the destDirectory.
+   * If destDirectory doesn't exist, then it is created.
+   *
+   * @param zipFile The zip file on local system
+   * @param destDirectory The destination directory on hdfs where zipFile should be extracted.
+   * @throws IOException If zipFile cannot be extracted to destDirectory
+   */
+  public void copyFromLocalZip(File zipFile, Path destDirectory) throws IOException {
+
+    // create the destination directory if it doesn't exists
+    if (!exists(destDirectory)) {
+      mkdir(destDirectory);
+    }
+
+    logger.info("zip file path: ${zipFile.toString()}");
+    logger.info("destination directory: ${destDirectory.toString()}");
+
+    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
+    try {
+      ZipEntry entry = zipIn.getNextEntry();
+
+      //iterates over entries in the zip file
+      while (entry != null) {
+        String filePath = destDirectory.toString() + File.separator + entry.getName();
+        if (!entry.isDirectory()) {
+          //if the entry is a file, extract it
+          extractFile(zipIn, filePath);
+        } else {
+          // if the entry is a directory, create it
+          mkdir(new Path(filePath));
+        }
+        // close this zip entry
+        zipIn.closeEntry();
+        // get the next entry
+        entry = zipIn.getNextEntry();
+      }
+    }
+    finally {
+      // close input stream once the zip is extracted
+      zipIn.close();
+    }
+  }
+
+  /**
    * Delete a file.
    *
    * @param p the path to delete
@@ -249,5 +297,32 @@ class HdfsFileSystem {
   public String mkdir(Path p) throws IOException {
     logger.info("mkdir called on path ${p.toString()}")
     return fs.mkdirs(p);
+  }
+
+  /**
+   * Utility function to copy zipIn inputstream to file specified by filePath.
+   *
+   * @param zipIn Inputstream from a zip file
+   * @param filePath File path where zipIn should be written
+   * @throws IOException If zipIn cannot be written to filePath
+   */
+  private extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+
+    // get output stream from the filesystem
+    OutputStream out = fs.create(new Path(filePath));
+
+    // get the name of the file
+    String fileName = filePath.substring(filePath.lastIndexOf("/")+1);
+
+    logger.info("copying ${fileName} to ${filePath}");
+
+    try {
+      // copy the file to the hdfs
+      IOUtils.copyBytes(zipIn, out, conf, false);
+    }
+    finally {
+      // close the output stream.
+      out.close();
+    }
   }
 }
