@@ -40,18 +40,17 @@ class OozieUploadTask extends DefaultTask {
     fs.initialize(getURI());
 
     File zipFile = project.getProject().tasks[oozieProject.oozieZipTask].archivePath;
-    Path projectPath = new Path(oozieProject.uploadPath + oozieProject.projectName + "/v${getProject().version}");
-
-    logger.info("zip path: ${zipFile.toString()}");
-    logger.info("Project path: ${projectPath.toString()}");
+    Path projectPath = new Path("${oozieProject.uploadPath}/${oozieProject.projectName}/${project.version}".toString());
+    logger.lifecycle("Uploading contents of ${zipFile.toString()} to HDFS path ${projectPath.toString()}");
 
     // Delete the directory if it exists
     if (fs.exists(projectPath)) {
       fs.delete(projectPath);
     }
 
-    // copy the zip contents to projectPath.
+    // Copy the zip contents to projectPath
     fs.copyFromLocalZip(zipFile, projectPath);
+    logger.lifecycle("Zip file contents uploaded successfully to HDFS path ${projectPath.toString()}");
   }
 
   /**
@@ -69,6 +68,6 @@ class OozieUploadTask extends DefaultTask {
    * @return A new instance of HdfsFileSystem
    */
   HdfsFileSystem makeHdfsFileSystem() {
-    return new HdfsFileSystem();
+    return new HdfsFileSystem(project);
   }
 }

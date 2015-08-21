@@ -15,8 +15,7 @@
  */
 package com.linkedin.gradle.liutil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.gradle.api.Project;
 
 /**
  * This class contains the utility methods required for Kerberos authentication.
@@ -24,18 +23,16 @@ import org.slf4j.LoggerFactory;
 class LiKerberosUtil {
 
   static final String OOZIE_KRB5_CONF = "oozie-krb5.conf";
-  static final Logger logger = LoggerFactory.getLogger(LiKerberosUtil.class);
 
   /**
    * Gets a reference to the oozie-krb5.conf file.
    *
+   * @param The Gradle project
    * @return The oozie-krb5.conf file
    */
-  static File getKrb5File() {
-    logger.debug("looking for oozie-krb5.conf file in ${System.getProperty('java.io.tmpdir')}");
+  static File getKrb5File(Project project) {
     if (!getKrb5FileLocation().exists()) {
-      logger.debug("oozie-krb5.conf was not found in ${System.getProperty('java.io.tmpdir')}");
-      writeConfToTemp();
+      writeConfToTemp(project);
     }
     return getKrb5FileLocation();
   }
@@ -52,9 +49,12 @@ class LiKerberosUtil {
   /**
    * Copies the oozie-krb5.conf file to a temporary location since we cannot point the property
    * "java.security.krb5.conf" to the file inside the jar.
+   *
+   * @param The Gradle project
    */
-  static void writeConfToTemp() {
-    logger.debug("writing oozie-krb5.conf file to ${System.getProperty("java.io.tmpdir")}");
+  static void writeConfToTemp(Project project) {
+    project.logger.info("Writing oozie-krb5.conf file to ${System.getProperty('java.io.tmpdir')}");
+
     Thread.currentThread().getContextClassLoader().getResource(OOZIE_KRB5_CONF).withInputStream { inputStream ->
       getKrb5FileLocation().withOutputStream { outputStream ->
         outputStream << inputStream

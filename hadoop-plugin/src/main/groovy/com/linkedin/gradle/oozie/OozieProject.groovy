@@ -22,19 +22,17 @@ class OozieProject {
   String clusterURI = "";
 
   /**
-   * The Name of the zipTask. e.g. azkabanHadoopZip
+   * The name of the zip task e.g. oozieHadoopZip.
    */
   String oozieZipTask = "";
 
   /**
-   * The Name of the project. A directory will be created at uploadPath with this name e.g. OozieProject.
+   * The project name. A directory will be created at uploadPath with this name.
    */
   String projectName = "";
 
   /**
-   * The Path where project directory must be created e.g.
-   * webhdfs://eat1-nertznn01.grid.linkedin.com:50070/user/annag.
+   * The path on HDFS where the project directory must be created e.g. /user/annag.
    */
   String uploadPath = "";
-
 }

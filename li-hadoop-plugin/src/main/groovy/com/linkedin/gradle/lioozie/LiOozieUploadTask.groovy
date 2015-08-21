@@ -31,6 +31,6 @@ class LiOozieUploadTask extends OozieUploadTask {
    */
   @Override
   HdfsFileSystem makeHdfsFileSystem() {
-    return new HdfsFileSystem(LiKerberosUtil.getKrb5File());
+    return new HdfsFileSystem(project, LiKerberosUtil.getKrb5File(project));
   }
 }

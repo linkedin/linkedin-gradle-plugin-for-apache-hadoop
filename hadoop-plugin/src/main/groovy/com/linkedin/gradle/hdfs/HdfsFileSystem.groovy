@@ -24,8 +24,7 @@ import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.gradle.api.Project;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -34,7 +33,6 @@ import java.util.zip.ZipInputStream;
  * HDFS file system abstraction for the Hadoop Plugin that uses WebHDFS.
  */
 class HdfsFileSystem {
-  Logger logger = LoggerFactory.getLogger(HdfsFileSystem.class);
 
   // File System URI: {SCHEME}://namenode:port/path/to/file
   protected URI clusterURI;
@@ -48,26 +46,34 @@ class HdfsFileSystem {
   // Krb5.conf file
   protected File krb5Conf;
 
+  // Reference to the Gradle project so we can access the logger
+  protected Project project;
+
   /**
    * Create a HdfsFileSystem instance with simple authentication.
+   *
+   * @param project The Gradle project
    */
-  public HdfsFileSystem() {
-    logger.info("Initialized HdfsFileSystem with authentication: simple")
+  public HdfsFileSystem(Project project) {
+    project.logger.info("Initialized HdfsFileSystem with authentication: simple");
     this.conf = new Configuration();
     this.krb5Conf = null;
-    logger.debug("initialized conf with " + conf.toString());
+    this.project = project;
+    project.logger.debug("Initialized conf with " + conf.toString());
   }
 
   /**
    * Create a HdfsFileSystem instance with Kerberos authentication.
    *
+   * @param project The Gradle project
    * @param krb5Conf The krb5 conf file
    */
-  public HdfsFileSystem(File krb5Conf) {
-    logger.info("Initialized HdfsFileSystem with authentication: Kerberos")
+  public HdfsFileSystem(Project project, File krb5Conf) {
+    project.logger.info("Initialized HdfsFileSystem with authentication: Kerberos")
     this.conf = new Configuration();
     this.krb5Conf = krb5Conf;
-    logger.debug("initialized conf with " + conf.toString());
+    this.project = project;
+    project.logger.debug("Initialized conf with " + conf.toString());
   }
 
   /**
@@ -126,7 +132,7 @@ class HdfsFileSystem {
    */
   private void useKerberosAuthentication() {
     if (!checkForKinit()) {
-      logger.error("The user has not kinited... please kinit first");
+      project.logger.error("The user has not kinited. Please kinit first.");
       throw new AccessControlException("The user has not kinited");
     }
     conf.set("hadoop.security.authentication", "kerberos");
@@ -157,6 +163,7 @@ class HdfsFileSystem {
   public void copyFromLocalFile(Path src, Path dst) throws IOException {
     copyFromLocalFile(false, src, dst);
   }
+
   /**
    * The src file is on the local disk. Add it to FS at the given dst name.
    * delSrc indicates if the source should be removed
@@ -179,6 +186,7 @@ class HdfsFileSystem {
    * @param dst path
    */
   public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path src, Path dst) throws IOException {
+    project.logger.info("Copying from ${src.toString()} to HDFS path ${dst.toString()}");
     fs.copyFromLocalFile(delSrc, overwrite, src, dst);
   }
 
@@ -192,6 +200,7 @@ class HdfsFileSystem {
    * @param dst path
    */
   public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
+    project.logger.info("Copying to HDFS path ${dst.toString()}");
     fs.copyFromLocalFile(delSrc, overwrite, srcs, dst);
   }
 
@@ -200,42 +209,47 @@ class HdfsFileSystem {
    * If destDirectory doesn't exist, then it is created.
    *
    * @param zipFile The zip file on local system
-   * @param destDirectory The destination directory on hdfs where zipFile should be extracted.
+   * @param destDirectory The destination directory on hdfs where zipFile should be extracted
    * @throws IOException If zipFile cannot be extracted to destDirectory
    */
   public void copyFromLocalZip(File zipFile, Path destDirectory) throws IOException {
+    project.logger.info("Copying contents of zip file ${zipFile.toString()} to HDFS path ${destDirectory.toString()}");
 
-    // create the destination directory if it doesn't exists
+    // Create the destination directory if it doesn't exist
     if (!exists(destDirectory)) {
       mkdir(destDirectory);
     }
 
-    logger.info("zip file path: ${zipFile.toString()}");
-    logger.info("destination directory: ${destDirectory.toString()}");
+    FileInputStream fileIn = null;
+    ZipInputStream zipIn = null;
 
-    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFile));
     try {
+      fileIn = new FileInputStream(zipFile);
+      zipIn = new ZipInputStream(fileIn);
+
+      // Iterate over entries in the zip file
       ZipEntry entry = zipIn.getNextEntry();
 
-      //iterates over entries in the zip file
       while (entry != null) {
         String filePath = destDirectory.toString() + File.separator + entry.getName();
         if (!entry.isDirectory()) {
-          //if the entry is a file, extract it
-          extractFile(zipIn, filePath);
-        } else {
-          // if the entry is a directory, create it
-          mkdir(new Path(filePath));
+          extractFile(zipIn, filePath);  // If the entry is a file, extract it
         }
-        // close this zip entry
+        else {
+          mkdir(new Path(filePath));     // If the entry is a directory, create it
+        }
+        // Close this zip entry and get the next entry
         zipIn.closeEntry();
-        // get the next entry
         entry = zipIn.getNextEntry();
       }
     }
     finally {
-      // close input stream once the zip is extracted
-      zipIn.close();
+      if (zipIn != null) {
+        zipIn.close();
+      }
+      if (fileIn != null) {
+        fileIn.close();
+      }
     }
   }
 
@@ -246,6 +260,7 @@ class HdfsFileSystem {
    * @return true if successful else false
    */
   public boolean delete(Path p) {
+    project.logger.info("Deleting HDFS path ${p.toString()}")
     return delete(p, true);
   }
 
@@ -257,7 +272,7 @@ class HdfsFileSystem {
    * @return true if successful else false
    */
   public boolean delete(Path p, Boolean recursive) {
-    logger.info("Deleting ${p.toString()}")
+    project.logger.info("Deleting HDFS path ${p.toString()}")
     return fs.delete(p, recursive);
   }
 
@@ -295,34 +310,35 @@ class HdfsFileSystem {
    * @return Whether the directory was created or not
    */
   public String mkdir(Path p) throws IOException {
-    logger.info("mkdir called on path ${p.toString()}")
+    project.logger.info("Creating HDFS path ${p.toString()}")
     return fs.mkdirs(p);
   }
 
   /**
-   * Utility function to copy zipIn inputstream to file specified by filePath.
+   * Utility function to copy a zip input stream to a file.
    *
-   * @param zipIn Inputstream from a zip file
+   * @param zipIn Input stream from a zip file
    * @param filePath File path where zipIn should be written
    * @throws IOException If zipIn cannot be written to filePath
    */
   private extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+    // Get the name of the file to print for logging
+    String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+    project.logger.lifecycle("Copying ${fileName} from zip to HDFS path ${filePath}");
 
-    // get output stream from the filesystem
-    OutputStream out = fs.create(new Path(filePath));
-
-    // get the name of the file
-    String fileName = filePath.substring(filePath.lastIndexOf("/")+1);
-
-    logger.info("copying ${fileName} to ${filePath}");
+    // Get output stream from the filesystem
+    OutputStream out = null;
 
     try {
-      // copy the file to the hdfs
+      out = fs.create(new Path(filePath));
+      // Copy the file to the hdfs
       IOUtils.copyBytes(zipIn, out, conf, false);
     }
     finally {
-      // close the output stream.
-      out.close();
+      // Close the output stream.
+      if (out != null) {
+        out.close();
+      }
     }
   }
 }
