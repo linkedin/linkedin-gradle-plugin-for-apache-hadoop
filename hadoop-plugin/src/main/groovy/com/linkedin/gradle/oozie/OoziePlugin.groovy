@@ -46,8 +46,8 @@ class OoziePlugin implements Plugin<Project> {
     }
 
     createBuildFlowsTask(project);
-    createOozieUploadTask(project);
-    createWriteOoziePluginJsonTask(project);
+    createUploadTask(project);
+    createWritePluginJsonTask(project);
   }
 
   /**
@@ -83,14 +83,14 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the oozieUpload task.
+   * Creates the task to upload to HDFS for Oozie.
    *
    * @param project The Gradle project
    * @return The created task
    */
-  Task createOozieUploadTask(Project project) {
+  Task createUploadTask(Project project) {
     return project.tasks.create(name: "oozieUpload", type: OozieUploadTask) { task ->
-      dependsOn "buildHadoopZips"
+      dependsOn "buildHadoopZips";
       description = "Uploads the Oozie project folder to HDFS.";
       group = "Hadoop Plugin";
 
@@ -113,20 +113,21 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the writeOoziePluginJson task.
+   * Creates the task to write the plugin json.
    *
    * @param project The Gradle project
    * @return The created task
    */
-  Task createWriteOoziePluginJsonTask(Project project) {
+  Task createWritePluginJsonTask(Project project) {
     return project.tasks.create("writeOoziePluginJson") {
-      description = "Creates a .ooziePlugin.json file in the project directory with default properties."
-      group = "Hadoop plugin";
+      description = "Writes a default .ooziePlugin.json file in the project directory";
+      group = "Hadoop Plugin";
 
       doLast {
         def ooziePluginFilePath = "${project.getProjectDir()}/.ooziePlugin.json";
-        if(!new File(ooziePluginFilePath).exists()) {
-          String oozieData = new JsonBuilder(new OozieProject()).toPrettyString();
+        if (!new File(ooziePluginFilePath).exists()) {
+          OozieProject oozieProject = makeDefaultOozieProject();
+          String oozieData = new JsonBuilder(oozieProject).toPrettyString();
           new File(ooziePluginFilePath).write(oozieData);
         }
       }
@@ -153,6 +154,27 @@ class OoziePlugin implements Plugin<Project> {
    */
   OozieDslCompiler makeCompiler(Project project) {
     return new OozieDslCompiler(project);
+  }
+
+  /**
+   * Factory method to build a default OozieProject for use with the writePluginJson method. Can be
+   * overridden by subclasses.
+   *
+   * @param project The Gradle project
+   * @return The OozieProject object
+   */
+  OozieProject makeDefaultOozieProject(Project project) {
+    return makeOozieProject();
+  }
+
+  /**
+   * Factory method to build an OozieProject. Can be overridden by subclasses.
+   *
+   * @param project The Gradle project
+   * @return The OozieProject object
+   */
+  OozieProject makeOozieProject(Project project) {
+    return new OozieProject();
   }
 
   /**
@@ -195,7 +217,7 @@ class OoziePlugin implements Plugin<Project> {
       throw new GradleException("\n\nPlease run \"gradle writeOoziePluginJson\" to create a default .ooziePlugin.json file in your project directory which you can then edit.\n")
     }
 
-    OozieProject oozieProject = new OozieProject();
+    OozieProject oozieProject = makeOozieProject(project);
     oozieProject.clusterURI = pluginJson[OozieConstants.OOZIE_CLUSTER_URI]
     oozieProject.oozieZipTask = pluginJson[OozieConstants.OOZIE_ZIP_TASK]
     oozieProject.projectName = pluginJson[OozieConstants.OOZIE_PROJECT_NAME]

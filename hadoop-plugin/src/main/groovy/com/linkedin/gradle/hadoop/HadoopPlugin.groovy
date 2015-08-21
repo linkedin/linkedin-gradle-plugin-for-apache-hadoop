@@ -105,10 +105,17 @@ class HadoopPlugin implements Plugin<Project> {
     // The ScmPlugin buildSourceZip task must run after the AzkabanPlugin buildAzkabanFlows task
     // that builds the Hadoop DSL, since that task creates and deletes files.
     Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
-    Task azFlowTask = project.getRootProject().tasks.findByName("buildAzkabanFlows");
+    Task azFlowTask = project.tasks.findByName("buildAzkabanFlows");
 
     if (sourceTask != null && azFlowTask != null) {
       sourceTask.mustRunAfter azFlowTask;
+    }
+
+    // Same for the OoziePlugin buildOozieFlows task.
+    Task ozFlowTask = project.tasks.findByName("buildOozieFlows");
+
+    if (sourceTask != null && ozFlowTask != null) {
+      sourceTask.mustRunAfter ozFlowTask;
     }
   }
 }

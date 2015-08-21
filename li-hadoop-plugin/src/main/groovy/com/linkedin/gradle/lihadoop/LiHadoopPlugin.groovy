@@ -15,12 +15,14 @@
  */
 package com.linkedin.gradle.lihadoop;
 
+import com.linkedin.gradle.azkaban.AzkabanPlugin
 import com.linkedin.gradle.hadoop.HadoopPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 
+import com.linkedin.gradle.liazkaban.LiAzkabanPlugin;
 import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lioozie.LiOoziePlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
@@ -31,13 +33,36 @@ import com.linkedin.gradle.liscm.LiScmPlugin;
  */
 class LiHadoopPlugin extends HadoopPlugin {
   /**
+   * Factory method to return the LiAzkabanPlugin class. Subclasses can override this method to
+   * return their own AzkabanPlugin class.
+   *
+   * @return Class that implements the AzkabanPlugin
+   */
+  @Override
+  Class<? extends AzkabanPlugin> getAzkabanPluginClass() {
+    return LiAzkabanPlugin.class;
+  }
+
+  /**
    * Returns the LinkedIn-specific LiHadoopDslPlugin class. Subclasses can override this method to
    * return their own HadoopDslPlugin class.
    *
    * @return Class that implements the HadoopDslPlugin
    */
+  @Override
   Class<? extends HadoopDslPlugin> getHadoopDslPluginClass() {
     return LiHadoopDslPlugin.class;
+  }
+
+  /**
+   * Factory method to return the LiOoziePlugin class. Subclasses can override this method to return
+   * their own OoziePlugin class.
+   *
+   * @return Class that implements the LiOoziePlugin
+   */
+  @Override
+  Class<? extends OoziePlugin> getOoziePluginClass() {
+    return LiOoziePlugin.class;
   }
 
   /**
@@ -60,16 +85,5 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends ScmPlugin> getScmPluginClass() {
     return LiScmPlugin.class;
-  }
-
-  /**
-   * Factory method to return the LiOoziePlugin class. Subclasses can override this method to return
-   * their own OoziePlugin class.
-   *
-   * @return Class that implements the LiOoziePlugin
-   */
-  @Override
-  Class<? extends OoziePlugin> getOoziePluginClass() {
-    return LiOoziePlugin.class;
   }
 }

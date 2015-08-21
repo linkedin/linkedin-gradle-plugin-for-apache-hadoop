@@ -25,6 +25,7 @@ import groovy.json.JsonSlurper;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.bundling.Zip;
 
 import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
@@ -47,31 +48,19 @@ class AzkabanPlugin implements Plugin<Project> {
       return;
     }
 
-    project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
-      dependsOn "buildHadoopZips"
-      description = "Uploads Hadoop zip archive to Azkaban";
-      group = "Hadoop Plugin";
+    createBuildFlowsTask(project);
+    createUploadTask(project);
+    createWritePluginJsonTask(project);
+  }
 
-      doFirst {
-        azkProject = readAzkabanProject(project);
-        String zipTaskName = azkProject.azkabanZipTask;
-        if (!zipTaskName) {
-          throw new GradleException("\nPlease set the property 'azkabanZipTask' in the .azkabanPlugin.json file");
-        }
-
-        def zipTaskCont = project.getProject().tasks[zipTaskName];
-        if (zipTaskCont == null) {
-          throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
-        }
-        if (!zipTaskCont instanceof Zip) {
-          throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
-        }
-
-        archivePath = zipTaskCont.archivePath;
-      }
-    }
-
-    project.tasks.create("buildAzkabanFlows") {
+  /**
+   * Creates the task to build the Hadoop DSL for Azkaban.
+   *
+   * @param project The Gradle project
+   * @returns The created task
+   */
+  Task createBuildFlowsTask(Project project) {
+    return project.tasks.create("buildAzkabanFlows") {
       description = "Builds the Hadoop DSL for Azkaban. Have your build task depend on this task.";
       group = "Hadoop Plugin";
 
@@ -94,8 +83,48 @@ class AzkabanPlugin implements Plugin<Project> {
         compiler.compile(plugin);
       }
     }
+  }
 
-    project.tasks.create("writeAzkabanPluginJson") {
+  /**
+   * Creates the task to upload to Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createUploadTask(Project project) {
+    return project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
+      dependsOn "buildHadoopZips";
+      description = "Uploads Hadoop zip archive to Azkaban";
+      group = "Hadoop Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project);
+        String zipTaskName = azkProject.azkabanZipTask;
+        if (!zipTaskName) {
+          throw new GradleException("\nPlease set the property 'azkabanZipTask' in the .azkabanPlugin.json file");
+        }
+
+        def zipTaskCont = project.getProject().tasks[zipTaskName];
+        if (zipTaskCont == null) {
+          throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
+        }
+        if (!zipTaskCont instanceof Zip) {
+          throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
+        }
+
+        archivePath = zipTaskCont.archivePath;
+      }
+    }
+  }
+
+  /**
+   * Creates the task to write the plugin json.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createWritePluginJsonTask(Project project) {
+    return project.tasks.create("writeAzkabanPluginJson") {
       description = "Writes a default .azkabanPlugin.json file in the project directory";
       group = "Hadoop Plugin";
 
