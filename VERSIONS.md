@@ -19,10 +19,13 @@ see a few skipped version numbers in the list below.
 
 0.6.4
 
+* The oozieUpload task should depend on the buildHadoopZips task but does not seem to do so. Also update the NOTICE file.
+* Usability improvements and minor refactorings to Oozie-related tasks
 * LIHADOOP-13660 Hadoop Plugin oozieUpload task should upload the contents of the hadoopZip task
 
 0.6.3
 
+* Update jaxb versions to final 2.2.7 version
 * LIHADOOP-13173 Initial work for Hadoop DSL Oozie compiler
 
 0.6.2

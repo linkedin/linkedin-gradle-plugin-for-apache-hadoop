@@ -18,7 +18,6 @@ package com.linkedin.gradle.liscm;
 import com.linkedin.gradle.scm.HadoopZipExtension;
 
 import org.gradle.api.Project;
-import org.gradle.api.file.CopySpec
 
 /**
  * LinkedIn-specific customizations to the HadoopZipExtension class. In particular, this class

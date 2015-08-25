@@ -89,12 +89,12 @@ class OoziePlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createUploadTask(Project project) {
-    return project.tasks.create(name: "oozieUpload", type: OozieUploadTask) { task ->
+    return project.tasks.create(name: "oozieUpload", type: getOozieUploadTaskClass()) { task ->
       dependsOn "buildHadoopZips";
-      description = "Uploads the Oozie project folder to HDFS.";
+      description = "Uploads the Oozie project folder to HDFS";
       group = "Hadoop Plugin";
 
-      doFirst{
+      doFirst {
         oozieProject = readOozieProject(project);
         String zipTaskName = oozieProject.oozieZipTask;
         if (!zipTaskName) {
@@ -132,6 +132,16 @@ class OoziePlugin implements Plugin<Project> {
         }
       }
     }
+  }
+
+  /**
+   * Factory method to return the OozieUploadTask class. Subclasses can override this method to
+   * return their own OozieUploadTask class.
+   *
+   * @return Class that implements the OozieUploadTask
+   */
+  Class<? extends OozieUploadTask> getOozieUploadTaskClass() {
+    return OozieUploadTask.class;
   }
 
   /**

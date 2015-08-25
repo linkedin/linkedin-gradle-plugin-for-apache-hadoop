@@ -17,6 +17,7 @@ package com.linkedin.gradle.lioozie;
 
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.oozie.OozieProject
+import com.linkedin.gradle.oozie.OozieUploadTask
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
@@ -25,22 +26,14 @@ import org.gradle.api.Task;
  */
 class LiOoziePlugin extends OoziePlugin {
   /**
-   * Override the createUploadTask method to make it of type LiOozieUploadTask instead of
-   * OozieUploadTask.
+   * Factory method to return the OozieUploadTask class. Subclasses can override this method to
+   * return their own OozieUploadTask class.
    *
-   * @param The Gradle project
-   * @return The created task
+   * @return Class that implements the OozieUploadTask
    */
   @Override
-  Task createUploadTask(Project project) {
-    return project.tasks.create(name: "oozieUpload", type: LiOozieUploadTask) { task ->
-      description = "Uploads Oozie project folder to HDFS.";
-      group = "Hadoop Plugin";
-
-      doFirst{
-        oozieProject = super.readOozieProject(project);
-      }
-    }
+  Class<? extends OozieUploadTask> getOozieUploadTaskClass() {
+    return LiOozieUploadTask.class;
   }
 
   /**
