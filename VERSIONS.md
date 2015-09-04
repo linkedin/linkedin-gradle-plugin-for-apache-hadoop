@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.5
+
+* LIHADOOP-14099 Create spark job type in hadoop plugin dsl.
+
 0.6.4
 
 * The oozieUpload task should depend on the buildHadoopZips task but does not seem to do so. Also update the NOTICE file.

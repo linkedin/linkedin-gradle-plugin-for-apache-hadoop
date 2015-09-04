@@ -27,6 +27,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -127,6 +128,14 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(PigJob job) {
     if (job.script == null || job.script.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: PigJob ${job.name} must set script");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(SparkJob job) {
+    if(job.appClass == null || job.appClass.isEmpty() || job.executionJar == null || job.executionJar.isEmpty()) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set uses and executes");
       foundError = true;
     }
   }

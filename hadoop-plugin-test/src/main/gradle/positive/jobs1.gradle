@@ -167,7 +167,41 @@ hadoop {
       depends 'job9'
     }
 
-    voldemortBuildPushJob('job11') {
+
+
+    sparkJob('job11') {
+      uses 'com.linkedin.hello.spark.HelloSpark' // required
+      executes 'hello-spark.jar' // required
+
+      def params = ['param1','param2']
+      def flags = ['verbose','version']
+
+      appParams params // optional
+      enableFlags flags // optional
+
+      set sparkConfs: [
+        'key1': 'value1',
+        'key2': 'value2'
+      ]
+
+      set properties: [
+        'master':'yarn-cluster',
+        'num-executors':'120',
+        'executor-memory': '2g',
+        'driver-memory': '2g',
+        'executor-cores': '1',
+        'jars': 'jar1,jar2,jar3'
+      ]
+
+      set jvmProperties: [
+        'log4j.configuration' : 'log.properties'
+      ]
+
+      queue 'marathon'
+      depends 'job10'
+    }
+
+    voldemortBuildPushJob('job12') {
       usesStoreName 'test-store'          // Required
       usesClusterName 'tcp://foo:10103'   // Required
       usesInputPath '/user/foo/input'     // Required
@@ -192,10 +226,10 @@ hadoop {
       usesAvroData true                   // Optional
       usesAvroKeyField 'memberId'         // Optional unless isAvroData is true
       usesAvroValueField 'firstName'      // Optional unless isAvroData is true
-      depends 'job10'
+      depends 'job11'
       queue 'marathon'
     }
 
-    targets 'job11'
+    targets 'job12'
   }
 }
