@@ -53,10 +53,13 @@ hadoop {
       depends 'job8'
     }
 
-    voldemortBuildPushJob('job10') {
+    sparkJob('job10') {
       depends 'job9'
     }
+    voldemortBuildPushJob('job11') {
+      depends 'job10'
+    }
 
-    targets 'job10'
+    targets 'job11'
   }
 }

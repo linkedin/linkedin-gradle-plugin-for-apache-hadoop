@@ -25,6 +25,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -159,6 +160,15 @@ class HadoopDslFactory {
     return new PigJob(name);
   }
 
+  /**
+   * Factory method to build a SparkJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  SparkJob makeSparkJob(String name) {
+    return new SparkJob(name);
+  }
   /**
    * Factory method to build a StartJob.
    *

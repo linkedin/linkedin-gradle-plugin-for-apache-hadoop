@@ -24,6 +24,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 /**
@@ -228,6 +229,15 @@ interface NamedScopeContainer {
    * @return The new job
    */
   PigJob pigJob(String name, Closure configure);
+
+  /**
+   * DSL sparkJob method. Creates a sparkJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  SparkJob sparkJob(String name, Closure configure);
 
   /**
    * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in scope with the given name

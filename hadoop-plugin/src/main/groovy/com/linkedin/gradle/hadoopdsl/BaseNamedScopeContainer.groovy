@@ -24,6 +24,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -675,6 +676,16 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   PigJob pigJob(String name, Closure configure) {
     return configureJob(factory.makePigJob(name), configure);
+  }
+
+  /**
+   * DSL sparkJob method. Creates a sparkJob in scope with the given name and configuration.
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  SparkJob sparkJob(String name, Closure configure) {
+    return configureJob(factory.makeSparkJob(name), configure);
   }
 
   /**
