@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.6
+
+* LIHADOOP-12557 Hadoop Plugin should support launching Spark scripts from a gateway machine
+
 0.6.5
 
 * LIHADOOP-14099 Create spark job type in hadoop plugin dsl.

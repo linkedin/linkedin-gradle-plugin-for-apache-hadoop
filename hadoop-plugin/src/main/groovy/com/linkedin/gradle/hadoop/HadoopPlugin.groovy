@@ -20,6 +20,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
+import com.linkedin.gradle.spark.SparkPlugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -42,6 +43,7 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
     project.getPlugins().apply(getOoziePluginClass());
+    project.getPlugins().apply(getSparkPluginClass());
     setupTaskDependencies(project);
   }
 
@@ -73,6 +75,10 @@ class HadoopPlugin implements Plugin<Project> {
    */
   Class<? extends PigPlugin> getPigPluginClass() {
     return PigPlugin.class;
+  }
+
+  Class<? extends SparkPlugin> getSparkPluginClass() {
+    return SparkPlugin.class;
   }
 
   /**
