@@ -26,18 +26,18 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 
-import com.linkedin.gradle.oozie.xsd.JOIN
-import com.linkedin.gradle.oozie.xsd.ObjectFactory;
-import com.linkedin.gradle.oozie.xsd.ACTION;
-import com.linkedin.gradle.oozie.xsd.ACTIONTRANSITION;
-import com.linkedin.gradle.oozie.xsd.CONFIGURATION;
-import com.linkedin.gradle.oozie.xsd.DELETE;
-import com.linkedin.gradle.oozie.xsd.END;
-import com.linkedin.gradle.oozie.xsd.KILL;
-import com.linkedin.gradle.oozie.xsd.PIG;
-import com.linkedin.gradle.oozie.xsd.PREPARE;
-import com.linkedin.gradle.oozie.xsd.START;
-import com.linkedin.gradle.oozie.xsd.WORKFLOWAPP;
+import com.linkedin.gradle.oozie.xsd.workflow.JOIN
+import com.linkedin.gradle.oozie.xsd.workflow.ObjectFactory;
+import com.linkedin.gradle.oozie.xsd.workflow.ACTION;
+import com.linkedin.gradle.oozie.xsd.workflow.ACTIONTRANSITION;
+import com.linkedin.gradle.oozie.xsd.workflow.CONFIGURATION;
+import com.linkedin.gradle.oozie.xsd.workflow.DELETE;
+import com.linkedin.gradle.oozie.xsd.workflow.END;
+import com.linkedin.gradle.oozie.xsd.workflow.KILL;
+import com.linkedin.gradle.oozie.xsd.workflow.PIG;
+import com.linkedin.gradle.oozie.xsd.workflow.PREPARE;
+import com.linkedin.gradle.oozie.xsd.workflow.START;
+import com.linkedin.gradle.oozie.xsd.workflow.WORKFLOWAPP;
 
 import javax.xml.bind.JAXB;
 
