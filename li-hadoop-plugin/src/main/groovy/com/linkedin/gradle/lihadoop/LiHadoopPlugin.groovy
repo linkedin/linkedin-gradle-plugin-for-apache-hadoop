@@ -21,12 +21,14 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
+import com.linkedin.gradle.spark.SparkPlugin;
 
 import com.linkedin.gradle.liazkaban.LiAzkabanPlugin;
 import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lioozie.LiOoziePlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
 import com.linkedin.gradle.liscm.LiScmPlugin;
+import com.linkedin.gradle.lispark.LiSparkPlugin;
 
 /**
  * LinkedIn-specific customizations to the Hadoop Plugin.
@@ -86,4 +88,10 @@ class LiHadoopPlugin extends HadoopPlugin {
   Class<? extends ScmPlugin> getScmPluginClass() {
     return LiScmPlugin.class;
   }
+
+  @Override
+  Class<? extends SparkPlugin> getSparkPluginClass() {
+    return LiSparkPlugin.class;
+  }
+
 }
