@@ -77,6 +77,12 @@ class HadoopPlugin implements Plugin<Project> {
     return PigPlugin.class;
   }
 
+  /**
+   * Factory method to return the SparkPlugin class. Subclasses can ovverride this method to return
+   * their own SparkPlugin class.
+   *
+   * @return Class that implements the SparkPlugin
+   */
   Class<? extends SparkPlugin> getSparkPluginClass() {
     return SparkPlugin.class;
   }
