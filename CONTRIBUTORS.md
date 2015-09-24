@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `LIHADOOP-14566 SparkPlugin does not read application parameters`
 * `LIHADOOP-12557 Hadoop Plugin should support launching Spark scripts from a gateway machine`
 * `LIHADOOP-14099 Create spark job type in hadoop dsl`
 * `LIHADOOP-13660 Hadoop Plugin oozieUpload task should upload the contents of the hadoopZip task`

@@ -155,7 +155,7 @@ class SparkJob extends HadoopJavaProcessJob {
    * @param appParams
    */
   void appParams(List<String> appParams) {
-    appParams = appParams;
+    this.appParams = appParams;
     setJobProperty('params',appParams.join(" "));
   }
 
