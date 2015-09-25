@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.lioozie;
 
+import com.linkedin.gradle.oozie.OozieDslCompiler;
 import com.linkedin.gradle.oozie.OoziePlugin;
-import com.linkedin.gradle.oozie.OozieProject
-import com.linkedin.gradle.oozie.OozieUploadTask
+import com.linkedin.gradle.oozie.OozieProject;
+import com.linkedin.gradle.oozie.OozieUploadTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
@@ -34,6 +35,18 @@ class LiOoziePlugin extends OoziePlugin {
   @Override
   Class<? extends OozieUploadTask> getOozieUploadTaskClass() {
     return LiOozieUploadTask.class;
+  }
+
+  /**
+   * Factory method to build the Hadoop DSL compiler for Apache Oozie. Subclasses can override this
+   * method to provide their own compiler.
+   *
+   * @param project The Gradle project
+   * @return The OozieDslCompiler
+   */
+  @Override
+  OozieDslCompiler makeCompiler(Project project) {
+    return new LiOozieDslCompiler(project);
   }
 
   /**

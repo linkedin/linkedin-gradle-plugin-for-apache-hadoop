@@ -65,8 +65,7 @@ import com.linkedin.gradle.oozie.xsd.spark.CONFIGURATION as SPARK_CONFIGURATION;
 import com.linkedin.gradle.oozie.xsd.spark.DELETE as SPARK_DELETE;
 import com.linkedin.gradle.oozie.xsd.spark.PREPARE as SPARK_PREPARE;
 
-
-
+import org.gradle.api.GradleException;
 
 import javax.xml.bind.JAXB;
 
@@ -227,8 +226,7 @@ class OozieDslCompiler extends BaseCompiler {
 
     // Visit each properties object in the workflow
     workflow.properties.each() { Properties props ->
-      // visitProperties(props);
-      // TODO
+      visitProperties(props);
     }
 
     // Visit each subflow to build in the workflow
@@ -271,6 +269,10 @@ class OozieDslCompiler extends BaseCompiler {
     // Create Hive action
     HiveObjectFactory hiveObjectFactory = new HiveObjectFactory();
     Hive oozieJob = hiveObjectFactory.createACTION();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
 
     // Set script file for the job
     oozieJob.setScript(job.script);
@@ -366,6 +368,10 @@ class OozieDslCompiler extends BaseCompiler {
     // Create Spark action
     SparkObjectFactory sparkObjectFactory = new SparkObjectFactory();
     Spark oozieJob = sparkObjectFactory.createACTION();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
 
     // Jars are added from jobProperties. The execution-jar is also added to jars.
     StringBuilder buildJars = new StringBuilder();
@@ -471,6 +477,10 @@ class OozieDslCompiler extends BaseCompiler {
     // Create Mapreduce action
     MAPREDUCE oozieJob = objectFactory.createMAPREDUCE();
 
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
     // Get classString from jobClass. We'll parse it to get map and reduce classes.
     String classString = job.jobClass;
 
@@ -561,6 +571,10 @@ class OozieDslCompiler extends BaseCompiler {
     // Create Java action
     JAVA oozieJob = objectFactory.createJAVA();
 
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
     // Add the main class
     oozieJob.setMainClass(job.javaClass);
 
@@ -606,6 +620,10 @@ class OozieDslCompiler extends BaseCompiler {
 
     // Create Pig action
     PIG oozieJob = objectFactory.createPIG();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
 
     // Set pig scrip to execute
     oozieJob.setScript(job.script);
@@ -670,6 +688,29 @@ class OozieDslCompiler extends BaseCompiler {
     actionMap.put(job.name, action);
   }
 
+
+  /**
+   * Builds a properties file.
+   *
+   * @param props The Properties object to build
+   */
+  @Override
+  void visitProperties(Properties props) {
+    Map<String, String> allProperties = props.buildProperties(this.parentScope);
+    if (allProperties.size() == 0) {
+      return;
+    }
+    checkRequiredProperties(allProperties.keySet());
+    String fileName = props.buildFileName(this.parentScope);
+    File file = new File(this.parentDirectory, "${fileName}.properties");
+    file.withWriter { out ->
+      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
+      allProperties.each { key,value ->
+        out.writeLine("${key}=${value}");
+      }
+    }
+  }
+
   void visitJobTransitions(Job job) {
     String jobName = job.buildFileName(this.parentScope);
     visitJobTransitionsHelper(job, jobName);
@@ -708,6 +749,23 @@ class OozieDslCompiler extends BaseCompiler {
       }
 
       oozieWorkflow.getDecisionOrForkOrJoin().add(join);
+    }
+  }
+
+  /**
+   * Method to check if the required properties have been defined
+   * @param propertyNames The set of all properties
+   */
+  void checkRequiredProperties(Set<String> propertyNames) {
+
+    if(!propertyNames.contains("nameNode")) {
+      throw new GradleException("Property 'nameNode' is required")
+    }
+    if(!propertyNames.contains("jobTracker")) {
+      throw new GradleException("Property 'jobTracker' is required")
+    }
+    if(!propertyNames.contains("oozie.wf.application.path")) {
+      throw new GradleException("Property 'oozie.wf.application.path' is required")
     }
   }
 }
