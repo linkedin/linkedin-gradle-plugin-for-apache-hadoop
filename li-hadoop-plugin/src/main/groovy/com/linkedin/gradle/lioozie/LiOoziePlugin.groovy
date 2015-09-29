@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lioozie;
 
+import com.linkedin.gradle.oozie.OozieCommandTask;
 import com.linkedin.gradle.oozie.OozieDslCompiler;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.oozie.OozieProject;
@@ -35,6 +36,16 @@ class LiOoziePlugin extends OoziePlugin {
   @Override
   Class<? extends OozieUploadTask> getOozieUploadTaskClass() {
     return LiOozieUploadTask.class;
+  }
+
+  /**
+   * Factory method to return the OozieCommandTask class. Subclasses can override this method to
+   * return their own OozieUploadTask class;
+   * @return The OozieCommandTask class
+   */
+  @Override
+  Class<? extends OozieCommandTask> getOozieCommandTaskClass() {
+    return LiOozieCommandTask.class;
   }
 
   /**
@@ -62,6 +73,7 @@ class LiOoziePlugin extends OoziePlugin {
   OozieProject makeDefaultOozieProject(Project project) {
     OozieProject oozieProject = makeOozieProject();
     oozieProject.clusterURI = "webhdfs://eat1-nertznn01.grid.linkedin.com:50070";
+    oozieProject.oozieURI = "http://eat1-nertzoz01.grid.linkedin.com:11000/oozie/";
     oozieProject.oozieZipTask = "";
     oozieProject.projectName = "";
     oozieProject.uploadPath = "/user/${System.getProperty('user.name')}";

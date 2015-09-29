@@ -13,32 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.oozie;
+package com.linkedin.gradle.lioozie;
 
-class OozieProject {
-  /**
-   * The URI of the cluster e.g. webhdfs://eat1-nertznn01.grid.linkedin.com:50070.
-   */
-  String clusterURI = "";
+import com.linkedin.gradle.liutil.LiKerberosUtil;
+import com.linkedin.gradle.oozie.OozieCommandTask;
+import com.linkedin.gradle.oozie.OozieService;
 
-  /**
-   * The URI of the oozie instance to interact with.
-   */
-  String oozieURI = "";
+class LiOozieCommandTask extends OozieCommandTask {
 
   /**
-   * The name of the zip task e.g. oozieHadoopZip.
+   * Make OozieService object with kerberos authentication
+   * @param url Url of the oozie system
+   * @return OozieService object with kerberos authentication
    */
-  String oozieZipTask = "";
-
-  /**
-   * The project name. A directory will be created at uploadPath with this name.
-   */
-  String projectName = "";
-
-  /**
-   * The path on HDFS where the project directory must be created e.g. /user/annag.
-   */
-  String uploadPath = "";
-
+  @Override
+  OozieService makeOozieService(String url) {
+    return new OozieService(project, url, LiKerberosUtil.getKrb5File(project));
+  }
 }

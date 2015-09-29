@@ -48,7 +48,24 @@ class OoziePlugin implements Plugin<Project> {
     createBuildFlowsTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
+    createOozieCommandTask(project);
   }
+
+  /**
+   * Creates the task to run oozieCommands
+   * @param project The gradle project
+   * @return The created task
+   */
+  Task createOozieCommandTask(Project project) {
+    return project.tasks.create(name: "oozieCommand", type: getOozieCommandTaskClass()) { task ->
+      description = "Runs the oozieCommand specified by -Pcommand=CommandName"
+      group = "Hadoop Plugin";
+      doFirst {
+        oozieProject = readOozieProject(project);
+      }
+    }
+  }
+
 
   /**
    * Creates the task to build the Hadoop DSL for Oozie.
@@ -145,6 +162,16 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to return the OozieCommandTask class. Subclasses can override this method to
+   * return their own OozieUploadTask class;
+   *
+   * @return Class that implements the OozieCommandTask
+   */
+  Class<? extends OozieCommandTask> getOozieCommandTaskClass() {
+    return OozieCommandTask.class;
+  }
+
+  /**
    * Helper method to determine the location of the plugin json file. This helper method will make
    * it easy for subclasses to get (or customize) the file location.
    *
@@ -229,6 +256,7 @@ class OoziePlugin implements Plugin<Project> {
 
     OozieProject oozieProject = makeOozieProject(project);
     oozieProject.clusterURI = pluginJson[OozieConstants.OOZIE_CLUSTER_URI]
+    oozieProject.oozieURI = pluginJson[OozieConstants.OOZIE_SYSTEM_URI]
     oozieProject.oozieZipTask = pluginJson[OozieConstants.OOZIE_ZIP_TASK]
     oozieProject.projectName = pluginJson[OozieConstants.OOZIE_PROJECT_NAME]
     oozieProject.uploadPath = pluginJson[OozieConstants.PATH_TO_UPLOAD]
