@@ -80,10 +80,9 @@ class OoziePlugin implements Plugin<Project> {
 
       doLast {
         HadoopDslPlugin plugin = project.extensions.hadoopDslPlugin;
-        HadoopDslFactory factory = project.extensions.hadoopDslFactory;
 
         // Run the static checker on the DSL
-        HadoopDslChecker checker = factory.makeChecker(project);
+        HadoopDslChecker checker = makeChecker(project);
         checker.check(plugin);
 
         if (checker.failedCheck()) {
@@ -182,6 +181,15 @@ class OoziePlugin implements Plugin<Project> {
     return "${project.getProjectDir()}/.ooziePlugin.json";
   }
 
+  /**
+   * Factory method to build the OozieDSLChecker class for Apache oozie. Sublcasses can override this
+   * method to provide their own checker.
+   * @param project
+   * @return The OozieDSLChecker
+   */
+  OozieDSLChecker makeChecker(Project project) {
+    return new OozieDSLChecker(project);
+  }
   /**
    * Factory method to build the Hadoop DSL compiler for Apache Oozie. Subclasses can override this
    * method to provide their own compiler.

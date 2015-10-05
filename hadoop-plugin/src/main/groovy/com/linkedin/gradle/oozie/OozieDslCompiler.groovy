@@ -274,6 +274,12 @@ class OozieDslCompiler extends BaseCompiler {
     oozieJob.setNameNode('${nameNode}');
     oozieJob.setJobTracker('${jobTracker}');
 
+    // The user should have this property defined in the job.properties. This should contain path of the
+    // hive-site.xml or the settings file for the hive so that oozie can contact the hive metastore.
+    if(job.jobProperties.containsKey("jobXml")) {
+      oozieJob.getJobXml().add(job.jobProperties.get("jobXml"));
+    }
+
     // Set script file for the job
     oozieJob.setScript(job.script);
 
@@ -481,29 +487,14 @@ class OozieDslCompiler extends BaseCompiler {
     oozieJob.setNameNode('${nameNode}');
     oozieJob.setJobTracker('${jobTracker}');
 
-    // Get classString from jobClass. We'll parse it to get map and reduce classes.
-    String classString = job.jobClass;
-
-    String[] classList = classString.trim().split(",");
-    String map = "";
-    String reduce = "";
-    classList.each {
-      def mapReduce = it.split(":");
-      if (mapReduce[0].equals("map")) {
-        map = mapReduce[1];
-      } else if (mapReduce[0].equals("reduce")) {
-        reduce = mapReduce[1]
-      }
+    // set mapper
+    if(job.mapClass!=null && !job.mapClass.isEmpty()) {
+      job.confProperties.put("mapred.mapper.class", job.mapClass);
     }
 
-    // if the user has set map then put it into confProperties. By default oozie uses older hadoop API
-    if (!map.isEmpty()) {
-      job.confProperties.put("mapred.mapper.class", map);
-    }
-
-    // if user has set reduce, put it in conf properties. By default oozie uses older hadoop API
-    if (!reduce.isEmpty()) {
-      job.confProperties.put("mapred.reducer.class", reduce);
+    // set reducer
+    if(job.reduceClass!=null && !job.reduceClass.isEmpty()) {
+      job.confProperties.put("mapred.reducer.class", job.reduceClass);
     }
 
     // By default, automatically delete any HDFS paths the job writes

@@ -23,7 +23,6 @@ dependencies {
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:0.9.5"
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-annotate:1.0.2"
   jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:0.9.5"
-  jaxb "org.jvnet.jaxb2_commons:jaxb2-annotate-plugin-project:1.0.2"
 }
 
 jaxb {

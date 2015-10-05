@@ -17,6 +17,18 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.8
+
+* Fixups on HadoopJavaJob and HiveJob
+* LIHADOOP-14506 Hadoop plugin should directly submit jobs to oozie
+* LIHADOOP-13682 Oozie Hadoop DSL Compiler support property files
+* LIHADOOP-13681 Oozie Hadoop DSL Compiler support all job types
+* Added xsd schemas for different job types.
+
+0.6.7
+
+* LIHADOOP-14566 SparkPlugin does not read application parameters
+
 0.6.6
 
 * LIHADOOP-12557 Hadoop Plugin should support launching Spark scripts from a gateway machine
