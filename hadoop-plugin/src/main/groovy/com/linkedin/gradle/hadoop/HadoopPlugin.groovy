@@ -297,5 +297,13 @@ class HadoopPlugin implements Plugin<Project> {
     if (buildHadoopZipsTask != null && runSparkJobTask != null) {
       runSparkJobTask.dependsOn(buildHadoopZipsTask);
     }
+
+    // Running local dependency check task after startHadoopZips ensures the dependencies are declared
+    Task localDependencyTask = project.tasks.findByName("disallowLocalDependencies");
+    Task hadoopZips = project.tasks.findByName("startHadoopZips");
+
+    if (localDependencyTask != null && hadoopZips != null) {
+      hadoopZips.dependsOn localDependencyTask;
+    }
   }
 }
