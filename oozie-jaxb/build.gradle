@@ -1,4 +1,4 @@
-// Wse the jaxb plugin to convert the Oozie XSD schemas into Java classes
+// Use the jaxb plugin to convert the Oozie XSD schemas into Java classes
 // https://github.com/jacobono/gradle-jaxb-plugin
 plugins {
   id "com.github.jacobono.jaxb" version "1.3.5"
@@ -13,19 +13,50 @@ repositories {
 }
 
 dependencies {
-  // Dependencies necessary to use the xjc task
-  jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7'
-  jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7'
-  jaxb 'javax.xml.bind:jaxb-api:2.2.7'
+  // Dependencies necessary to use the xjc task. We need 2.2.11 version to allow java style syntax in the workflow.xjb file.
+  jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.11'
+  jaxb 'com.sun.xml.bind:jaxb-impl:2.2.11'
+  jaxb 'com.sun.xml.bind:jaxb-core:2.2.11'
+  jaxb 'javax.xml.bind:jaxb-api:2.2.11'
+
+  // Dependencies necessary to use the custom bindings file to add the XmlSeeAlso annotations
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics:0.9.5"
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-annotate:1.0.2"
+  jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant:0.9.5"
 }
 
 jaxb {
-  episodesDir = "oozie-jaxb/schema/episodes"
-  xsdDir = "oozie-jaxb/src/main/xsd"
+  bindings = ["workflow.xjb"]
+  bindingsDir = "oozie-jaxb/src/main/bindings"
+  episodesDir = "oozie-jaxb/schema/episodes/workflow"
+  xsdDir = "oozie-jaxb/src/main/xsd/workflow"
 
   xjc {
-    generatePackage = "com.linkedin.gradle.oozie.xsd"
+    args = ["-Xannotate"]
+    generatePackage = "com.linkedin.gradle.oozie.xsd.workflow"
+    taskClassname = "org.jvnet.jaxb2_commons.xjc.XJC2Task"
   }
 }
 
+// Unfortunately Oozie has a number of schema files, each of which define elements with the same
+// name. We need to separate the XSD files into different directories and make a separate call to
+// xjc for each file or the output java files will stomp on each other.
+task('hive-xjc', type: GradleBuild) {
+  buildFile = "build-hive.gradle"
+  tasks = ["xjc"]
+}
+
+task('shell-xjc', type: GradleBuild) {
+  buildFile = "build-shell.gradle"
+  tasks = ["xjc"]
+}
+
+task('spark-xjc', type: GradleBuild) {
+  buildFile = "build-spark.gradle"
+  tasks = ["xjc"]
+}
+
+compileJava.dependsOn 'spark-xjc'
+compileJava.dependsOn 'hive-xjc'
+compileJava.dependsOn 'shell-xjc'
 compileJava.dependsOn xjc
