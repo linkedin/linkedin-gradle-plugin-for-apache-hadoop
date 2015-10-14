@@ -25,19 +25,47 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.HiveJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 
-import com.linkedin.gradle.oozie.xsd.JOIN
-import com.linkedin.gradle.oozie.xsd.ObjectFactory;
-import com.linkedin.gradle.oozie.xsd.ACTION;
-import com.linkedin.gradle.oozie.xsd.ACTIONTRANSITION;
-import com.linkedin.gradle.oozie.xsd.CONFIGURATION;
-import com.linkedin.gradle.oozie.xsd.DELETE;
-import com.linkedin.gradle.oozie.xsd.END;
-import com.linkedin.gradle.oozie.xsd.KILL;
-import com.linkedin.gradle.oozie.xsd.PIG;
-import com.linkedin.gradle.oozie.xsd.PREPARE;
-import com.linkedin.gradle.oozie.xsd.START;
-import com.linkedin.gradle.oozie.xsd.WORKFLOWAPP;
+import com.linkedin.gradle.oozie.xsd.workflow.JOIN
+import com.linkedin.gradle.oozie.xsd.workflow.ObjectFactory;
+import com.linkedin.gradle.oozie.xsd.workflow.ACTION;
+import com.linkedin.gradle.oozie.xsd.workflow.ACTIONTRANSITION;
+import com.linkedin.gradle.oozie.xsd.workflow.CONFIGURATION;
+import com.linkedin.gradle.oozie.xsd.workflow.DELETE;
+import com.linkedin.gradle.oozie.xsd.workflow.END;
+import com.linkedin.gradle.oozie.xsd.workflow.KILL;
+import com.linkedin.gradle.oozie.xsd.workflow.PIG;
+import com.linkedin.gradle.oozie.xsd.workflow.JAVA;
+import com.linkedin.gradle.oozie.xsd.workflow.MAPREDUCE;
+import com.linkedin.gradle.oozie.xsd.workflow.PREPARE;
+import com.linkedin.gradle.oozie.xsd.workflow.START;
+import com.linkedin.gradle.oozie.xsd.workflow.WORKFLOWAPP;
+import com.linkedin.gradle.oozie.xsd.workflow.FLAG;
+
+import com.linkedin.gradle.oozie.xsd.shell.ACTION as Command;
+import com.linkedin.gradle.oozie.xsd.shell.ObjectFactory as CommandObjectFactory;
+import com.linkedin.gradle.oozie.xsd.shell.CONFIGURATION as COMMAND_CONFIGURATION;
+import com.linkedin.gradle.oozie.xsd.shell.DELETE as COMMAND_DELETE;
+import com.linkedin.gradle.oozie.xsd.shell.PREPARE as COMMAND_PREPARE;
+
+import com.linkedin.gradle.oozie.xsd.hive.ACTION as Hive;
+import com.linkedin.gradle.oozie.xsd.hive.ObjectFactory as HiveObjectFactory;
+import com.linkedin.gradle.oozie.xsd.hive.CONFIGURATION as HIVE_CONFIGURATION;
+import com.linkedin.gradle.oozie.xsd.hive.DELETE as HIVE_DELETE;
+import com.linkedin.gradle.oozie.xsd.hive.PREPARE as HIVE_PREPARE;
+
+import com.linkedin.gradle.oozie.xsd.spark.ACTION as Spark;
+import com.linkedin.gradle.oozie.xsd.spark.ObjectFactory as SparkObjectFactory;
+import com.linkedin.gradle.oozie.xsd.spark.CONFIGURATION as SPARK_CONFIGURATION;
+import com.linkedin.gradle.oozie.xsd.spark.DELETE as SPARK_DELETE;
+import com.linkedin.gradle.oozie.xsd.spark.PREPARE as SPARK_PREPARE;
+
+import org.gradle.api.GradleException;
 
 import javax.xml.bind.JAXB;
 
@@ -198,8 +226,7 @@ class OozieDslCompiler extends BaseCompiler {
 
     // Visit each properties object in the workflow
     workflow.properties.each() { Properties props ->
-      // visitProperties(props);
-      // TODO
+      visitProperties(props);
     }
 
     // Visit each subflow to build in the workflow
@@ -231,11 +258,365 @@ class OozieDslCompiler extends BaseCompiler {
    * @param The job to build
    */
   void visitJobToBuild(Job job) {
-    // TODO fill out the rest of the job types
   }
 
+  /**
+   * Visitor to build HiveJob
+   * @param job The HiveJob to build
+   */
+  void visitJobToBuild(HiveJob job) {
+
+    // Create Hive action
+    HiveObjectFactory hiveObjectFactory = new HiveObjectFactory();
+    Hive oozieJob = hiveObjectFactory.createACTION();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
+    // The user should have this property defined in the job.properties. This should contain path of the
+    // hive-site.xml or the settings file for the hive so that oozie can contact the hive metastore.
+    if(job.jobProperties.containsKey("jobXml")) {
+      oozieJob.getJobXml().add(job.jobProperties.get("jobXml"));
+    }
+
+    // Set script file for the job
+    oozieJob.setScript(job.script);
+
+    // By default, automatically delete any HDFS paths the job writes
+    // TODO make this part of the "writing" method options
+    if (job.writing.size() > 0) {
+      HIVE_PREPARE prepare = hiveObjectFactory.createPREPARE();
+
+      job.writing.each { String path ->
+        HIVE_DELETE delete = hiveObjectFactory.createDELETE();
+        delete.setPath(path);
+        prepare.getDelete().add(delete);
+      }
+
+      oozieJob.setPrepare(prepare);
+    }
+
+    // Add the Hadooop job conf properties
+    if (job.confProperties.size() > 0) {
+      HIVE_CONFIGURATION conf = hiveObjectFactory.createCONFIGURATION();
+
+      job.confProperties.each { String name, Object val ->
+        HIVE_CONFIGURATION.Property prop = hiveObjectFactory.createCONFIGURATIONProperty();
+        prop.setName(name);
+        prop.setValue(val.toString());
+        conf.getProperty().add(prop);
+      }
+
+      oozieJob.setConfiguration(conf);
+    }
+
+    // Add archives on HDFS to Distributed Cache
+    job.cacheArchives.each { String name, String path ->
+      oozieJob.getArchive().add("${path}#${name}".toString());
+    }
+
+    // Add files on HDFS to Distributed Cache
+    job.cacheFiles.each { String name, String path ->
+      oozieJob.getFile().add("${path}#${name}".toString());
+    }
+
+    // set parameters of the job. This should be done using <argument> according to new syntax
+    job.parameters.each { String name, Object val ->
+      oozieJob.getArgument().add("-hivevar");
+      oozieJob.getArgument().add("${name}=${val.toString()}".toString());
+    }
+
+    // Add the action and add the job to the action
+    ACTIONTRANSITION killTransition = objectFactory.createACTIONTRANSITION();
+    killTransition.setTo("kill")
+
+    // Don't specify the "Ok" transition for the action; we'll add the job transitions later
+    String jobName = job.buildFileName(this.parentScope);
+    ACTION action = objectFactory.createACTION();
+    action.setError(killTransition);
+    action.setName(jobName);
+    action.setAny(hiveObjectFactory.createHive(oozieJob));
+
+    oozieWorkflow.getDecisionOrForkOrJoin().add(action);
+
+    // Remember the action so we can specify the job transitions later
+    actionMap.put(job.name, action);
+  }
+
+  /**
+   * Visitor to build SparkJob
+   * @param The SparkJob to build
+   */
+  void visitJobToBuild(SparkJob job) {
+
+    // Set of all spark options
+    Set<String> allSparkOptions = [
+      "master",
+      "deploy-mode",
+      "py-files",
+      "properties-file",
+      "driver-memory",
+      "driver-java-options",
+      "driver-library-path",
+      "driver-class-path",
+      "executor-memory",
+      "driver-cores",
+      "total-executor-cores",
+      "executor-cores",
+      "queue",
+      "num-executors",
+      "archives",
+      "principal",
+      "keytab"
+    ];
+
+    // Create Spark action
+    SparkObjectFactory sparkObjectFactory = new SparkObjectFactory();
+    Spark oozieJob = sparkObjectFactory.createACTION();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
+    // Jars are added from jobProperties. The execution-jar is also added to jars.
+    StringBuilder buildJars = new StringBuilder();
+    buildJars.append(job.executionJar);
+    if (job.jobProperties.containsKey("jars")) {
+      buildJars.append(",");
+      buildJars.append(job.jobProperties.get("jars"));
+    }
+    oozieJob.setJar(buildJars.toString());
+
+    // Add the spark flags and configurations
+    StringBuilder builder = new StringBuilder();
+    builder.append(" ").append(job.flags.collect() { flag -> return "--$flag" }.join(" "));
+    builder.append(" ").append(job.sparkConfs.collect() {
+      key, value -> "--conf $key=$value";
+    }.join(" "));
+
+    // Set the name of the job
+    oozieJob.setName(job.name);
+
+    // Set master and deploy-mode from the properties. Set other properties as spark options.
+    job.jobProperties.each() { key, value ->
+      if (allSparkOptions.contains(key)) {
+        switch (key) {
+          case "master":
+            oozieJob.setMaster(value);
+            break;
+          case "deploy-mode":
+            oozieJob.setMode(value);
+            break;
+          default:
+            builder.append(" ").append("--$key $value");
+        }
+      }
+    }
+
+    // Set spark options
+    oozieJob.setSparkOpts(builder.toString());
+
+    // Set execution class
+    oozieJob.setClazz(job.appClass);
+
+    // Set application parameters
+    job.appParams.each { param -> oozieJob.getArg().add(param.toString())}
+
+    // By default, automatically delete any HDFS paths the job writes
+    // TODO make this part of the "writing" method options
+    if (job.writing.size() > 0) {
+      SPARK_PREPARE prepare = sparkObjectFactory.createPREPARE();
+
+      job.writing.each { String path ->
+        SPARK_DELETE delete = sparkObjectFactory.createDELETE();
+        delete.setPath(path);
+        prepare.getDelete().add(delete);
+      }
+
+      oozieJob.setPrepare(prepare);
+    }
+
+    // Add the Hadooop job conf properties
+    if (job.confProperties.size() > 0) {
+      SPARK_CONFIGURATION conf = sparkObjectFactory.createCONFIGURATION();
+
+      job.confProperties.each { String name, Object val ->
+        SPARK_CONFIGURATION.Property prop = sparkObjectFactory.createCONFIGURATIONProperty();
+        prop.setName(name);
+        prop.setValue(val.toString());
+        conf.getProperty().add(prop);
+      }
+
+      oozieJob.setConfiguration(conf);
+    }
+
+    // Add the action and add the job to the action
+    ACTIONTRANSITION killTransition = objectFactory.createACTIONTRANSITION();
+    killTransition.setTo("kill")
+
+    // Don't specify the "Ok" transition for the action; we'll add the job transitions later
+    String jobName = job.buildFileName(this.parentScope);
+    ACTION action = objectFactory.createACTION();
+    action.setError(killTransition);
+    action.setName(jobName);
+    action.setAny(sparkObjectFactory.createSpark(oozieJob));
+
+    oozieWorkflow.getDecisionOrForkOrJoin().add(action);
+
+    // Remember the action so we can specify the job transitions later
+    actionMap.put(job.name, action);
+  }
+
+  void visitJobToBuild(CommandJob commandJob) {
+  // TODO
+  }
+
+  /**
+   * Visitor to build HadoopJavaJob
+   * Currently DSL doesn't support separate syntax for map and reduce class.
+   * we can use something like "uses "map:com.linkedin.hello.mapper,reduce:com.linkedin.hello.reducer"
+   * @param job The HadoopJavaJob to build
+   */
+  void visitJobToBuild(HadoopJavaJob job) {
+
+    // Create Mapreduce action
+    MAPREDUCE oozieJob = objectFactory.createMAPREDUCE();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
+    // set mapper
+    if(job.mapClass!=null && !job.mapClass.isEmpty()) {
+      job.confProperties.put("mapred.mapper.class", job.mapClass);
+    }
+
+    // set reducer
+    if(job.reduceClass!=null && !job.reduceClass.isEmpty()) {
+      job.confProperties.put("mapred.reducer.class", job.reduceClass);
+    }
+
+    // By default, automatically delete any HDFS paths the job writes
+    // TODO make this part of the "writing" method options
+    if (job.writing.size() > 0) {
+      PREPARE prepare = objectFactory.createPREPARE();
+
+      job.writing.each { String path ->
+        DELETE delete = objectFactory.createDELETE();
+        delete.setPath(path);
+        prepare.getDelete().add(delete);
+      }
+
+      oozieJob.setPrepare(prepare);
+    }
+
+    // Add the Hadooop job conf properties
+    if (job.confProperties.size() > 0) {
+      CONFIGURATION conf = objectFactory.createCONFIGURATION();
+
+      job.confProperties.each { String name, Object val ->
+        CONFIGURATION.Property prop = objectFactory.createCONFIGURATIONProperty();
+        prop.setName(name);
+        prop.setValue(val.toString());
+        conf.getProperty().add(prop);
+      }
+      oozieJob.setConfiguration(conf);
+    }
+
+    // Add archives on HDFS to Distributed Cache
+    job.cacheArchives.each { String name, String path ->
+      oozieJob.getArchive().add("${path}#${name}".toString());
+    }
+
+    // Add files on HDFS to Distributed Cache
+    job.cacheFiles.each { String name, String path ->
+      oozieJob.getFile().add("${path}#${name}".toString());
+    }
+
+    // Add the action and add the job to the action
+    ACTIONTRANSITION killTransition = objectFactory.createACTIONTRANSITION();
+    killTransition.setTo("kill")
+
+    // Don't specify the "Ok" transition for the action; we'll add the job transitions later
+    String jobName = job.buildFileName(this.parentScope);
+    ACTION action = objectFactory.createACTION();
+    action.setError(killTransition);
+    action.setName(jobName);
+    action.setMapReduce(oozieJob);
+    oozieWorkflow.getDecisionOrForkOrJoin().add(action);
+
+    // Remember the action so we can specify the job transitions later
+    actionMap.put(job.name, action);
+  }
+
+  /**
+   * Visitor to build JavaProcessJob
+   * We currently don't support parameters in the
+   * dsl for a java job. For now the user should be able to pass the paramters in the
+   * properties as "'params':'param1,param2,param3'"
+   * @param job The JavaProcessJob to build
+   */
+  void visitJobToBuild(JavaProcessJob job) {
+
+    // Create Java action
+    JAVA oozieJob = objectFactory.createJAVA();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
+    // Add the main class
+    oozieJob.setMainClass(job.javaClass);
+
+    // Add java options
+    oozieJob.setJavaOpts(job.jvmProperties.collect() { key, val -> return "-D${key}=${val.toString()}" }.join(" "));
+
+    // We currently don't support parameters in the java process job, user can pass parameters as "params:'param1,param2,param3".
+    if (job.jobProperties.containsKey("params")) {
+      String[] params = job.jobProperties.get("params").toString().split(",");
+      params.each {
+        oozieJob.getArg().add(it);
+      }
+    }
+
+    // If the captureOutput is set in the jobProperties. Enable it.
+    if (job.jobProperties.containsKey("captureOutput")) {
+      if (job.jobProperties.get("captureOutput").equals("true")) {
+        oozieJob.setCaptureOutput(new FLAG());
+      }
+    }
+
+    // Add the action and add the job to the action
+    ACTIONTRANSITION killTransition = objectFactory.createACTIONTRANSITION();
+    killTransition.setTo("kill")
+
+    // Don't specify the "Ok" transition for the action; we'll add the job transitions later
+    String jobName = job.buildFileName(this.parentScope);
+    ACTION action = objectFactory.createACTION();
+    action.setError(killTransition);
+    action.setName(jobName);
+    action.setJava(oozieJob);
+    oozieWorkflow.getDecisionOrForkOrJoin().add(action);
+
+    // Remember the action so we can specify the job transitions later
+    actionMap.put(job.name, action);
+  }
+
+  /**
+   * Visitor to build PigJob
+   * @param job The PigJob to build
+   */
   void visitJobToBuild(PigJob job) {
+
+    // Create Pig action
     PIG oozieJob = objectFactory.createPIG();
+
+    // Set nameNode and jobTracker
+    oozieJob.setNameNode('${nameNode}');
+    oozieJob.setJobTracker('${jobTracker}');
+
+    // Set pig scrip to execute
     oozieJob.setScript(job.script);
 
     // By default, automatically delete any HDFS paths the job writes
@@ -276,9 +657,10 @@ class OozieDslCompiler extends BaseCompiler {
       oozieJob.getFile().add("${path}#${name}".toString());
     }
 
-    // Add the Pig parameters
+    // Add the Pig parameters, they must be added via <argument>-param</argument><argument>name=value</argument> according to the newer version
     job.parameters.each { String name, Object val ->
-      oozieJob.getParam().add("${name}=${val.toString()}".toString());
+      oozieJob.getArgument().add("-param");
+      oozieJob.getArgument().add("${name}=${val.toString()}".toString());
     }
 
     // Add the action and add the job to the action
@@ -295,6 +677,29 @@ class OozieDslCompiler extends BaseCompiler {
 
     // Remember the action so we can specify the job transitions later
     actionMap.put(job.name, action);
+  }
+
+
+  /**
+   * Builds a properties file.
+   *
+   * @param props The Properties object to build
+   */
+  @Override
+  void visitProperties(Properties props) {
+    Map<String, String> allProperties = props.buildProperties(this.parentScope);
+    if (allProperties.size() == 0) {
+      return;
+    }
+    checkRequiredProperties(allProperties.keySet());
+    String fileName = props.buildFileName(this.parentScope);
+    File file = new File(this.parentDirectory, "${fileName}.properties");
+    file.withWriter { out ->
+      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
+      allProperties.each { key,value ->
+        out.writeLine("${key}=${value}");
+      }
+    }
   }
 
   void visitJobTransitions(Job job) {
@@ -335,6 +740,23 @@ class OozieDslCompiler extends BaseCompiler {
       }
 
       oozieWorkflow.getDecisionOrForkOrJoin().add(join);
+    }
+  }
+
+  /**
+   * Method to check if the required properties have been defined
+   * @param propertyNames The set of all properties
+   */
+  void checkRequiredProperties(Set<String> propertyNames) {
+
+    if(!propertyNames.contains("nameNode")) {
+      throw new GradleException("Property 'nameNode' is required")
+    }
+    if(!propertyNames.contains("jobTracker")) {
+      throw new GradleException("Property 'jobTracker' is required")
+    }
+    if(!propertyNames.contains("oozie.wf.application.path")) {
+      throw new GradleException("Property 'oozie.wf.application.path' is required")
     }
   }
 }

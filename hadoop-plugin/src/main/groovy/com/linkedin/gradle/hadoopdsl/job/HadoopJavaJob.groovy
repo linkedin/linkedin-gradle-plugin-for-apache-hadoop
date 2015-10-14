@@ -46,6 +46,8 @@ package com.linkedin.gradle.hadoopdsl.job;
  */
 class HadoopJavaJob extends HadoopJavaProcessJob {
   String jobClass;
+  String mapClass;
+  String reduceClass;
 
   /**
    * Constructor for a HadoopJavaJob.
@@ -75,6 +77,8 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
    */
   HadoopJavaJob clone(HadoopJavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
+    cloneJob.mapClass = mapClass;
+    cloneJob.reduceClass = reduceClass;
     return super.clone(cloneJob);
   }
 
@@ -88,5 +92,23 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
   void uses(String jobClass) {
     this.jobClass = jobClass;
     setJobProperty("job.class", jobClass);
+  }
+
+  /**
+   * DSL method usesMapper specifies the mapper class for the job. This is only
+   * required for oozie. Azkaban will ignore this method
+   * @param mapClass The mapper class to use
+   */
+  void usesMapper(String mapClass) {
+    this.mapClass = mapClass;
+  }
+
+  /**
+   * DSL method usesReducer specifies the reducer class for the job. This is only
+   * required for oozie. Azkaban will ignore this method
+   * @param reduceClass The reducer class to use
+   */
+  void usesReducer(String reduceClass) {
+    this.reduceClass = reduceClass;
   }
 }

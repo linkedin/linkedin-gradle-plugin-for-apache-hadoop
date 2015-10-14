@@ -22,6 +22,11 @@ public final class OozieConstants {
   public static final String OOZIE_CLUSTER_URI = "clusterURI";
 
   /**
+   * The URI of the oozie system to interact with. e.g. http://eat1-nertzoz01.grid.linkedin.com:11000/oozie/
+   */
+  public static final String OOZIE_SYSTEM_URI = "oozieURI";
+
+  /**
    * The Name of the project. A directory will be created at PATH_TO_UPLOAD with this name.
    */
   public static final String OOZIE_PROJECT_NAME = "projectName";
@@ -35,5 +40,4 @@ public final class OozieConstants {
    * webhdfs://eat1-nertznn01.grid.linkedin.com:50070/user/annag.
    */
   public static final String PATH_TO_UPLOAD = "uploadPath";
-
 }

@@ -149,13 +149,13 @@
                 <xs:element name="pig" type="workflow:PIG" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="sub-workflow" type="workflow:SUB-WORKFLOW" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="fs" type="workflow:FS" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="java" type="workflow:JAVA" minOccurs="1" maxOccurs="1"/>
-                <!-- Commented out for the Hadoop DSL as the xs:any element here confuses xjc -->
-                <!-- <xs:any namespace="##other" minOccurs="1" maxOccurs="1"/> -->
+                <xs:element name="java" type="workflow:JAVA" minOccurs="1" maxOccurs="1" />
+                <xs:any namespace="##other" minOccurs="1" maxOccurs="1"/>
             </xs:choice>
             <xs:element name="ok" type="workflow:ACTION_TRANSITION" minOccurs="1" maxOccurs="1"/>
             <xs:element name="error" type="workflow:ACTION_TRANSITION" minOccurs="1" maxOccurs="1"/>
-            <xs:any namespace="uri:oozie:sla:0.1 uri:oozie:sla:0.2" minOccurs="0" maxOccurs="1"/>
+            <!-- Commented out for the Hadoop DSL as the second xs:any element here confuses xjc -->
+            <!-- <xs:any namespace="uri:oozie:sla:0.1 uri:oozie:sla:0.2" minOccurs="0" maxOccurs="1"/> -->
         </xs:sequence>
         <xs:attribute name="name" type="workflow:IDENTIFIER" use="required"/>
         <xs:attribute name="cred" type="xs:string"/>
