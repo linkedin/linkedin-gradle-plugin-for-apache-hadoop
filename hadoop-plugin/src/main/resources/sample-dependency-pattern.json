@@ -1,0 +1,11 @@
+{
+  "dependencyPatterns": [
+    {
+      "severity": "WARN",
+      "message": " This is a sample dependencyPattern file. All the dependencies of the project will be checked against the regular expression defined in <group>, <name> and <version>. Note that the dependencyPattern will be checked if all the <group>,<name> and <version> matches the patterns. The severity can take values ERROR, WARN and INFO and the message to go with the severity can be defined in the <message>",
+      "versionPattern": "version of all dependencies will be checked against this pattern",
+      "namePattern": "name of all dependencies will be checked against this pattern",
+      "groupPattern": "group of all dependencies will be checked against this pattern"
+    }
+  ]
+}

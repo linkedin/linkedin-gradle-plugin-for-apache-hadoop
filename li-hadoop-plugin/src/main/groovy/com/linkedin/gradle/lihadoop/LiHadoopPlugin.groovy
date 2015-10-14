@@ -17,7 +17,8 @@ package com.linkedin.gradle.lihadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin
 import com.linkedin.gradle.hadoop.HadoopPlugin;
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
+import com.linkedin.gradle.lidependency.LiDependencyPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
@@ -28,12 +29,15 @@ import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lioozie.LiOoziePlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
 import com.linkedin.gradle.liscm.LiScmPlugin;
-import com.linkedin.gradle.lispark.LiSparkPlugin;
+import com.linkedin.gradle.lispark.LiSparkPlugin
+import org.gradle.api.Project
+import org.gradle.api.Task;
 
 /**
  * LinkedIn-specific customizations to the Hadoop Plugin.
  */
 class LiHadoopPlugin extends HadoopPlugin {
+
   /**
    * Factory method to return the LiAzkabanPlugin class. Subclasses can override this method to
    * return their own AzkabanPlugin class.
@@ -43,6 +47,15 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends AzkabanPlugin> getAzkabanPluginClass() {
     return LiAzkabanPlugin.class;
+  }
+
+  /**
+   * Factor method to return the LiDependencyPlugin class. Subclasses can override this method to
+   * return their own DependencyPlugin.
+   * @return
+   */
+  Class<? extends LiDependencyPlugin> getDependencyPluginClass() {
+    return LiDependencyPlugin.class;
   }
 
   /**
@@ -94,4 +107,11 @@ class LiHadoopPlugin extends HadoopPlugin {
     return LiSparkPlugin.class;
   }
 
+  @Override
+  void setupTaskDependencies(Project project) {
+    super.setupTaskDependencies(project);
+    Task startZipTask = project.tasks.findByName("startHadoopZips");
+    Task checkDependencyTask = project.tasks.findByName("checkDependencies");
+    startZipTask.dependsOn checkDependencyTask;
+  }
 }
