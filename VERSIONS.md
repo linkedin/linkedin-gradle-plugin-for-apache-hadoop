@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.6.10
+
+* Added applyProfile method that applies an external Gradle script, but only if it exists
+
 0.6.9
 
 * LIHADOOP-15077 Hadoop plugin should have a feature to control and monitor dependencies specified by the users
