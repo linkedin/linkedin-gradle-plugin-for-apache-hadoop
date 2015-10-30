@@ -72,3 +72,57 @@ hadoop {
     targets 'job1', 'job2'
   }
 }
+
+// Positive test case for doing qualified (and fully-qualified) name lookups.
+def foo1 = null;
+def foo2 = null;
+def bar1 = null;
+def bar2 = null;
+def bazz1 = null;
+def bazz2 = null;
+
+namespace("test") {
+  foo1 = namespace("foo") {
+    bar1 = namespace("bar") {
+      bazz1 = namespace("bazz") {
+      }
+    }
+
+    foo2 = namespace("foo") {
+      bar2 = namespace("bar") {
+        bazz2 = namespace("bazz") {
+        }
+      }
+
+      // In foo2's scope
+      assert(lookup("bar.bazz") == bazz2);
+      assert(lookup("foo.bar.bazz") == bazz2);
+      assert(lookup("test.foo.bar.bazz") == bazz1);
+      assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+      assert(lookup(".test.foo.bar.bazz") == bazz1);
+      assert(lookup(".test.foo.foo.bar.bazz") == bazz2);
+    }
+
+    // In foo1's scope
+    assert(lookup("bar.bazz") == bazz1);
+    assert(lookup("foo.bar.bazz") == bazz2);
+    assert(lookup("test.foo.bar.bazz") == bazz1);
+    assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+    assert(lookup(".test.foo.bar.bazz") == bazz1)
+    assert(lookup(".test.foo.foo.bar.bazz") == bazz2);;
+  }
+
+  // In hadoop scope
+  assert(lookup("foo.bar.bazz") == bazz1);
+  assert(lookup("foo.foo.bar.bazz") == bazz2);
+  assert(lookup("test.foo.bar.bazz") == bazz1);
+  assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+  assert(lookup(".test.foo.bar.bazz") == bazz1);
+  assert(lookup(".test.foo.foo.bar.bazz") == bazz2);
+
+  // Check a couple of explicit bindings (after completing from foo1 and foo2's closures)
+  assert(foo1.scope.lookup("foo.foo.bar.bazz") == null);
+  assert(foo2.scope.lookup("foo.foo.bar.bazz") == null);
+  assert(foo1.scope.lookup("test.foo.foo.bar.bazz") == bazz2);
+  assert(foo2.scope.lookup("test.foo.foo.bar.bazz") == bazz2);
+}

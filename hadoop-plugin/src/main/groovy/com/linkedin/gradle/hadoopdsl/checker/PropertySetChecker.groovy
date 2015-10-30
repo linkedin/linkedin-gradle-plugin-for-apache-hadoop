@@ -68,7 +68,7 @@ class PropertySetChecker extends BaseStaticChecker {
       return;
     }
 
-    visitPropertySet((PropertySet) object);
+    visitPropertySet((PropertySet)object);
   }
 
   @Override
@@ -93,7 +93,7 @@ class PropertySetChecker extends BaseStaticChecker {
       return;
     }
 
-    visitPropertySet((PropertySet) object);
+    visitPropertySet((PropertySet)object);
   }
 
   @Override
@@ -153,7 +153,7 @@ class PropertySetChecker extends BaseStaticChecker {
       return;
     }
 
-    PropertySet basePropertySet = (PropertySet) object;
+    PropertySet basePropertySet = (PropertySet)object;
 
     if (!propertySetsChecked.contains(basePropertySet)) {
       visitPropertySet(basePropertySet, propertySetNames);

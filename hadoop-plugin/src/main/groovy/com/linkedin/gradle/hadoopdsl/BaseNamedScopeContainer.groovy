@@ -489,10 +489,15 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * DSL lookup method. Looks up an object in scope.
    *
    * @param name The name to lookup
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
+   * @return The object that is bound in scope to the given name
+   * @throws Exception If the given name is not bound in scope
    */
   Object lookup(String name) {
-    return scope.lookup(name);
+    Object entry = scope.lookup(name);
+    if (entry == null) {
+      throw new Exception("The name ${name} is not bound from the scope ${scope.levelName}")
+    }
+    return entry;
   }
 
   /**
@@ -501,13 +506,11 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    *
    * @param name The name to lookup
    * @param configure The configuration closure
-   * @return The object that is bound in scope to the given name, or null if no such name is bound in scope
+   * @return The object that is bound in scope to the given name, with the configuration applied
+   * @throws Exception If the given name is not bound in scope
    */
   Object lookup(String name, Closure configure) {
     Object boundObject = lookup(name);
-    if (boundObject == null) {
-      return null;
-    }
     project.configure(boundObject, configure);
     return boundObject;
   }
@@ -517,7 +520,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * <p>
    * For ease of organizing the user's Gradle scripts, namespaces can be redeclared at the same
    * scope level. If the namespace already exists, it will simply be configured with the given
-   * closure configuration. .
+   * closure configuration.
    *
    * @param name The namespace name
    * @param configure The configuration closure

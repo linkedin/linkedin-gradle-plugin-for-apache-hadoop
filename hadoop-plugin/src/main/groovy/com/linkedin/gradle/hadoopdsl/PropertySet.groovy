@@ -71,11 +71,11 @@ class PropertySet extends BasePropertySet {
 
   /**
    * Fills out the complete set of properties for this PropertySet by recursively filling out its
-   * base properties and then unioning them to the current PropertySet.
+   * base properties and then unions them to the current PropertySet.
    */
   void fillProperties() {
     if (basePropertySetName != null) {
-      PropertySet propertySet = (PropertySet) parentScope.lookup(basePropertySetName);
+      PropertySet propertySet = (PropertySet)parentScope.lookup(basePropertySetName);
       propertySet.fillProperties();    // The base property set looks up its base properties in its own scope
       unionProperties(propertySet);
     }
