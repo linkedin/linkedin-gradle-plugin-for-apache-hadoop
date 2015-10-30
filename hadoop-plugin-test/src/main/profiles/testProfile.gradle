@@ -1,0 +1,16 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+definitionSet defs: [
+  var2: "val2_updated"
+]
+
+definitionSet name: "context1", defs: [
+  var5: "val5_updated",
+  var6: "val6"
+]

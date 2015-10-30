@@ -66,7 +66,8 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     this.extension = factory.makeExtension(project, scope);
     project.extensions.add("hadoop", extension);
 
-    // Expose the DSL global method, which is only implemented by the HadoopDslPlugin class.
+    // Expose the DSL global and applyProfile methods, which are only implemented by the HadoopDslPlugin class.
+    project.extensions.add("applyProfile", this.&applyProfile);
     project.extensions.add("global", this.&global);
 
     // Expose the DSL methods for using Hadoop definition sets.
@@ -102,6 +103,28 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("sparkJob", this.&sparkJob);
     project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
+  }
+
+  /**
+   * DSL applyProfile method. Helper method to apply an external Gradle script, but only if it
+   * exists.
+   *
+   * @param args Args whose required key 'from' specifies the path to the external Gradle script
+   * @return True if the external Gradle script exists and was applied; otherwise False
+   */
+  boolean applyProfile(Map args) {
+    if (!args.containsKey("from")) {
+      throw new Exception("Syntax for using applyProfile is 'applyProfile from: \"filePath\"'");
+    }
+
+    String filePath = args.from;
+    File file = new File(filePath);
+
+    if (file.exists()) {
+      project.apply(['from' : file.getAbsolutePath()]);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -207,7 +230,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
 
   /**
    * @deprecated This method has been deprecated in favor of methods for Hadoop definition sets.
-a  *
+   *
    * DSL global method. Binds the object in global scope.
    *
    * @param object The object to bind in global scope
