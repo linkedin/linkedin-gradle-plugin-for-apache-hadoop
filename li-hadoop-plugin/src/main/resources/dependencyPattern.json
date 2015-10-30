@@ -1,0 +1,11 @@
+{
+  "dependencyPatterns": [
+    {
+      "severity":"WARN",
+      "message": "Open source versions(org.apache.*) of artifacts are not allowed, please use linkedin artifacts(com.linkedin.*). Open source versions will be completely blocked after March 1st 2016",
+      "versionPattern": ".*",
+      "namePattern": ".*",
+      "groupPattern": "org\\.apache\\..*"
+    }
+  ]
+}
