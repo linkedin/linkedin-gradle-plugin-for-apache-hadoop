@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `LIHADOOP-15501 checkDependencies task fails if any of groupID, name or version is null`
 * `LIHADOOP-15077 Hadoop plugin should have a feature to control and monitor dependencies specified by the users`
 * `Fixups on HadoopJavaJob and HiveJob`
 * `LIHADOOP-14506 Hadoop plugin should directly submit jobs to oozie`
