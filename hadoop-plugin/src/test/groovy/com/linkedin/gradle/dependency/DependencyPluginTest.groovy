@@ -119,6 +119,23 @@ class DependencyPluginTest {
 
   }
 
+  @Test
+  void testNull() {
+    plugin.apply(project);
+    DummyCheckDependencyTask dependencyTask = project.tasks["checkDependencies"];
+
+    Dependency []testDependencies = new Dependency[3];
+    testDependencies[0] = new DefaultExternalModuleDependency(null,"dummyName", null, "testConfiguration");
+    testDependencies[1] = new DefaultExternalModuleDependency(null, "dummyName", "2.0", "testConfiguration");
+    testDependencies[2] = new DefaultExternalModuleDependency("org.sample.group", "dummyName", null, "testConfiguration");
+
+    DependencyPattern testDependencyPattern = new DependencyPattern(".*", ".*", ".*", SEVERITY.WARN, "should match everything");
+    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPattern))
+    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPattern))
+    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPattern))
+
+  }
+
   /**
    * DummyDependencyPlugin class for unit tests.
    */

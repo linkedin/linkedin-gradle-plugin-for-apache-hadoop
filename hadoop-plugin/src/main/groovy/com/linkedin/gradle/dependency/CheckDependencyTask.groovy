@@ -134,8 +134,8 @@ class CheckDependencyTask extends DefaultTask {
  */
   Boolean dependencyMatchesPattern(Project project, Dependency dependency, DependencyPattern dependencyPattern) {
 
-    // If all of the group, name and version are not specified then return false
-    if (dependency.group == null && dependency.name == null && dependency.version == null) {
+    // If any of the group, name and version are not specified then return false
+    if (dependency.group == null || dependency.name == null || dependency.version == null) {
       return false;
     }
 
@@ -163,7 +163,7 @@ class CheckDependencyTask extends DefaultTask {
   Set<Dependency> getDependencies(Project project) {
     Set<Dependency> dependencies = new HashSet<Dependency>();
     project.getConfigurations().each {
-      configuration -> dependencies.addAll(configuration.getAllDependencies().asList())
+      configuration -> dependencies.addAll(configuration.getAllDependencies())
     }
     return dependencies;
   }

@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.6.10
 
+* LIHADOOP-15501 checkDependencies task fails if any of groupID, name or version is null
 * Added applyProfile method that applies an external Gradle script, but only if it exists
 
 0.6.9
