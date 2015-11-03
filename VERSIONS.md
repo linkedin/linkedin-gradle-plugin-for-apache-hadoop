@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.0
+
+* Cleanup the implementation of scope lookup
+
 0.6.10
 
 * LIHADOOP-15501 checkDependencies task fails if any of groupID, name or version is null

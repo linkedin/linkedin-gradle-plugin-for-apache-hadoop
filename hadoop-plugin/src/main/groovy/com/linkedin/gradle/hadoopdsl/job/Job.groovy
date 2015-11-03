@@ -111,7 +111,7 @@ class Job {
    */
   Map<String, String> buildProperties(NamedScope parentScope) {
     if (basePropertySetName != null) {
-      PropertySet propertySet = (PropertySet) parentScope.lookup(basePropertySetName);
+      PropertySet propertySet = (PropertySet)parentScope.lookup(basePropertySetName);
       propertySet.fillProperties();    // The base property set looks up its base properties in its own scope
       unionProperties(propertySet);
     }

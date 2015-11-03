@@ -15,6 +15,9 @@
  */
 package com.linkedin.gradle.scm;
 
+import com.linkedin.gradle.hadoop.HadoopPlugin;
+import com.linkedin.gradle.scm.ScmPlugin;
+
 import org.gradle.api.Project;
 import org.gradle.api.distribution.Distribution;
 import org.gradle.api.file.FileTree;
@@ -25,11 +28,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.linkedin.gradle.hadoop.HadoopPlugin;
-import com.linkedin.gradle.scm.ScmPlugin;
-
 class ExcludeSourceTest {
-
   private Distribution distPlugin;
   private Project project;
   private TestScmPlugin plugin;
