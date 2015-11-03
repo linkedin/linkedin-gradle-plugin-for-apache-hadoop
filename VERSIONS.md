@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.1
+
+* Expose lookupRef as a DSL method
+
 0.7.0
 
 * Cleanup the implementation of scope lookup

@@ -301,9 +301,10 @@ class NamedScopeReference {
   String qualifiedName;
 
   NamedScopeReference(NamedScope declaringScope, Object entry, String name) {
+    String scopeName = declaringScope.getQualifiedName();
     this.declaringScope = declaringScope;
     this.entry = entry;
     this.name = name;
-    this.qualifiedName = "${declaringScope.getQualifiedName()}.${name}";
+    this.qualifiedName = scopeName.isEmpty() ? name : "${scopeName}.${name}";
   }
 }
