@@ -125,6 +125,14 @@ interface NamedScopeContainer {
   Object lookup(String name, Closure configure);
 
   /**
+   * DSL lookupRef method. Looks up the scope binding reference for an object.
+   *
+   * @param name The name to lookup
+   * @return The NamedScopeReference for the binding, or null if the given name is not bound in scope
+   */
+  NamedScopeReference lookupRef(String name);
+
+  /**
    * DSL propertyFile method. Creates a Properties object in scope with the given name and
    * configuration.
    *

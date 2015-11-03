@@ -65,6 +65,78 @@ class NamedScopeTest {
   }
 
   @Test
+  public void testLookupRefMethod() {
+    NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
+    global.scope.bind("foo", 1);
+    global.scope.bind("bar", 2);
+    global.scope.bind("bazz", 3);
+
+    NamedScopeContainerWrapper child = new NamedScopeContainerWrapper(global.scope, "child");
+    global.scope.bind("child", child);
+    child.scope.bind("bar", 22);
+    child.scope.bind("foobar", 4);
+
+    NamedScopeContainerWrapper grandChild = new NamedScopeContainerWrapper(child.scope, "grandChild");
+    child.scope.bind("grandChild", grandChild);
+    grandChild.scope.bind("foobar", 44);
+    grandChild.scope.bind("foobarbazz", 5);
+
+    assert(global.lookupRef("foo")?.entry == 1);
+    assert(global.lookupRef("foo")?.declaringScope == global.scope);
+    assert(global.lookupRef("foo")?.name == "foo");
+    assert(global.lookupRef("foo")?.qualifiedName == "foo");
+
+    assert(global.lookupRef("child.foobar")?.entry == 4);
+    assert(global.lookupRef("child.foobar")?.declaringScope == child.scope);
+    assert(global.lookupRef("child.foobar")?.name == "foobar");
+    assert(global.lookupRef("child.foobar")?.qualifiedName == "child.foobar");
+
+    assert(global.lookupRef("child.grandChild.foobarbazz")?.entry == 5);
+    assert(global.lookupRef("child.grandChild.foobarbazz")?.declaringScope == grandChild.scope);
+    assert(global.lookupRef("child.grandChild.foobarbazz")?.name == "foobarbazz");
+    assert(global.lookupRef("child.grandChild.foobarbazz")?.qualifiedName == "child.grandChild.foobarbazz");
+
+    assert(global.lookupRef("unbound") == null);
+    assert(global.lookupRef("child.unbound") == null);
+    assert(global.lookupRef("child.grandChild.unbound") == null);
+
+    assert(grandChild.lookupRef("foo")?.entry == 1);
+    assert(grandChild.lookupRef("foo")?.declaringScope == global.scope);
+    assert(grandChild.lookupRef("foo")?.name == "foo");
+    assert(grandChild.lookupRef("foo")?.qualifiedName == "foo");
+
+    assert(grandChild.lookupRef("bar")?.entry == 22);
+    assert(grandChild.lookupRef("bar")?.declaringScope == child.scope);
+    assert(grandChild.lookupRef("bar")?.name == "bar");
+    assert(grandChild.lookupRef("bar")?.qualifiedName == "child.bar");
+
+    assert(grandChild.lookupRef("foobarbazz")?.entry == 5);
+    assert(grandChild.lookupRef("foobarbazz")?.declaringScope == grandChild.scope);
+    assert(grandChild.lookupRef("foobarbazz")?.name == "foobarbazz");
+    assert(grandChild.lookupRef("foobarbazz")?.qualifiedName == "child.grandChild.foobarbazz");
+
+    assert(global.lookupRef("unbound") == null);
+    assert(global.lookupRef("child.unbound") == null);
+    assert(global.lookupRef("child.grandChild.unbound") == null);
+
+    assert(global.lookupRef(".foo").entry == 1);
+    assert(global.lookupRef(".bar").entry == 2);
+    assert(global.lookupRef(".bazz").entry == 3);
+    assert(global.lookupRef(".child.bar").entry == 22);
+    assert(global.lookupRef(".child.foobar").entry == 4);
+    assert(global.lookupRef(".child.grandChild.foobar").entry == 44);
+    assert(global.lookupRef(".child.grandChild.foobarbazz").entry == 5);
+
+    assert(grandChild.lookupRef(".foo").entry == 1);
+    assert(grandChild.lookupRef(".bar").entry == 2);
+    assert(grandChild.lookupRef(".bazz").entry == 3);
+    assert(grandChild.lookupRef(".child.bar").entry == 22);
+    assert(grandChild.lookupRef(".child.foobar").entry == 4);
+    assert(grandChild.lookupRef(".child.grandChild.foobar").entry == 44);
+    assert(grandChild.lookupRef(".child.grandChild.foobarbazz").entry == 5);
+  }
+
+  @Test
   public void testQualifiedLookup() {
     NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
     global.scope.bind("foo", 1);

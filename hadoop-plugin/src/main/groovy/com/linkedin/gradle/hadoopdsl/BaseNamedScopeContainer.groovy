@@ -516,6 +516,16 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
+   * DSL lookupRef method. Looks up the scope binding reference for an object.
+   *
+   * @param name The name to lookup
+   * @return The NamedScopeReference for the binding, or null if the given name is not bound in scope
+   */
+  NamedScopeReference lookupRef(String name) {
+    return scope.lookupRef(name);
+  }
+
+  /**
    * DSL namespace method. Creates a Namespace in scope with the given name and configuration.
    * <p>
    * For ease of organizing the user's Gradle scripts, namespaces can be redeclared at the same
