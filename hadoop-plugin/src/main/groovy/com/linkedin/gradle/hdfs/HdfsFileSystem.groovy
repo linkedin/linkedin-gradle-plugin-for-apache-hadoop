@@ -16,6 +16,8 @@
 package com.linkedin.gradle.hdfs;
 
 import java.security.AccessControlException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,9 +27,6 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import org.gradle.api.Project;
-
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * HDFS file system abstraction for the Hadoop Plugin that uses WebHDFS.
