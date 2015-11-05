@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.1
 
+* Make LinkedIn subclass for the Spark Plugin use eat1-nertzgw03 instead of eat1-nertzgw01
 * Expose lookupRef as a DSL method
 
 0.7.0

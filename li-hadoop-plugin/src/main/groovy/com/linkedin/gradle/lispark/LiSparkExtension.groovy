@@ -31,10 +31,9 @@ class LiSparkExtension extends SparkExtension {
    */
   LiSparkExtension(Project project) {
     super(project);
-
     this.sparkCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
     this.sparkCommand = "/export/apps/spark/latest/bin/spark-submit";
-    this.remoteHostName = "eat1-nertzgw01.grid.linkedin.com";
+    this.remoteHostName = "eat1-nertzgw03.grid.linkedin.com";
     this.remoteCacheDir = "/export/home/${System.getProperty('user.name')}/.hadoopPlugin";
     this.remoteSshOpts = "-q -K";
   }

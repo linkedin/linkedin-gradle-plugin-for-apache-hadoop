@@ -13,17 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.spark
+package com.linkedin.gradle.spark;
 
-import com.linkedin.gradle.hadoopdsl.NamedScope
-import com.linkedin.gradle.hadoopdsl.job.SparkJob
-import org.gradle.api.GradleException
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.tasks.Exec
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 
-import java.io.File
+import java.io.File;
 
+import org.gradle.api.GradleException;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.Exec;
+
+/**
+ * SparkPlugin implements features for Apache Spark.
+ */
 class SparkPlugin implements Plugin<Project> {
   SparkExtension sparkExtension;
   Project project;
@@ -35,7 +39,6 @@ class SparkPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
-
     // Enable users to skip the plugin
     if (project.hasProperty("disableSparkPlugin")) {
       println("SparkPlugin disabled");
@@ -48,7 +51,7 @@ class SparkPlugin implements Plugin<Project> {
     project.extensions.add("spark", sparkExtension);
     readSparkProperties();
 
-    // add spark tasks
+    // Add spark tasks
     addShowSparkJobsTask();
     addExecSparkJobsTask();
   }
@@ -120,8 +123,6 @@ class SparkPlugin implements Plugin<Project> {
       description = "Runs a Spark job configured in the Hadoop DSL with gradle runSparkJob -PjobName=<job name> -PzipTaskName=<zip task name>. Uses the Spark parameters and JVM properties from the DSL."
       group = "Hadoop Plugin";
       dependsOn project.getProject().tasks["buildHadoopZips"]
-
-
 
       doFirst {
         if (!project.hasProperty("jobName")) {
