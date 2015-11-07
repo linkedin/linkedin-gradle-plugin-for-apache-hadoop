@@ -16,51 +16,51 @@
 package com.linkedin.gradle.oozie;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.hadoopdsl.job.Job;
-import com.linkedin.gradle.hadoopdsl.job.LaunchJob
-import com.linkedin.gradle.hadoopdsl.job.PigJob;
-import com.linkedin.gradle.hadoopdsl.job.HiveJob;
-import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
+import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
+import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 
-import com.linkedin.gradle.oozie.xsd.workflow.JOIN
 import com.linkedin.gradle.oozie.xsd.workflow.ObjectFactory;
 import com.linkedin.gradle.oozie.xsd.workflow.ACTION;
 import com.linkedin.gradle.oozie.xsd.workflow.ACTIONTRANSITION;
 import com.linkedin.gradle.oozie.xsd.workflow.CONFIGURATION;
 import com.linkedin.gradle.oozie.xsd.workflow.DELETE;
 import com.linkedin.gradle.oozie.xsd.workflow.END;
-import com.linkedin.gradle.oozie.xsd.workflow.KILL;
-import com.linkedin.gradle.oozie.xsd.workflow.PIG;
+import com.linkedin.gradle.oozie.xsd.workflow.FLAG;
 import com.linkedin.gradle.oozie.xsd.workflow.JAVA;
+import com.linkedin.gradle.oozie.xsd.workflow.JOIN;
+import com.linkedin.gradle.oozie.xsd.workflow.KILL;
 import com.linkedin.gradle.oozie.xsd.workflow.MAPREDUCE;
+import com.linkedin.gradle.oozie.xsd.workflow.PIG;
 import com.linkedin.gradle.oozie.xsd.workflow.PREPARE;
 import com.linkedin.gradle.oozie.xsd.workflow.START;
 import com.linkedin.gradle.oozie.xsd.workflow.WORKFLOWAPP;
-import com.linkedin.gradle.oozie.xsd.workflow.FLAG;
 
-import com.linkedin.gradle.oozie.xsd.shell.ACTION as Command;
 import com.linkedin.gradle.oozie.xsd.shell.ObjectFactory as CommandObjectFactory;
+import com.linkedin.gradle.oozie.xsd.shell.ACTION as Command;
 import com.linkedin.gradle.oozie.xsd.shell.CONFIGURATION as COMMAND_CONFIGURATION;
 import com.linkedin.gradle.oozie.xsd.shell.DELETE as COMMAND_DELETE;
 import com.linkedin.gradle.oozie.xsd.shell.PREPARE as COMMAND_PREPARE;
 
-import com.linkedin.gradle.oozie.xsd.hive.ACTION as Hive;
 import com.linkedin.gradle.oozie.xsd.hive.ObjectFactory as HiveObjectFactory;
+import com.linkedin.gradle.oozie.xsd.hive.ACTION as Hive;
 import com.linkedin.gradle.oozie.xsd.hive.CONFIGURATION as HIVE_CONFIGURATION;
 import com.linkedin.gradle.oozie.xsd.hive.DELETE as HIVE_DELETE;
 import com.linkedin.gradle.oozie.xsd.hive.PREPARE as HIVE_PREPARE;
 
-import com.linkedin.gradle.oozie.xsd.spark.ACTION as Spark;
 import com.linkedin.gradle.oozie.xsd.spark.ObjectFactory as SparkObjectFactory;
+import com.linkedin.gradle.oozie.xsd.spark.ACTION as Spark;
 import com.linkedin.gradle.oozie.xsd.spark.CONFIGURATION as SPARK_CONFIGURATION;
 import com.linkedin.gradle.oozie.xsd.spark.DELETE as SPARK_DELETE;
 import com.linkedin.gradle.oozie.xsd.spark.PREPARE as SPARK_PREPARE;

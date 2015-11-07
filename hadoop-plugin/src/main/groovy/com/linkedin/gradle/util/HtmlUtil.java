@@ -17,6 +17,7 @@ package com.linkedin.gradle.util;
 
 /**
  * Utility class for formatting HTML strings by removing tags and making the content more readable.
+ * <p>
  * This is currently used for formatting Azkaban returned HttpResponse to improve the readability
  * of Azkaban generated messages.
  */

@@ -15,6 +15,11 @@
  */
 package com.linkedin.gradle.azkaban;
 
+import com.linkedin.gradle.util.HtmlUtil;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -36,11 +41,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import com.linkedin.gradle.util.HtmlUtil;
 
 /**
  * AzkabanUploadTask handles uploading of the zip file to azkaban.

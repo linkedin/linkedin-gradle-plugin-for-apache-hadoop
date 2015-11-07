@@ -18,18 +18,19 @@ package com.linkedin.gradle.lihadoop;
 import com.linkedin.gradle.azkaban.AzkabanPlugin
 import com.linkedin.gradle.hadoop.HadoopPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
-import com.linkedin.gradle.lidependency.LiDependencyPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.spark.SparkPlugin;
 
 import com.linkedin.gradle.liazkaban.LiAzkabanPlugin;
+import com.linkedin.gradle.lidependency.LiDependencyPlugin;
 import com.linkedin.gradle.lihadoopdsl.LiHadoopDslPlugin;
 import com.linkedin.gradle.lioozie.LiOoziePlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
 import com.linkedin.gradle.liscm.LiScmPlugin;
-import com.linkedin.gradle.lispark.LiSparkPlugin
+import com.linkedin.gradle.lispark.LiSparkPlugin;
+
 import org.gradle.api.Project
 import org.gradle.api.Task;
 
@@ -37,7 +38,6 @@ import org.gradle.api.Task;
  * LinkedIn-specific customizations to the Hadoop Plugin.
  */
 class LiHadoopPlugin extends HadoopPlugin {
-
   /**
    * Factory method to return the LiAzkabanPlugin class. Subclasses can override this method to
    * return their own AzkabanPlugin class.
@@ -50,9 +50,10 @@ class LiHadoopPlugin extends HadoopPlugin {
   }
 
   /**
-   * Factor method to return the LiDependencyPlugin class. Subclasses can override this method to
+   * Factory method to return the LiDependencyPlugin class. Subclasses can override this method to
    * return their own DependencyPlugin.
-   * @return
+   *
+   * @return Class that implements the DependencyPlugin
    */
   Class<? extends LiDependencyPlugin> getDependencyPluginClass() {
     return LiDependencyPlugin.class;
@@ -102,16 +103,33 @@ class LiHadoopPlugin extends HadoopPlugin {
     return LiScmPlugin.class;
   }
 
+  /**
+   * Returns the LinkedIn-specific LiSparkPlugin class. Subclasses can override this method to
+   * return their own SparkPlugin class.
+   *
+   * @return Class that implements the SparkPlugin
+   */
   @Override
   Class<? extends SparkPlugin> getSparkPluginClass() {
     return LiSparkPlugin.class;
   }
 
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void setupTaskDependencies(Project project) {
     super.setupTaskDependencies(project);
-    Task startZipTask = project.tasks.findByName("startHadoopZips");
-    Task checkDependencyTask = project.tasks.findByName("checkDependencies");
-    startZipTask.dependsOn checkDependencyTask;
+
+    // Check dependencies before you start building any Hadoop zips.
+    Task checkDependenciesTask = project.tasks.findByName("checkDependencies");
+    Task startHadoopZipsTask = project.tasks.findByName("startHadoopZips");
+
+    if (checkDependenciesTask != null && startHadoopZipsTask != null) {    
+      startHadoopZipsTask.dependsOn(checkDependencyTask);
+    }
   }
 }
