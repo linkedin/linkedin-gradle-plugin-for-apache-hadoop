@@ -2,10 +2,31 @@
   "dependencyPatterns": [
     {
       "severity":"WARN",
-      "message": "Open source versions(org.apache.*) of artifacts are not allowed, please use linkedin artifacts(com.linkedin.*). Open source versions will be completely blocked after March 1st 2016",
+      "message": "Open source versions of hadoop artifacts(org.apache.hadoop) are not allowed, please use linkedin artifacts(com.linkedin.hadoop). Open source versions will be completely blocked after March 1st 2016",
       "versionPattern": ".*",
       "namePattern": ".*",
-      "groupPattern": "org\\.apache\\..*"
+      "groupPattern": "org\\.apache\\.hadoop"
+    },
+    {
+      "severity":"WARN",
+      "message": "Open source versions of hive artifacts(org.apache.hive) are not allowed, please use linkedin artifacts(com.linkedin.hive). Open source versions will be completely blocked after March 1st 2016",
+      "versionPattern": ".*",
+      "namePattern": ".*",
+      "groupPattern": "org\\.apache\\.hive"
+    },
+    {
+      "severity":"WARN",
+      "message": "Open source versions of pig artifacts(org.apache.pig) are not allowed, please use linkedin artifacts(com.linkedin.pig). Open source versions will be completely blocked after March 1st 2016",
+      "versionPattern": ".*",
+      "namePattern": ".*",
+      "groupPattern": "org\\.apache\\.pig"
+    },
+    {
+      "severity":"WARN",
+      "message": "Open source versions of oozie artifacts(org.apache.oozie) are not allowed, please use linkedin artifacts(com.linkedin.oozie). Open source versions will be completely blocked after March 1st 2016",
+      "versionPattern": ".*",
+      "namePattern": ".*",
+      "groupPattern": "org\\.apache\\.oozie"
     }
   ]
 }

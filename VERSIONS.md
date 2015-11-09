@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.1
 
+* LIHADOOP-15728 Update dependency pattern blacklist rules for li-hadoop-plugin
 * Make LinkedIn subclass for the Spark Plugin use eat1-nertzgw03 instead of eat1-nertzgw01
 * Expose lookupRef as a DSL method
 
