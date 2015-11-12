@@ -13,31 +13,34 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.lidependency;
 
 import com.linkedin.gradle.dependency.CheckDependencyTask;
 import com.linkedin.gradle.dependency.DependencyPlugin;
+
 import org.gradle.api.Project;
 
+/**
+ * LinkedIn-specific customizations to the Dependency Plugin.
+ */
 class LiDependencyPlugin extends DependencyPlugin {
-
   /**
-   * Method to enable or disable dependency check. We enable the dependency check for linkedin.
-   * @return true Enable the dependency check for linkedin
+   * Method to check if the dependency check is enabled. We enable the dependency check for
+   * LinkedIn.
+   *
+   * @return Whether or not the dependency check is enabled
    */
   @Override
   boolean isDependencyCheckEnabled() {
     return true;
   }
 
-
   /**
-  * Factory method to return the CheckDependency class. Subclasses can override this method to
-  * return their own CheckDependency class.
-  *
-  * @return Class that implements the CheckDependency
-  */
+   * Factory method to return the CheckDependencyTask class. Subclasses can override this method to
+   * return their own CheckDependencyTask class.
+   *
+   * @return Class that implements the CheckDependencyTask
+   */
   @Override
   Class<? extends CheckDependencyTask> getCheckDependencyTask() {
     return LiCheckDependencyTask.class;

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban
+package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
@@ -66,14 +66,17 @@ class AzkabanPlugin implements Plugin<Project> {
 
       doLast {
         HadoopDslPlugin plugin = project.extensions.hadoopDslPlugin;
-        HadoopDslFactory factory = project.extensions.hadoopDslFactory;
+        if (plugin == null) {
+          throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
+        }
 
         // Run the static checker on the DSL
+        HadoopDslFactory factory = project.extensions.hadoopDslFactory;
         HadoopDslChecker checker = factory.makeChecker(project);
         checker.check(plugin);
 
         if (checker.failedCheck()) {
-          throw new Exception("Hadoop DSL static checker FAILED");
+          throw new GradleException("Hadoop DSL static checker FAILED");
         }
         else {
           logger.lifecycle("Hadoop DSL static checker PASSED");
@@ -93,7 +96,6 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   Task createUploadTask(Project project) {
     return project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
-      dependsOn "buildHadoopZips";
       description = "Uploads Hadoop zip archive to Azkaban";
       group = "Hadoop Plugin";
 
@@ -108,6 +110,7 @@ class AzkabanPlugin implements Plugin<Project> {
         if (zipTaskCont == null) {
           throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
         }
+
         if (!zipTaskCont instanceof Zip) {
           throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
         }
@@ -203,7 +206,7 @@ class AzkabanPlugin implements Plugin<Project> {
       return pluginJson;
     }
     catch (Exception ex) {
-      throw new Exception("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
+      throw new GradleException("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
     }
     finally {
       if (reader != null) {

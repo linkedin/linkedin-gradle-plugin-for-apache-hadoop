@@ -22,10 +22,13 @@ import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.spark.SparkPlugin;
+import com.linkedin.gradle.zip.HadoopZipPlugin;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.plugins.JavaPlugin;
 
 /**
  * HadoopPlugin is the class that implements our Gradle Plugin.
@@ -39,14 +42,33 @@ class HadoopPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
-    project.getPlugins().apply(getHadoopDslPluginClass());
+    addHadoopConfiguration(project);
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getDependencyPluginClass());
+    project.getPlugins().apply(getHadoopDslPluginClass());
+    project.getPlugins().apply(getHadoopZipPluginClass());
+    project.getPlugins().apply(getOoziePluginClass());
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
-    project.getPlugins().apply(getOoziePluginClass());
     project.getPlugins().apply(getSparkPluginClass());
     setupTaskDependencies(project);
+  }
+
+  /**
+   * Prepare the "hadoopRuntime" Hadoop configuration for the project.
+   *
+   * @param project The Gradle project
+   * @return The hadoopRuntime configuration
+   */
+  Configuration addHadoopConfiguration(Project project) {
+    Configuration hadoopRuntime = project.getConfigurations().create("hadoopRuntime");
+
+    // For Java projects, the Hadoop configuration should contain the runtime jars by default.
+    project.getPlugins().withType(JavaPlugin) {
+      hadoopRuntime.extendsFrom(project.getConfigurations().getByName("runtime"));
+    }
+
+    return hadoopRuntime;
   }
 
   /**
@@ -79,33 +101,13 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to return the PigPlugin class. Subclasses can override this method to return
-   * their own PigPlugin class.
+   * Factory method to return the HadoopZipPlugin class. Subclasses can override this method to
+   * return their own HadoopZipPlugin class.
    *
-   * @return Class that implements the PigPlugin
+   * @return Class that implements the HadoopZipPlugin
    */
-  Class<? extends PigPlugin> getPigPluginClass() {
-    return PigPlugin.class;
-  }
-
-  /**
-   * Factory method to return the SparkPlugin class. Subclasses can ovverride this method to return
-   * their own SparkPlugin class.
-   *
-   * @return Class that implements the SparkPlugin
-   */
-  Class<? extends SparkPlugin> getSparkPluginClass() {
-    return SparkPlugin.class;
-  }
-
-  /**
-   * Factory method to return the ScmPlugin class. Subclasses can override this method to return
-   * their own ScmPlugin class.
-   *
-   * @return Class that implements the ScmPlugin
-   */
-  Class<? extends ScmPlugin> getScmPluginClass() {
-    return ScmPlugin.class;
+  Class<? extends HadoopZipPlugin> getHadoopZipPluginClass() {
+    return HadoopZipPlugin.class;
   }
 
   /**
@@ -119,26 +121,181 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to return the PigPlugin class. Subclasses can override this method to return
+   * their own PigPlugin class.
+   *
+   * @return Class that implements the PigPlugin
+   */
+  Class<? extends PigPlugin> getPigPluginClass() {
+    return PigPlugin.class;
+  }
+
+  /**
+   * Factory method to return the ScmPlugin class. Subclasses can override this method to return
+   * their own ScmPlugin class.
+   *
+   * @return Class that implements the ScmPlugin
+   */
+  Class<? extends ScmPlugin> getScmPluginClass() {
+    return ScmPlugin.class;
+  }
+
+  /**
+   * Factory method to return the SparkPlugin class. Subclasses can ovverride this method to return
+   * their own SparkPlugin class.
+   *
+   * @return Class that implements the SparkPlugin
+   */
+  Class<? extends SparkPlugin> getSparkPluginClass() {
+    return SparkPlugin.class;
+  }
+
+  /**
    * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
    * method to customize their own task dependencies.
    *
    * @param project The Gradle project
    */
   void setupTaskDependencies(Project project) {
-    // The ScmPlugin buildSourceZip task must run after the AzkabanPlugin buildAzkabanFlows task
-    // that builds the Hadoop DSL, since that task creates and deletes files.
-    Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
-    Task azFlowTask = project.tasks.findByName("buildAzkabanFlows");
+    setupAzkabanPluginTaskDependencies(project);
+    setupDependencyPluginTaskDependencies(project);
+    setupHadoopDslPluginTaskDependencies(project);
+    setupHadoopZipPluginTaskDependencies(project);
+    setupOoziePluginTaskDependencies(project);
+    setupPigPluginTaskDependencies(project);
+    setupScmPluginTaskDependencies(project);
+    setupSparkPluginTaskDependencies(project);
+  }
 
-    if (sourceTask != null && azFlowTask != null) {
-      sourceTask.mustRunAfter azFlowTask;
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupAzkabanPluginTaskDependencies(Project project) {
+    // Before uploading to Azkaban we should build the Hadoop zips.
+    Task azkabanUploadTask = project.tasks.findByName("azkabanUpload");
+    Task buildHadoopZipsTask = project.tasks.findByName("buildHadoopZips");
+
+    if (azkabanUploadTask != null && buildHadoopZipsTask != null) {
+      azkabanUploadTask.dependsOn(buildHadoopZipsTask);
+    }
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupDependencyPluginTaskDependencies(Project project) {
+    // Empty - enables subclasses to override
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupHadoopDslPluginTaskDependencies(Project project) {
+    // Empty - enables subclasses to override
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupHadoopZipPluginTaskDependencies(Project project) {
+    // By default, each Hadoop zip should include the sources zip and the .scmMetadata file.
+    Task scmMetadataTask = project.tasks.findByName("buildScmMetadata");
+    Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
+    Task startHadoopZips = project.getRootProject().tasks.findByName("startHadoopZips");
+
+    // We should finish writing the metadata file and sources zip before building any of the zips.
+    if (startHadoopZips != null && scmMetadataTask != null) {
+      startHadoopZips.dependsOn(scmMetadataTask);
     }
 
-    // Same for the OoziePlugin buildOozieFlows task.
+    if (startHadoopZips != null && sourceTask != null) {
+      startHadoopZips.dependsOn(sourceTask);
+    }
+
+    if (project.extensions.hadoopZip != null && scmMetadataTask != null) {
+      project.extensions.hadoopZip.additionalPaths.add(scmMetadataTask.metadataPath);
+    }
+
+    if (project.extensions.hadoopZip != null && sourceTask != null) {
+      project.extensions.hadoopZip.additionalPaths.add(sourceTask.archivePath);
+    }
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupOoziePluginTaskDependencies(Project project) {
+    // Before uploading to HDFS we should build the Hadoop zips.
+    Task buildHadoopZipsTask = project.tasks.findByName("buildHadoopZips");
+    Task oozieUploadTask = project.tasks.findByName("oozieUpload");
+
+    if (buildHadoopZipsTask != null && oozieUploadTask != null) {
+      oozieUploadTask.dependsOn(buildHadoopZipsTask);
+    }
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupPigPluginTaskDependencies(Project project) {
+    // Empty - enables subclasses to override
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupScmPluginTaskDependencies(Project project) {
+    // The ScmPlugin buildSourceZip task must run after the AzkabanPlugin buildAzkabanFlows task
+    // that builds the Hadoop DSL, since that task creates and deletes files.
+    Task azFlowTask = project.tasks.findByName("buildAzkabanFlows");
+    Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
+
+    if (azFlowTask != null && sourceTask != null) {
+      sourceTask.mustRunAfter(azFlowTask);
+    }
+
+    // The ScmPlugin buildSourceZip task must run after the OoziePlugin buildOozieFlows task that
+    // builds the Hadoop DSL, since that task creates and deletes files.
     Task ozFlowTask = project.tasks.findByName("buildOozieFlows");
 
-    if (sourceTask != null && ozFlowTask != null) {
-      sourceTask.mustRunAfter ozFlowTask;
+    if (ozFlowTask != null && sourceTask != null) {
+      sourceTask.mustRunAfter(ozFlowTask);
+    }
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupSparkPluginTaskDependencies(Project project) {
+    Task buildHadoopZipsTask = project.tasks.findByName("buildHadoopZips");
+    Task runSparkJobTask = project.tasks.findByName("runSparkJob");
+
+    if (buildHadoopZipsTask != null && runSparkJobTask != null) {
+      runSparkJobTask.dependsOn(buildHadoopZipsTask);
     }
   }
 }

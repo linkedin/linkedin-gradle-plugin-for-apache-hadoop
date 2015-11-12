@@ -29,29 +29,19 @@ import org.junit.Test;
 
 class DependencyPluginTest {
   static final String SAMPLE_DEPENDENCY_FILE = "sample-dependency-pattern.json";
-
-  Project project;
   Plugin plugin;
+  Project project;
 
   @Before
-  public void setup() {
+  void setup() {
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
     plugin = new DummyDependencyPlugin();
   }
 
-  public void writeDependencyJson(String file, String dependencyJsonString) {
-    new File(file).write(dependencyJsonString);
-  }
-
-  public void deleteDependencyJson(String file) {
-    new File(file).delete();
-  }
-
   @Test
   void testGetDependencyPatterns() {
     String dummyJsonFile = new File(System.getProperty("java.io.tmpdir"), SAMPLE_DEPENDENCY_FILE).getAbsolutePath();
-
     String dependencyJsonString = "{\n" +
       "  \"dependencyPatterns\": [\n" +
       "    {\n" +
@@ -63,18 +53,18 @@ class DependencyPluginTest {
       "    }\n" +
       "  ]\n" +
       "}"
+    new File(dummyJsonFile).withWriter { writer ->
+      writer.write(dependencyJsonString);
+    }
 
-    writeDependencyJson(dummyJsonFile, dependencyJsonString);
     plugin.apply(project);
-
     Task checkDependencyTask = project.tasks["checkDependencies"];
     checkDependencyTask.setDummyDependencyJsonFile(dummyJsonFile);
 
     DependencyPattern actualDependencyPatterns = checkDependencyTask.getDependencyPatterns(project).get(0);
     DependencyPattern expected = new DependencyPattern("org\\.dummy\\..*",".*",".*", SEVERITY.ERROR, "Incompatible dependencies");
-
-    Assert.assertEquals(expected,actualDependencyPatterns);
-    deleteDependencyJson(dummyJsonFile);
+    Assert.assertEquals(expected, actualDependencyPatterns);
+    new File(dummyJsonFile).delete();
   }
 
   @Test

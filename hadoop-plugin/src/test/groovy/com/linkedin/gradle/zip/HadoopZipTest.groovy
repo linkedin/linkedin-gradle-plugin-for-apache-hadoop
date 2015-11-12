@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.scm;
+package com.linkedin.gradle.zip;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -25,65 +25,94 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AzkabanZipTest {
-  private Project project;
-  private ScmPluginTest plugin;
-  private Closure closure;
-  private Closure baseClosure;
-  private File azkabanLibDirectory;
-  private Configuration azkabanRuntime;
-  private String zipName;
-  String zipPath;
+class HadoopZipTest {
+  Configuration hadoopRuntime;
+  HadoopZipPluginTest plugin;
+  Project project;
+
+  Closure baseClosure;
+  Closure closure;
+  String zipName;
 
   @Before
   public void setup() {
-    zipName = "magic";
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
-    plugin = new ScmPluginTest();
-    def Folder = project.getProjectDir();
-    azkabanRuntime = project.getConfigurations().create("hadoopRuntime");
-    closure = {}
-    baseClosure = {}
+    hadoopRuntime = project.getConfigurations().create("hadoopRuntime");
+    plugin = new HadoopZipPluginTest();
+
+    baseClosure = {};
+    closure = {};
+    zipName = "magic";
 
     /**
      * Create the project structure:
      * AzRoot
-     *   \_src
-     *       \_test
-     *       \_main
-     *   \_resources
      *   \_conf
      *       \_jobs
      *   \_custom-lib
+     *   \_resources
      *   \_sample
+     *   \_src
+     *       \_main
+     *       \_test
      */
-    project.mkdir(Folder.absolutePath + "/AzRoot");
-    project.mkdir(Folder.absolutePath + "/AzRoot/src");
-    project.mkdir(Folder.absolutePath + "/AzRoot/resources");
-    project.mkdir(Folder.absolutePath + "/AzRoot/conf");
-    project.mkdir(Folder.absolutePath + "/AzRoot/conf/jobs");
-    project.mkdir(Folder.absolutePath + "/AzRoot/src/main");
-    project.mkdir(Folder.absolutePath + "/AzRoot/src/test");
-    project.mkdir(Folder.absolutePath + "/AzRoot/custom-lib");
-    project.mkdir(Folder.absolutePath + "/AzRoot/sample");
+    def folder = project.getProjectDir();
+    project.mkdir(folder.absolutePath + "/AzRoot");
+    project.mkdir(folder.absolutePath + "/AzRoot/conf");
+    project.mkdir(folder.absolutePath + "/AzRoot/conf/jobs");
+    project.mkdir(folder.absolutePath + "/AzRoot/custom-lib");
+    project.mkdir(folder.absolutePath + "/AzRoot/resources");
+    project.mkdir(folder.absolutePath + "/AzRoot/sample");
+    project.mkdir(folder.absolutePath + "/AzRoot/src");
+    project.mkdir(folder.absolutePath + "/AzRoot/src/main");
+    project.mkdir(folder.absolutePath + "/AzRoot/src/test");
 
     // Create files for testing
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/src/main","java", 5);
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/src/test","testjava", 5);
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/resources","avro", 5);
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/conf/jobs","pig", 5);
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/custom-lib","jar", 5);
-    createFilesForTesting(Folder.absolutePath + "/AzRoot/sample","txt", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/conf/jobs","pig", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/custom-lib","jar", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/resources","avro", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/sample","txt", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/src/main","java", 5);
+    createFilesForTesting(folder.absolutePath + "/AzRoot/src/test","testjava", 5);
   }
 
+  /**
+   * Helper function to check whether the contents of the zip contain the expected files.
+   *
+   * @param expected The set of file names expected in the zip
+   */
+  private void checkExpectedZipFiles(Set<String> expected) {
+    plugin.apply(project);
+    project.evaluate();
+
+    def zipTask = project.tasks.findByName("${zipName}HadoopZip");
+    zipTask.execute();
+
+    Set<String> actual = new HashSet<String>();
+
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
+      String pathName = file.path;
+      int testIndex = pathName.indexOf("test-magic.zip");
+      int rootIndex = pathName.substring(testIndex).indexOf("/") + testIndex;
+      actual.add(pathName.substring(rootIndex + 1));
+    }
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  /**
+   * Helper function to create files to add to the zips for testing.
+   *
+   * @param dir The directory in which to add the files
+   * @param ext The file extension
+   * @param number The number of files to create
+   */
   private void createFilesForTesting(String dir, String ext, int number) {
     number.times {
-      def filename = dir +  "/sample" + it.toString() + "." + ext;
-      String toWrite = "blah";
-      PrintWriter writer = new PrintWriter(filename);
-      writer.print(toWrite);
-      writer.close();
+      new File("${dir}/sample${it}.${ext}").withWriter { writer ->
+        writer.print("blah");
+      }
     }
   }
 
@@ -99,7 +128,6 @@ public class AzkabanZipTest {
       from("AzRoot/conf/jobs/") { }
     }
 
-    Set<String> actual = new HashSet<String>();
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
     expected.add("resources/sample1.avro");
@@ -116,80 +144,20 @@ public class AzkabanZipTest {
     expected.add("sample2.pig");
     expected.add("sample3.pig");
     expected.add("sample4.pig");
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex =  str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   @Test
-  public void testBasicZip() {
-    Set<String> actual = new HashSet<String>();
+  public void testHadoopConfiguration() {
+    hadoopRuntime.getDependencies().add(project.getDependencies().create(project.fileTree(new File("AzRoot", "custom-lib"))));
+
     Set<String> expected = new HashSet<String>();
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex =  str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
-  }
-
-  @Test
-  public void testHadoopConf() {
-    azkabanRuntime.getDependencies().add(project.getDependencies().create(project.fileTree(new File("AzRoot", "custom-lib"))));
-
-    Set<String> actual = new HashSet<String>();
-    Set<String> expected = new HashSet<String>();
-
     expected.add("lib/sample0.jar");
     expected.add("lib/sample1.jar");
     expected.add("lib/sample2.jar");
     expected.add("lib/sample3.jar");
     expected.add("lib/sample4.jar");
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex =  str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   @Test
@@ -209,7 +177,6 @@ public class AzkabanZipTest {
       from("AzRoot/conf/jobs/") { }
     }
 
-    Set<String> actual = new HashSet<String>();
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
     expected.add("resources/sample1.avro");
@@ -226,35 +193,18 @@ public class AzkabanZipTest {
     expected.add("sample2.pig");
     expected.add("sample3.pig");
     expected.add("sample4.pig");
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex = str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   @Test
   public void testBaseUnion() {
     // Create a new folder called groovy under src and add 5 groovy files.
     project.mkdir(project.getProjectDir().absolutePath + "/AzRoot/src/groovy");
-    createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy","groovy",5);
+    createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy", "groovy", 5);
 
     // Add sources and resources using baseClosure
     baseClosure = {
-      // Add source in the base but exclude java files and test folder in the specific zip spec.
+      // Add source in the base but exclude java files and test folder in the specific zip spec
       from("AzRoot/src") { into "src" }
       // Add resources in base
       from("AzRoot/resources/") { into "resources" }
@@ -270,7 +220,6 @@ public class AzkabanZipTest {
       exclude "sample1.avro"
     }
 
-    Set<String> actual = new HashSet<String>();
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample2.avro");
     expected.add("resources/sample3.avro");
@@ -285,24 +234,7 @@ public class AzkabanZipTest {
     expected.add("src/groovy/sample2.groovy");
     expected.add("src/groovy/sample3.groovy");
     expected.add("src/groovy/sample4.groovy");
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex = str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   @Test
@@ -344,7 +276,6 @@ public class AzkabanZipTest {
       exclude "main/*.java"
     }
 
-    Set<String> actual = new HashSet<String>();
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
     expected.add("resources/sample1.avro");
@@ -365,24 +296,7 @@ public class AzkabanZipTest {
     expected.add("src/test/sample2.testjava");
     expected.add("src/test/sample3.testjava");
     expected.add("src/test/sample4.testjava");
-    expected.add("test-sources.zip");
-
-    plugin.apply(project);
-    project.getRootProject().tasks["buildSourceZip"].execute();
-    zipPath = project.getRootProject().tasks["buildSourceZip"].archivePath.path;
-
-    def task = project.getTasksByName("${zipName}HadoopZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file->
-      String str = file.path;
-      int testIndex = str.indexOf("test-magic.zip");
-      int rootIndex = str.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(file.path.substring(rootIndex + 1, str.length()));
-    }
-
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   class HadoopZipExtensionTest extends HadoopZipExtension {
@@ -408,23 +322,13 @@ public class AzkabanZipTest {
     }
   }
 
-  class ScmPluginTest extends ScmPlugin {
-    @Override
-    Configuration createZipConfiguration(Project project) {
-      return azkabanRuntime;
-    }
-
+  class HadoopZipPluginTest extends HadoopZipPlugin {
     @Override
     HadoopZipExtension createZipExtension(Project project) {
       HadoopZipExtensionTest extension = new HadoopZipExtensionTest(project);
       extension.libPath = "lib";
       project.extensions.add("hadoopZip", extension);
       return extension;
-    }
-
-    @Override
-    String getSourceZipFilePath(Project project) {
-      return zipPath;
     }
   }
 }
