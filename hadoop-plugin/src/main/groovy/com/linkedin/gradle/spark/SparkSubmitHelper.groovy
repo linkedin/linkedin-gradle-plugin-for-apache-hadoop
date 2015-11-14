@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.spark
+package com.linkedin.gradle.spark;
 
 class SparkSubmitHelper {
 
@@ -39,90 +39,100 @@ class SparkSubmitHelper {
   ];
 
   /**
-   * Build spark options
+   * Build Spark options.
+
    * @param properties The job properties object for the spark job type
-   * @return string of the form "--$key $value" which can be passed to spark-submit
+   * @return String of the form "--$key $value" which can be passed to spark-submit
    */
-  static String buildSparkOptions(Map<String,Object> properties) {
-    if(!validate(properties)) {
+  static String buildSparkOptions(Map<String, Object> properties) {
+    if (!validate(properties)) {
       return "";
     }
+
     StringBuilder builder = new StringBuilder();
-    properties.each() { key,value ->
-      if(allSparkOptions.contains(key)) {
+    properties.each() { key, value ->
+      if (allSparkOptions.contains(key)) {
         builder.append("--$key $value ");
       }
     }
+
     return builder.toString();
   }
 
   /**
-   * Build application class
+   * Build Spark application class option.
+   *
    * @param appClass The main execution class of the app
-   * @return string of the form "--class $appClass" which can be directly passed to spark-submit
+   * @return String of the form "--class $appClass" which can be directly passed to spark-submit
    */
   static String buildSparkClass(String appClass) {
     return "--class $appClass";
   }
 
   /**
-   * Build spark confs
-   * @param sparkConfs The spark configurations to be passed to spark-submit
-   * @return string of the form "--conf key=value" which can be directly passed to spark-submit
+   * Build Spark conf options.
+   *
+   * @param sparkConfs The Spark configurations to be passed to spark-submit
+   * @return String of the form "--conf key=value" which can be directly passed to spark-submit
    */
-  static String buildSparkConfs(Map<String,Object> sparkConfs) {
-    if(!validate(sparkConfs)) {
+  static String buildSparkConfs(Map<String, Object> sparkConfs) {
+    if (!validate(sparkConfs)) {
       return "";
     }
-    return sparkConfs.collect() { key,value -> "--conf $key=$value" }.join(" ");
+    return sparkConfs.collect() { key, value -> "--conf $key=$value" }.join(" ");
   }
 
   /**
-   * Build spark flags
-   * @param flags The spark flags to be passed to spark-submit
-   * @return string of the form "--$flag" which can be directly passed to spark-submit
+   * Build Spark flags.
+   *
+   * @param flags The Spark flags to be passed to spark-submit
+   * @return String of the form "--$flag" which can be directly passed to spark-submit
    */
   static String buildSparkFlags(Set<String> flags) {
-    if(!validate(flags)) {
+    if (!validate(flags)) {
       return "";
     }
     return flags.collect() { flag -> return "--$flag"}.join(" ");
   }
 
   /**
-   * Build spark application parameters
+   * Build Spark application parameters.
+   *
    * @param params The application parameters
-   * @return space separated list of parameters
+   * @return Space-separated list of parameters
    */
   static String buildSparkAppParams(List<String> params) {
-    if(!validate(params)) {
+    if (!validate(params)) {
       return "";
     }
     return params.join(" ");
   }
 
   /**
-   * Validates Set
+   * Validates a Set.
+   *
    * @param s The Set to validate
-   * @return true if Set is valid otherwise false
+   * @return Whether or not the Set is non-null and non-empty
    */
   static boolean validate(Set<Object> s) {
     return !(s.isEmpty() || s == null);
   }
 
   /**
-   * Validates Map
+   * Validates a Map.
+   *
    * @param s The Map to validate
-   * @return true if Map is valid otherwise false
+   * @return Whether or not the Map is non-null and non-empty
    */
-  static boolean validate(Map<Object,Object> s) {
+  static boolean validate(Map<Object, Object> s) {
     return !(s.isEmpty() || s == null);
   }
 
   /**
-   * Validates List
+   * Validates a List.
+   *
    * @param s The List to validate
-   * @return true if List is valid otherwise false
+   * @return Whether or not the List is non-null and non-empty
    */
   static boolean validate(List<Object> s) {
     return !(s.isEmpty() || s == null);

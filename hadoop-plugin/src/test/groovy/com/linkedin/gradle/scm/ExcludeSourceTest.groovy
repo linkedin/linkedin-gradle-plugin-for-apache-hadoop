@@ -58,10 +58,10 @@ class ExcludeSourceTest {
 
   private void createFilesForTesting(String dir, String ext, int number) {
     number.times {
-      def filename = dir + "/sample" + it.toString() + "." + ext;
-      PrintWriter writer = new PrintWriter(filename);
-      writer.print("blah");
-      writer.close();
+      def fileName = "${dir}/sample${it}.${ext}";
+      with(new PrintWriter(fileName)) { writer ->
+        writer.print("blah");
+      }
     }
   }
 

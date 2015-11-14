@@ -13,7 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.dependency;
 
 import org.gradle.api.Plugin;
@@ -23,14 +22,14 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
 import org.gradle.testfixtures.ProjectBuilder;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 class DependencyPluginTest {
+  static final String SAMPLE_DEPENDENCY_FILE = "sample-dependency-pattern.json";
 
-  String SAMPLE_DEPENDENCY_FILE = "sample-dependency-pattern.json";
-  String dummyJsonFile;
   Project project;
   Plugin plugin;
 
@@ -39,7 +38,6 @@ class DependencyPluginTest {
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
     plugin = new DummyDependencyPlugin();
-
   }
 
   public void writeDependencyJson(String file, String dependencyJsonString) {
@@ -50,11 +48,10 @@ class DependencyPluginTest {
     new File(file).delete();
   }
 
-
   @Test
   void testGetDependencyPatterns() {
+    String dummyJsonFile = new File(System.getProperty("java.io.tmpdir"), SAMPLE_DEPENDENCY_FILE).getAbsolutePath();
 
-    dummyJsonFile = new File(System.getProperty("java.io.tmpdir"), SAMPLE_DEPENDENCY_FILE).getAbsolutePath();
     String dependencyJsonString = "{\n" +
       "  \"dependencyPatterns\": [\n" +
       "    {\n" +
@@ -67,7 +64,6 @@ class DependencyPluginTest {
       "  ]\n" +
       "}"
 
-
     writeDependencyJson(dummyJsonFile, dependencyJsonString);
     plugin.apply(project);
 
@@ -75,28 +71,23 @@ class DependencyPluginTest {
     checkDependencyTask.setDummyDependencyJsonFile(dummyJsonFile);
 
     DependencyPattern actualDependencyPatterns = checkDependencyTask.getDependencyPatterns(project).get(0);
-
-    DependencyPattern expected = new DependencyPattern("org\\.dummy\\..*",".*",".*",SEVERITY.ERROR,"Incompatible dependencies");
+    DependencyPattern expected = new DependencyPattern("org\\.dummy\\..*",".*",".*", SEVERITY.ERROR, "Incompatible dependencies");
 
     Assert.assertEquals(expected,actualDependencyPatterns);
-
     deleteDependencyJson(dummyJsonFile);
   }
 
   @Test
   void testMatches() {
-
     plugin.apply(project);
     DummyCheckDependencyTask dependencyTask = project.tasks["checkDependencies"];
 
-    Dependency []testDependencies = new Dependency[3];
+    Dependency[] testDependencies = new Dependency[3];
     testDependencies[0] = new DefaultExternalModuleDependency("org.dummy.group", "dummyName", "1.1", "testConfiguration");
     testDependencies[1] = new DefaultExternalModuleDependency("org.dummy.group", "dummyName", "2.0", "testConfiguration");
     testDependencies[2] = new DefaultExternalModuleDependency("org.sample.group", "sampleName", "dummyVersion", "testConfiguration");
 
-    DependencyPattern []testDependencyPatterns = new DependencyPattern[4];
-
-
+    DependencyPattern[] testDependencyPatterns = new DependencyPattern[4];
     testDependencyPatterns[0]  = new DependencyPattern(".*", ".*", ".*", SEVERITY.WARN, "should match everything");
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[0]));
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[0]));
@@ -116,7 +107,6 @@ class DependencyPluginTest {
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[3]));
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[3]));
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[3]));
-
   }
 
   @Test
@@ -124,7 +114,7 @@ class DependencyPluginTest {
     plugin.apply(project);
     DummyCheckDependencyTask dependencyTask = project.tasks["checkDependencies"];
 
-    Dependency []testDependencies = new Dependency[3];
+    Dependency[] testDependencies = new Dependency[3];
     testDependencies[0] = new DefaultExternalModuleDependency(null,"dummyName", null, "testConfiguration");
     testDependencies[1] = new DefaultExternalModuleDependency(null, "dummyName", "2.0", "testConfiguration");
     testDependencies[2] = new DefaultExternalModuleDependency("org.sample.group", "dummyName", null, "testConfiguration");
@@ -133,17 +123,16 @@ class DependencyPluginTest {
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPattern))
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPattern))
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPattern))
-
   }
 
   /**
    * DummyDependencyPlugin class for unit tests.
    */
   class DummyDependencyPlugin extends DependencyPlugin {
-
     /**
-     * Method to enable or disable dependency check. We enable the dependency check for linkedin.
-     * @return true Enable the dependency check for linkedin
+     * Method to enable or disable dependency check. We enable the dependency check for LinkedIn.
+     *
+     * @return true Since we enable the dependency check for LinkedIn
      */
     @Override
     boolean isDependencyCheckEnabled() {
@@ -151,7 +140,8 @@ class DependencyPluginTest {
     }
 
     /**
-     * Return the dummy CheckDependency task
+     * Returns the dummy CheckDependency task.
+     *
      * @return The dummy CheckDependency task
      */
     @Override
@@ -159,5 +149,4 @@ class DependencyPluginTest {
       return DummyCheckDependencyTask.class;
     }
   }
-
 }

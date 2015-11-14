@@ -13,36 +13,40 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.dependency;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
+/**
+ * Plugin that implements checks against project dependencies.
+ */
 class DependencyPlugin implements Plugin<Project> {
 
-  // by default disable dependency check. Subclasses can set this variable to true to enable dependencyCheck
+  // By default disable the dependency check. Subclasses can set this variable to true to enable it.
   private boolean enableDependencyCheck = false;
 
   @Override
   void apply(Project project) {
-    if(isDependencyCheckEnabled()) {
+    if (isDependencyCheckEnabled()) {
       createCheckForDependenciesTask(project);
     }
   }
 
   /**
-   * Method to check if dependency check is enabled
-   * @return true if dependency check is enabled else false.
+   * Method to check if the dependency check is enabled.
+   *
+   * @return Whether or not the dependency check is enabled
    */
   boolean isDependencyCheckEnabled() {
     return enableDependencyCheck;
   }
 
   /**
-   * Method to create the task checkDependencies
-   * @param project The gradle project
+   * Method to create the checkDependencies task.
+   *
+   * @param project The Gradle project
    * @return The created task.
    */
   Task createCheckForDependenciesTask(Project project) {

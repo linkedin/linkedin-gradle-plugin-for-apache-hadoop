@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban
+package com.linkedin.gradle.azkaban;
 
 public final class AzkabanConstants {
   public static final String AZK_PROJ_NAME = "azkabanProjName";

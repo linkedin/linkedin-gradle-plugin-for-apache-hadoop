@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.oozie;
 
 import org.apache.oozie.client.WorkflowJob.Status;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 
 /**
- * The OozieCommandTask is used to run oozie commands such as run, submit, start, resume, kill and status.
+ * The OozieCommandTask is used to run oozie commands such as run, submit, start, resume, kill and
+ * status.
  */
 class OozieCommandTask extends DefaultTask {
-
   OozieService oozieService;
   OozieProject oozieProject;
   String oozieAppDataDir;

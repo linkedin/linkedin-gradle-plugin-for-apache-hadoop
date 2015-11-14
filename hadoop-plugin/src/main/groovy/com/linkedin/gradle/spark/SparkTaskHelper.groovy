@@ -13,16 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.spark
+package com.linkedin.gradle.spark;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
-import com.linkedin.gradle.hadoopdsl.NamedScope
-import com.linkedin.gradle.hadoopdsl.NamedScopeContainer
-import com.linkedin.gradle.hadoopdsl.job.SparkJob
-import org.gradle.api.Project
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
+import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+
+import org.gradle.api.Project;
 
 class SparkTaskHelper {
-
   /**
    * Finds the Spark jobs configured in the Hadoop DSL and returns them as a map of the job to their
    * containing scope.

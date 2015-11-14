@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.2
+
+* Add generic GatewayCommand helper class for running remote commands through a gateway
+
 0.7.1
 
 * LIHADOOP-15728 Update dependency pattern blacklist rules for li-hadoop-plugin
