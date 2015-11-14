@@ -19,28 +19,31 @@ import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Unit tests for the GatewayCommand class.
  */
 class GatewayCommandTest {
+  Project project;
+  GatewayCommand gateway;
 
-  GatewayCommand buildGateway() {
-    Project project = ProjectBuilder.builder().build();
-    project.name = "foobar"
+  @Before
+  void buildGateway() {
+    project = ProjectBuilder.builder().withName("foobar").build();
     String localCacheDir = "~/.hadoopPlugin";
     String remoteCacheDir = "~/.hadoopPlugin";
     String remoteHostName = "eat1-nertzaz03.grid.linkedin.com";
     String remoteSshOpts = "";
-    return new GatewayCommand(project, localCacheDir, remoteCacheDir, remoteHostName, remoteSshOpts);
+    gateway = new GatewayCommand(project, localCacheDir, remoteCacheDir, remoteHostName, remoteSshOpts);
   }
 
   @Test
-  public void testGatewayCommandMethods() {
-    GatewayCommand gateay = buildGateway();
-    assert("cd ~/.hadoopPlugin; testCommand" == gateway.buildLocalCommand("testCommand"));
-    assert("ssh  -tt  't1-nertzaz03.grid.linkedin.com 'cd ~/.hadoopPlugin; testCommand'" == gateway.buildMkdirCommandRemote("testCommand"));
-    assert("rsync -av ~/.hadoopPlugin/foobar -e \"ssh \" eat1-nertzaz03.grid.linkedin.com:~/.hadoopPlugin" == gateway.buildRsyncCommandRemote());
+  void testGatewayCommandMethods() {
+    assert("cd ~/.hadoopPlugin/${project.name}; testCommand" == gateway.buildCommandLocal("testCommand"));
+    assert("ssh  -tt eat1-nertzaz03.grid.linkedin.com 'cd ~/.hadoopPlugin/${project.name}; testCommand'" == gateway.buildCommandRemote("testCommand"));
+    assert("ssh  eat1-nertzaz03.grid.linkedin.com mkdir -p ~/.hadoopPlugin" == gateway.buildMkdirCommandRemote());
+    assert("rsync -av ~/.hadoopPlugin/${project.name} -e \"ssh \" eat1-nertzaz03.grid.linkedin.com:~/.hadoopPlugin" == gateway.buildRsyncCommandRemote());
   }
 }
