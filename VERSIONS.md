@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.2
 
+* Fix hadoop-plugin subproject unit tests
 * Add generic GatewayCommand helper class for running remote commands through a gateway
 
 0.7.1
