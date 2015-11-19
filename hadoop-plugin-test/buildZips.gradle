@@ -5,7 +5,7 @@ buildscript {
 }
 
 // Integration test for including the sources zip and SCM metadata file in the Hadoop zip
-apply plugin: 'java'
+apply plugin: 'distribution'
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 hadoopZip {
@@ -23,7 +23,6 @@ buildHadoopZips {
     expected.add("build.gradle");
     expected.add("buildMetadata.json");
     expected.add("buildZips.gradle");
-    expected.add("hadoop-plugin-test.jar")
     expected.add("hadoop-plugin-test-sources.zip")
 
     def zipTask = project.tasks.findByName("azkabanHadoopZip");

@@ -16,11 +16,10 @@
 package com.linkedin.gradle.scm;
 
 import com.linkedin.gradle.scm.ScmPlugin;
+import com.linkedin.gradle.tests.HelperFunctions;
 
 import org.gradle.api.Project;
 import org.gradle.api.distribution.Distribution;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Assert;
@@ -30,6 +29,7 @@ import org.junit.Test;
 class ExcludeSourceTest {
   private Project project;
   private TestScmPlugin plugin;
+  private String scmPluginJsonPath;
 
   @Before
   public void setup() {
@@ -37,50 +37,18 @@ class ExcludeSourceTest {
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
 
-    // Create directories: dist, resources, src
-    def folder = project.getProjectDir();
-    project.mkdir(folder.absolutePath + "/dist");
-    project.mkdir(folder.absolutePath + "/resources");
-    project.mkdir(folder.absolutePath + "/src");
+    // Write the .scmPlugin.json file to a temporary location for testing
+    scmPluginJsonPath = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
 
-    // Create files inside the directories for testing
-    createFilesForTesting(folder.absolutePath + "/dist","class", 5);
-    createFilesForTesting(folder.absolutePath + "/resources","avro", 5);
-    createFilesForTesting(folder.absolutePath + "/src","java", 5);
-  }
+    // Create directories (dist, resources, src) and files for testing
+    String folderPath = project.getProjectDir().getAbsolutePath();
+    project.mkdir("${folderPath}/dist");
+    project.mkdir("${folderPath}/resources");
+    project.mkdir("${folderPath}/src");
 
-  /**
-   * Helper function to check whether the contents of the zip contain the expected files.
-   *
-   * @param expected The set of file names expected in the zip
-   */
-  private void checkExpectedZipFiles(Set<String> expected) {
-    plugin.apply(project);
-
-    def zipTask = project.getRootProject().tasks.findByName("buildSourceZip");
-    zipTask.execute();
-    Set<String> actual = new HashSet<String>();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
-      actual.add(file.name);
-    };
-
-    Assert.assertEquals(expected, actual);
-  }
-
-  /**
-   * Helper function to create files to add to the zips for testing.
-   *
-   * @param dir The directory in which to add the files
-   * @param ext The file extension
-   * @param number The number of files to create
-   */
-  private void createFilesForTesting(String dir, String ext, int number) {
-    number.times {
-      new File("${dir}/sample${it}.${ext}").withWriter { writer ->
-        writer.print("blah");
-      }
-    }
+    HelperFunctions.createFilesForTesting("${folderPath}/dist", "class", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/resources", "avro", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/src","java", 5);
   }
 
   /**
@@ -89,8 +57,7 @@ class ExcludeSourceTest {
    * @param json The JSON string to write to the .scmPlugin.json file
    */
   private void writeTempScmPluginJson(String json) {
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    new File(path).withWriter { writer ->
+    new File(scmPluginJsonPath).withWriter { writer ->
       writer.write(json);
     }
   }
@@ -111,14 +78,15 @@ class ExcludeSourceTest {
       ]
     }""";
     writeTempScmPluginJson(json);
+    plugin.apply(project);
 
     // sample0.java is excluded
     Set<String> expected = new HashSet<String>();
-    expected.add("sample1.java");
-    expected.add("sample2.java");
-    expected.add("sample3.java");
-    expected.add("sample4.java");
-    checkExpectedZipFiles(expected);
+    expected.add("src/sample1.java");
+    expected.add("src/sample2.java");
+    expected.add("src/sample3.java");
+    expected.add("src/sample4.java");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project.getRootProject(), "buildSourceZip", expected));
   }
 
   /**
@@ -136,14 +104,15 @@ class ExcludeSourceTest {
       ]
     }""";
     writeTempScmPluginJson(json);
+    plugin.apply(project);
 
     Set<String> expected = new HashSet<String>();
-    expected.add("sample0.java");
-    expected.add("sample1.java");
-    expected.add("sample2.java");
-    expected.add("sample3.java");
-    expected.add("sample4.java");
-    checkExpectedZipFiles(expected);
+    expected.add("src/sample0.java");
+    expected.add("src/sample1.java");
+    expected.add("src/sample2.java");
+    expected.add("src/sample3.java");
+    expected.add("src/sample4.java");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project.getRootProject(), "buildSourceZip", expected));
   }
 
   /**
@@ -159,24 +128,25 @@ class ExcludeSourceTest {
       ]
     }""";
     writeTempScmPluginJson(json);
+    plugin.apply(project);
 
     Set<String> expected = new HashSet<String>();
-    expected.add("sample0.avro");
-    expected.add("sample1.avro");
-    expected.add("sample2.avro");
-    expected.add("sample3.avro");
-    expected.add("sample4.avro");
-    expected.add("sample0.java");
-    expected.add("sample1.java");
-    expected.add("sample2.java");
-    expected.add("sample3.java");
-    expected.add("sample4.java");
-    expected.add("sample0.class");
-    expected.add("sample1.class");
-    expected.add("sample2.class");
-    expected.add("sample3.class");
-    expected.add("sample4.class");
-    checkExpectedZipFiles(expected);
+    expected.add("resources/sample0.avro");
+    expected.add("resources/sample1.avro");
+    expected.add("resources/sample2.avro");
+    expected.add("resources/sample3.avro");
+    expected.add("resources/sample4.avro");
+    expected.add("src/sample0.java");
+    expected.add("src/sample1.java");
+    expected.add("src/sample2.java");
+    expected.add("src/sample3.java");
+    expected.add("src/sample4.java");
+    expected.add("dist/sample0.class");
+    expected.add("dist/sample1.class");
+    expected.add("dist/sample2.class");
+    expected.add("dist/sample3.class");
+    expected.add("dist/sample4.class");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project.getRootProject(), "buildSourceZip", expected));
   }
 
   /**
@@ -194,14 +164,15 @@ class ExcludeSourceTest {
       ]
     }""";
     writeTempScmPluginJson(json);
+    plugin.apply(project);
 
     Set<String> expected = new HashSet<String>();
-    expected.add("sample0.java");
-    expected.add("sample1.java");
-    expected.add("sample2.java");
-    expected.add("sample3.java");
-    expected.add("sample4.java");
-    checkExpectedZipFiles(expected);
+    expected.add("src/sample0.java");
+    expected.add("src/sample1.java");
+    expected.add("src/sample2.java");
+    expected.add("src/sample3.java");
+    expected.add("src/sample4.java");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project.getRootProject(), "buildSourceZip", expected));
   }
 
   /**
@@ -209,7 +180,7 @@ class ExcludeSourceTest {
    */
   @Test
   public void testFilesInsideDirectory(){
-    createFilesForTesting(project.getProjectDir().absolutePath + "/resources", "xml", 5);
+    HelperFunctions.createFilesForTesting(project.getProjectDir().absolutePath + "/resources", "xml", 5);
 
     String json = """{
       "sourceExclude": [
@@ -223,14 +194,15 @@ class ExcludeSourceTest {
       ]
     }""";
     writeTempScmPluginJson(json);
+    plugin.apply(project);
 
     Set<String> expected = new HashSet<String>();
-    expected.add("sample0.xml");
-    expected.add("sample1.xml");
-    expected.add("sample2.xml");
-    expected.add("sample3.xml");
-    expected.add("sample4.xml");
-    checkExpectedZipFiles(expected);
+    expected.add("resources/sample0.xml");
+    expected.add("resources/sample1.xml");
+    expected.add("resources/sample2.xml");
+    expected.add("resources/sample3.xml");
+    expected.add("resources/sample4.xml");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project.getRootProject(), "buildSourceZip", expected));
   }
 
   class TestScmPlugin extends ScmPlugin {
@@ -241,7 +213,7 @@ class ExcludeSourceTest {
 
     @Override
     String getPluginJsonPath(Project project) {
-      return System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
+      return scmPluginJsonPath;
     }
   }
 }

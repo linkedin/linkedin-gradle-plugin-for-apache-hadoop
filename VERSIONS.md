@@ -17,13 +17,20 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.4
+
+* Add Hadoop zip tasks directly instead of through project.afterEvaluate
+Clean up hadoop-plugin unit tests and start to add tests in li-hadoop-plugin-test
+Start removing ability to disable sub-plugins
+Enable the Gradle daemon - tests run much faster
+
 0.7.3
 
-* Refactor Hadoop zip functionality into separate ZipPlugin class and establish a clear place in the HadoopPlugin class where task dependencies between plugins are set
+* Refactor Hadoop zip functionality into separate ZipPlugin class
+Establish a clear place in the HadoopPlugin class where task dependencies are set
 
 0.7.2
 
-* Refactor Hadoop zip functionality into separate ZipPlugin class and establish a clear place in the HadoopPlugin class where task dependencies between plugins are set
 * LIHADOOP-16016 Minor bug fix for li-hadoop-plugin
 * Fix hadoop-plugin subproject unit tests
 * Add generic GatewayCommand helper class for running remote commands through a gateway

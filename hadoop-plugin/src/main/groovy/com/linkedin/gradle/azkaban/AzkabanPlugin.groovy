@@ -42,12 +42,6 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
-    // Enable users to skip the plugin
-    if (project.hasProperty("disableAzkabanPlugin")) {
-      println("AzkabanPlugin disabled");
-      return;
-    }
-
     createBuildFlowsTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);

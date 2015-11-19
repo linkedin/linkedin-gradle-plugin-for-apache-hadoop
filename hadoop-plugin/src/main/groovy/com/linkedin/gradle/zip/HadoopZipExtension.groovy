@@ -16,7 +16,9 @@
 package com.linkedin.gradle.zip;
 
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.bundling.Zip;
 
 /**
@@ -84,7 +86,13 @@ public class HadoopZipExtension {
     if (baseCopySpec != null) {
       throw new RuntimeException("base is already defined");
     }
+
     baseCopySpec = project.copySpec(closure);
+
+    // Add the baseCopySpec to any zips that have already been declared
+    zipMap.each { String zipName, CopySpec copySpec ->
+      getZipCopySpec(zipName).with(getBaseCopySpec());
+    }
   }
 
   /**
@@ -125,6 +133,56 @@ public class HadoopZipExtension {
       throw new RuntimeException("${zipName} is already defined");
     }
     zipMap.put(zipName, project.copySpec(closure));
+    createZipTask(project, zipName);
+  }
+
+  /**
+   * Method to create the Hadoop Zip task for the given named zip.
+   *
+   * @param project The Gradle project
+   * @param zipName The zip name
+   * @return The zip task
+   */
+  Task createZipTask(Project project, String zipName) {
+    return project.tasks.create(name: "${zipName}HadoopZip", type: Zip) { task ->
+      classifier = zipName.equals("main") ? "" : zipName;
+      description = "Creates a Hadoop zip archive for ${zipName}";
+      group = "Hadoop Plugin";
+
+      // This task is a dependency of buildHadoopZips and depends on the startHadoopZips
+      project.tasks["buildHadoopZips"].dependsOn task;
+      dependsOn "startHadoopZips";
+
+      // Include files specified by the user through hadoopZip extension. If there is a base
+      // CopySpec, add it as a child of the zip-specific CopySpec.
+      if (getBaseCopySpec() != null) {
+        task.with(getZipCopySpec(zipName).with(getBaseCopySpec()));
+      }
+      else {
+        task.with(getZipCopySpec(zipName));
+      }
+
+      // For Java projects, include the project jar into the libPath directory in the zip by default
+      project.getPlugins().withType(JavaPlugin) {
+        from(project.tasks.getByName("jar")) { into libPath; }
+      }
+
+      // Include hadoopRuntime dependencies into the libPath directory in the zip
+      from(project.configurations["hadoopRuntime"]) { into libPath; }
+
+      // Include any additional paths added to the extension
+      additionalPaths.each { String path -> from(path); }
+
+      // Add the task to project artifacts
+      if (project.configurations.findByName("archives") != null) {
+        project.artifacts.add("archives", task);
+      }
+
+      // When everything is done, print out a message
+      doLast {
+        project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
+      }
+    } 
   }
 
   /**
@@ -143,10 +201,7 @@ public class HadoopZipExtension {
    * @return Returns the CopySpec for the given zip name
    */
   CopySpec getZipCopySpec(String zipName) {
-    if (zipMap.containsKey(zipName)) {
-      return zipMap.get(zipName);
-    }
-    return null;
+    return zipMap.get(zipName);
   }
 
   /**

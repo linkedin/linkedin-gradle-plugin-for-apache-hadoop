@@ -44,6 +44,7 @@ The project structure is setup as follows:
   * `hadoop-plugin`: Code for the various plugins that comprise the Hadoop Plugin
   * `hadoop-plugin-test`: Test cases for the Hadoop Plugin
   * `li-hadoop-plugin`: LinkedIn-specific extensions to the Hadoop Plugin
+  * `li-hadoop-plugin-test`: Test cases for the LinkedIn-specific extensions to the Hadoop Plugin
 
 Although the `li-hadoop-plugin` code is generally specific to LinkedIn, it is included in the
 project to show you how to use subclassing to extend the core functionality of the Hadoop Plugin.

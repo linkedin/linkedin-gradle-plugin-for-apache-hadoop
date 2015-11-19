@@ -16,7 +16,7 @@
 package com.linkedin.gradle.lispark;
 
 import com.linkedin.gradle.spark.SparkExtension;
-import com.linkedin.gradle.spark.SparkPlugin
+import com.linkedin.gradle.spark.SparkPlugin;
 import com.linkedin.gradle.spark.SparkSubmitHelper;
 
 import org.gradle.api.Project;

@@ -18,6 +18,8 @@
 // dependencies. In LinkedIn internal builds, the buildscript dependencies are
 // in a different directory, so make this configurable.
 project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
+project(':li-hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
+project(':li-hadoop-plugin-test').ext['liPluginTestDir'] = "${project(':li-hadoop-plugin').projectDir}/build/libs"
 
 // Version information is in gradle.properties, but the group
 // is here so that it can be overridden for LinkedIn internal
