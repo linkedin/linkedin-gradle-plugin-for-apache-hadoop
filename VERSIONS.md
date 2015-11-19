@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.2
 
+* LIHADOOP-16016 Minor bug fix for li-hadoop-plugin
 * Fix hadoop-plugin subproject unit tests
 * Add generic GatewayCommand helper class for running remote commands through a gateway
 
