@@ -1,0 +1,40 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
+  }
+}
+
+// Integration test for including the sources zip and SCM metadata file in the Hadoop zip
+apply plugin: 'java'
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+hadoopZip {
+  base {
+    from "build.gradle"
+  }
+  zip("azkaban") {
+    from "buildZips.gradle"
+  }
+}
+
+buildHadoopZips {
+  doLast {
+    Set<String> expected = new HashSet<String>();
+    expected.add("build.gradle");
+    expected.add("buildMetadata.json");
+    expected.add("buildZips.gradle");
+    expected.add("hadoop-plugin-test.jar")
+    expected.add("hadoop-plugin-test-sources.zip")
+
+    def zipTask = project.tasks.findByName("azkabanHadoopZip");
+    Set<String> actual = new HashSet<String>();
+
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
+      actual.add(file.name);
+    }
+
+    if (!expected.equals(actual)) {
+      throw new GradleException("Zip artifact from azkabanHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
+    }
+  }
+}

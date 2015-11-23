@@ -68,7 +68,7 @@ testFiles.each { fileName ->
   // In LinkedIn internal builds, the dependencies are in a different place, so allow this task to
   // read the location from the project properties.
   if (project.hasProperty("overridePluginTestDir")) {
-    pluginTestDir = project.overridePluginTestDir
+    pluginTestDir = project.overridePluginTestDir;
   }
 
   project.tasks.create("test_${baseFileName}") {
@@ -86,6 +86,12 @@ testFiles.each { fileName ->
   }
 }
 
+// Helper function to determine the project version number
+def buildLibVersion(Project project) {
+  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
+  return isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
+}
+
 // Create a wrapper task that runs each test case and captures its output.
 testFiles.each { fileName ->
   String baseFileName = findBaseFileName(fileName);
@@ -93,8 +99,7 @@ testFiles.each { fileName ->
   String outputFile = baseDirName.isEmpty() ? "${baseFileName}.out" : "${baseDirName}/${baseFileName}.out";
 
   // Make the tests work with LinkedIn snapshot builds
-  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
-  String libVersion = isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
+  String libVersion = buildLibVersion(project);
 
   project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
     description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
@@ -163,4 +168,20 @@ task runAllTests() {
 }
 
 // Make the build task depend on the master task to run the test cases and compare the results.
-test.dependsOn runAllTests
+test.dependsOn runAllTests 
+
+// Integration test for including the sources zip and SCM metadata file in the Hadoop zip
+task runBuildHadoopZipsTest(type: Exec, dependsOn: initTestCases) {
+  // In LinkedIn internal builds, the dependencies are in a different place, so allow this task to
+  // read the location from the project properties.
+  if (project.hasProperty("overridePluginTestDir")) {
+    pluginTestDir = project.overridePluginTestDir;
+  }
+
+  // Make the tests work with LinkedIn snapshot builds
+  String libVersion = buildLibVersion(project);
+
+  commandLine "${project.projectDir}/../gradlew", "--stacktrace", "-b", "buildZips.gradle", "-PpluginTestDir=${project.pluginTestDir}", "-PlibVersion=${libVersion}", "buildHadoopZips";
+}
+
+test.dependsOn runBuildHadoopZipsTest

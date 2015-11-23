@@ -13,10 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.scm;
+package com.linkedin.gradle.zip;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.tasks.bundling.Zip;
 
 /**
  * A hadoopZip makes it convenient for the user to make specific choices about how their content
@@ -36,9 +37,11 @@ import org.gradle.api.file.CopySpec;
  * </pre>
  */
 public class HadoopZipExtension {
+  Project project;
+
+  List<String> additionalPaths;
   CopySpec baseCopySpec;
   String libPath;
-  Project project;
   Map<String, CopySpec> zipMap;
 
   /**
@@ -48,6 +51,7 @@ public class HadoopZipExtension {
    */
   HadoopZipExtension(Project project) {
     this.project = project;
+    additionalPaths = new ArrayList<String>();
     libPath = ".";
     zipMap = new HashMap<String, CopySpec>();
   }

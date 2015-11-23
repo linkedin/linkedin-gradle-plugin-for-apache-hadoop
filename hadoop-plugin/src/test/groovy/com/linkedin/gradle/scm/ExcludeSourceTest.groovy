@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.scm;
 
-import com.linkedin.gradle.hadoop.HadoopPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 
 import org.gradle.api.Project;
@@ -29,33 +28,53 @@ import org.junit.Before;
 import org.junit.Test;
 
 class ExcludeSourceTest {
-  private Distribution distPlugin;
   private Project project;
   private TestScmPlugin plugin;
 
   @Before
   public void setup() {
+    plugin = new TestScmPlugin();
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
-    plugin = new TestScmPlugin();
+
+    // Create directories: dist, resources, src
     def folder = project.getProjectDir();
-
-    // Create directories: src, resources, dist
-    project.mkdir(folder.absolutePath + "/src");
-    project.mkdir(folder.absolutePath + "/resources");
     project.mkdir(folder.absolutePath + "/dist");
+    project.mkdir(folder.absolutePath + "/resources");
+    project.mkdir(folder.absolutePath + "/src");
 
-    /**
-     * Create files inside directories:
-     *  src/sample0.java src/sample1.java src/sample2.java src/sample3.java src/sample4.java
-     *  resources/sample0.avro resources/sample1.avro resources/sample2.avro resources/sample3.avro resources/sample4.avro
-     *  dist/sample0.class dist/sample1.class dist/sample2.class dist/sample3.class dist/sample4.class
-     */
-    createFilesForTesting(folder.absolutePath + "/src","java", 5);
-    createFilesForTesting(folder.absolutePath + "/resources","avro", 5);
+    // Create files inside the directories for testing
     createFilesForTesting(folder.absolutePath + "/dist","class", 5);
+    createFilesForTesting(folder.absolutePath + "/resources","avro", 5);
+    createFilesForTesting(folder.absolutePath + "/src","java", 5);
   }
 
+  /**
+   * Helper function to check whether the contents of the zip contain the expected files.
+   *
+   * @param expected The set of file names expected in the zip
+   */
+  private void checkExpectedZipFiles(Set<String> expected) {
+    plugin.apply(project);
+
+    def zipTask = project.getRootProject().tasks.findByName("buildSourceZip");
+    zipTask.execute();
+    Set<String> actual = new HashSet<String>();
+
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
+      actual.add(file.name);
+    };
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  /**
+   * Helper function to create files to add to the zips for testing.
+   *
+   * @param dir The directory in which to add the files
+   * @param ext The file extension
+   * @param number The number of files to create
+   */
   private void createFilesForTesting(String dir, String ext, int number) {
     number.times {
       new File("${dir}/sample${it}.${ext}").withWriter { writer ->
@@ -65,18 +84,33 @@ class ExcludeSourceTest {
   }
 
   /**
+   * Helper function to write a custom .scmPlugin.json file to a temporary directory.
+   *
+   * @param json The JSON string to write to the .scmPlugin.json file
+   */
+  private void writeTempScmPluginJson(String json) {
+    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
+    new File(path).withWriter { writer ->
+      writer.write(json);
+    }
+  }
+
+  /**
    * Exclude all directories except for src and exclude only a single file from src (sample0.java).
    */
   @Test
   public void testExclusionOfSingleFile() {
-    Set<String> actual = new HashSet<String>();
-
-    // write a custom json .scmPlugin file
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json"
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\",\n \"src/sample0.java\", \n \"**/build\" \n ] \n }";
-    PrintWriter writer = new PrintWriter(path);
-    writer.print(jsonFile);
-    writer.close();
+    String json = """{
+      "sourceExclude": [
+        "**.gradle",
+        "**/build",
+        "**/dist",
+        "**/userHome",
+        "**/resources",
+        "src/sample0.java"
+      ]
+    }""";
+    writeTempScmPluginJson(json);
 
     // sample0.java is excluded
     Set<String> expected = new HashSet<String>();
@@ -84,13 +118,7 @@ class ExcludeSourceTest {
     expected.add("sample2.java");
     expected.add("sample3.java");
     expected.add("sample4.java");
-
-    plugin.apply(project);
-    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   /**
@@ -98,14 +126,16 @@ class ExcludeSourceTest {
    */
   @Test
   public void testExclusionOfDirectories() {
-    Set<String> actual = new HashSet<String>();
-
-    // write custom json .scmPlugin file
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/dist\", \n \"**/resources\", \n \"**/build\" \n ] \n }";
-    PrintWriter writer = new PrintWriter(path);
-    writer.print(jsonFile);
-    writer.close();
+    String json = """{
+      "sourceExclude": [
+        "**.gradle",
+        "**/build",
+        "**/dist",
+        "**/userHome",
+        "**/resources"
+      ]
+    }""";
+    writeTempScmPluginJson(json);
 
     Set<String> expected = new HashSet<String>();
     expected.add("sample0.java");
@@ -113,13 +143,7 @@ class ExcludeSourceTest {
     expected.add("sample2.java");
     expected.add("sample3.java");
     expected.add("sample4.java");
-
-    plugin.apply(project);
-    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   /**
@@ -127,16 +151,14 @@ class ExcludeSourceTest {
    */
   @Test
   public void testInclusionOfDirectories(){
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/build\" \n ] \n }";
-
-    PrintWriter writer = new PrintWriter(path);
-    writer.print(jsonFile);
-    writer.close();
-    plugin.apply(project);
-    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
+    String json = """{
+      "sourceExclude": [
+        "**.gradle",
+        "**/build",
+        "**/userHome"
+      ]
+    }""";
+    writeTempScmPluginJson(json);
 
     Set<String> expected = new HashSet<String>();
     expected.add("sample0.avro");
@@ -154,26 +176,24 @@ class ExcludeSourceTest {
     expected.add("sample2.class");
     expected.add("sample3.class");
     expected.add("sample4.class");
-
-    Set<String> actual = new HashSet<String>();
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
-/**
- * Exclude files based on the file type: exclude *.avro and *.class files.
- */
+  /**
+   * Exclude files based on the file type: exclude *.avro and *.class files.
+   */
   @Test
   public void testExclusionOfFileType() {
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.avro\", \n \"**/build\" \n ] \n }";
-    PrintWriter writer = new PrintWriter(path);
-    writer.print(jsonFile);
-    writer.close();
-    plugin.apply(project);
-    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
+    String json = """{
+      "sourceExclude": [
+        "**/*.avro",
+        "**/*.class",
+        "**/.gradle",
+        "**/build",
+        "**/userHome"
+      ]
+    }""";
+    writeTempScmPluginJson(json);
 
     Set<String> expected = new HashSet<String>();
     expected.add("sample0.java");
@@ -181,10 +201,7 @@ class ExcludeSourceTest {
     expected.add("sample2.java");
     expected.add("sample3.java");
     expected.add("sample4.java");
-
-    Set<String> actual = new HashSet<String>();
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   /**
@@ -193,15 +210,19 @@ class ExcludeSourceTest {
   @Test
   public void testFilesInsideDirectory(){
     createFilesForTesting(project.getProjectDir().absolutePath + "/resources", "xml", 5);
-    String path = System.getProperty("java.io.tmpdir") + "/.scmPlugin.json";
-    String jsonFile = "{ \n \"sourceExclude\": [ \n \"**/.gradle\", \n \"**/userHome\", \n \"**/*.class\", \n \"**/*.java\",\n \"resources/*.avro\",\n \"**/*.avro\", \n \"**/build\" \n ] \n }";
-    PrintWriter writer = new PrintWriter(path);
-    writer.print(jsonFile);
-    writer.close();
-    plugin.apply(project);
-    def task = project.getRootProject().getTasksByName("buildSourceZip", false);
-    def zipTask = task.iterator().next();
-    zipTask.execute();
+
+    String json = """{
+      "sourceExclude": [
+        "**/*.avro",
+        "**/*.class",
+        "**/.gradle",
+        "**/*.java",
+        "**/build",
+        "**/userHome",
+        "resources/*.avro"
+      ]
+    }""";
+    writeTempScmPluginJson(json);
 
     Set<String> expected = new HashSet<String>();
     expected.add("sample0.xml");
@@ -209,10 +230,7 @@ class ExcludeSourceTest {
     expected.add("sample2.xml");
     expected.add("sample3.xml");
     expected.add("sample4.xml");
-
-    Set<String> actual = new HashSet<String>();
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each{ file -> actual.add(file.name); };
-    Assert.assertEquals(expected, actual);
+    checkExpectedZipFiles(expected);
   }
 
   class TestScmPlugin extends ScmPlugin {

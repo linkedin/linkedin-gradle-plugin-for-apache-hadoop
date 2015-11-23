@@ -46,26 +46,10 @@ class OoziePlugin implements Plugin<Project> {
     }
 
     createBuildFlowsTask(project);
+    createOozieCommandTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
-    createOozieCommandTask(project);
   }
-
-  /**
-   * Creates the task to run oozieCommands
-   * @param project The gradle project
-   * @return The created task
-   */
-  Task createOozieCommandTask(Project project) {
-    return project.tasks.create(name: "oozieCommand", type: getOozieCommandTaskClass()) { task ->
-      description = "Runs the oozieCommand specified by -Pcommand=CommandName"
-      group = "Hadoop Plugin";
-      doFirst {
-        oozieProject = readOozieProject(project);
-      }
-    }
-  }
-
 
   /**
    * Creates the task to build the Hadoop DSL for Oozie.
@@ -80,13 +64,16 @@ class OoziePlugin implements Plugin<Project> {
 
       doLast {
         HadoopDslPlugin plugin = project.extensions.hadoopDslPlugin;
+        if (plugin == null) {
+          throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildOozieFlows task when the plugin is disabled.");
+        }
 
         // Run the static checker on the DSL
         HadoopDslChecker checker = makeChecker(project);
         checker.check(plugin);
 
         if (checker.failedCheck()) {
-          throw new Exception("Hadoop DSL static checker FAILED");
+          throw new GradleException("Hadoop DSL static checker FAILED");
         }
         else {
           logger.lifecycle("Hadoop DSL static checker PASSED");
@@ -99,6 +86,22 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
+   * Creates the task to run oozieCommands.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createOozieCommandTask(Project project) {
+    return project.tasks.create(name: "oozieCommand", type: getOozieCommandTaskClass()) { task ->
+      description = "Runs the oozieCommand specified by -Pcommand=CommandName"
+      group = "Hadoop Plugin";
+      doFirst {
+        oozieProject = readOozieProject(project);
+      }
+    }
+  }
+
+  /**
    * Creates the task to upload to HDFS for Oozie.
    *
    * @param project The Gradle project
@@ -106,7 +109,6 @@ class OoziePlugin implements Plugin<Project> {
    */
   Task createUploadTask(Project project) {
     return project.tasks.create(name: "oozieUpload", type: getOozieUploadTaskClass()) { task ->
-      dependsOn "buildHadoopZips";
       description = "Uploads the Oozie project folder to HDFS";
       group = "Hadoop Plugin";
 
@@ -121,6 +123,7 @@ class OoziePlugin implements Plugin<Project> {
         if (zipTaskOozie == null) {
           throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
         }
+
         if (!zipTaskOozie instanceof Zip) {
           throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
         }
@@ -151,6 +154,16 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to return the OozieCommandTask class. Subclasses can override this method to
+   * return their own OozieCommandTask class;
+   *
+   * @return Class that implements the OozieCommandTask
+   */
+  Class<? extends OozieCommandTask> getOozieCommandTaskClass() {
+    return OozieCommandTask.class;
+  }
+
+  /**
    * Factory method to return the OozieUploadTask class. Subclasses can override this method to
    * return their own OozieUploadTask class.
    *
@@ -158,16 +171,6 @@ class OoziePlugin implements Plugin<Project> {
    */
   Class<? extends OozieUploadTask> getOozieUploadTaskClass() {
     return OozieUploadTask.class;
-  }
-
-  /**
-   * Factory method to return the OozieCommandTask class. Subclasses can override this method to
-   * return their own OozieUploadTask class;
-   *
-   * @return Class that implements the OozieCommandTask
-   */
-  Class<? extends OozieCommandTask> getOozieCommandTaskClass() {
-    return OozieCommandTask.class;
   }
 
   /**
@@ -182,14 +185,16 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to build the OozieDSLChecker class for Apache oozie. Sublcasses can override this
-   * method to provide their own checker.
-   * @param project
+   * Factory method to build the OozieDSLChecker class for Apache oozie. Sublcasses can override
+   * this method to provide their own checker.
+   *
+   * @param project The Gradle project
    * @return The OozieDSLChecker
    */
   OozieDSLChecker makeChecker(Project project) {
     return new OozieDSLChecker(project);
   }
+
   /**
    * Factory method to build the Hadoop DSL compiler for Apache Oozie. Subclasses can override this
    * method to provide their own compiler.
@@ -242,7 +247,7 @@ class OoziePlugin implements Plugin<Project> {
       return pluginJson;
     }
     catch (Exception ex) {
-      throw new Exception("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
+      throw new GradleException("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
     }
     finally {
       if (reader != null) {

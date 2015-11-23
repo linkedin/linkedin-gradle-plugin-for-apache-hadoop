@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liscm;
+package com.linkedin.gradle.lizip;
 
-import com.linkedin.gradle.scm.HadoopZipExtension;
+import com.linkedin.gradle.zip.HadoopZipExtension;
 
 import org.gradle.api.Project;
 

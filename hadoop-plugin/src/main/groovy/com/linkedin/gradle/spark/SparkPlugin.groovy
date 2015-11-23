@@ -122,7 +122,6 @@ class SparkPlugin implements Plugin<Project> {
     project.tasks.create(name: "runSparkJob", type: Exec) {
       description = "Runs a Spark job configured in the Hadoop DSL with gradle runSparkJob -PjobName=<job name> -PzipTaskName=<zip task name>. Uses the Spark parameters and JVM properties from the DSL."
       group = "Hadoop Plugin";
-      dependsOn project.getProject().tasks["buildHadoopZips"]
 
       doFirst {
         if (!project.hasProperty("jobName")) {

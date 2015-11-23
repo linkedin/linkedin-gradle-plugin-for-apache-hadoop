@@ -22,6 +22,7 @@ import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.spark.SparkPlugin;
+import com.linkedin.gradle.zip.HadoopZipPlugin;
 
 import com.linkedin.gradle.liazkaban.LiAzkabanPlugin;
 import com.linkedin.gradle.lidependency.LiDependencyPlugin;
@@ -30,6 +31,7 @@ import com.linkedin.gradle.lioozie.LiOoziePlugin;
 import com.linkedin.gradle.lipig.LiPigPlugin;
 import com.linkedin.gradle.liscm.LiScmPlugin;
 import com.linkedin.gradle.lispark.LiSparkPlugin;
+import com.linkedin.gradle.lizip.LiHadoopZipPlugin;
 
 import org.gradle.api.Project
 import org.gradle.api.Task;
@@ -68,6 +70,17 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends HadoopDslPlugin> getHadoopDslPluginClass() {
     return LiHadoopDslPlugin.class;
+  }
+
+  /**
+   * Returns the LinkedIn-specific LiHadoopZipPlugin class. Subclasses can override this method to
+   * return their own HadoopZipPlugin class.
+   *
+   * @return Class that implements the HadoopZipPlugin
+   */
+  @Override
+  Class<? extends HadoopZipPlugin> getHadoopZipPluginClass() {
+    return LiHadoopZipPlugin.class;
   }
 
   /**
@@ -121,8 +134,8 @@ class LiHadoopPlugin extends HadoopPlugin {
    * @param project The Gradle project
    */
   @Override
-  void setupTaskDependencies(Project project) {
-    super.setupTaskDependencies(project);
+  void setupDependencyPluginTaskDependencies(Project project) {
+    super.setupDependencyPluginTaskDependencies(project);
 
     // Check dependencies before you start building any Hadoop zips.
     Task checkDependenciesTask = project.tasks.findByName("checkDependencies");
