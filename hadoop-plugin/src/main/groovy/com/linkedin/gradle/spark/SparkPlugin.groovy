@@ -18,8 +18,6 @@ package com.linkedin.gradle.spark;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 
-import java.io.File;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

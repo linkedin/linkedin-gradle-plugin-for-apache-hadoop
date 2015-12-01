@@ -229,7 +229,7 @@ class HadoopPlugin implements Plugin<Project> {
     }
 
     if (project.extensions.hadoopZip != null && sourceTask != null) {
-      project.extensions.hadoopZip.additionalPaths.add(sourceTask.archivePath);
+      project.extensions.hadoopZip.additionalPaths.add(sourceTask.archivePath.getAbsolutePath());
     }
   }
 

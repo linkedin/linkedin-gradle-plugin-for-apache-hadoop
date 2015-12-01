@@ -1,0 +1,56 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
+    classpath files("${project.liPluginTestDir}/li-hadoop-plugin-${project.libVersion}.jar")
+  }
+}
+
+// Integration test for including the CRT zip along with the Hadoop zip
+apply plugin: 'distribution'
+apply plugin: com.linkedin.gradle.lihadoop.LiHadoopPlugin
+
+hadoopZip {
+  base {
+    from "build.gradle"
+  }
+  zip("azkaban") {
+    from "buildZipsCRT.gradle"
+  }
+  CRT { }
+}
+
+buildHadoopZips {
+  doFirst {
+    Set<String> expected = new HashSet<String>();
+    expected.add(".crt");
+
+    def zipTask = project.tasks.findByName("CRTHadoopZip");
+    Set<String> actual = new HashSet<String>();
+
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
+      actual.add(file.name);
+    }   
+
+    if (!expected.equals(actual)) {
+      throw new GradleException("Zip artifact from CRTHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
+    }
+  }
+  doLast {
+    Set<String> expected = new HashSet<String>();
+    expected.add("build.gradle");
+    expected.add("buildMetadata.json");
+    expected.add("buildZipsCRT.gradle");
+    expected.add("li-hadoop-plugin-test-sources.zip")
+
+    def zipTask = project.tasks.findByName("azkabanHadoopZip");
+    Set<String> actual = new HashSet<String>();
+
+    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
+      actual.add(file.name);
+    }
+
+    if (!expected.equals(actual)) {
+      throw new GradleException("Zip artifact from azkabanHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
+    }
+  }
+}

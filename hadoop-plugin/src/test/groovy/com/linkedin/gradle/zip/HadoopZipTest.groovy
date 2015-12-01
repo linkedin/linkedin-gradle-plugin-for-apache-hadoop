@@ -15,10 +15,10 @@
  */
 package com.linkedin.gradle.zip;
 
+import com.linkedin.gradle.tests.HelperFunctions;
+
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.CopySpec;
-import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Assert;
@@ -30,23 +30,15 @@ class HadoopZipTest {
   HadoopZipPluginTest plugin;
   Project project;
 
-  Closure baseClosure;
-  Closure closure;
-  String zipName;
-
   @Before
   public void setup() {
+    plugin = new HadoopZipPluginTest();
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
     hadoopRuntime = project.getConfigurations().create("hadoopRuntime");
-    plugin = new HadoopZipPluginTest();
-
-    baseClosure = {};
-    closure = {};
-    zipName = "magic";
 
     /**
-     * Create the project structure:
+     * Create the project structure and files for testing:
      * AzRoot
      *   \_conf
      *       \_jobs
@@ -57,76 +49,41 @@ class HadoopZipTest {
      *       \_main
      *       \_test
      */
-    def folder = project.getProjectDir();
-    project.mkdir(folder.absolutePath + "/AzRoot");
-    project.mkdir(folder.absolutePath + "/AzRoot/conf");
-    project.mkdir(folder.absolutePath + "/AzRoot/conf/jobs");
-    project.mkdir(folder.absolutePath + "/AzRoot/custom-lib");
-    project.mkdir(folder.absolutePath + "/AzRoot/resources");
-    project.mkdir(folder.absolutePath + "/AzRoot/sample");
-    project.mkdir(folder.absolutePath + "/AzRoot/src");
-    project.mkdir(folder.absolutePath + "/AzRoot/src/main");
-    project.mkdir(folder.absolutePath + "/AzRoot/src/test");
+    String folderPath = project.getProjectDir().getAbsolutePath();
+    project.mkdir("${folderPath}/AzRoot");
+    project.mkdir("${folderPath}/AzRoot/conf");
+    project.mkdir("${folderPath}/AzRoot/conf/jobs");
+    project.mkdir("${folderPath}/AzRoot/custom-lib");
+    project.mkdir("${folderPath}/AzRoot/resources");
+    project.mkdir("${folderPath}/AzRoot/sample");
+    project.mkdir("${folderPath}/AzRoot/src");
+    project.mkdir("${folderPath}/AzRoot/src/main");
+    project.mkdir("${folderPath}/AzRoot/src/test");
 
-    // Create files for testing
-    createFilesForTesting(folder.absolutePath + "/AzRoot/conf/jobs","pig", 5);
-    createFilesForTesting(folder.absolutePath + "/AzRoot/custom-lib","jar", 5);
-    createFilesForTesting(folder.absolutePath + "/AzRoot/resources","avro", 5);
-    createFilesForTesting(folder.absolutePath + "/AzRoot/sample","txt", 5);
-    createFilesForTesting(folder.absolutePath + "/AzRoot/src/main","java", 5);
-    createFilesForTesting(folder.absolutePath + "/AzRoot/src/test","testjava", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/conf/jobs", "pig", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/custom-lib", "jar", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/resources", "avro", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/sample", "txt", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/src/main", "java", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/AzRoot/src/test", "testjava", 5);
   }
 
   /**
-   * Helper function to check whether the contents of the zip contain the expected files.
-   *
-   * @param expected The set of file names expected in the zip
+   * Basic test using the regular zip method to add some things to the zip.
    */
-  private void checkExpectedZipFiles(Set<String> expected) {
-    plugin.apply(project);
-    project.evaluate();
-
-    def zipTask = project.tasks.findByName("${zipName}HadoopZip");
-    zipTask.execute();
-
-    Set<String> actual = new HashSet<String>();
-
-    project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
-      String pathName = file.path;
-      int testIndex = pathName.indexOf("test-magic.zip");
-      int rootIndex = pathName.substring(testIndex).indexOf("/") + testIndex;
-      actual.add(pathName.substring(rootIndex + 1));
-    }
-
-    Assert.assertEquals(expected, actual);
-  }
-
-  /**
-   * Helper function to create files to add to the zips for testing.
-   *
-   * @param dir The directory in which to add the files
-   * @param ext The file extension
-   * @param number The number of files to create
-   */
-  private void createFilesForTesting(String dir, String ext, int number) {
-    number.times {
-      new File("${dir}/sample${it}.${ext}").withWriter { writer ->
-        writer.print("blah");
-      }
-    }
-  }
-
   @Test
   public void testHadoopZipExtension() {
-    closure = {
+    plugin.apply(project);
+
+    project.extensions.hadoopZip.zip("magic", {
+      from("AzRoot/conf/jobs/") { }
+      from("AzRoot/resources/") { into "resources" }
       from("AzRoot/src") {
-        into "src"
         exclude "test"
         include "main/**/**"
+        into "src"
       }
-      from("AzRoot/resources/") { into "resources" }
-      from("AzRoot/conf/jobs/") { }
-    }
+    });
 
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
@@ -134,22 +91,28 @@ class HadoopZipTest {
     expected.add("resources/sample2.avro");
     expected.add("resources/sample3.avro");
     expected.add("resources/sample4.avro");
-    expected.add("src/main/sample0.java");
-    expected.add("src/main/sample1.java");
-    expected.add("src/main/sample2.java");
-    expected.add("src/main/sample3.java");
-    expected.add("src/main/sample4.java");
     expected.add("sample0.pig");
     expected.add("sample1.pig");
     expected.add("sample2.pig");
     expected.add("sample3.pig");
     expected.add("sample4.pig");
-    checkExpectedZipFiles(expected);
+    expected.add("src/main/sample0.java");
+    expected.add("src/main/sample1.java");
+    expected.add("src/main/sample2.java");
+    expected.add("src/main/sample3.java");
+    expected.add("src/main/sample4.java");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project, "magicHadoopZip", expected));
   }
 
+  /**
+   * Basic test that just adds jars from the hadoopRuntime configuration.
+   */
   @Test
   public void testHadoopConfiguration() {
-    hadoopRuntime.getDependencies().add(project.getDependencies().create(project.fileTree(new File("AzRoot", "custom-lib"))));
+    plugin.apply(project);
+
+    hadoopRuntime.getDependencies().add(project.getDependencies().create(project.fileTree("AzRoot/custom-lib")));
+    project.extensions.hadoopZip.main({});
 
     Set<String> expected = new HashSet<String>();
     expected.add("lib/sample0.jar");
@@ -157,25 +120,30 @@ class HadoopZipTest {
     expected.add("lib/sample2.jar");
     expected.add("lib/sample3.jar");
     expected.add("lib/sample4.jar");
-    checkExpectedZipFiles(expected);
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project, "mainHadoopZip", expected));
   }
 
+  /**
+   * Test for using the base method and then adding to it when declaring a zip.
+   */
   @Test
   public void testBaseCopySpec() {
-    // Add sources and resources using baseClosure
-    baseClosure = {
+    plugin.apply(project);
+
+    // Add sources and resources using the base method
+    project.extensions.hadoopZip.base({
+      from("AzRoot/resources/") { into "resources" }
       from("AzRoot/src") {
-        into "src"
         exclude "test"
         include "main/**/**"
+        into "src"
       }
-      from("AzRoot/resources/") { into "resources" }
-    }
+    });
 
-    // Add jobs using zip specific closure.
-    closure = {
+    // Add jobs using zip method
+    project.extensions.hadoopZip.zip("magic", {
       from("AzRoot/conf/jobs/") { }
-    }
+    });
 
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
@@ -183,42 +151,44 @@ class HadoopZipTest {
     expected.add("resources/sample2.avro");
     expected.add("resources/sample3.avro");
     expected.add("resources/sample4.avro");
-    expected.add("src/main/sample0.java");
-    expected.add("src/main/sample1.java");
-    expected.add("src/main/sample2.java");
-    expected.add("src/main/sample3.java");
-    expected.add("src/main/sample4.java");
     expected.add("sample0.pig");
     expected.add("sample1.pig");
     expected.add("sample2.pig");
     expected.add("sample3.pig");
     expected.add("sample4.pig");
-    checkExpectedZipFiles(expected);
+    expected.add("src/main/sample0.java");
+    expected.add("src/main/sample1.java");
+    expected.add("src/main/sample2.java");
+    expected.add("src/main/sample3.java");
+    expected.add("src/main/sample4.java");
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project, "magicHadoopZip", expected));
   }
 
+  /**
+   * Test that specifies excludes in the zip that apply to the base.
+   */
   @Test
   public void testBaseUnion() {
+    plugin.apply(project);
+
     // Create a new folder called groovy under src and add 5 groovy files.
     project.mkdir(project.getProjectDir().absolutePath + "/AzRoot/src/groovy");
-    createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy", "groovy", 5);
+    HelperFunctions.createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy", "groovy", 5);
 
-    // Add sources and resources using baseClosure
-    baseClosure = {
-      // Add source in the base but exclude java files and test folder in the specific zip spec
-      from("AzRoot/src") { into "src" }
-      // Add resources in base
-      from("AzRoot/resources/") { into "resources" }
-    }
-
-    // Add jobs using zip specific closure.
-    closure = {
+    // Add jobs to the zip, but exclude some java files and a test folder
+    project.extensions.hadoopZip.zip("magic", {
       from("AzRoot/conf/jobs/") { }
-      // Exclude test directory and all java files and two avro files.
-      exclude "test"
       exclude "main/*.java"
       exclude "sample0.avro"
       exclude "sample1.avro"
-    }
+      exclude "test"
+    });
+
+    // Add sources and resources to the base. Test declaring the base after declaring the zip.
+    project.extensions.hadoopZip.base({
+      from("AzRoot/resources/") { into "resources" }
+      from("AzRoot/src") { into "src" }
+    });
 
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample2.avro");
@@ -234,47 +204,51 @@ class HadoopZipTest {
     expected.add("src/groovy/sample2.groovy");
     expected.add("src/groovy/sample3.groovy");
     expected.add("src/groovy/sample4.groovy");
-    checkExpectedZipFiles(expected);
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project, "magicHadoopZip", expected));
   }
 
+  /**
+   * Test that overwrites the base declarations with conflicting declarations in the zip (which
+   * should take precedence over the base declarations).
+   */
   @Test
   public void testBaseOverwrite() {
+    plugin.apply(project);
+
     // Create a new folder called groovy under src and add 5 groovy files.
     project.mkdir(project.getProjectDir().absolutePath + "/AzRoot/src/groovy");
-    createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy","groovy",5);
+    HelperFunctions.createFilesForTesting(project.getProjectDir().absolutePath + "/AzRoot/src/groovy", "groovy", 5);
 
-    // dd sources and resources using baseClosure
-    baseClosure = {
-      // Add source in the base and exclude test folder
+    // Add jobs to the zip and overwrite the base declarations. Test declaring the base after
+    // declaring the zip.
+    project.extensions.hadoopZip.zip("magic", {
+      from("AzRoot/conf/jobs/") { }
+      // Overwrite base spec and include everything from src including test
       from("AzRoot/src") {
         into "src"
-        exclude "test"
       }
-      // Add resources in base and exclude sample0.avro, sample1.avro and sample2.avro
+      // Overwrite base spec and exclude only sample2.avro
       from("AzRoot/resources/") {
+        exclude "sample2.avro"
         into "resources"
+      }
+      // Exclude only java files
+      exclude "main/*.java"
+    });
+
+    // Add sources and resources to the base
+    project.extensions.hadoopZip.base({
+      from("AzRoot/src") {
+        exclude "test"
+        into "src"
+      }
+      from("AzRoot/resources/") {
         exclude "sample0.avro"
         exclude "sample1.avro"
         exclude "sample2.avro"
-      }
-    }
-
-    // Add jobs using zip specific closure.
-    closure = {
-      from("AzRoot/conf/jobs/") { }
-
-      // Overwrite base spec and include everything from src including test
-      from("AzRoot/src") { into "src" }
-
-      // Overwrite base spec and exclude only sample2.avro
-      from("AzRoot/resources/") {
         into "resources"
-        exclude "sample2.avro"
       }
-
-      // Exclude only java files
-      exclude "main/*.java"
-    }
+    });
 
     Set<String> expected = new HashSet<String>();
     expected.add("resources/sample0.avro");
@@ -296,38 +270,14 @@ class HadoopZipTest {
     expected.add("src/test/sample2.testjava");
     expected.add("src/test/sample3.testjava");
     expected.add("src/test/sample4.testjava");
-    checkExpectedZipFiles(expected);
-  }
-
-  class HadoopZipExtensionTest extends HadoopZipExtension {
-    public HadoopZipExtensionTest(Project project) {
-      super(project);
-    }
-
-    @Override
-    public CopySpec getBaseCopySpec() {
-      return project.copySpec(baseClosure);
-    }
-
-    @Override
-    public CopySpec getZipCopySpec(String zipName) {
-      return project.copySpec(closure);
-    }
-
-    @Override
-    public Map<String, CopySpec> getZipMap() {
-      Map<String, CopySpec> map = new HashMap<String, CopySpec>();
-      map.put(zipName, project.copySpec(closure));
-      return map;
-    }
+    Assert.assertTrue(HelperFunctions.checkExpectedZipFiles(project, "magicHadoopZip", expected));
   }
 
   class HadoopZipPluginTest extends HadoopZipPlugin {
     @Override
     HadoopZipExtension createZipExtension(Project project) {
-      HadoopZipExtensionTest extension = new HadoopZipExtensionTest(project);
+      HadoopZipExtension extension = super.createZipExtension(project);
       extension.libPath = "lib";
-      project.extensions.add("hadoopZip", extension);
       return extension;
     }
   }

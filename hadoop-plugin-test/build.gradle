@@ -1,8 +1,7 @@
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
-// Forces the gradle wrapper to download Gradle if it needs to do so. This is needed to
-// ensure consistent internal LinkedIn builds.
+// Forces the wrapper to download Gradle if it needs to do so. This is needed for LinkedIn builds.
 task forceGradlew(type: Exec) {
   commandLine "${project.projectDir}/../gradlew", "-v"
 }
@@ -37,11 +36,25 @@ testCases.each { File file ->
   testFiles.add(relaPath);
 };
 
+// Helper function to determine the version string. This is needed for LinkedIn snapshot builds.
+def buildLibVersion(Project project) {
+  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
+  return isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
+}
+
+// Helper function to determine the location of the Hadoop Plugin jars. LinkedIn internal builds
+// set a different build directory, so we allow overriding the location via a project property.
+def buildPluginDir(Project project) {
+  return project.hasProperty("overridePluginTestDir") ? project.overridePluginTestDir : project.pluginTestDir;
+}
+
+// Get rid of messages about starting the Gradle daemon.
 // Get rid of LinkedIn-specific messages about CIA instrumentation.
 // Get rid of LinkedIn-specific messages about posting task-result start and end.
 // Get rid of the variable "Total time: 4.544 secs" that appears at the end of the output.
 def cleanBuildOutput(String buildOutput) {
   String[] linesToRemove = [
+    "Starting a new Gradle Daemon for this build (subsequent builds will be faster).\n",
     "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
     "posting task-result-start for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
     "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n"
@@ -63,13 +76,7 @@ def findBaseFileName(String fileName) {
 // Create a task for each test case.
 testFiles.each { fileName ->
   String baseFileName = findBaseFileName(fileName);
-  String pluginTestDir = "${project.pluginTestDir}";
-
-  // In LinkedIn internal builds, the dependencies are in a different place, so allow this task to
-  // read the location from the project properties.
-  if (project.hasProperty("overridePluginTestDir")) {
-    pluginTestDir = project.overridePluginTestDir;
-  }
+  String pluginDir = buildPluginDir(project);
 
   project.tasks.create("test_${baseFileName}") {
     description = "Hadoop DSL test case for the file ${fileName}";
@@ -79,17 +86,11 @@ testFiles.each { fileName ->
       logger.lifecycle("Running test for the file ${fileName}");
     }
     doLast {
-      project.pluginTestDir="${pluginTestDir}"
+      project.pluginTestDir="${pluginDir}"
       apply from: "src/main/gradle/${fileName}";
       project.tasks["buildAzkabanFlows"].execute();
     }
   }
-}
-
-// Helper function to determine the project version number
-def buildLibVersion(Project project) {
-  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
-  return isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
 }
 
 // Create a wrapper task that runs each test case and captures its output.
@@ -98,16 +99,16 @@ testFiles.each { fileName ->
   String baseDirName = fileName.replace("${baseFileName}.gradle", "").replace("/", "");
   String outputFile = baseDirName.isEmpty() ? "${baseFileName}.out" : "${baseDirName}/${baseFileName}.out";
 
-  // Make the tests work with LinkedIn snapshot builds
+  // Properties to work with LinkedIn internal builds. In LinkedIn internal builds, the build
+  // directory is in a different place, so pass the location to the test case task.
   String libVersion = buildLibVersion(project);
+  String pluginDir = buildPluginDir(project);
 
   project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
     description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
     group = "Hadoop DSL Tests";
 
-    // In LinkedIn internal builds, the dependencies are in a different place, so pass the
-    // location on to the test case task.
-    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${project.pluginTestDir}", "-PlibVersion=${libVersion}";
+    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}";
     ignoreExitValue true;
 
     // Store the output instead of printing to the console
@@ -135,7 +136,7 @@ testFiles.each { fileName ->
 }
 
 // Setup the a master task that runs all the test case wrappers.
-task runTestCases(dependsOn: initTestCases) {
+task runDslTestCases(dependsOn: initTestCases) {
   description = "Runs the Hadoop DSL test cases";
   group = "Hadoop DSL Tests";
 
@@ -146,42 +147,39 @@ task runTestCases(dependsOn: initTestCases) {
 }
 
 // Create a task that compares the generated files against the set of known good job files.
-task compareKnownJobFiles(type: Exec, dependsOn: runTestCases) {
+task compareKnownJobFiles(type: Exec, dependsOn: runDslTestCases) {
   description = "Compares the results of the known job files to the compiled job files";
   group = "Hadoop DSL Tests";
   commandLine "diff", "-r", "${project.projectDir}/expectedJobs", "${project.projectDir}/jobs";
 }
 
 // Create a task that compares the console output against the known console output.
-task compareKnownOutputFiles(type: Exec, dependsOn: runTestCases) {
+task compareKnownOutputFiles(type: Exec, dependsOn: runDslTestCases) {
   description = "Compares the results of the known output to the actual output";
   group = "Hadoop DSL Tests";
   commandLine "diff", "-r", "${project.projectDir}/expectedOutput", "${project.projectDir}/output";
 }
 
 // Create a master task that runs the test cases and compares the results.
-task runAllTests() {
+task runTestCasesAndCompareOutput {
   dependsOn compareKnownJobFiles;
   dependsOn compareKnownOutputFiles;
   description = "Master task to run all Hadoop DSL tests and compare the actual results against the known results";
   group = "Hadoop DSL Tests";
 }
 
-// Make the build task depend on the master task to run the test cases and compare the results.
-test.dependsOn runAllTests 
+// Make the test task depend on the master task to run the test cases and compare the results.
+test.dependsOn runTestCasesAndCompareOutput;
 
-// Integration test for including the sources zip and SCM metadata file in the Hadoop zip
-task runBuildHadoopZipsTest(type: Exec, dependsOn: initTestCases) {
-  // In LinkedIn internal builds, the dependencies are in a different place, so allow this task to
-  // read the location from the project properties.
-  if (project.hasProperty("overridePluginTestDir")) {
-    pluginTestDir = project.overridePluginTestDir;
-  }
-
-  // Make the tests work with LinkedIn snapshot builds
+// Test for including the sources zip and scmMetadata in the Hadoop zip.
+task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
   String libVersion = buildLibVersion(project);
+  String pluginDir = buildPluginDir(project);
 
-  commandLine "${project.projectDir}/../gradlew", "--stacktrace", "-b", "buildZips.gradle", "-PpluginTestDir=${project.pluginTestDir}", "-PlibVersion=${libVersion}", "buildHadoopZips";
+  buildFile = "buildZips.gradle";
+  startParameter.projectProperties.put("libVersion", libVersion);
+  startParameter.projectProperties.put("pluginTestDir", pluginDir);
+  tasks = ['buildHadoopZips'];
 }
 
-test.dependsOn runBuildHadoopZipsTest
+test.dependsOn runHadoopZipTest

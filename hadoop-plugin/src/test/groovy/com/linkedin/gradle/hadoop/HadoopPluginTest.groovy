@@ -36,7 +36,8 @@ class HadoopPluginTest {
   }
 
   /**
-   * Simple unit test to make sure applying the plugin succeeds.
+   * Simple unit test to make sure applying the plugin succeeds and that the hadoopRuntime
+   * configuration was created.
    */
   @Test
   public void testApplyHadoopPlugin() {
