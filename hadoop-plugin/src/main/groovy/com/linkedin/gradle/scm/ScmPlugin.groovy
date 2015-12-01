@@ -52,7 +52,7 @@ class ScmPlugin implements Plugin<Project> {
       doLast {
         ScmMetadataContainer scm = buildScmMetadata(project);
         String scmJson = new JsonBuilder(scm).toPrettyString();
-        File file = new File(metadataPath);
+        File file = new File(ext.metadataPath);
         file.getParentFile().mkdirs();
         file.write(scmJson);
       }

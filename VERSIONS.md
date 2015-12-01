@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.6
+
+* Fix for LiScmPlugin bug affecting LinkedIn li-azkaban2 zip artifacts
+
 0.7.5
 
 * Dropping Gradle version 2.7 to match most LinkedIn multiproducts
