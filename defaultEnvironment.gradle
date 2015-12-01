@@ -28,5 +28,5 @@ group='com.linkedin.hadoop-plugin'
 
 // Task to generate the Gradle wrapper
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.8'
+  gradleVersion = '2.7'
 }

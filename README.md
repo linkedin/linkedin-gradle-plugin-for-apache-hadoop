@@ -59,7 +59,7 @@ an individual test with `./gradlew test_testName`. You can also run multiple tes
 
 #### Recent News
 
-  * `November 2015` Gradle version bumped to 2.8 and the Gradle daemon enabled - tests run much, much faster
+  * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
   * `August 2015` Initial pull requests for Oozie versioned deployments and the Oozie Hadoop DSL compiler have been merged
   * `August 2015` The Hadoop Plugin and Hadoop DSL were released on Github! See the [LinkedIn Engineering Blog post](https://engineering.linkedin.com/hadoop/open-sourcing-linkedin-gradle-plugin-and-dsl-apache-hadoop) for the announcement!
   * `July 2015` See our talk at the [Gradle Summit](http://gradle.org/linkedin-gradle-for-the-hadoop-ecosystem/)!
