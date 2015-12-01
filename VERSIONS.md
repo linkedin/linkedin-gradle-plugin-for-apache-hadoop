@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.5
 
+* Dropping Gradle version 2.7 to match most LinkedIn multiproducts
 * Fix test output string filter for LinkedIn builds
 * Gradle version bumped to 2.8
 
