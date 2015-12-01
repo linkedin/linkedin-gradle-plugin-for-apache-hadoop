@@ -54,7 +54,7 @@ def buildPluginDir(Project project) {
 // Get rid of the variable "Total time: 4.544 secs" that appears at the end of the output.
 def cleanBuildOutput(String buildOutput) {
   String[] linesToRemove = [
-    "Starting a new Gradle Daemon for this build (subsequent builds will be faster).\n",
+    "Starting a new Gradle Daemon for this build \\(subsequent builds will be faster\\).\n",
     "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
     "posting task-result-start for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
     "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n"
