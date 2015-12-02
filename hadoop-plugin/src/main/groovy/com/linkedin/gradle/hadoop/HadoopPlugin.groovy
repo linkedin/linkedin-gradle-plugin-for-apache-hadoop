@@ -213,7 +213,7 @@ class HadoopPlugin implements Plugin<Project> {
     // By default, each Hadoop zip should include the sources zip and the .scmMetadata file.
     Task scmMetadataTask = project.tasks.findByName("buildScmMetadata");
     Task sourceTask = project.getRootProject().tasks.findByName("buildSourceZip");
-    Task startHadoopZips = project.getRootProject().tasks.findByName("startHadoopZips");
+    Task startHadoopZips = project.tasks.findByName("startHadoopZips");
 
     // We should finish writing the metadata file and sources zip before building any of the zips.
     if (startHadoopZips != null && scmMetadataTask != null) {

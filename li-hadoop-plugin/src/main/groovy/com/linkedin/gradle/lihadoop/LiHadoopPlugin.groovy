@@ -141,7 +141,7 @@ class LiHadoopPlugin extends HadoopPlugin {
     Task checkDependenciesTask = project.tasks.findByName("checkDependencies");
     Task startHadoopZipsTask = project.tasks.findByName("startHadoopZips");
 
-    if (checkDependenciesTask != null && startHadoopZipsTask != null) {    
+    if (checkDependenciesTask != null && startHadoopZipsTask != null) {
       startHadoopZipsTask.dependsOn(checkDependenciesTask);
     }
   }
