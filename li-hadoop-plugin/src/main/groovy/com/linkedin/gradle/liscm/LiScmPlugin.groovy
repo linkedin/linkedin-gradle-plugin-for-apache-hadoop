@@ -67,7 +67,7 @@ class LiScmPlugin extends ScmPlugin {
 
         if (buildSrcTask != null) {
           zipTask.dependsOn(buildSrcTask);
-          zipTask.from(sourceTask.archivePath.getAbsolutePath());
+          zipTask.from(buildSrcTask.archivePath.getAbsolutePath());
         }
       }
     }
