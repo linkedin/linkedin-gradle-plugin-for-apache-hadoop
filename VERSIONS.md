@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
 see a few skipped version numbers in the list below.
 
+0.7.7
+
+* Fix to restore improper source task name
+
 0.7.6
 
 * Fix to restore adding the sources zip and scm metadata files automatically
