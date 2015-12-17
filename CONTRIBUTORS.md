@@ -23,6 +23,9 @@ Vaughan.
 
 ### Contributors
 
+The following were contributed by Jonathan Hung.
+* `TOOLS-67569 Block Hadoop Client Teams from checking in Hadoop Jars in their MP`
+
 The following were contributed by Anant Nag. Thanks, Anant!
 * `LIHADOOP-16016 Minor bug fix for li-hadoop-plugin`
 * `LIHADOOP-15728 Update dependency pattern blacklist rules for li-hadoop-plugin`

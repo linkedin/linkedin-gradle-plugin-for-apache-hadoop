@@ -34,7 +34,7 @@ import org.gradle.api.Project;
  *   <li>RequiredFieldsChecker: checks that all the required fields in the DSL are set</li>
  *   <li>WorkflowJobChecker: checks various properties of workflows</li>
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
- *   <li>PropertySetChecker: checks that that property files and jobs that declare baseProperties refer to valid property sets</li>
+ *   <li>PropertySetChecker: checks that property files and jobs that declare baseProperties refer to valid property sets</li>
  * </ul>
  */
 class HadoopDslChecker extends BaseStaticChecker {

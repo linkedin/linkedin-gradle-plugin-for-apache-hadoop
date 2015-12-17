@@ -17,6 +17,7 @@ package com.linkedin.gradle.lidependency;
 
 import com.linkedin.gradle.dependency.CheckDependencyTask;
 import com.linkedin.gradle.dependency.DependencyPlugin;
+import com.linkedin.gradle.dependency.DisallowLocalDependencyTask;
 
 import org.gradle.api.Project;
 
@@ -44,5 +45,10 @@ class LiDependencyPlugin extends DependencyPlugin {
   @Override
   Class<? extends CheckDependencyTask> getCheckDependencyTask() {
     return LiCheckDependencyTask.class;
+  }
+
+  @Override
+  Class<? extends DisallowLocalDependencyTask> getDisallowLocalDependencyTask() {
+    return LiDisallowLocalDependencyTask.class;
   }
 }

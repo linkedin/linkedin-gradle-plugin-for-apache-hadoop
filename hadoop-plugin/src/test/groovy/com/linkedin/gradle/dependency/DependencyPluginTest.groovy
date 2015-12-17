@@ -20,7 +20,10 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
+import org.gradle.api.internal.artifacts.dependencies.DefaultSelfResolvingDependency;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Assert;
@@ -113,6 +116,30 @@ class DependencyPluginTest {
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPattern))
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPattern))
     Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPattern))
+  }
+
+  @Test
+  void testDisallowLocal() {
+    plugin.apply(project);
+    DisallowLocalDependencyTask disallowLocalDepTask = project.tasks["disallowLocalDependencies"];
+    Configuration conf = project.getConfigurations().create("compile");
+
+    disallowLocalDepTask.findLocalDependencies();
+    Assert.assertFalse(disallowLocalDepTask.containsLocalDependency());
+
+    conf.getDependencies().add(new DefaultExternalModuleDependency("groupName", "moduleName", "version"));
+    disallowLocalDepTask.findLocalDependencies();
+    Assert.assertFalse(disallowLocalDepTask.containsLocalDependency());
+
+    FileCollectionDependency buildDep = new DefaultSelfResolvingDependency(project.files(project.buildDir.getAbsolutePath() + "/buildDependency"));
+    conf.getDependencies().add(buildDep);
+    disallowLocalDepTask.findLocalDependencies();
+    Assert.assertFalse(disallowLocalDepTask.containsLocalDependency());
+
+    FileCollectionDependency dep = new DefaultSelfResolvingDependency(project.files("fileDependency"));
+    conf.getDependencies().add(dep);
+    disallowLocalDepTask.findLocalDependencies();
+    Assert.assertTrue(disallowLocalDepTask.containsLocalDependency());
   }
 
   /**

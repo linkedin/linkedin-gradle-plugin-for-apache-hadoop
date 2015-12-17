@@ -31,6 +31,7 @@ class DependencyPlugin implements Plugin<Project> {
   void apply(Project project) {
     if (isDependencyCheckEnabled()) {
       createCheckForDependenciesTask(project);
+      createDisallowLocalDependenciesTask(project);
     }
   }
 
@@ -57,6 +58,18 @@ class DependencyPlugin implements Plugin<Project> {
   }
 
   /**
+   * Method to create the task disallowLocalDependencies
+   * @param project The gradle project
+   * @return The created task.
+   */
+  Task createDisallowLocalDependenciesTask(Project project) {
+    return project.tasks.create(name: "disallowLocalDependencies", type: getDisallowLocalDependencyTask()) {
+      description = "Task to disallow users from checking in local dependencies"
+      group = "Hadoop Plugin";
+    }
+  }
+
+  /**
    * Factory method to return the CheckDependencyTask class. Subclasses can override this method to
    * return their own CheckDependencyTask class.
    *
@@ -64,5 +77,15 @@ class DependencyPlugin implements Plugin<Project> {
    */
   Class<? extends CheckDependencyTask> getCheckDependencyTask() {
     return CheckDependencyTask.class;
+  }
+
+  /**
+   * Factory method to return the DisallowLocalDependencyTask class. Subclasses can override this method to
+   * return their own DisallowLocalDependencyTask class.
+   *
+   * @return Class that implements the DisallowLocalDependencyClass.
+   */
+  Class<? extends DisallowLocalDependencyTask> getDisallowLocalDependencyTask() {
+    return DisallowLocalDependencyTask.class;
   }
 }
