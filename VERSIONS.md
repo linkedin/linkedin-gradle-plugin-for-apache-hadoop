@@ -19,6 +19,7 @@ see a few skipped version numbers in the list below.
 
 0.7.8
 
+* LIHADOOP-16591: ligradle azkabanUpload fails with "ClassNotFoundException: org.apache.http.client.methods.HttpPost"
 * TOOLS-67569 Add task to disallow local dependencies which are not generated at build time
 
 0.7.7

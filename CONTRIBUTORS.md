@@ -23,7 +23,10 @@ Vaughan.
 
 ### Contributors
 
-The following were contributed by Jonathan Hung.
+The following were contributed by Anthony Hsu. Thanks, Anthony!
+* `LIHADOOP-16591: ligradle azkabanUpload fails with "ClassNotFoundException: org.apache.http.client.methods.HttpPost"`
+
+The following were contributed by Jonathan Hung. Thanks, Jonathan!
 * `TOOLS-67569 Block Hadoop Client Teams from checking in Hadoop Jars in their MP`
 
 The following were contributed by Anant Nag. Thanks, Anant!
