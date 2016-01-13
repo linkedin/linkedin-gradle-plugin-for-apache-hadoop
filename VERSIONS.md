@@ -14,8 +14,13 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-Note that the LinkedIn build system occasionally requires that we skip a version bump, so you will
-see a few skipped version numbers in the list below.
+Note that the LinkedIn build system occasionally requires that we skip a
+version bump, so you will see a few skipped version numbers in the list below.
+
+0.7.9
+
+* Update build system to publish to plugins.gradle.org
+* Update VERSIONS.md and CONTRIBUTORS.md for recent contributions
 
 0.7.8
 

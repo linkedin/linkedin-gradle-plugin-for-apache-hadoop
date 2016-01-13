@@ -13,15 +13,50 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
-// This file applies the defaultEnvironment.gradle build script. This is necessary
-// for the LinkedIn build environment.
-
-ext.isDefaultEnvironment = !project.hasProperty('overrideBuildEnvironment')
-
-File getEnvironmentScript()
-{
-  return file(isDefaultEnvironment ? 'defaultEnvironment.gradle' : project.overrideBuildEnvironment)
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.gradle.publish:plugin-publish-plugin:0.9.2"
+  }
 }
 
-apply from: environmentScript
+// The group will be overriden in LinkedIn builds
+group='com.linkedin.hadoop-plugin'
+
+// In LinkedIn internal builds, some directories are set to be in a different
+// place, so we set some project properties with that information.
+boolean isLinkedInBuild = project.hasProperty('overrideBuildEnvironment')
+
+if (isLinkedInBuild) {
+  apply from: project.overrideBuildEnvironment
+}
+else {
+  project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
+  project(':li-hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
+  project(':li-hadoop-plugin-test').ext['liPluginTestDir'] = "${project(':li-hadoop-plugin').projectDir}/build/libs"
+}
+
+// Task to generate the Gradle wrapper
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.7'
+}
+
+apply plugin: 'com.gradle.plugin-publish'
+
+pluginBundle {
+  description = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'
+  tags = ['azkaban', 'hadoop', 'hadoopdsl', 'linkedin']
+  website = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+  vcsUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+
+  plugins {
+    hadoopPlugin {
+      id = 'com.linkedin.gradle.hadoop'
+      displayName = 'Hadoop Plugin'
+    }
+  }
+}
