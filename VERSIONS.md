@@ -19,6 +19,8 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.7.9
 
+* Updates to README.md to announce publishing on plugins.gradle.org
+* Fixes for publishing to plugins.gradle.org
 * Update build system to publish to plugins.gradle.org
 * Update VERSIONS.md and CONTRIBUTORS.md for recent contributions
 
