@@ -13,16 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "com.gradle.publish:plugin-publish-plugin:0.9.2"
-  }
-}
 
 // The group will be overriden in LinkedIn builds
 group='com.linkedin.hadoop-plugin'
@@ -43,20 +33,4 @@ else {
 // Task to generate the Gradle wrapper
 task wrapper(type: Wrapper) {
   gradleVersion = '2.7'
-}
-
-apply plugin: 'com.gradle.plugin-publish'
-
-pluginBundle {
-  description = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'
-  tags = ['azkaban', 'hadoop', 'hadoopdsl', 'linkedin']
-  website = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
-  vcsUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
-
-  plugins {
-    hadoopPlugin {
-      id = 'com.linkedin.gradle.hadoop'
-      displayName = 'Hadoop Plugin'
-    }
-  }
 }
