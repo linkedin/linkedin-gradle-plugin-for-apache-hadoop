@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -178,6 +179,16 @@ interface NamedScopeContainer {
    * @return The new job
    */
   HadoopJavaJob hadoopJavaJob(String name, Closure configure);
+
+  /**
+   * DSL hadoopShellJob method. Creates a HadoopShellJob in scope with the given name and
+   * configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure.
+   * @return The new job
+   */
+  HadoopShellJob hadoopShellJob(String name, Closure configure);
 
   /**
    * DSL hiveJob method. Creates a HiveJob in scope with the given name and configuration.

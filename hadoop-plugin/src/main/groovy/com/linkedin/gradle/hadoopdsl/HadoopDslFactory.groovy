@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -86,6 +87,16 @@ class HadoopDslFactory {
    */
   HadoopJavaJob makeHadoopJavaJob(String name) {
     return new HadoopJavaJob(name);
+  }
+
+  /**
+   * Factory method to build a HadoopShellJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  HadoopShellJob makeHadoopShellJob(String name) {
+    return new HadoopShellJob(name);
   }
 
   /**

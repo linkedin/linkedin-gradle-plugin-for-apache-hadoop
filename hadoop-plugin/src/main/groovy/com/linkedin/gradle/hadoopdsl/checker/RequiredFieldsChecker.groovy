@@ -20,6 +20,7 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -76,6 +77,20 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(HadoopJavaJob job) {
     if (job.jobClass == null || job.jobClass.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: HadoopJavaJob ${job.name} must set jobClass");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(HadoopShellJob job) {
+    boolean emptyCommand = job.command == null || job.command.isEmpty();
+    boolean emptyCommands = job.commands == null || job.commands.isEmpty();
+    if (emptyCommand && emptyCommands) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HadoopShellJob ${job.name} must set command or commands");
+      foundError = true;
+    }
+    if (!emptyCommand && !emptyCommands) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HadoopShellJob ${job.name} sets both command and commands");
       foundError = true;
     }
   }

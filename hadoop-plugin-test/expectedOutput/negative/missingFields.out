@@ -11,6 +11,7 @@ RequiredFieldsChecker ERROR: KafkaPushJob job7 must set topic
 RequiredFieldsChecker ERROR: PigJob job9 must set script
 RequiredFieldsChecker ERROR: SparkJob job10 must set uses and executes
 RequiredFieldsChecker ERROR: VoldemortBuildPushJob job11 has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc
+RequiredFieldsChecker ERROR: HadoopShellJob job12 must set command or commands
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
 :hadoop-plugin-test:test_missingFields FAILED
 

@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.7.10
+
+* LIHADOOP-17034 Create HadoopShell job type in Hadoop DSL
+
 0.7.9
 
 * Updates to README.md to announce publishing on plugins.gradle.org
