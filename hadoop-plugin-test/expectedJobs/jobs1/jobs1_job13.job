@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hadoopShell
+dependencies=jobs1_job12
+command=echo "hello world"

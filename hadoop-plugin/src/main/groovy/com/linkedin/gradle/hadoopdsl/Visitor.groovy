@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -44,6 +45,7 @@ interface Visitor {
   void visitJob(Job job);
   void visitJob(CommandJob job);
   void visitJob(HadoopJavaJob job);
+  void visitJob(HadoopShellJob job);
   void visitJob(HiveJob job);
   void visitJob(JavaJob job);
   void visitJob(JavaProcessJob job);

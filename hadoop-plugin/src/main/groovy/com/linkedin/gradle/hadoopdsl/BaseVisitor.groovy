@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
+import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -127,6 +128,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(HadoopJavaJob job) {
+    visitJob((Job)job);
+  }
+
+  @Override
+  void visitJob(HadoopShellJob job) {
     visitJob((Job)job);
   }
 

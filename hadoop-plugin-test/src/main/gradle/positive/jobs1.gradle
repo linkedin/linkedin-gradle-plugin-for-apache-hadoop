@@ -230,6 +230,11 @@ hadoop {
       queue 'marathon'
     }
 
-    targets 'job12'
+    hadoopShellJob('job13') {
+      uses 'echo "hello world"'
+      depends clear: true, targetNames: ['job12']
+    }
+
+    targets 'job13'
   }
 }
