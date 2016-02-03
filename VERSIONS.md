@@ -19,6 +19,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.7.10
 
+* Fix for LinkedIn PCX builds 
 * LIHADOOP-17034 Create HadoopShell job type in Hadoop DSL
 
 0.7.9
