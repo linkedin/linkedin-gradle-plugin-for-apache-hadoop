@@ -65,6 +65,22 @@ hadoop {
       depends 'job11'
     }
 
-    targets 'job12'
+    hdfsToTeradataJob('job13') {
+      depends 'job12'
+    }
+
+    teradataToHdfsJob('job14') {
+      depends 'job13'
+    }
+
+    hdfsToEspressoJob('job15') {
+      depends 'job14'
+    }
+
+    gobblinJob('job16') {
+      depends 'job15'
+    }
+
+    targets 'job16'
   }
 }

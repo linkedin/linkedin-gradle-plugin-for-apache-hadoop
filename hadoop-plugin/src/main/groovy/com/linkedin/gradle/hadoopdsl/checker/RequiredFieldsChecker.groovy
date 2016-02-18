@@ -21,6 +21,8 @@ import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -29,6 +31,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -182,5 +185,77 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     if (job.isAvroData == false && (!emptyAvroKeyFd || !emptyAvroValFd)) {
       project.logger.lifecycle("RequiredFieldsChecker WARNING: VoldemortBuildPushJob ${job.name} will not use avroKeyField and avroValueField since isAvroData is set to false");
     }
+  }
+
+  @Override
+  void visitJob(HdfsToTeradataJob job) {
+    foundError |= validateNotEmpty(job, "hostName", job.hostName);
+    foundError |= validateNotEmpty(job, "userId", job.userId);
+    foundError |= validateNotEmpty(job, "credentialName", job.credentialName);
+    foundError |= validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
+    foundError |= validateNotEmpty(job, "targetTable", job.targetTable);
+
+    boolean isAvroSchemaExist = false;
+    isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
+    isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
+
+    if(!isAvroSchemaExist) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(TeradataToHdfsJob job) {
+    foundError |= validateNotEmpty(job, "hostName", job.hostName);
+    foundError |= validateNotEmpty(job, "userId", job.userId);
+    foundError |= validateNotEmpty(job, "credentialName", job.credentialName);
+    foundError |= validateNotEmpty(job, "targetHdfsPath", job.targetHdfsPath);
+
+    boolean isSourceExist = false;
+    isSourceExist ^= job.sourceTable == null || job.sourceTable.isEmpty();
+    isSourceExist ^= job.sourceQuery == null || job.sourceQuery.isEmpty();
+    if(!isSourceExist) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either sourceTable or sourceQuery defined");
+      foundError = true;
+    }
+
+    boolean isAvroSchemaExist = false;
+    isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
+    isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
+
+    if(!isAvroSchemaExist) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(HdfsToEspressoJob job) {
+    foundError |= validateTrue(job, "qps should be a positive number", job.qps > 0);
+    foundError |= validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
+    foundError |= validateNotEmpty(job, "espressoEndpoint", job.espressoEndpoint);
+    foundError |= validateNotEmpty(job, "espressoDatabaseName", job.espressoDatabaseName);
+    foundError |= validateNotEmpty(job, "espressoTableName", job.espressoTableName);
+    foundError |= validateNotEmpty(job, "espressoContentType", job.espressoContentType);
+    foundError |= validateNotEmpty(job, "espressoKey", job.espressoKey);
+    foundError |= validateNotEmpty(job, "espressoOperation", job.espressoOperation);
+    foundError |= validateNotEmpty(job, "errorHdfsPath", job.errorHdfsPath);
+  }
+
+  boolean validateNotEmpty(Job job, String name, String val) {
+    if (val == null || val.isEmpty()) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} has the following required fields: ${name}");
+      return true;
+    }
+    return false;
+  }
+
+  boolean validateTrue(Job job, String message, boolean condition) {
+    if (!condition) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} has the following error: ${message}");
+      return true;
+    }
+    return false;
   }
 }

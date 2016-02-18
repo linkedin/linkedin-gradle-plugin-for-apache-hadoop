@@ -235,6 +235,78 @@ hadoop {
       depends clear: true, targetNames: ['job12']
     }
 
-    targets 'job13'
+    hdfsToTeradataJob('job14') {
+      hostName 'dw.teradata.com'                         //Required
+      userId 'scott'                                     //Required
+      credentialName 'com.linkedin.teradata.scott'       //Required
+      sourceHdfsPath '/data/test/users/daily/2015-10-07' //Required
+      targetTable 'dwh_stg.scott_users'                  //Required
+      avroSchemaPath '/data/test/users/user.avsc'
+      set properties: [                                  //Optional
+        "user.to.proxy": "scott"
+      ]
+
+      set hadoopProperties: [                            //Optional
+        "mapreduce.map.child.java.opts": "'-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true'",
+        "mapreduce.job.user.classpath.first": true
+      ]
+      depends 'job13'
+    }
+
+    teradataToHdfsJob('job15') {
+      hostName 'dw.teradata.com'                         //Required
+      userId 'scott'                                     //Required
+      credentialName 'com.linkedin.teradata.scott'       //Required
+      sourceTable 'dwh_stg.scott_users'                //Required
+      targetHdfsPath '/data/test/users/teradata_to_hdfs_test' //Required
+      avroSchemaPath '/data/test/users/user.avsc'
+      set properties: [                                  //Optional
+        "user.to.proxy": "scott",
+        "force.output.overwrite": true
+      ]
+
+      set hadoopProperties: [                            //Optional
+        "mapreduce.map.child.java.opts": "'-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true'",
+        "mapreduce.job.user.classpath.first": true
+      ]
+      depends 'job14'
+    }
+
+    hdfsToEspressoJob('job16') {
+      qps 1000                                                               //Required
+      sourceHdfsPath '/jobs/merlin2/accountMetrics/espressoStaging/shortest' //Required
+      espressoEndpoint 'http://eat1-app1237.stg.linkedin.com:11936'          //Required
+      espressoDatabaseName 'MerlinAccounts'                                  //Required
+      espressoTableName 'AccountMetric'                                      //Required
+      espressoContentType 'APPLICATION_JSON'                                 //Required
+      espressoKey 'accountId'                                                //Required
+      espressoSubkeys 'metricName'                                           //Optional
+      espressoOperation 'put'                                                //Required
+      errorHdfsPath '/jobs/merlin2/accountMetrics/espressoStaging/error'     //Required
+      set properties: [                                                      //Optional
+        'force.error.overwrite' : true
+      ]
+      depends 'job15'
+    }
+
+    gobblinJob('job17') {
+      workDir '/jobs/jnchang/azkaban/gobblin'  //Optional
+      preset 'mysqlToHdfs'                     //Optional
+      set properties: [                        //Optional
+        'source.querybased.schema' : 'merlin_users',
+        'source.entity' : 'user',
+        'source.conn.host' : 'eat1-db42.corp.linkedin.com',
+        'source.conn.username' : 'merlin_u',
+        'source.conn.password' : 'ENC(7Bv+t0aw5rdyOYuyLqkrpTetE3KvfDRK)',
+        'encrypt.key.loc' : '/jobs/jnchang/mstr_merlin.key',
+        'extract.table.type' : 'snapshot_only',
+        'extract.is.full' : true,
+        'data.publisher.replace.final.dir' : true,
+        'data.publisher.final.dir' :  '${gobblin.work_dir}/job-output'
+      ]
+      depends 'job16'
+    }
+
+    targets 'job17'
   }
 }
