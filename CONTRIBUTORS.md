@@ -22,6 +22,8 @@ the LinkedIn Gradle DSL for Apache Hadoop was influenced by
 Vaughan.
 
 ### Contributors
+The follwing were contributed by Jin Hyuk Chang.
+* `DSS-3870: Hadoop DSL for new Azkaban job type. Teradata <-> HDFS, HDFS -> Espresso, and Gobblin`
 
 The following were contributed by Anthony Hsu. Thanks, Anthony!
 * `LIHADOOP-16591: ligradle azkabanUpload fails with "ClassNotFoundException: org.apache.http.client.methods.HttpPost"`

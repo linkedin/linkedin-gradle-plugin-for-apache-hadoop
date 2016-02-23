@@ -1,0 +1,12 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=teradataToHdfs
+dependencies=jobs1_job14
+avro.schema.path=/data/test/users/user.avsc
+force.output.overwrite=true
+hadoop.config=-Dmapreduce.map.child.java.opts='-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true' -Dmapreduce.job.user.classpath.first=true
+source.td.tablename=dwh_stg.scott_users
+target.hdfs.path=/data/test/users/teradata_to_hdfs_test
+td.credentialName=com.linkedin.teradata.scott
+td.hostname=dw.teradata.com
+td.userid=scott
+user.to.proxy=scott

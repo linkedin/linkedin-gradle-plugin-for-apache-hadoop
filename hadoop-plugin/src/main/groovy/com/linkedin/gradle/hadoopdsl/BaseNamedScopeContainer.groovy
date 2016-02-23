@@ -16,8 +16,11 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -26,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -724,5 +728,54 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
     return configureJob(factory.makeVoldemortBuildPushJob(name), configure);
+  }
+
+  /**
+   * DSL hdfsToTeradataJob method. Creates a HdfsToTeradataJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  HdfsToTeradataJob hdfsToTeradataJob(String name, Closure configure) {
+    return configureJob(factory.makeHdfsToTeradataJob(name), configure);
+  }
+
+  /**
+   * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  TeradataToHdfsJob teradataToHdfsJob(String name, Closure configure) {
+    return configureJob(factory.makeTeradataToHdfsJob(name), configure);
+  }
+
+  /**
+   * DSL hdfsToEspressoJob method. Creates a HdfsToEspressoJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  HdfsToEspressoJob hdfsToEspressoJob(String name, Closure configure) {
+    return configureJob(factory.makeHdfsToEspressoJob(name), configure);
+  }
+
+
+  /**
+   * DSL gobblinJob method. Creates a GobblinJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  GobblinJob gobblinJob(String name, Closure configure) {
+    return configureJob(factory.makeGobblinJob(name), configure);
   }
 }

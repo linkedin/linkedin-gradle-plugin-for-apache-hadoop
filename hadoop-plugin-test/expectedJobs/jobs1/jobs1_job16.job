@@ -1,0 +1,14 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hdfsToEspresso
+dependencies=jobs1_job15
+error.path=/jobs/merlin2/accountMetrics/espressoStaging/error
+espresso.content.type=APPLICATION_JSON
+espresso.database=MerlinAccounts
+espresso.endpoint=http://eat1-app1237.stg.linkedin.com:11936
+espresso.key=accountId
+espresso.operation=put
+espresso.qps=1000
+espresso.subkeys=metricName
+espresso.table=AccountMetric
+force.error.overwrite=true
+input.paths=/jobs/merlin2/accountMetrics/espressoStaging/shortest

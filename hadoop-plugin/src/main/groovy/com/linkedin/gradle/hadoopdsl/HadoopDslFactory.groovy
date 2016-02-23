@@ -16,8 +16,11 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.GobblinJob
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -28,6 +31,7 @@ import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -198,6 +202,46 @@ class HadoopDslFactory {
    */
   VoldemortBuildPushJob makeVoldemortBuildPushJob(String name) {
     return new VoldemortBuildPushJob(name);
+  }
+
+  /**
+   * Factory method to build a HdfsToTeradataJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  HdfsToTeradataJob makeHdfsToTeradataJob(String name) {
+    return new HdfsToTeradataJob(name);
+  }
+
+  /**
+   * Factory method to build a TeradataTpHdfsJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  TeradataToHdfsJob makeTeradataToHdfsJob(String name) {
+    return new TeradataToHdfsJob(name);
+  }
+
+  /**
+   * Factory method to build a HdfsToEspressoJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  HdfsToEspressoJob makeHdfsToEspressoJob(String name) {
+    return new HdfsToEspressoJob(name);
+  }
+
+  /**
+   * Factory method to build a GobblinJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  GobblinJob makeGobblinJob(String name) {
+    return new GobblinJob(name);
   }
 
   /**
