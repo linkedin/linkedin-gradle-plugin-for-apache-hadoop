@@ -109,7 +109,7 @@ testFiles.each { fileName ->
     description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
     group = "Hadoop DSL Tests";
 
-    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}";
+    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}", "--stacktrace";
     ignoreExitValue true;
 
     // Store the output instead of printing to the console

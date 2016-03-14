@@ -481,6 +481,56 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
+   * DSL evalHadoopClosure method. Evaluates the specified hadoopClosure against the specified
+   * definition set and target.
+   *
+   * @param args A map whose required key "name" specifies the named hadoopClosure to evaluate
+   *             and optional key "defs" specifies the definition set name to use as the current definition set before evaluating the closure
+   *             and whose optional key "targetName" specifies the name of the Hadoop DSL object to set as the closure delegate before evaluating the closure.
+   *             If the definition set is not specified, the default definition set is used, and if the target name is not specified, this object is used as the specified delegate target.
+   */
+  void evalHadoopClosure(Map args) {
+    String closureName = args.name;
+    String definitionSetName = args.containsKey("defs") ? args.defs : "default";
+    String targetName = args.containsKey("targetName") ? args.targetName : null;
+    Object target = (targetName != null) ? lookup(targetName) : this;
+    project.extensions.hadoopDslPlugin.evalHadoopClosure(closureName, definitionSetName, target);
+  }
+
+  /**
+   * DSL evalHadoopClosures method. Evaluates all the anonymous hadoopClosure closures against the
+   * default definition set and using this object as the specified delegate target.
+   */
+  void evalHadoopClosures() {
+    evalHadoopClosures("default");
+  }
+
+  /**
+   * DSL evalHadoopClosures method. Evaluates all the anonymous hadoopClosure closures against the
+   * specified definition set and using this object as the specified delegate target.
+   *
+   * @param definitionSetName The definition set name to use as the current definition set before evaluating the closures
+   */
+  void evalHadoopClosures(String definitionSetName) {
+    project.extensions.hadoopDslPlugin.evalHadoopClosures(definitionSetName, this);
+  }
+
+  /**
+   * DSL evalHadoopClosures method. Evaluates all the anonymous hadoopClosure closures against the
+   * specified definition set and target.
+   *
+   * @param args A map whose optional key "defs" specifies the definition set name to use as the current definition set before evaluating the closures
+   *             and whose optional key "targetName" specifies the name of the Hadoop DSL object to set as the closure delegate before evaluating the closure.
+   *             If the definition set is not specified, the default definition set is used, and if the target name is not specified, this object is used as the specified delegate target.
+   */
+  void evalHadoopClosures(Map args) {
+    String definitionSetName = args.containsKey("defs") ? args.defs : "default";
+    String targetName = args.containsKey("targetName") ? args.targetName : null;
+    Object target = (targetName != null) ? lookup(targetName) : this;
+    project.extensions.hadoopDslPlugin.evalHadoopClosures(definitionSetName, target);
+  }
+
+  /**
    * Returns the scope at this level.
    *
    * @return The scope at this level

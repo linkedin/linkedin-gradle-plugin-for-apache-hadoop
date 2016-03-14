@@ -28,8 +28,10 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   String currentDefinitionSetName;
   Map<String, Map<String, Object>> definitionSetMap;
 
-  // Member variables for Hadoop closures
+  // Member variables for Hadoop closures. The list is for anonymous (unnamed) closures while the
+  // map is for named closures.
   List<Closure> hadoopClosures;
+  Map<String, Closure> namedHadoopClosures;
 
   /**
    * Constructor for the Hadoop DSL Plugin.
@@ -40,6 +42,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     definitionSetMap = new HashMap<String, Map<String, Object>>();
     definitionSetMap.put(currentDefinitionSetName, new HashMap<String, Map<String, Object>>());
     hadoopClosures = new ArrayList<Closure>();
+    namedHadoopClosures = new HashMap<String, Closure>();
   }
 
   /**
@@ -77,6 +80,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("setDefinitionSet", this.&setDefinitionSet);
 
     // Expose the DSL methods for using Hadoop closures.
+    project.extensions.add("evalHadoopClosure", this.&evalHadoopClosure);
     project.extensions.add("evalHadoopClosures", this.&evalHadoopClosures);
     project.extensions.add("hadoopClosure", this.&hadoopClosure);
 
@@ -94,8 +98,11 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("propertySet", this.&propertySet);
     project.extensions.add("workflow", this.&workflow);
     project.extensions.add("commandJob", this.&commandJob);
+    project.extensions.add("gobblinJob", this.&gobblinJob);
     project.extensions.add("hadoopJavaJob", this.&hadoopJavaJob);
     project.extensions.add("hadoopShellJob", this.&hadoopShellJob);
+    project.extensions.add("hdfsToEspressoJob", this.&hdfsToEspressoJob);
+    project.extensions.add("hdfsToTeradataJob", this.&hdfsToTeradataJob);
     project.extensions.add("hiveJob", this.&hiveJob);
     project.extensions.add("javaJob", this.&javaJob);
     project.extensions.add("javaProcessJob", this.&javaProcessJob);
@@ -104,11 +111,8 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("noOpJob", this.&noOpJob);
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("sparkJob", this.&sparkJob);
-    project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
-    project.extensions.add("hdfsToTeradataJob", this.&hdfsToTeradataJob);
     project.extensions.add("teradataToHdfsJob", this.&teradataToHdfsJob);
-    project.extensions.add("hdfsToEspressoJob", this.&hdfsToEspressoJob);
-    project.extensions.add("gobblinJob", this.&gobblinJob);
+    project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
   }
 
   /**
@@ -204,19 +208,35 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
-   * Evaluates the hadoopClosure closures against the default definition set.
+   * Evaluates the specified hadoopClosure against the specified definition set and target.
    * <p>
    * This method actually clones each closure before evaluating it, so that the originally declared
    * closure is left unevaluated. This is to minimize side-effects that might potentially arise from
    * lazily-evaluated values within the closure. Otherwise, the lazy values would be evaluated on
    * the first evaluation of the closure, but not on subsequent evaluations.
+   *
+   * @param closureName The named hadoopClosure to evaluate
+   * @param definitionSetName The definition set name to use as the current definition set before evaluating the closure
+   * @param target The object to set as the closure delegate before evaluating the closure
    */
-  void evalHadoopClosures() {
-    evalHadoopClosures("default");
+  void evalHadoopClosure(String closureName, String definitionSetName, Object target) {
+    setDefinitionSet(definitionSetName);
+
+    if (!namedHadoopClosures.containsKey(closureName)) {
+      throw new Exception("There is no named hadoopClosure defined with the name ${closureName}");
+    }
+
+    Closure f = namedHadoopClosures.get(closureName);
+    Closure g = f.clone();
+    // The "magic" in this method is that the "this" pointer of the closure is altered to the
+    // target object, cause it to resolve Hadoop DSL methods correctly, starting from the target.
+    g.delegate = target;
+    g();
   }
 
   /**
-   * Evaluates the hadoopClosure closures against the specified definition set.
+   * Evaluates all the anonymous hadoopClosure closures against the specified definition set and
+   * target.
    * <p>
    * This method actually clones each closure before evaluating it, so that the originally declared
    * closure is left unevaluated. This is to minimize side-effects that might potentially arise from
@@ -224,12 +244,17 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * the first evaluation of the closure, but not on subsequent evaluations.
    *
    * @param definitionSetName The definition set name to use as the current definition set before evaluating the closures
+   * @param target The object to set as the closure delegate before evaluating the closure
    */
-  void evalHadoopClosures(String definitionSetName) {
+  void evalHadoopClosures(String definitionSetName, Object target) {
     setDefinitionSet(definitionSetName);
 
     hadoopClosures.each { Closure f ->
       Closure g = f.clone();
+      // The "magic" in this method is that the "this" pointer of the closure is altered to the
+      // HadoopDslExtension instance, so that evaluating the closure will cause it to resolve Hadoop
+      // DSL methods correctly.
+      g.delegate = target;
       g();
     }
   }
@@ -252,34 +277,43 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
-   * DSL hadoopClosure method. Saves the given (unevaluated) closure in the Hadoop DSL closure list.
+   * DSL hadoopClosure method. Declares the given (unevaluated) closure as a hadoopClosure.
    * <p>
    * The Hadoop Plugin exposes build tasks will evaluate these closures against a specified
    * definition set. The usefulness of this feature stems from the fact that the closures may be
    * re-evaluated against several different definition sets (or the default definition set).
    *
-   * @param args A map whose key "closure" specifies the closure to save
+   * @param args A map whose required key "closure" specifies the closure to save and whose
+   *             optional key "name" specifies the closure name. If the name is not specified, the
+   *             the closure is treated as an anonymous closure.
    */
   void hadoopClosure(Map args) {
     Closure closure = args.closure;
-    hadoopClosure(closure);
+    String name = args.containsKey("name") ? args.name : "";
+    hadoopClosure(closure, name);
   }
 
   /**
-   * DSL hadoopClosure method. Saves the given (unevaluated) closure in the Hadoop DSL closure list.
+   * DSL hadoopClosure method. Declares the given (unevaluated) closure as a hadoopClosure.
    * <p>
    * The Hadoop Plugin exposes build tasks will evaluate these closures against a specified
    * definition set. The usefulness of this feature stems from the fact that the closures may be
    * re-evaluated against several different definition sets (or the default definition set).
    *
    * @param closure The closure to save
+   * @param name The name of the closure, or the empty string if the closure should be treated as
+   *             an anonymous closure 
    */
-  void hadoopClosure(Closure closure) {
-    // The "magic" in this method is that the "this" pointer of the closure is altered to the
-    // HadoopDslExtension instance, so that evaluating the closure will cause it to resolve Hadoop
-    // DSL methods correctly.
-    closure.delegate = extension;
-    hadoopClosures.add(closure);
+  void hadoopClosure(Closure closure, String name) {
+    if ("".equals(name)) {
+      hadoopClosures.add(closure);
+    }
+    else {
+      if (namedHadoopClosures.containsKey(name)) {
+        throw new Exception("There is already a hadoopClosure defined with the name ${name}")
+      }
+      namedHadoopClosures.put(name, closure);
+    }
   }
 
   /**
