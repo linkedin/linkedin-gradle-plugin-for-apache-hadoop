@@ -18,6 +18,8 @@ definitionSet name: 'closure2', defs: [
   var2 : false
 ]
 
+// First, we'll test anonymous closures
+
 hadoopClosure closure: {
   // Users should usually encapsulate Hadoop DSL elements they declare in a
   // closure within a namespace so that the fully-qualified element names will
@@ -69,6 +71,35 @@ hadoop {
   buildPath "jobs"
   cleanPath false
 
+  // Evaluate the anonymous closures
   evalHadoopClosures 'closure1'
-  evalHadoopClosures 'closure2'
+  evalHadoopClosures defs: 'closure2', targetName: 'hadoop'
+}
+
+// Now define a named closure
+hadoopClosure name: 'namedClosure1', closure: {
+  namespace(definitionSetName()) {
+    propertyFile('common') {
+      set properties: [
+        'notify.emails': lookupDef('var1'),
+        'user.to.proxy': lookupDef('var2')
+      ]
+    }
+  }
+}
+
+// First, evaluate the named closure in global scope and with no target
+evalHadoopClosure name: 'namedClosure1', defs: 'closure1'
+assert(lookup('closure1.common') != null)
+
+hadoop {
+  // Now evaluate the closure in Hadoop scope
+  evalHadoopClosure name: 'namedClosure1', defs: 'closure1'
+  assert(lookup('closure1.common') != null)
+
+  workflow('closuresWorkflow') { }
+
+  // Now evaluate the closure against a specific target
+  evalHadoopClosure name: 'namedClosure1', defs: 'closure1', targetName: 'closuresWorkflow'
+  assert(lookup('closuresWorkflow.closure1.common') != null)
 }
