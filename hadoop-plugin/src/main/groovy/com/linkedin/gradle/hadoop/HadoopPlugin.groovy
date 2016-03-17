@@ -29,6 +29,9 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.plugins.ide.eclipse.EclipsePlugin;
+import org.gradle.plugins.ide.idea.IdeaPlugin;
+import org.gradle.plugins.ide.idea.model.IdeaModule;
 
 /**
  * HadoopPlugin is the class that implements our Gradle Plugin.
@@ -42,7 +45,7 @@ class HadoopPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
-    addHadoopConfiguration(project);
+    addHadoopConfigurations(project);
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getDependencyPluginClass());
     project.getPlugins().apply(getHadoopDslPluginClass());
@@ -55,12 +58,71 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
+   * Create hadoop configurations - hadoopRuntime and clusterProvided
+   * @param project The Gradle project
+   */
+  void addHadoopConfigurations(Project project) {
+    addHadoopRuntimeConfiguration(project);
+    addClusterProvidedConfiguration(project);
+  }
+
+  /**
+   * Prepare the "clusterProvided" Hadoop configuration for the project.
+   *
+   * @param project The Gradle project
+   * @return The clusterProvided configuration
+   */
+  Configuration addClusterProvidedConfiguration(Project project) {
+
+    // create clusterProvided configuration and set it as a private configuration.
+    Configuration clusterProvided = project.getConfigurations().create("clusterProvided");
+    clusterProvided.setVisible(false);
+
+    // we get default, testCompile, compile and runtime configurations from java plugin.
+    project.getPlugins().withType(JavaPlugin) {
+
+      // remove the clusterProvided dependencies from default configuration.
+      clusterProvided.dependencies.all {
+        dep -> project.getConfigurations().getByName('default').exclude group: dep.group, module: dep.name
+      }
+
+      // testCompile should extend from clusterProvided so that all the clusterProvided dependencies including transitive
+      // dependencies are on the classpath to facilitate testing.
+      project.getConfigurations().getByName("testCompile").extendsFrom(clusterProvided);
+
+      // add clusterProvided jars on the classpath, this will not add transitive dependencies of each jar.
+      project.sourceSets.main.compileClasspath += clusterProvided
+      project.javadoc.classpath += clusterProvided
+
+      // Idea doesn't understand the above classpath modification. Adding it explicitly. Java plugin
+      // is also required for getting non empty scopes.
+      project.getPlugins().withType(IdeaPlugin) {
+
+        IdeaModule ideaModule = project.idea.module;
+
+        // Additional checks for map keys.
+        if( ideaModule.scopes.containsKey("PROVIDED") && ideaModule.scopes.PROVIDED.containsKey("plus") ) {
+          project.idea.module.scopes.PROVIDED.plus += [clusterProvided]
+        }
+      }
+    }
+
+    // Eclipse understands the classpath, but add it, to be on the safe side.
+    project.getPlugins().withType(EclipsePlugin) {
+      project.eclipse.classpath.plusConfigurations += [clusterProvided]
+    }
+
+    return clusterProvided;
+  }
+
+
+  /**
    * Prepare the "hadoopRuntime" Hadoop configuration for the project.
    *
    * @param project The Gradle project
    * @return The hadoopRuntime configuration
    */
-  Configuration addHadoopConfiguration(Project project) {
+  Configuration addHadoopRuntimeConfiguration(Project project) {
     Configuration hadoopRuntime = project.getConfigurations().create("hadoopRuntime");
 
     // For Java projects, the Hadoop configuration should contain the runtime jars by default.
