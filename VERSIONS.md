@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.8.2
+
+* Gradle version bumped to 2.10
+
 0.8.1
 
 * LIHADOOP-6730: Add clusterProvided configuration for dependency management
