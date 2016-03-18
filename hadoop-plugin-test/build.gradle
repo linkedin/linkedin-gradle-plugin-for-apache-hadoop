@@ -58,7 +58,7 @@ def cleanBuildOutput(String buildOutput) {
     "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
     "posting task-result-start for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
     "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
-    "Download (.*).jar\n"
+    "Download (.*)\n"
   ] as String[];
 
   for (String lineToRemove : linesToRemove) {
