@@ -96,7 +96,8 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
 
   /**
    * DSL method usesMapper specifies the mapper class for the job. This is only
-   * required for oozie. Azkaban will ignore this method
+   * required for Oozie. Azkaban will ignore this method.
+   *
    * @param mapClass The mapper class to use
    */
   void usesMapper(String mapClass) {
@@ -105,7 +106,8 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
 
   /**
    * DSL method usesReducer specifies the reducer class for the job. This is only
-   * required for oozie. Azkaban will ignore this method
+   * required for Oozie. Azkaban will ignore this method.
+   *
    * @param reduceClass The reducer class to use
    */
   void usesReducer(String reduceClass) {

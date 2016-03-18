@@ -62,6 +62,7 @@ class GobblinJob extends Job {
 
   /**
    * Helper method to set the properties on a cloned job.
+   * 
    * @param cloneJob The job being cloned
    * @return The cloned job
    */

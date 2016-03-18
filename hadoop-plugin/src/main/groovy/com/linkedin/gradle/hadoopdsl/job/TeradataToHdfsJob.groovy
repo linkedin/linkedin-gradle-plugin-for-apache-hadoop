@@ -35,7 +35,7 @@ class TeradataToHdfsJob extends Job {
   String targetHdfsPath;
   String avroSchemaPath;
   String avroSchemaInline;
-  final Map<String, Object> hadoopProperties;
+  Map<String, Object> hadoopProperties;
 
   public TeradataToHdfsJob(String jobName) {
     super(jobName);
@@ -123,6 +123,7 @@ class TeradataToHdfsJob extends Job {
 
   /**
    * Helper method to set the properties on a cloned job.
+   *
    * @param cloneJob The job being cloned
    * @return The cloned job
    */

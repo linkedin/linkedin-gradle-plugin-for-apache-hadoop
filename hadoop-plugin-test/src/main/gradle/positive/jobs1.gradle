@@ -1,7 +1,4 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
   dependencies {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
   }
@@ -92,7 +89,7 @@ hadoop {
       writes files: [
         'path2' : '/user/bar'
       ]
-      set confProperties: [
+      set hadoopProperties: [
         'mapreduce.reduce.memory.mb': 4096,
         'mapreduce.reduce.java.opts': '-Xmx3G'
       ]
@@ -114,6 +111,10 @@ hadoop {
       ]
       set confProperties: [
         'mapreduce.job.user.classpath.first': true,
+        'mapreduce.reduce.memory.mb': 4096
+      ]
+      // Test using both set confProperties and set hadoopProperties at the same time
+      set hadoopProperties: [
         'mapreduce.reduce.memory.mb': 4096,
         'mapreduce.reduce.java.opts': '-Xmx3G'
       ]
@@ -121,7 +122,8 @@ hadoop {
         'force.output.overwrite': true,
       ]
       queue 'marathon'
-      depends 'job5'
+      // Test using the list syntax for the job depends method. This requires the use of parens.
+      depends(['job5'])
     }
 
     javaProcessJob('job7') {
@@ -167,8 +169,6 @@ hadoop {
       depends 'job9'
     }
 
-
-
     sparkJob('job11') {
       uses 'com.linkedin.hello.spark.HelloSpark' // required
       executes 'hello-spark.jar' // required
@@ -183,7 +183,6 @@ hadoop {
         'key1': 'value1',
         'key2': 'value2'
       ]
-
       set properties: [
         'master':'yarn-cluster',
         'num-executors':'120',
@@ -192,11 +191,9 @@ hadoop {
         'executor-cores': '1',
         'jars': 'jar1,jar2,jar3'
       ]
-
       set jvmProperties: [
         'log4j.configuration' : 'log.properties'
       ]
-
       queue 'marathon'
       depends 'job10'
     }
@@ -245,7 +242,6 @@ hadoop {
       set properties: [                                  //Optional
         "user.to.proxy": "scott"
       ]
-
       set hadoopProperties: [                            //Optional
         "mapreduce.map.child.java.opts": "'-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true'",
         "mapreduce.job.user.classpath.first": true
@@ -264,7 +260,6 @@ hadoop {
         "user.to.proxy": "scott",
         "force.output.overwrite": true
       ]
-
       set hadoopProperties: [                            //Optional
         "mapreduce.map.child.java.opts": "'-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true'",
         "mapreduce.job.user.classpath.first": true

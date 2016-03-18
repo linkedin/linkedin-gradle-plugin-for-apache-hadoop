@@ -151,7 +151,7 @@ class NamedScope {
    * @return The value bound to the name in scope, or null if the name is not bound in scope
    * @throws Exception If the name is not qualified, or if the qualified portion of the name refers to an object that is not a scope container
    */
-  NamedScopeReference lookupQualified(String name) {
+  Object lookupQualified(String name) {
     NamedScopeReference ref = lookupRefQualified(name);
     return (ref == null) ? null : ref.entry;
   }
@@ -260,6 +260,12 @@ class NamedScope {
 
     // Otherwise if the name is still qualified. Find the next scope level down and continue to look there.
     String[] parts = name.split("\\.")
+
+    // If this part of the name consists of all dots, you won't have any parts in the split.
+    if (parts.length == 0) {
+      return null;
+    }
+
     String nextPart = parts[0];
     String restPart = name.replaceFirst("${nextPart}.", "");
 

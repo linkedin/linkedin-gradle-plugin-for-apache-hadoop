@@ -1,7 +1,4 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
   dependencies {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
   }

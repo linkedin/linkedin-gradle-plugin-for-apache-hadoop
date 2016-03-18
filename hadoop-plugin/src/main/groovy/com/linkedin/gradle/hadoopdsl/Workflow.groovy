@@ -322,10 +322,19 @@ class Workflow extends BaseNamedScopeContainer {
   /**
    * DSL method that declares the targets for the workflow.
    *
-   * @param targetNames The list of targets for the workflow
+   * @param targetNames The variable-length targets for the workflow
    */
   void targets(String... targetNames) {
-    targets(false, targetNames.toList());
+    targets(targetNames.toList());
+  }
+
+  /**
+   * DSL method that declares the targets for the workflow.
+   *
+   * @param targetNames The list of targets for the workflow
+   */
+  void targets(List<String> targetNames) {
+    targets(false, targetNames);
   }
 
   /**
