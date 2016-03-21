@@ -174,14 +174,15 @@ test.dependsOn runTestCasesAndCompareOutput;
 
 // Test for including the sources zip and scmMetadata in the Hadoop zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
-  dependsOn runTestCasesAndCompareOutput;
-
   String libVersion = buildLibVersion(project);
   String pluginDir = buildPluginDir(project);
+
+  println("The libVersion is: ${libVersion}")
 
   buildFile = "buildZips.gradle";
   startParameter.projectProperties.put("libVersion", libVersion);
   startParameter.projectProperties.put("pluginTestDir", pluginDir);
+  startParameter.setShowStacktrace(org.gradle.logging.ShowStacktrace.ALWAYS);
   tasks = ['buildHadoopZips'];
 }
 
