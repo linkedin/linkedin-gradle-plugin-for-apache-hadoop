@@ -58,7 +58,8 @@ def cleanBuildOutput(String buildOutput) {
     "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
     "posting task-result-start for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
     "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
-    "Download (.*)\n"
+    "Download (.*)\n",
+    "cache artifact-at-repository.bin (.*)\n"
   ] as String[];
 
   for (String lineToRemove : linesToRemove) {
@@ -174,13 +175,15 @@ test.dependsOn runTestCasesAndCompareOutput;
 
 // Test for including the sources zip and scmMetadata in the Hadoop zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
+  description = ""Runs Hadoop DSL test case for building Hadoop zips"
+  group = "Hadoop DSL Tests";
+
   String libVersion = buildLibVersion(project);
   String pluginDir = buildPluginDir(project);
 
   buildFile = "buildZips.gradle";
   startParameter.projectProperties.put("libVersion", libVersion);
   startParameter.projectProperties.put("pluginTestDir", pluginDir);
-  startParameter.setShowStacktrace(org.gradle.logging.ShowStacktrace.ALWAYS);
   tasks = ['buildHadoopZips'];
 }
 
