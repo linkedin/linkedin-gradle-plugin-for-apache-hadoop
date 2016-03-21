@@ -177,8 +177,6 @@ task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
   String libVersion = buildLibVersion(project);
   String pluginDir = buildPluginDir(project);
 
-  println("The libVersion is: ${libVersion}")
-
   buildFile = "buildZips.gradle";
   startParameter.projectProperties.put("libVersion", libVersion);
   startParameter.projectProperties.put("pluginTestDir", pluginDir);
