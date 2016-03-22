@@ -175,6 +175,7 @@ test.dependsOn runTestCasesAndCompareOutput;
 
 // Test for including the sources zip and scmMetadata in the Hadoop zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
+  dependsOn runTestCasesAndCompareOutput;
   description = "Runs Hadoop DSL test case for building Hadoop zips"
   group = "Hadoop DSL Tests";
 
@@ -187,4 +188,4 @@ task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
   tasks = ['buildHadoopZips'];
 }
 
-test.dependsOn runHadoopZipTest
+test.dependsOn runHadoopZipTest;

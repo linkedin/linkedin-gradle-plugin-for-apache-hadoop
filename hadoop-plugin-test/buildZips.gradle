@@ -5,9 +5,7 @@ buildscript {
 }
 
 // Integration test for including the sources zip and SCM metadata file in the Hadoop zip
-
-// For some reason the test is more robust if you use the qualified name for the Distribution plugin
-apply plugin: org.gradle.api.distribution.plugins.DistributionPlugin
+apply plugin: 'distribution'
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 hadoopZip {
