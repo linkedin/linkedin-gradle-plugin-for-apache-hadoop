@@ -167,10 +167,19 @@ class Job {
   /**
    * DSL depends method declares the targets on which this job depends.
    *
-   * @param targetNames The list of targets on which this job depends
+   * @param targetNames The variable-length targets on which this job depends
    */
   void depends(String... targetNames) {
-    depends(false, targetNames.toList());
+    depends(targetNames.toList());
+  }
+
+  /**
+   * DSL depends method declares the targets on which this job depends.
+   *
+   * @param targetNames The list of targets on which this job depends
+   */
+  void depends(List<String> targetNames) {
+    depends(false, targetNames);
   }
 
   /**

@@ -1,5 +1,6 @@
 plugins {
-  id 'com.gradle.plugin-publish' version '0.9.2'
+  id 'com.gradle.plugin-publish' version '0.9.4'
+  id 'com.jfrog.bintray' version '1.6'
 }
 
 apply plugin: 'eclipse'
@@ -46,6 +47,7 @@ artifacts {
   archives groovydocJar, sourceJar
 }
 
+// Configuration for uploading to plugins.gradle.org
 pluginBundle {
   description = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'
   tags = ['azkaban', 'hadoop', 'hadoopdsl', 'linkedin']
@@ -56,6 +58,32 @@ pluginBundle {
     hadoopPlugin {
       id = 'com.linkedin.gradle.hadoop.HadoopPlugin'
       displayName = 'Hadoop Plugin'
+    }
+  }
+}
+
+// Configuration for uploading to Bintray
+if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayApiKey')) {
+  bintray {
+    user = project.bintrayUser
+    key = project.bintrayApiKey
+    configurations = ['archives']
+    publish = true
+
+    pkg {
+      desc = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'
+      labels = ['azkaban', 'gradle', 'hadoop', 'hadoopdsl', 'linkedin']
+      licenses = ['Apache-2.0']
+      name = 'linkedin-gradle-plugin-for-apache-hadoop'
+      repo = 'maven'
+
+      issueTrackerUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/issues'
+      vcsUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+      websiteUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+
+      version {
+        name = project.version
+      }
     }
   }
 }

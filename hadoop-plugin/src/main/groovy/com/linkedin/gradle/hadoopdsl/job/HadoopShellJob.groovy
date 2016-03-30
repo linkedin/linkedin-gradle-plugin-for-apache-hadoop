@@ -17,7 +17,6 @@ package com.linkedin.gradle.hadoopdsl.job
  * </pre>
  */
 class HadoopShellJob extends CommandJob {
-
   /**
    * Constructor for a HadoopShellJob.
    *

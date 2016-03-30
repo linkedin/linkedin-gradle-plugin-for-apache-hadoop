@@ -110,7 +110,13 @@ testFiles.each { fileName ->
     description = "Runs Hadoop DSL test case for the file ${fileName} and captures the output";
     group = "Hadoop DSL Tests";
 
-    commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}", "--stacktrace";
+    // If a test fails that is supposed to pass, we want to see the stacktrace.
+    if ("positive".equals(baseDirName)) {
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}", "--stacktrace"
+    } else {
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}"
+    }
+
     ignoreExitValue true;
 
     // Store the output instead of printing to the console

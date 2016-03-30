@@ -25,22 +25,18 @@ package com.linkedin.gradle.hadoopdsl.job;
  *
  *   sparkJob('jobName') {
  *     uses 'com.linkedin.azkaban.spark.HelloSpark'  // Required
- *     executes './lib/azkaban-spark-job.jar' // Required
- *     appParams params // application parameters
+ *     executes './lib/azkaban-spark-job.jar'        // Required
+ *     appParams params                              // Application parameters
  *     enableFlags flags
- *
  *     set properties: [
  *       'master' : 'yarn-cluster',
  *       'executor-memory' : '1g'
  *     ]
- *
  *     set sparkConfs: [
  *       'key1' : 'val1',
  *       'key2' : 'val2'
  *     ]
- *
  *     queue 'marathon'
- *
  *   }
  * </pre>
  */
@@ -179,7 +175,7 @@ class SparkJob extends HadoopJavaProcessJob {
    */
   void executes(String executionJar) {
     this.executionJar = executionJar;
-    setJobProperty("execution-jar",executionJar);
+    setJobProperty("execution-jar", executionJar);
   }
 
   /**
@@ -193,5 +189,4 @@ class SparkJob extends HadoopJavaProcessJob {
     this.yarnQueue = yarnQueue;
     setJobProperty("queue", yarnQueue);
   }
-
 }

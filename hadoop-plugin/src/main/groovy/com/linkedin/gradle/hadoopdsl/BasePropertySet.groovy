@@ -82,17 +82,25 @@ abstract class BasePropertySet {
    * <p>
    * You can specify Hadoop job configuration properties by using the syntax
    * "set confProperties: [ ... ]", which causes lines of the form hadoop-inject.key=val to be
-   * written to the properties file.
+   * written to the properties file. To make this more clear, we've added the syntax
+   * "set hadoopProperties: [ ... ]" as a synonym for setting confProperties.
    *
    * @param args Args whose key 'properties' has a map value specifying the job properties to set;
    *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set;
    *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set;
+   *   or a key 'hadoopProperties' that is a synonym for 'confProperties';
    *   or a key 'parameters' with a map value that specifies the Hive parameters to set
    */
   void set(Map args) {
     if (args.containsKey("confProperties")) {
       Map<String, String> confProperties = args.confProperties;
       confProperties.each() { String name, Object value ->
+        setConfProperty(name, value);
+      }
+    }
+    if (args.containsKey("hadoopProperties")) {
+      Map<String, Object> hadoopProperties = args.hadoopProperties;
+      hadoopProperties.each() { String name, Object value ->
         setConfProperty(name, value);
       }
     }

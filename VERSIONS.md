@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.8.4
+
+* Various minor improvements for the Hadoop DSL from my backlog
+
 0.8.3
 
 * Despite my best efforts, we're having issues with Gradle 2.10 in our LinkedIn

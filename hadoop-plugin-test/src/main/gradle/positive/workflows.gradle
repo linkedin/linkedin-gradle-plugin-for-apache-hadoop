@@ -1,7 +1,4 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
   dependencies {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
   }
@@ -41,6 +38,9 @@ hadoop {
     }
 
     targets 'job1', 'job2'
+
+    // Test using the list syntax for the workflow targets method. This requires the use of parens.
+    targets(['job1', 'job2'])
   }
 
   addWorkflow('workflowsWorkflow1', 'workflowsWorkflow3') {

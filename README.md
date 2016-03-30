@@ -63,6 +63,12 @@ To see all the test tasks, run `./gradlew tasks` from the top-level project dire
 an individual test with `./gradlew test_testName`. You can also run multiple tests by running
 `./gradlew test_testName1 ... test_testNameN`.
 
+#### Apache Oozie Status
+
+Although we started on a Hadoop DSL compiler for Oozie, we did not complete it, and it is currently
+not in a usable form. We are not currently working on it, although it is possible we might go back
+and finish it in the future.
+
 #### Recent News
 
   * `January 2016` The Hadoop Plugin is now published on plugins.gradle.org!
