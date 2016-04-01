@@ -1,5 +1,10 @@
-apply plugin: 'eclipse'
-apply plugin: 'groovy'
+plugins {
+ id 'eclipse'
+ id 'groovy'
+}
+
+// The group will be overriden in LinkedIn builds
+group=rootProject.group
 
 repositories {
   mavenCentral()

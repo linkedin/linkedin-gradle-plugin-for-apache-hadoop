@@ -1,5 +1,10 @@
-apply plugin: 'eclipse'
-apply plugin: 'java'
+plugins {
+  id 'eclipse'
+  id 'java'
+}
+
+// The group will be overriden in LinkedIn builds
+group=rootProject.group
 
 // Forces the wrapper to download Gradle if it needs to do so. This is needed for LinkedIn builds.
 task forceGradlew(type: Exec) {
