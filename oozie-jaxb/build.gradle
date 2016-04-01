@@ -3,11 +3,14 @@
 plugins {
   id 'com.github.jacobono.jaxb' version '1.3.5'
   id 'com.jfrog.bintray' version '1.6'
+  id 'eclipse'
+  id 'groovy'
+  id 'java'
+  id 'maven-publish'
 }
 
-apply plugin: 'eclipse'
-apply plugin: 'groovy'
-apply plugin: 'java'
+// The group will be overriden in LinkedIn builds
+group=rootProject.group
 
 repositories {
   mavenCentral()
@@ -62,13 +65,35 @@ compileJava.dependsOn 'hive-xjc'
 compileJava.dependsOn 'shell-xjc'
 compileJava.dependsOn xjc
 
+// Maven publishing setup necessary for linking Bintray to JCenter
+publishing {
+  publications {
+    oozieJaxbPublication(MavenPublication) {
+      from components.java
+
+      groupId rootProject.group
+      artifactId project.name
+      version project.version
+    }
+  }
+}
+
+// Make sure we don't accidentally publish a SNAPSHOT version
+bintrayUpload { task ->
+  doFirst {
+    if (version.endsWith("SNAPSHOT")) {
+      throw new GradleException("Cannot publish SNAPSHOT versions")
+    }
+  }
+}
+
 // Configuration for uploading to Bintray
 if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayApiKey')) {
   bintray {
+    dryRun = false
     user = project.bintrayUser 
-    key = project.bintrayApiKey 
-    configurations = ['archives']
-    publish = true
+    key = project.bintrayApiKey
+    publications = ['oozieJaxbPublication']
 
     pkg {
       desc = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'

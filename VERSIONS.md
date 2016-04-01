@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.8.6
+
+* Add Maven publishing configuration so Bintray uploads can be linked to JCenter
+
 0.8.4
 
 * Various minor improvements for the Hadoop DSL from my backlog
