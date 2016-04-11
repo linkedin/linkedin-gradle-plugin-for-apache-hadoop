@@ -156,17 +156,19 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * regular Groovy def is limited to the Gradle file in which it is declared.
    *
    * @param args A map whose optional key "name" specifies the definition set and whose key "defs" specifies the definitions to add
+   * @return The updated definitions
    */
-  void definitionSet(Map args) {
+  Map<String, Object> definitionSet(Map args) {
     Map<String, Object> defs = args.defs;
 
     if (!args.containsKey("name")) {
       Map<String, Object> defaultSet = definitionSetMap.get("default");
       defaultSet.putAll(defs);
+      return defaultSet;
     }
     else {
       String name = args.name;
-      definitionSet(name, defs);
+      return definitionSet(name, defs);
     }
   }
 
@@ -178,8 +180,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *
    * @param name The name of the definition set to create or update
    * @param defs The definitions to add to the definition set
+   * @return The updated definitions
    */
-  void definitionSet(String name, Map<String, Object> defs) {
+  Map<String, Object> definitionSet(String name, Map<String, Object> defs) {
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Cannot declare a definitionSet with a name that is null or empty.");
     }
@@ -195,6 +198,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     }
 
     definitionSet.putAll(defs);
+    return definitionSet;
   }
 
   /**
@@ -286,11 +290,12 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param args A map whose required key "closure" specifies the closure to save and whose
    *             optional key "name" specifies the closure name. If the name is not specified, the
    *             the closure is treated as an anonymous closure.
+   * @return The declared closure
    */
-  void hadoopClosure(Map args) {
+  Closure hadoopClosure(Map args) {
     Closure closure = args.closure;
     String name = args.containsKey("name") ? args.name : "";
-    hadoopClosure(closure, name);
+    return hadoopClosure(closure, name);
   }
 
   /**
@@ -303,8 +308,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param closure The closure to save
    * @param name The name of the closure, or the empty string if the closure should be treated as
    *             an anonymous closure 
+   * @return The declared closure
    */
-  void hadoopClosure(Closure closure, String name) {
+  Closure hadoopClosure(Closure closure, String name) {
     if ("".equals(name)) {
       hadoopClosures.add(closure);
     }
@@ -314,6 +320,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
       }
       namedHadoopClosures.put(name, closure);
     }
+    return closure;
   }
 
   /**
