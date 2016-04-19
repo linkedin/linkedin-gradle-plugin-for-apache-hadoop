@@ -73,7 +73,8 @@ and finish it in the future.
 
 #### Recent News
 
-  * `January 2016` The Hadoop Plugin is now published on plugins.gradle.org!
+  * `April 2016` We have made a refresh of the [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide) and [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference) Wiki pages
+  * `January 2016` The Hadoop Plugin is now published on [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin)
   * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
   * `August 2015` Initial pull requests for Oozie versioned deployments and the Oozie Hadoop DSL compiler have been merged
   * `August 2015` The Hadoop Plugin and Hadoop DSL were released on Github! See the [LinkedIn Engineering Blog post](https://engineering.linkedin.com/hadoop/open-sourcing-linkedin-gradle-plugin-and-dsl-apache-hadoop) for the announcement!
