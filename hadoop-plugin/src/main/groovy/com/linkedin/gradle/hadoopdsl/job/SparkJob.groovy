@@ -27,18 +27,20 @@ package com.linkedin.gradle.hadoopdsl.job;
  *     uses 'com.linkedin.azkaban.spark.HelloSpark'  // Required
  *     executes './lib/azkaban-spark-job.jar'        // Required
  *     appParams params                              // Application parameters
- *     enableFlags flags
- *     set properties: [
- *       'master' : 'yarn-cluster',
- *       'executor-memory' : '1g'
- *     ]
+ *     enableFlags flags                             // flags to pass
+ *
+ *     jars 'jar1,jar2,jar3'                         // comma separated list of jars
+ *     numExecutors 120
+ *     executorMemory '2g'
+ *     driverMemory '2g'
+ *     executorCores 1
+ *
  *     set sparkConfs: [
  *       'key1' : 'val1',
  *       'key2' : 'val2'
  *     ]
  *     queue 'marathon'
- *   }
- * </pre>
+ *}* </pre>
  */
 
 class SparkJob extends HadoopJavaProcessJob {
@@ -48,6 +50,11 @@ class SparkJob extends HadoopJavaProcessJob {
   String appClass;
   String executionJar;
   String yarnQueue;
+  String jars;
+  String executorMemory;
+  String driverMemory;
+  int executorCores;
+  int numExecutors;
 
   /**
    * Constructor for a SparkJob.
@@ -86,6 +93,11 @@ class SparkJob extends HadoopJavaProcessJob {
     cloneJob.appClass = appClass;
     cloneJob.executionJar = executionJar;
     cloneJob.yarnQueue = yarnQueue;
+    cloneJob.executorCores = executorCores;
+    cloneJob.numExecutors = numExecutors;
+    cloneJob.driverMemory = driverMemory;
+    cloneJob.executorMemory = executorMemory;
+    cloneJob.jars = jars;
     return super.clone(cloneJob);
   }
 
@@ -141,7 +153,7 @@ class SparkJob extends HadoopJavaProcessJob {
   void enableFlags(List<String> flags) {
     this.flags = flags.toSet();
     flags.each { flag ->
-      setJobProperty("flag.$flag",'true');
+      setJobProperty("flag.$flag", 'true');
     }
   }
 
@@ -152,7 +164,7 @@ class SparkJob extends HadoopJavaProcessJob {
    */
   void appParams(List<String> appParams) {
     this.appParams = appParams;
-    setJobProperty('params',appParams.join(" "));
+    setJobProperty('params', appParams.join(" "));
   }
 
   /**
@@ -188,5 +200,51 @@ class SparkJob extends HadoopJavaProcessJob {
   void queue(String yarnQueue) {
     this.yarnQueue = yarnQueue;
     setJobProperty("queue", yarnQueue);
+  }
+
+  /**
+   * DSL jars methods specifies the jars which should be added to the classpath of spark jobs during execution.
+   * This method accepts a comma separated list of jars.
+   * @param jars A comma separated list of jars that should be added to classpath
+   */
+  void jars(String jars) {
+    this.jars = jars;
+    setJobProperty("jars", this.jars);
+  }
+
+  /**
+   * DSL method to set the executor memory
+   * @param executorMemory The executor memory for the spark job
+   */
+  void executorMemory(String executorMemory) {
+    this.executorMemory = executorMemory.toLowerCase();
+    setJobProperty("executor-memory", this.executorMemory);
+  }
+
+  /**
+   * DSL method to set the driver memory
+   * @param driverMemory The driver memory for the spark job
+   */
+  void driverMemory(String driverMemory) {
+    this.driverMemory = driverMemory.toLowerCase();
+    setJobProperty("driver-memory", this.driverMemory);
+  }
+
+  /**
+   * DSL method to set the executor cores
+   * @param executorCores The number of executor cores for the spark job
+   */
+  void executorCores(int executorCores) {
+    this.executorCores = executorCores;
+    setJobProperty("executor-cores", this.executorCores);
+  }
+
+  /**
+   * DSL method to set the number of executors
+   * @param numExecutors The number of executors for the spark job
+   */
+  void numExecutors(int numExecutors) {
+    this.numExecutors = numExecutors;
+    setJobProperty("num-executors", this.numExecutors);
   }
 }

@@ -183,13 +183,15 @@ hadoop {
         'key1': 'value1',
         'key2': 'value2'
       ]
+
+      jars 'jar1,jar2,jar3'
+      numExecutors 120
+      executorMemory '2g'
+      driverMemory '2g'
+      executorCores 1
+
       set properties: [
         'master':'yarn-cluster',
-        'num-executors':'120',
-        'executor-memory': '2g',
-        'driver-memory': '2g',
-        'executor-cores': '1',
-        'jars': 'jar1,jar2,jar3'
       ]
       set jvmProperties: [
         'log4j.configuration' : 'log.properties'

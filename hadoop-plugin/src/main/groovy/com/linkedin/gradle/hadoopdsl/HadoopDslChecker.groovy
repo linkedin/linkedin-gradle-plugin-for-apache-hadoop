@@ -17,7 +17,8 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.checker.JobDependencyChecker;
 import com.linkedin.gradle.hadoopdsl.checker.PropertySetChecker;
-import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker;
+import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker
+import com.linkedin.gradle.hadoopdsl.checker.ValidFieldsChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidNameChecker;
 import com.linkedin.gradle.hadoopdsl.checker.WorkflowJobChecker;
 
@@ -60,6 +61,7 @@ class HadoopDslChecker extends BaseStaticChecker {
     checks.add(makeWorkflowJobChecker());
     checks.add(makeJobDependencyChecker());
     checks.add(makePropertySetChecker());
+    checks.add(makeValidFieldsChecker());
     return checks;
   }
 
@@ -107,6 +109,15 @@ class HadoopDslChecker extends BaseStaticChecker {
    */
   RequiredFieldsChecker makeRequiredFieldsChecker() {
     return new RequiredFieldsChecker(project);
+  }
+
+  /**
+   * Factory method to build the ValidFieldsChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   * @return The ValidFieldsChecker check
+   */
+  ValidFieldsChecker makeValidFieldsChecker() {
+    return new ValidFieldsChecker(project);
   }
 
   /**
