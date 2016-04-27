@@ -1,0 +1,31 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Negative test for invalid fields
+hadoop {
+  buildPath "jobs"
+  cleanPath true
+
+  workflow('invalidFieldsWorkflow1') {
+
+    job('job1') {
+    }
+
+    sparkJob('job2') {
+      uses "org.sample.Main"
+      executes "sample.jar"
+      executorMemory "1kg"
+      driverMemory "2kg"
+      executorCores 0
+      numExecutors 0
+      depends 'job1'
+    }
+
+    targets 'job2'
+  }
+}

@@ -33,6 +33,7 @@ The following were contributed by Jonathan Hung. Thanks, Jonathan!
 * `TOOLS-67569 Block Hadoop Client Teams from checking in Hadoop Jars in their MP`
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `LIHADOOP-18499 Add extra typed methods for Hadoop DSL SparkJob properties`
 * `LIHADOOP-6730: Add clusterProvided configuration for dependency management`
 * `LIHADOOP-17034 Create HadoopShell job type in Hadoop DSL`
 * `LIHADOOP-16016 Minor bug fix for li-hadoop-plugin`
