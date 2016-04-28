@@ -14,7 +14,7 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-[ ![Download](https://api.bintray.com/packages/convexquad/maven/linkedin-gradle-plugin-for-apache-hadoop/images/download.svg) ](https://bintray.com/convexquad/maven/linkedin-gradle-plugin-for-apache-hadoop/_latestVersion)
+[![Build Status](https://travis-ci.org/linkedin/linkedin-gradle-plugin-for-apache-hadoop.svg?branch=master)](https://travis-ci.org/linkedin/linkedin-gradle-plugin-for-apache-hadoop) [![Download](https://api.bintray.com/packages/convexquad/maven/linkedin-gradle-plugin-for-apache-hadoop/images/download.svg)](https://bintray.com/convexquad/maven/linkedin-gradle-plugin-for-apache-hadoop/_latestVersion)
 
 ### LinkedIn Gradle Plugin for Apache Hadoop
 
