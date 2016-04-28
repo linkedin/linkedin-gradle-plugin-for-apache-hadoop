@@ -20,7 +20,7 @@ Travis-CI build is passing.
 
 Then publish the Hadoop Plugin jars to Bintray by running:
 
-`./gradlew bintrayUpload -bintrayUser=<userName> -bintrayApiKey=<key>`
+`./gradlew bintrayUpload -PbintrayUser=<userName> -PbintrayApiKey=<key>`
 
 Then publish the Hadoop Plugin to https://plugins.gradle.org/ by running:
 
