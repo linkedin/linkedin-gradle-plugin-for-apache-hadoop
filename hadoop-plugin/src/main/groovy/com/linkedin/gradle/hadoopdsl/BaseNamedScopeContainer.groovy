@@ -536,7 +536,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The scope at this level
    */
   @Override
-  public NamedScope getScope() {
+  NamedScope getScope() {
     return scope;
   }
 

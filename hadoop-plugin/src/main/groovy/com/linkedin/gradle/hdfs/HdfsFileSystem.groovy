@@ -53,7 +53,7 @@ class HdfsFileSystem {
    *
    * @param project The Gradle project
    */
-  public HdfsFileSystem(Project project) {
+  HdfsFileSystem(Project project) {
     project.logger.info("Initialized HdfsFileSystem with authentication: simple");
     this.conf = new Configuration();
     this.krb5Conf = null;
@@ -67,7 +67,7 @@ class HdfsFileSystem {
    * @param project The Gradle project
    * @param krb5Conf The krb5 conf file
    */
-  public HdfsFileSystem(Project project, File krb5Conf) {
+  HdfsFileSystem(Project project, File krb5Conf) {
     project.logger.info("Initialized HdfsFileSystem with authentication: Kerberos")
     this.conf = new Configuration();
     this.krb5Conf = krb5Conf;
@@ -80,7 +80,7 @@ class HdfsFileSystem {
    *
    * @param clusterURI URI whose authority section names the host, port, etc. for this HdfsFileSystem
    */
-  public void initialize(URI clusterURI) {
+  void initialize(URI clusterURI) {
     validateURI(clusterURI);
     this.clusterURI = clusterURI;
 
@@ -159,7 +159,7 @@ class HdfsFileSystem {
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(Path src, Path dst) throws IOException {
+  void copyFromLocalFile(Path src, Path dst) throws IOException {
     copyFromLocalFile(false, src, dst);
   }
 
@@ -171,7 +171,7 @@ class HdfsFileSystem {
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, Path src, Path dst) throws IOException {
+  void copyFromLocalFile(boolean delSrc, Path src, Path dst) throws IOException {
     copyFromLocalFile(delSrc, true, src, dst);
   }
 
@@ -184,7 +184,7 @@ class HdfsFileSystem {
    * @param src path
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path src, Path dst) throws IOException {
+  void copyFromLocalFile(boolean delSrc, boolean overwrite, Path src, Path dst) throws IOException {
     project.logger.info("Copying from ${src.toString()} to HDFS path ${dst.toString()}");
     fs.copyFromLocalFile(delSrc, overwrite, src, dst);
   }
@@ -198,7 +198,7 @@ class HdfsFileSystem {
    * @param srcs array of paths which are source
    * @param dst path
    */
-  public void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
+  void copyFromLocalFile(boolean delSrc, boolean overwrite, Path[] srcs, Path dst) throws IOException {
     project.logger.info("Copying to HDFS path ${dst.toString()}");
     fs.copyFromLocalFile(delSrc, overwrite, srcs, dst);
   }
@@ -211,7 +211,7 @@ class HdfsFileSystem {
    * @param destDirectory The destination directory on hdfs where zipFile should be extracted
    * @throws IOException If zipFile cannot be extracted to destDirectory
    */
-  public void copyFromLocalZip(File zipFile, Path destDirectory) throws IOException {
+  void copyFromLocalZip(File zipFile, Path destDirectory) throws IOException {
     project.logger.info("Copying contents of zip file ${zipFile.toString()} to HDFS path ${destDirectory.toString()}");
 
     // Create the destination directory if it doesn't exist
@@ -258,7 +258,7 @@ class HdfsFileSystem {
    * @param p the path to delete
    * @return true if successful else false
    */
-  public boolean delete(Path p) {
+  boolean delete(Path p) {
     project.logger.info("Deleting HDFS path ${p.toString()}")
     return delete(p, true);
   }
@@ -270,7 +270,7 @@ class HdfsFileSystem {
    * @param recursive true if delete recursively
    * @return true if successful else false
    */
-  public boolean delete(Path p, Boolean recursive) {
+  boolean delete(Path p, Boolean recursive) {
     project.logger.info("Deleting HDFS path ${p.toString()}")
     return fs.delete(p, recursive);
   }
@@ -281,7 +281,7 @@ class HdfsFileSystem {
    * @param p path to check
    * @return true if p exists else returns false
    */
-  public boolean exists(Path p) {
+  boolean exists(Path p) {
     return fs.exists(p);
   }
 
@@ -290,7 +290,7 @@ class HdfsFileSystem {
    *
    * @return The user's home directory path
    */
-  public String getHomeDirectory() {
+  String getHomeDirectory() {
     return fs.getHomeDirectory();
   }
 
@@ -299,7 +299,7 @@ class HdfsFileSystem {
    *
    * @return The current working directory path
    */
-  public String getWorkingDirectory() {
+  String getWorkingDirectory() {
     return fs.getWorkingDirectory();
   }
 
@@ -308,7 +308,7 @@ class HdfsFileSystem {
    *
    * @return Whether the directory was created or not
    */
-  public String mkdir(Path p) throws IOException {
+  String mkdir(Path p) throws IOException {
     project.logger.info("Creating HDFS path ${p.toString()}")
     return fs.mkdirs(p);
   }

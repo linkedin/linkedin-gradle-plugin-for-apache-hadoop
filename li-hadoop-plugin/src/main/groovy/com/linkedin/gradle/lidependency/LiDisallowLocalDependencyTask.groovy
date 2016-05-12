@@ -16,15 +16,20 @@
 package com.linkedin.gradle.lidependency;
 
 import com.linkedin.gradle.dependency.DisallowLocalDependencyTask;
+
 import org.gradle.api.Project;
 
 class LiDisallowLocalDependencyTask extends DisallowLocalDependencyTask {
-
+  /**
+   * Handles the result of whether there is a local dependency or not.
+   *
+   * @param project The Gradle project
+   */
   @Override
   void checkLocalDependencies(Project project) {
     if (containsLocalDep) {
       project.logger.error("ERROR: cannot include local file dependencies");
-      throw new LiDependencyException("Cannot include local file dependencies");
+      throw new Exception("Cannot include local file dependencies");
     }
   }
 }

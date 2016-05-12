@@ -90,7 +90,7 @@ class Properties extends BasePropertySet {
     }
 
     if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { key, val -> return "-D${key}=${val.toString()}" }.join(" ");
+      String jvmArgs = jvmProperties.collect { key, val -> return "-D${key}=${val.toString()}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
     }
 

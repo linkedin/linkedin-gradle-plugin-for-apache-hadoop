@@ -20,8 +20,8 @@ import com.linkedin.gradle.oozie.OozieDslCompiler;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.oozie.OozieProject;
 import com.linkedin.gradle.oozie.OozieUploadTask;
+
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 
 /**
  * Linkedin specific customizations to the OoziePlugin.

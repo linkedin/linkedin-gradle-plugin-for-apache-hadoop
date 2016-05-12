@@ -20,7 +20,6 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskAction;
 
 class DisallowLocalDependencyTask extends DefaultTask {
-
   boolean containsLocalDep = false;
 
   @TaskAction
@@ -50,6 +49,7 @@ class DisallowLocalDependencyTask extends DefaultTask {
 
   /**
    * Handles the result of whether there is a local dependency or not.
+   *
    * @param project The Gradle project
    */
   void checkLocalDependencies(Project project) {

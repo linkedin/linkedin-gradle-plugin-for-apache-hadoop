@@ -16,6 +16,12 @@ repositories {
   mavenCentral()
 }
 
+// The LinkedIn build system automatically adds a task for checking code style. Since this project
+// generates Java code, disable the checkstyle task since the generated code fails the style rules.
+if (project.tasks.findByName("checkstyleMain") != null) {
+  project.tasks["checkstyleMain"].enabled = false
+}
+
 dependencies {
   // Dependencies necessary to use the xjc task. We need 2.2.11 version to allow java style syntax in the workflow.xjb file.
   jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.11'

@@ -90,7 +90,7 @@ class PigJob extends HadoopJavaProcessJob {
 
     // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
-    files.each() { String name, String value ->
+    files.each { String name, String value ->
       setParameter(name, value);
     }
   }
@@ -108,7 +108,7 @@ class PigJob extends HadoopJavaProcessJob {
 
     // For Pig jobs, additionally emit a Pig script parameter
     Map<String, String> files = args.files;
-    files.each() { String name, String value ->
+    files.each { String name, String value ->
       setParameter(name, value);
     }
   }
@@ -140,7 +140,7 @@ class PigJob extends HadoopJavaProcessJob {
 
     if (args.containsKey("parameters")) {
       Map<String, Object> parameters = args.parameters;
-      parameters.each() { String name, Object value ->
+      parameters.each { String name, Object value ->
         setParameter(name, value);
       }
     }
