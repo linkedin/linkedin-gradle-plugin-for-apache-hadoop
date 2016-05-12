@@ -34,7 +34,7 @@ class PigTaskHelper {
    * @return The formatted JVM parameters text
    */
   static String buildJvmParameters(Map<String, String> jvmParameters) {
-    return jvmParameters.collect() { key, val -> return "-D${key}=${val}" }.join(" ");
+    return jvmParameters.collect { key, val -> return "-D${key}=${val}" }.join(" ");
   }
 
   /**
@@ -44,7 +44,7 @@ class PigTaskHelper {
    * @return The formatted Pig parametes text
    */
   static String buildPigParameters(Map<String, String> parameters) {
-    return parameters.collect() { key, val -> return "-param ${key}=${val}" }.join(" ");
+    return parameters.collect { key, val -> return "-param ${key}=${val}" }.join(" ");
   }
 
   /**

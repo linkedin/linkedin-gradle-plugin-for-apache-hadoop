@@ -21,7 +21,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.FileCollectionDependency;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
 import org.gradle.api.internal.artifacts.dependencies.DefaultSelfResolvingDependency;
 import org.gradle.testfixtures.ProjectBuilder;
@@ -65,7 +64,7 @@ class DependencyPluginTest {
     checkDependencyTask.setDummyDependencyJsonFile(dummyJsonFile);
 
     DependencyPattern actualDependencyPatterns = checkDependencyTask.getDependencyPatterns(project).get(0);
-    DependencyPattern expected = new DependencyPattern("org\\.dummy\\..*",".*",".*", SEVERITY.ERROR, "Incompatible dependencies");
+    DependencyPattern expected = new DependencyPattern("org\\.dummy\\..*", ".*", ".*", SEVERITY.ERROR, "Incompatible dependencies");
     Assert.assertEquals(expected, actualDependencyPatterns);
     new File(dummyJsonFile).delete();
   }
@@ -89,16 +88,16 @@ class DependencyPluginTest {
     testDependencyPatterns[1] = new DependencyPattern("org\\.dummy\\..*", ".*", ".*", SEVERITY.WARN, "should match only testDependencies[0] and testDependencies[1]");
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[1]));
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[1]));
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[1]));
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[1]));
 
     testDependencyPatterns[2] = new DependencyPattern("org\\.dummy\\..*", ".*", "1\\.1", SEVERITY.WARN, "should match only testDependencies[0] ");
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[2]));
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[2]));
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[2]));
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[2]));
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[2]));
 
     testDependencyPatterns[3] = new DependencyPattern(".*", "sample.*", ".*", SEVERITY.WARN, "should match only testDependency[2] ");
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[3]));
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[3]));
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPatterns[3]));
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPatterns[3]));
     Assert.assertTrue(dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPatterns[3]));
   }
 
@@ -108,14 +107,14 @@ class DependencyPluginTest {
     DummyCheckDependencyTask dependencyTask = project.tasks["checkDependencies"];
 
     Dependency[] testDependencies = new Dependency[3];
-    testDependencies[0] = new DefaultExternalModuleDependency(null,"dummyName", null, "testConfiguration");
+    testDependencies[0] = new DefaultExternalModuleDependency(null, "dummyName", null, "testConfiguration");
     testDependencies[1] = new DefaultExternalModuleDependency(null, "dummyName", "2.0", "testConfiguration");
     testDependencies[2] = new DefaultExternalModuleDependency("org.sample.group", "dummyName", null, "testConfiguration");
 
     DependencyPattern testDependencyPattern = new DependencyPattern(".*", ".*", ".*", SEVERITY.WARN, "should match everything");
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPattern))
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPattern))
-    Assert.assertTrue(!dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPattern))
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[0], testDependencyPattern))
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[1], testDependencyPattern))
+    Assert.assertFalse(dependencyTask.dependencyMatchesPattern(project, testDependencies[2], testDependencyPattern))
   }
 
   @Test

@@ -73,7 +73,7 @@ class JavaProcessJob extends Job {
     Map<String, String> allProperties = super.buildProperties(parentScope);
 
     if (jvmProperties.size() > 0) {
-      String jvmArgs = jvmProperties.collect() { String key, Object val -> return "-D${key}=${val.toString()}" }.join(" ");
+      String jvmArgs = jvmProperties.collect { String key, Object val -> return "-D${key}=${val.toString()}" }.join(" ");
       allProperties["jvm.args"] = jvmArgs;
     }
 
@@ -134,7 +134,7 @@ class JavaProcessJob extends Job {
 
     if (args.containsKey("jvmProperties")) {
       Map<String, Object> jvmProperties = args.jvmProperties;
-      jvmProperties.each() { name, value ->
+      jvmProperties.each { name, value ->
         setJvmProperty(name, value);
       }
     }
@@ -160,7 +160,7 @@ class JavaProcessJob extends Job {
   void unionProperties(BasePropertySet propertySet) {
     super.unionProperties(propertySet);
 
-    propertySet.jvmProperties.each() { String name, Object value ->
+    propertySet.jvmProperties.each { String name, Object value ->
       if (!jvmProperties.containsKey(name)) {
         setJvmProperty(name, value);
       }

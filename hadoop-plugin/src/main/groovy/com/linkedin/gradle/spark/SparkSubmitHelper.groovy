@@ -40,7 +40,7 @@ class SparkSubmitHelper {
 
   /**
    * Build Spark options.
-
+   *
    * @param properties The job properties object for the spark job type
    * @return String of the form "--$key $value" which can be passed to spark-submit
    */
@@ -50,7 +50,7 @@ class SparkSubmitHelper {
     }
 
     StringBuilder builder = new StringBuilder();
-    properties.each() { key, value ->
+    properties.each { key, value ->
       if (allSparkOptions.contains(key)) {
         builder.append("--$key $value ");
       }
@@ -79,7 +79,7 @@ class SparkSubmitHelper {
     if (!validate(sparkConfs)) {
       return "";
     }
-    return sparkConfs.collect() { key, value -> "--conf $key=$value" }.join(" ");
+    return sparkConfs.collect { key, value -> "--conf $key=$value" }.join(" ");
   }
 
   /**
@@ -92,7 +92,7 @@ class SparkSubmitHelper {
     if (!validate(flags)) {
       return "";
     }
-    return flags.collect() { flag -> return "--$flag"}.join(" ");
+    return flags.collect { flag -> return "--$flag"}.join(" ");
   }
 
   /**

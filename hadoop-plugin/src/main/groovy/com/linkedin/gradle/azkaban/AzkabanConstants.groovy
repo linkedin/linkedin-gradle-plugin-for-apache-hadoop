@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.azkaban;
 
-public final class AzkabanConstants {
+final class AzkabanConstants {
   public static final String AZK_PROJ_NAME = "azkabanProjName";
   public static final String AZK_URL = "azkabanUrl";
   public static final String AZK_USER_NAME = "azkabanUserName";

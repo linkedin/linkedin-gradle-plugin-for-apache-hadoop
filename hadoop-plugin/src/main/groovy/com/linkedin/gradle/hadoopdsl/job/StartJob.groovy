@@ -60,7 +60,7 @@ class StartJob extends NoOpJob {
     // workflow. To accomplish this, refer to the dependencies using the parent workflow's scope
     // when we build the fully-qualified dependency names.
     if (flowDependencyNames.size() > 0) {
-      allProperties["dependencies"] = flowDependencyNames.collect() { String targetName -> return buildFileName(parentScope.nextLevel, targetName) }.join(",");
+      allProperties["dependencies"] = flowDependencyNames.collect { String targetName -> return buildFileName(parentScope.nextLevel, targetName) }.join(",");
     }
 
     return allProperties;

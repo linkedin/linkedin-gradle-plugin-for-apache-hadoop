@@ -43,7 +43,7 @@ class JobDependencyChecker extends BaseStaticChecker {
   @Override
   void visitWorkflow(Workflow workflow) {
     // First, recursively check the subflows
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       visitWorkflow(flow);
     }
 
@@ -73,14 +73,14 @@ class JobDependencyChecker extends BaseStaticChecker {
   void detectTargetCycles(Workflow workflow, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
     Set<String> targetsChecked = new LinkedHashSet<String>();
 
-    workflow.jobs.each() { Job job ->
+    workflow.jobs.each { Job job ->
       if (!targetsChecked.contains(job.name)) {
         Set<String> targetsOnPath = new LinkedHashSet<String>();
         detectTargetCycles(workflow, job.name, targetsChecked, targetsOnPath, flowMap, jobMap);
       }
     }
 
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       if (!targetsChecked.contains(flow.name)) {
         Set<String> targetsOnPath = new LinkedHashSet<String>();
         detectTargetCycles(workflow, flow.name, targetsChecked, targetsOnPath, flowMap, jobMap);
@@ -115,7 +115,7 @@ class JobDependencyChecker extends BaseStaticChecker {
     // Get the next set of target dependencies to check.
     Set<String> dependencyNames = jobMap.containsKey(targetName) ? jobMap.get(targetName).dependencyNames : flowMap.get(targetName).parentDependencies;
 
-    dependencyNames.each() { String dependencyName ->
+    dependencyNames.each { String dependencyName ->
       if (!targetsChecked.contains(dependencyName)) {
         detectTargetCycles(workflow, dependencyName, targetsChecked, targetsOnPath, flowMap, jobMap);  // Assumes you have already checked that all dependency names refer to targets that belong to the workflow.
       }
@@ -147,13 +147,13 @@ class JobDependencyChecker extends BaseStaticChecker {
     // For each job, look at the paths declared as read by the job. For each read path, verify that
     // the jobs that write to that path are declared as (immediate or transitive) ancestors of the
     // job. If not, emit a warning.
-    workflow.jobs.each() { Job job ->
+    workflow.jobs.each { Job job ->
       Set<Job> ancestors = ancestorMap.get(job.name);
 
       // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
-      job.reading.each() { String readPath ->
+      job.reading.each { String readPath ->
         if (writeMap.containsKey(readPath)) {
-          writeMap.get(readPath).each() { Job writeJob ->
+          writeMap.get(readPath).each { Job writeJob ->
             if (job == writeJob) {
               project.logger.lifecycle("JobDependencyChecker WARNING: The job ${job.name} in the workflow ${workflow.name} declares that it both reads and writes the path ${readPath}. Please check that this is correct.");
             }
@@ -178,13 +178,13 @@ class JobDependencyChecker extends BaseStaticChecker {
   Map<String, Set<Job>> buildAncestorMap(Workflow workflow, Map<String, Workflow> flowMap, Map<String, Job> jobMap) {
     Map<String, Set<Job>> ancestorMap = new HashMap<String, Set<Job>>();
 
-    workflow.jobs.each() { Job job ->
+    workflow.jobs.each { Job job ->
       if (!ancestorMap.containsKey(job)) {
         buildAncestorSet(job.name, ancestorMap, flowMap, jobMap);
       }
     }
 
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       if (!ancestorMap.containsKey(flow)) {
         buildAncestorSet(flow.name, ancestorMap, flowMap, jobMap);
       }
@@ -213,7 +213,7 @@ class JobDependencyChecker extends BaseStaticChecker {
     // Get the next set of target dependencies to check
     Set<String> dependencyNames = jobMap.containsKey(targetName) ? jobMap.get(targetName).dependencyNames : flowMap.get(targetName).parentDependencies;
 
-    dependencyNames.each() { String dependencyName ->
+    dependencyNames.each { String dependencyName ->
       if (jobMap.containsKey(dependencyName)) {
         Job parentJob = jobMap.get(dependencyName);             // Assumes you have already checked that all dependency names refer to jobs that belong to the workflow
         Set<Job> parentAncestors = ancestorMap.get(parentJob.name);
@@ -251,8 +251,8 @@ class JobDependencyChecker extends BaseStaticChecker {
     Map<String, Set<Job>> writeMap = new HashMap<String, Set<Job>>();
 
     // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
-    workflow.jobs.each() { Job job ->
-      job.writing.each() { String writePath ->
+    workflow.jobs.each { Job job ->
+      job.writing.each { String writePath ->
         Set<Job> writeJobs = writeMap.get(writePath);
 
         if (writeJobs == null) {

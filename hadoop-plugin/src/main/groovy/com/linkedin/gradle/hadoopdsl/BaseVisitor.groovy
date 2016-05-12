@@ -62,27 +62,27 @@ abstract class BaseVisitor implements Visitor {
     this.parentScope = container.scope;
 
     // Visit each job
-    container.jobs.each() { Job job ->
+    container.jobs.each { Job job ->
       visitJob(job);
     }
 
     // Visit each workflow
-    container.workflows.each() { Workflow workflow ->
+    container.workflows.each { Workflow workflow ->
       visitWorkflow(workflow);
     }
 
     // Visit each property set object
-    container.propertySets.each() { PropertySet propertySet ->
+    container.propertySets.each { PropertySet propertySet ->
       visitPropertySet(propertySet);
     }
 
     // Visit each properties object
-    container.properties.each() { Properties props ->
+    container.properties.each { Properties props ->
       visitProperties(props);
     }
 
     // Visit each child namespace
-    container.namespaces.each() { Namespace namespace ->
+    container.namespaces.each { Namespace namespace ->
       visitNamespace(namespace);
     }
 

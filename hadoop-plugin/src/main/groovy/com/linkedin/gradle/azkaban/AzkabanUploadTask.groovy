@@ -39,7 +39,6 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -262,7 +261,7 @@ class AzkabanUploadTask extends DefaultTask {
      File file = new File(System.getProperty("user.home") + "/.azkaban/session.properties");
      String sessionId = null;
      if (file.exists()) {
-       file.withInputStream() { inputStream ->
+       file.withInputStream { inputStream ->
          Properties properties = new Properties();
          properties.load(inputStream);
          sessionId = properties.getProperty("sessionId");
@@ -294,7 +293,7 @@ class AzkabanUploadTask extends DefaultTask {
     }
 
     try {
-      file.withWriter() { writer ->
+      file.withWriter { writer ->
         Properties properties = new Properties();
         properties.setProperty("sessionId", sessionId);
         properties.store(writer, null);

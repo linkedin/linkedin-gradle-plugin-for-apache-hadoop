@@ -73,7 +73,7 @@ class HadoopDslChecker extends BaseStaticChecker {
   @Override
   void check(HadoopDslPlugin plugin) {
     List<StaticChecker> checks = buildStaticChecks();
-    checks.each() { staticCheck ->
+    checks.each { staticCheck ->
       if (!foundError) {
         staticCheck.check(plugin);
         foundError |= staticCheck.failedCheck();

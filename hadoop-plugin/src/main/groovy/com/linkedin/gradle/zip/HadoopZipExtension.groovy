@@ -38,9 +38,8 @@ import org.gradle.api.tasks.bundling.Zip;
  *    }
  * </pre>
  */
-public class HadoopZipExtension {
+class HadoopZipExtension {
   Project project;
-
   List<String> additionalPaths;
   CopySpec baseCopySpec;
   String libPath;
@@ -182,7 +181,7 @@ public class HadoopZipExtension {
       doLast {
         project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
       }
-    } 
+    }
   }
 
   /**

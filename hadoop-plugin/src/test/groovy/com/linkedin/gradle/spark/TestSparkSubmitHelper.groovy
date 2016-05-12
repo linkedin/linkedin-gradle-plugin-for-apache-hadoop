@@ -15,8 +15,6 @@
  */
 package com.linkedin.gradle.spark;
 
-import com.linkedin.gradle.spark.SparkSubmitHelper;
-
 import org.junit.Assert;
 import org.junit.Test;
 
