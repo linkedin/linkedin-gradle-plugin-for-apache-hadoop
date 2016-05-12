@@ -37,7 +37,7 @@ class TeradataToHdfsJob extends Job {
   String avroSchemaInline;
   Map<String, Object> hadoopProperties;
 
-  public TeradataToHdfsJob(String jobName) {
+  TeradataToHdfsJob(String jobName) {
     super(jobName);
     setJobProperty("type", "teradataToHdfs");
     hadoopProperties = new LinkedHashMap<String, Object>();
@@ -48,7 +48,7 @@ class TeradataToHdfsJob extends Job {
     Map<String, String> allProperties = super.buildProperties(parentScope);
 
     if (hadoopProperties.size() > 0) {
-      String hadoopConfig = hadoopProperties.collect() { String key, Object val -> return "-D${key}=${val.toString()}" }.join(" ");
+      String hadoopConfig = hadoopProperties.collect { String key, Object val -> return "-D${key}=${val.toString()}" }.join(" ");
       allProperties["hadoop.config"] = hadoopConfig;
     }
 
@@ -105,7 +105,7 @@ class TeradataToHdfsJob extends Job {
 
     if (args.containsKey("hadoopProperties")) {
       Map<String, Object> hadoopProperties = args.hadoopProperties;
-      hadoopProperties.each() { name, value ->
+      hadoopProperties.each { name, value ->
         setHadoopProperty(name, value);
       }
     }

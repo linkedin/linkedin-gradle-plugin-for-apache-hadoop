@@ -63,7 +63,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     Map<String, Job> jobMap = workflow.buildJobMap();
 
     // ERROR if a workflow declares a target that is not in the workflow
-    workflow.launchDependencies.each() { String dependencyName ->
+    workflow.launchDependencies.each { String dependencyName ->
       if (!flowMap.containsKey(dependencyName) && !jobMap.containsKey(dependencyName)) {
         project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} declares that it targets ${dependencyName}, but this target does not exist in the workflow.");
         workflowError = true;
@@ -71,8 +71,8 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // ERROR if a job in the workflow depends on a target that is not in the workflow
-    workflow.jobs.each() { Job job ->
-      job.dependencyNames.each() { String dependencyName ->
+    workflow.jobs.each { Job job ->
+      job.dependencyNames.each { String dependencyName ->
         if (!flowMap.containsKey(dependencyName) && !jobMap.containsKey(dependencyName)) {
           project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} contains the job ${job.name} that declares that target ${dependencyName}, but this target does not exist in the workflow.");
           workflowError = true;
@@ -91,7 +91,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // ERROR if a subflow declares itself as a flow dependency target
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       flow.parentDependencies.each { String dependencyName ->
         if (flow.name.equals(dependencyName)) {
           project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} contains the subflow ${flow.name} that declares itself as a flow dependency target.");
@@ -101,7 +101,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // ERROR if a subflow declares a flow dependency target that is not in its parent workflow
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       flow.parentDependencies.each { String dependencyName ->
         if (!flowMap.containsKey(dependencyName) && !jobMap.containsKey(dependencyName)) {
           project.logger.lifecycle("WorkflowJobChecker ERROR: Workflow ${workflow.name} contains the subflow ${flow.name} that declares the flow dependency target ${dependencyName}, but this target does not exist in the workflow.");
@@ -117,14 +117,14 @@ class WorkflowJobChecker extends BaseStaticChecker {
       workflow.buildWorkflowTargets(subflow);
 
       // WARN if a workflow contains jobs that will not be built
-      jobMap.values().each() { Job job ->
+      jobMap.values().each { Job job ->
         if (!workflow.jobsToBuild.contains(job)) {
           project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} contains the job ${job.name} that is not targeted by the workflow and is not a transitive dependency of the workflow targets. This job will not be built.");
         }
       }
 
       // WARN if a workflow contains subflows that will not be built
-      flowMap.values().each() { Workflow flow ->
+      flowMap.values().each { Workflow flow ->
         if (!workflow.flowsToBuild.contains(flow)) {
           project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} contains the subflow ${flow.name} that is not targeted by the workflow and is not a transitive dependency of the workflow targets. This subflow will not be built.");
         }
@@ -132,7 +132,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // Recursively check each of the subflows
-    workflow.workflows.each() { Workflow flow ->
+    workflow.workflows.each { Workflow flow ->
       visitWorkflow(flow, true);
     }
 

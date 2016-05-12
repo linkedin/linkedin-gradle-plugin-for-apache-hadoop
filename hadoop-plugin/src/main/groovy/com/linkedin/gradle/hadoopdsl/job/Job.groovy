@@ -123,7 +123,7 @@ class Job {
     }
 
     if (dependencyNames.size() > 0) {
-      allProperties["dependencies"] = dependencyNames.collect() { String targetName -> return buildFileName(parentScope, targetName) }.join(",");
+      allProperties["dependencies"] = dependencyNames.collect { String targetName -> return buildFileName(parentScope, targetName) }.join(",");
     }
 
     return allProperties;
@@ -275,7 +275,7 @@ class Job {
   void set(Map args) {
     if (args.containsKey("properties")) {
       Map<String, Object> properties = args.properties;
-      properties.each() { String name, Object value ->
+      properties.each { String name, Object value ->
         setJobProperty(name, value);
       }
     }
@@ -309,7 +309,7 @@ class Job {
    * @param propertySet The BasePropertySet to union to the job
    */
   void unionProperties(BasePropertySet propertySet) {
-    propertySet.jobProperties.each() { String name, Object value ->
+    propertySet.jobProperties.each { String name, Object value ->
       if (!jobProperties.containsKey(name)) {
         setJobProperty(name, value);
       }

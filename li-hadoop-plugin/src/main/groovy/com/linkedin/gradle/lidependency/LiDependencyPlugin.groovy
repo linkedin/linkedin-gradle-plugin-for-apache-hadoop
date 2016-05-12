@@ -19,8 +19,6 @@ import com.linkedin.gradle.dependency.CheckDependencyTask;
 import com.linkedin.gradle.dependency.DependencyPlugin;
 import com.linkedin.gradle.dependency.DisallowLocalDependencyTask;
 
-import org.gradle.api.Project;
-
 /**
  * LinkedIn-specific customizations to the Dependency Plugin.
  */
@@ -40,13 +38,19 @@ class LiDependencyPlugin extends DependencyPlugin {
    * Factory method to return the CheckDependencyTask class. Subclasses can override this method to
    * return their own CheckDependencyTask class.
    *
-   * @return Class that implements the CheckDependencyTask
+   * @return Class that extends the CheckDependencyTask class
    */
   @Override
   Class<? extends CheckDependencyTask> getCheckDependencyTask() {
     return LiCheckDependencyTask.class;
   }
 
+  /**
+   * Factory method to return the DisallowLocalDependencyTask class. Subclasses can override this
+   * method to return their own DisallowLocalDependencyTask class.
+   *
+   * @return Class that extends the DisallowLocalDependencyTask class
+   */
   @Override
   Class<? extends DisallowLocalDependencyTask> getDisallowLocalDependencyTask() {
     return LiDisallowLocalDependencyTask.class;

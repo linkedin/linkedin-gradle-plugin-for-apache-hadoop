@@ -15,9 +15,6 @@
  */
 package com.linkedin.gradle.spark;
 
-import com.linkedin.gradle.spark.SparkExtension;
-import com.linkedin.gradle.spark.SparkPlugin;
-
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 

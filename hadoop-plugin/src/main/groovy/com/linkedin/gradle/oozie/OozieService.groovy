@@ -15,38 +15,41 @@
  */
 package com.linkedin.gradle.oozie;
 
+import java.security.AccessControlException;
+
 import org.apache.oozie.client.AuthOozieClient;
 import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowJob;
 import org.apache.oozie.client.WorkflowJob.Status;
-import org.gradle.api.Project;
 
-import java.security.AccessControlException;
+import org.gradle.api.Project;
 
 /**
  * OozieService class provides different methods to submit, run, start, suspend, resume, kill and get status of oozie job.
  */
-public class OozieService {
+class OozieService {
 
   // Initialize oozieClient
   OozieClient oozieClient = null;
 
   /**
-   * OozieService with simple authentication
-   * @param url The url of the oozie server
+   * OozieService with simple authentication.
+   *
+   * @param url The url of the Oozie server
    */
-  public OozieService(Project project, String url) {
+  OozieService(Project project, String url) {
     oozieClient = new OozieClient(url);
     project.logger.info("initialized OozieService with simple authentication");
   }
 
   /**
-   * OozieService with kerberos authentication
-   * @param url The url of the oozie server
+   * OozieService with Kerberos authentication.
+   *
+   * @param url The url of the Oozie server
    * @param krb5Conf The krb5conf file
    */
-  public OozieService(Project project, String url, File krb5Conf) throws AccessControlException {
+  OozieService(Project project, String url, File krb5Conf) throws AccessControlException {
     // Set kerberos authentication
     if (!checkForKinit()) {
       project.logger.error("The user has not kinited. Please kinit first.");
@@ -58,13 +61,14 @@ public class OozieService {
   }
 
   /**
-   * Submits an oozie workflow but doesn't start it
+   * Submits an Oozie workflow but doesn't start it.
+   *
    * @param jobPropertyFilePath
    * @return The jobId of the submitted job
    * @throws OozieClientException
    * @throws IOException
    */
-  public String submitJob(Project project, String jobPropertyFilePath) throws OozieClientException {
+  String submitJob(Project project, String jobPropertyFilePath) throws OozieClientException {
     Properties conf = oozieClient.createConfiguration();
     conf.load(new FileInputStream(jobPropertyFilePath));
     String jobId = oozieClient.submit(conf);
@@ -73,13 +77,14 @@ public class OozieService {
   }
 
   /**
-   * Submits and runs an oozie workflow
+   * Submits and runs an Oozie workflow.
+   *
    * @param jobPropertyFilePath
    * @return The jobId of the job
    * @throws OozieClientException
    * @throws IOException
    */
-  public String runJob(Project project, String jobPropertyFilePath) throws OozieClientException {
+  String runJob(Project project, String jobPropertyFilePath) throws OozieClientException {
     Properties conf = oozieClient.createConfiguration();
     conf.load(new FileInputStream(jobPropertyFilePath));
     String jobId = oozieClient.run(conf);
@@ -88,56 +93,61 @@ public class OozieService {
   }
 
   /**
-   * Suspends the job specified by jobId
+   * Suspends the job specified by jobId.
+   *
    * @param jobId The job id of the job to suspend
    * @throws OozieClientException
    */
-  public void suspendJob(Project project, String jobId) throws OozieClientException {
+  void suspendJob(Project project, String jobId) throws OozieClientException {
     project.logger.info("Suspending job ${jobId} ...");
     oozieClient.suspend(jobId);
     project.logger.info("${jobId} suspended successfully");
   }
 
   /**
-   * Resumes a job which was suspended
+   * Resumes a job which was suspended.
+   *
    * @param jobId The job id of the job to resume
    * @throws OozieClientException
    */
-  public void resumeJob(Project project, String jobId) throws OozieClientException {
+  void resumeJob(Project project, String jobId) throws OozieClientException {
     project.logger.info("Resuming job ${jobId} ...");
     oozieClient.resume(jobId);
     project.logger.info("${jobId} resumed successfully");
   }
 
   /**
-   * Kills a job specified by the job id
+   * Kills a job specified by the job id.
+   *
    * @param jobId The job id of the job to kill
    * @throws OozieClientException
    */
-  public void killJob(Project project, String jobId) throws OozieClientException {
+  void killJob(Project project, String jobId) throws OozieClientException {
     project.logger.info("Killing job ${jobId}");
     oozieClient.kill(jobId);
     project.logger.info("${jobId} killed successfully");
   }
 
   /**
-   * Starts the job specified by the job id
+   * Starts the job specified by the job id.
+   *
    * @param jobId The job id of the job to start
    * @throws OozieClientException
    */
-  public void start(Project project, String jobId) throws OozieClientException {
+  void start(Project project, String jobId) throws OozieClientException {
     project.logger.info("Starting job ${jobId}");
     oozieClient.start(jobId);
     project.logger.info("${jobId} started successfully");
   }
 
   /**
-   * Gets the status of the job specified by the job id
+   * Gets the status of the job specified by the job id.
+   *
    * @param jobID The job id of the job
    * @return The status of the job specified by job id
    * @throws OozieClientException
    */
-  public Status getJobStatus(Project project, String jobId) throws OozieClientException {
+  Status getJobStatus(Project project, String jobId) throws OozieClientException {
     WorkflowJob job = oozieClient.getJobInfo(jobId);
     project.logger.info("Getting job status for job ${jobId}");
     Status jobStatus = job.getStatus();
@@ -161,4 +171,3 @@ public class OozieService {
     return (process.exitValue() == 0);
   }
 }
-

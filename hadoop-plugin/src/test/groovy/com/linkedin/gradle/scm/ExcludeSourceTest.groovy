@@ -19,7 +19,6 @@ import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.tests.HelperFunctions;
 
 import org.gradle.api.Project;
-import org.gradle.api.distribution.Distribution;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import org.junit.Assert;
@@ -32,7 +31,7 @@ class ExcludeSourceTest {
   private String scmPluginJsonPath;
 
   @Before
-  public void setup() {
+  void setup() {
     plugin = new TestScmPlugin();
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
@@ -48,7 +47,7 @@ class ExcludeSourceTest {
 
     HelperFunctions.createFilesForTesting("${folderPath}/dist", "class", 5);
     HelperFunctions.createFilesForTesting("${folderPath}/resources", "avro", 5);
-    HelperFunctions.createFilesForTesting("${folderPath}/src","java", 5);
+    HelperFunctions.createFilesForTesting("${folderPath}/src", "java", 5);
   }
 
   /**
@@ -66,7 +65,7 @@ class ExcludeSourceTest {
    * Exclude all directories except for src and exclude only a single file from src (sample0.java).
    */
   @Test
-  public void testExclusionOfSingleFile() {
+  void testExclusionOfSingleFile() {
     String json = """{
       "sourceExclude": [
         "**.gradle",
@@ -93,7 +92,7 @@ class ExcludeSourceTest {
    * Exclude all the directories except for src.
    */
   @Test
-  public void testExclusionOfDirectories() {
+  void testExclusionOfDirectories() {
     String json = """{
       "sourceExclude": [
         "**.gradle",
@@ -119,7 +118,7 @@ class ExcludeSourceTest {
    * Include all directories and files.
    */
   @Test
-  public void testInclusionOfDirectories(){
+  void testInclusionOfDirectories(){
     String json = """{
       "sourceExclude": [
         "**.gradle",
@@ -153,7 +152,7 @@ class ExcludeSourceTest {
    * Exclude files based on the file type: exclude *.avro and *.class files.
    */
   @Test
-  public void testExclusionOfFileType() {
+  void testExclusionOfFileType() {
     String json = """{
       "sourceExclude": [
         "**/*.avro",
@@ -179,7 +178,7 @@ class ExcludeSourceTest {
    * Add xml files to resources but exclude only one type of file (avro) from resources directory.
    */
   @Test
-  public void testFilesInsideDirectory(){
+  void testFilesInsideDirectory(){
     HelperFunctions.createFilesForTesting(project.getProjectDir().absolutePath + "/resources", "xml", 5);
 
     String json = """{
@@ -206,11 +205,6 @@ class ExcludeSourceTest {
   }
 
   class TestScmPlugin extends ScmPlugin {
-    @Override
-    void apply(Project project) {
-      super.apply(project);
-    }
-
     @Override
     String getPluginJsonPath(Project project) {
       return scmPluginJsonPath;

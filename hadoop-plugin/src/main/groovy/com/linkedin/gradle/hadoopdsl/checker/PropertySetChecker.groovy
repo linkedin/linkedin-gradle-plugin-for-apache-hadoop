@@ -49,8 +49,9 @@ class PropertySetChecker extends BaseStaticChecker {
   @Override
   void visitJob(Job job) {
     String basePropertySetName = job.basePropertySetName;
-    if (basePropertySetName == null)
+    if (basePropertySetName == null) {
       return;
+    }
 
     Object object = parentScope.lookup(basePropertySetName);
 
@@ -74,8 +75,9 @@ class PropertySetChecker extends BaseStaticChecker {
   @Override
   void visitProperties(Properties props) {
     String basePropertySetName = props.basePropertySetName;
-    if (basePropertySetName == null)
+    if (basePropertySetName == null) {
       return;
+    }
 
     Object object = parentScope.lookup(basePropertySetName);
 

@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.oozie;
 
-public final class OozieConstants {
+final class OozieConstants {
   /**
    * The URI of the cluster e.g. webhdfs://eat1-nertznn01.grid.linkedin.com:50070.
    */

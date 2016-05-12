@@ -73,13 +73,13 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     if (cacheArchives.size() > 0) {
-      String mrCacheArchives = cacheArchives.collect() { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
+      String mrCacheArchives = cacheArchives.collect { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
       setConfProperty("mapred.cache.archives", mrCacheArchives);
       setConfProperty("mapred.create.symlink", "yes");
     }
 
     if (cacheFiles.size() > 0) {
-      String mrCacheFiles = cacheFiles.collect() { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
+      String mrCacheFiles = cacheFiles.collect { symLink, pathName -> return "${pathName}#${symLink}"; }.join(",")
       setConfProperty("mapred.cache.files", mrCacheFiles);
       setConfProperty("mapred.create.symlink", "yes");
     }
@@ -139,7 +139,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
       String pathName = entry.value;
       String lowerPath = pathName.toLowerCase();
 
-      boolean found = archiveExt.any() { String ext -> return lowerPath.endsWith(ext); };
+      boolean found = archiveExt.any { String ext -> return lowerPath.endsWith(ext); };
       if (!found) {
         throw new Exception("File given to cachesArchive must be one of: " + archiveExt.toString());
       }
@@ -208,13 +208,13 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
 
     if (args.containsKey("confProperties")) {
       Map<String, Object> confProperties = args.confProperties;
-      confProperties.each() { String name, Object value ->
+      confProperties.each { String name, Object value ->
         setConfProperty(name, value);
       }
     }
     if (args.containsKey("hadoopProperties")) {
       Map<String, Object> hadoopProperties = args.hadoopProperties;
-      hadoopProperties.each() { String name, Object value ->
+      hadoopProperties.each { String name, Object value ->
         setConfProperty(name, value);
       }
     }
@@ -242,7 +242,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
   void unionProperties(BasePropertySet propertySet) {
     super.unionProperties(propertySet);
 
-    propertySet.confProperties.each() { String name, Object value ->
+    propertySet.confProperties.each { String name, Object value ->
       if (!confProperties.containsKey(name)) {
         setConfProperty(name, value);
       }

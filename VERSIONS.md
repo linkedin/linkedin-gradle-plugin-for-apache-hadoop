@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.2
+
+* Large number of minor fixes to reduce LinkedIn codestyle and codenarc check failures 
+* Increase build robustness for LinkedIn ligradle builds, which keep changing how SNAPSHOT versions work
+
 0.9.1
 
 * LIHADOOP-18499 Add extra typed methods for Hadoop DSL SparkJob properties

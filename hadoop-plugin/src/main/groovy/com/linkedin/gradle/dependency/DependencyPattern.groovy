@@ -15,25 +15,24 @@
  */
 package com.linkedin.gradle.dependency;
 
-public enum SEVERITY {
+enum SEVERITY {
   INFO,
   WARN,
   ERROR
 }
 
 class DependencyPattern {
-
   String groupPattern;
   String namePattern;
   String versionPattern;
   SEVERITY severity;
   String message;
 
-  public DependencyPattern(String groupPattern, String namePattern, String versionPattern, SEVERITY severity) {
+  DependencyPattern(String groupPattern, String namePattern, String versionPattern, SEVERITY severity) {
     this(groupPattern, namePattern, versionPattern, severity, "");
   }
 
-  public DependencyPattern(String groupPattern, String namePattern, String versionPattern, SEVERITY severity, String message) {
+  DependencyPattern(String groupPattern, String namePattern, String versionPattern, SEVERITY severity, String message) {
     this.groupPattern = groupPattern;
     this.namePattern = namePattern;
     this.versionPattern = versionPattern;
@@ -42,13 +41,12 @@ class DependencyPattern {
   }
 
   @Override
-  public boolean equals(Object dependencyPattern) {
+  boolean equals(Object dependencyPattern) {
     return dependencyPattern.groupPattern.equals(groupPattern) && dependencyPattern.namePattern.equals(namePattern) && dependencyPattern.versionPattern.equals(versionPattern) && dependencyPattern.severity.toString().equals(severity.toString()) && dependencyPattern.message.equals(message);
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return "groupPattern : ${groupPattern}, namePattern ${namePattern}, versionPattern : ${versionPattern}, severity : ${severity}, message : ${message}";
   }
-
 }
