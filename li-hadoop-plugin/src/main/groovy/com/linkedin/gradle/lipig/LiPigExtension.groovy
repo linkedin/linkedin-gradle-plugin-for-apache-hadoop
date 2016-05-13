@@ -32,7 +32,7 @@ class LiPigExtension extends PigExtension {
   LiPigExtension(Project project) {
     super(project);
 
-    // LinkedIn-specific properties to run on the Nertz gateway
+    // LinkedIn-specific properties to run on the gateway nodes
     if (project.configurations.find { it.name == "azkabanRuntime" } != null) {
       this.dependencyConf = "azkabanRuntime";
     }
@@ -41,8 +41,8 @@ class LiPigExtension extends PigExtension {
     }
 
     this.pigCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
-    this.pigCommand = "/export/apps/pig/latest/bin/pig";
-    this.remoteHostName = "eat1-nertzgw01.grid.linkedin.com";
+    this.pigCommand = "/export/apps/pig/linkedin-pig-h2-0.11.1.li69-1/bin/pig";
+    this.remoteHostName = "ltx1-holdemgw01.grid.linkedin.com";
     this.remoteCacheDir = "/export/home/${System.getProperty('user.name')}/.hadoopPlugin";
     this.remoteSshOpts = "-q -K";
   }

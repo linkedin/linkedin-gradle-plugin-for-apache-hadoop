@@ -17,7 +17,7 @@ package com.linkedin.gradle.oozie;
 
 class OozieProject {
   /**
-   * The URI of the cluster e.g. webhdfs://eat1-nertznn01.grid.linkedin.com:50070.
+   * The URI of the cluster e.g. webhdfs://theNameNode.linkedin.com:50070.
    */
   String clusterURI = "";
 
@@ -40,5 +40,4 @@ class OozieProject {
    * The path on HDFS where the project directory must be created e.g. /user/annag.
    */
   String uploadPath = "";
-
 }

@@ -79,7 +79,7 @@ class LiOozieDslCompiler extends OozieDslCompiler {
       metastoreURI.setValue(job.jobProperties.get("hcat.metastore.uri"));
     }
     else {
-      metastoreURI.setValue("thrift://eat1-nertzhcat01.grid.linkedin.com:7552");
+      metastoreURI.setValue("thrift://ltx1-holdemhcat01.grid.linkedin.com:7552");
     }
 
     metastorePrincipal.setName("hcat.metastore.principal");

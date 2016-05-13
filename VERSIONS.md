@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.3
+
+* Update LinkedIn-specific overrides for tasks
+
 0.9.2
 
 * Large number of minor fixes to reduce LinkedIn codestyle and codenarc check failures 
@@ -112,7 +116,7 @@ Establish a clear place in the HadoopPlugin class where task dependencies are se
 0.7.1
 
 * LIHADOOP-15728 Update dependency pattern blacklist rules for li-hadoop-plugin
-* Make LinkedIn subclass for the Spark Plugin use eat1-nertzgw03 instead of eat1-nertzgw01
+* Make LinkedIn subclass for the Spark Plugin use the designated Spark gateway host
 * Expose lookupRef as a DSL method
 
 0.7.0
