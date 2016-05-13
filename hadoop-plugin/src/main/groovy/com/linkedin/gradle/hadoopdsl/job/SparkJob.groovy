@@ -127,7 +127,7 @@ class SparkJob extends HadoopJavaProcessJob {
     super.set(args);
     if (args.containsKey("sparkConfs")) {
       Map<String, Object> sparkConfs = args.sparkConfs;
-      sparkConfs.each() { String name, Object value ->
+      sparkConfs.each { String name, Object value ->
         setConf(name, value);
       }
     }

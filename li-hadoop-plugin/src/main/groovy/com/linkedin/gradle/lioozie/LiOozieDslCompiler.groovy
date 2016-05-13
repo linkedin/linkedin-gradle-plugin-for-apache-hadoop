@@ -47,27 +47,26 @@ class LiOozieDslCompiler extends OozieDslCompiler {
    */
   @Override
   void visitProperties(Properties props) {
-
     if(!props.jobProperties.containsKey("nameNode")) {
-      props.jobProperties.put("nameNode","hdfs://eat1-nertznn01.grid.linkedin.com:9000");
+      props.jobProperties.put("nameNode", "hdfs://ltx1-holdemnn01.grid.linkedin.com:9000");
     }
 
     if (!props.jobProperties.containsKey("jobTracker")) {
-      props.jobProperties.put("jobTracker","eat1-nertzrm01.grid.linkedin.com:8032");
+      props.jobProperties.put("jobTracker", "ltx1-holdemrm01.grid.linkedin.com:8032");
     }
 
     super.visitProperties(props);
   }
 
   /**
-   * Linkedin specific visitor for the hive job. We need to provide credentials to contact the metastore
-   * with kerberos. We'll support credentials separately in the dsl later.
-   * @param job The HiveJob to build;
+   * Linkedin-specific visitor for Hive jobss. We need to provide credentials to contact the
+   * Hive Metastore with Kerberos. We'll support credentials separately in the DSL later.
+   *
+   * @param job The HiveJob to build
    */
   @Override
   void visitJobToBuild(HiveJob job) {
-
-    // Create credentials to contact hive metastore with kerberos.
+    // Create credentials to contact the Hive Metastore with Kerberos
     CREDENTIALS credAction = objectFactory.createCREDENTIALS();
     CREDENTIAL credential = new CREDENTIAL();
     credential.setType('hive_metastore');
@@ -131,7 +130,6 @@ class LiOozieDslCompiler extends OozieDslCompiler {
 
       oozieJob.setPrepare(prepare);
     }
-
 
     // Add the Hadooop job conf properties
     if (job.confProperties.size() > 0) {

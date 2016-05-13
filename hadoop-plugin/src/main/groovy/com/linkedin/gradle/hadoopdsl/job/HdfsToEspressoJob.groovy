@@ -1,7 +1,5 @@
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-
 /**
  * Job class for type=hdfsToEspressoJob jobs.
  *
@@ -42,7 +40,7 @@ class HdfsToEspressoJob extends Job {
   String espressoOperation;
   String errorHdfsPath;
 
-  public HdfsToEspressoJob(String jobName) {
+  HdfsToEspressoJob(String jobName) {
     super(jobName);
     setJobProperty("type", "hdfsToEspresso");
   }

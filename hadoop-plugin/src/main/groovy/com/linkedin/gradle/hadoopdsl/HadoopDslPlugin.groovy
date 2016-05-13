@@ -166,10 +166,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
       defaultSet.putAll(defs);
       return defaultSet;
     }
-    else {
-      String name = args.name;
-      return definitionSet(name, defs);
-    }
+
+    String name = args.name;
+    return definitionSet(name, defs);
   }
 
   /**
@@ -307,7 +306,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *
    * @param closure The closure to save
    * @param name The name of the closure, or the empty string if the closure should be treated as
-   *             an anonymous closure 
+   *             an anonymous closure
    * @return The declared closure
    */
   Closure hadoopClosure(Closure closure, String name) {

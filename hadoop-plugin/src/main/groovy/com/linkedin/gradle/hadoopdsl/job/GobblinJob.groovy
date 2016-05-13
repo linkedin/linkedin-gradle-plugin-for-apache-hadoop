@@ -1,7 +1,5 @@
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-
 /**
  * Job class for type=gobblinJob jobs.
  *
@@ -35,7 +33,7 @@ class GobblinJob extends Job {
   String workDir;
   String preset;
 
-  public GobblinJob(String jobName) {
+  GobblinJob(String jobName) {
     super(jobName);
     setJobProperty("type", "gobblin");
   }
@@ -62,7 +60,7 @@ class GobblinJob extends Job {
 
   /**
    * Helper method to set the properties on a cloned job.
-   * 
+   *
    * @param cloneJob The job being cloned
    * @return The cloned job
    */

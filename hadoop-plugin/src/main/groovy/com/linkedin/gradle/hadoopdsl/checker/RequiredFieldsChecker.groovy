@@ -16,7 +16,6 @@
 package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.Properties;
-import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;

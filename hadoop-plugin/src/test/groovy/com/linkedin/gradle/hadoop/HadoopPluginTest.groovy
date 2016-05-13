@@ -31,17 +31,14 @@ import org.junit.Test;
  * Unit tests for the HadoopPlugin class.
  */
 class HadoopPluginTest {
-
   /**
    * Simple unit test to make sure applying the plugin succeeds and that the hadoopRuntime
    * configuration was created.
    */
   @Test
-  public void testApplyHadoopPlugin() {
-
+  void testApplyHadoopPlugin() {
     HadoopPlugin hadoopPlugin = new HadoopPlugin();
     Project project = ProjectBuilder.builder().build();
-
     hadoopPlugin.apply(project);
 
     // Check that hadoop configurations were created successfully.
@@ -54,8 +51,7 @@ class HadoopPluginTest {
    * compile, runtime, hadoopRuntime, default.
    */
   @Test
-  public void testClusterProvidedConfiguration() {
-
+  void testClusterProvidedConfiguration() {
     // Create plugins
     HadoopPlugin hadoopPlugin = new HadoopPlugin();
     JavaPlugin javaPlugin = new JavaPlugin();
@@ -106,7 +102,6 @@ class HadoopPluginTest {
    */
   @Test
   void testClusterProvidedIDESupport() {
-
     HadoopPlugin hadoopPlugin = new HadoopPlugin();
     IdeaPlugin ideaPlugin = new IdeaPlugin();
     EclipsePlugin eclipsePlugin = new EclipsePlugin();
@@ -130,6 +125,5 @@ class HadoopPluginTest {
 
     Assert.assertTrue(projectWithJavaPlugin.idea.module.scopes.PROVIDED.plus.contains(projectWithJavaPlugin.configurations["clusterProvided"]));
     Assert.assertTrue(projectWithJavaPlugin.eclipse.classpath.plusConfigurations.contains(projectWithJavaPlugin.configurations["clusterProvided"]));
-
   }
 }

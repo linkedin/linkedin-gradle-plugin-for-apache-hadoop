@@ -8,7 +8,6 @@ import org.gradle.api.Project;
  * The ValidFieldsChecker checks if the provided field values are valid.
  */
 class ValidFieldsChecker extends BaseStaticChecker {
-
   /**
    * Constructor for the ValidFieldsChecker
    *
@@ -20,22 +19,18 @@ class ValidFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(SparkJob job) {
-
     if (job.executorCores != null && job.executorCores <= 0) {
       project.logger.lifecycle("ValidFieldsChecker ERROR: Value of executorCores must be greater than 0");
       foundError = true;
     }
-
     if (job.numExecutors != null && job.numExecutors <= 0) {
       project.logger.lifecycle("ValidFieldsChecker ERROR: Value of numExecutors must be greater than 0");
       foundError = true;
     }
-
     if (job.driverMemory != null && !isValidMemory(job.driverMemory)) {
       project.logger.lifecycle("ValidFieldsChecker ERROR: driverMemory doesn't conform to a valid spark memory specifier. Memory should be specified in one of [b,k,kb,m,mb,g,gb,t,tb,p,pb]");
       foundError = true;
     }
-
     if (job.executorMemory != null && !isValidMemory(job.executorMemory)) {
       project.logger.lifecycle("ValidFieldsChecker ERROR: executorMemory doesn't conform to a valid spark memory specifier. Memory should be specified in one of [b,k,kb,m,mb,g,gb,t,tb,p,pb]");
       foundError = true;
@@ -49,9 +44,6 @@ class ValidFieldsChecker extends BaseStaticChecker {
    */
   boolean isValidMemory(String memory) {
     String memoryRegEx = /\d*(b|k|kb|m|mb|g|gb|t|tb|p|pb)/
-    if (memory.matches(memoryRegEx)) {
-      return true;
-    }
-    return false;
+    return memory.matches(memoryRegEx);
   }
 }

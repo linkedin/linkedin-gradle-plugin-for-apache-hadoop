@@ -16,7 +16,6 @@
 package com.linkedin.gradle.oozie;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
-import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
 import groovy.json.JsonBuilder;

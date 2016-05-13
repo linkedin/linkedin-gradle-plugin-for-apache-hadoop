@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -23,7 +22,7 @@ import org.junit.Test;
  */
 class NamedScopeTest {
   @Test
-  public void testFullyQualifiedLookup() {
+  void testFullyQualifiedLookup() {
     NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
     global.scope.bind("foo", 1);
     global.scope.bind("bar", 2);
@@ -65,7 +64,7 @@ class NamedScopeTest {
   }
 
   @Test
-  public void testLookupRefMethod() {
+  void testLookupRefMethod() {
     NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
     global.scope.bind("foo", 1);
     global.scope.bind("bar", 2);
@@ -137,7 +136,7 @@ class NamedScopeTest {
   }
 
   @Test
-  public void testQualifiedLookup() {
+  void testQualifiedLookup() {
     NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
     global.scope.bind("foo", 1);
     global.scope.bind("bar", 2);
@@ -171,7 +170,7 @@ class NamedScopeTest {
   }
 
   @Test
-  public void testQualifiedNameAndScope() {
+  void testQualifiedNameAndScope() {
     NamedScope global = new NamedScope("", null);
     assert(global.getQualifiedName().equals(""));
     assert(global.findGlobalScope() == global);
@@ -186,7 +185,7 @@ class NamedScopeTest {
   }
 
   @Test
-  public void testUnqualifiedLookup() {
+  void testUnqualifiedLookup() {
     NamedScopeContainerWrapper global = new NamedScopeContainerWrapper(null, "");
     global.scope.bind("foo", 1);
     global.scope.bind("bar", 2);

@@ -31,7 +31,7 @@ class HadoopZipTest {
   Project project;
 
   @Before
-  public void setup() {
+  void setup() {
     plugin = new HadoopZipPluginTest();
     project = ProjectBuilder.builder().build();
     project.apply plugin: 'distribution';
@@ -72,7 +72,7 @@ class HadoopZipTest {
    * Basic test using the regular zip method to add some things to the zip.
    */
   @Test
-  public void testHadoopZipExtension() {
+  void testHadoopZipExtension() {
     plugin.apply(project);
 
     project.extensions.hadoopZip.zip("magic", {
@@ -108,7 +108,7 @@ class HadoopZipTest {
    * Basic test that just adds jars from the hadoopRuntime configuration.
    */
   @Test
-  public void testHadoopConfiguration() {
+  void testHadoopConfiguration() {
     plugin.apply(project);
 
     hadoopRuntime.getDependencies().add(project.getDependencies().create(project.fileTree("AzRoot/custom-lib")));
@@ -127,7 +127,7 @@ class HadoopZipTest {
    * Test for using the base method and then adding to it when declaring a zip.
    */
   @Test
-  public void testBaseCopySpec() {
+  void testBaseCopySpec() {
     plugin.apply(project);
 
     // Add sources and resources using the base method
@@ -168,7 +168,7 @@ class HadoopZipTest {
    * Test that specifies excludes in the zip that apply to the base.
    */
   @Test
-  public void testBaseUnion() {
+  void testBaseUnion() {
     plugin.apply(project);
 
     // Create a new folder called groovy under src and add 5 groovy files.
@@ -212,7 +212,7 @@ class HadoopZipTest {
    * should take precedence over the base declarations).
    */
   @Test
-  public void testBaseOverwrite() {
+  void testBaseOverwrite() {
     plugin.apply(project);
 
     // Create a new folder called groovy under src and add 5 groovy files.

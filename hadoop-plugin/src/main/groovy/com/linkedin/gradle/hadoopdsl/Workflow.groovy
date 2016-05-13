@@ -202,7 +202,7 @@ class Workflow extends BaseNamedScopeContainer {
   Map<String, Workflow> buildFlowMap() {
     Map<String, Workflow> flowMap = new HashMap<String, Workflow>();
 
-    workflows.each() { Workflow flow ->
+    workflows.each { Workflow flow ->
       flowMap.put(flow.name, flow);
     }
 
@@ -218,7 +218,7 @@ class Workflow extends BaseNamedScopeContainer {
   Map<String, Job> buildJobMap() {
     Map<String, Job> jobMap = new HashMap<String, Job>();
 
-    jobs.each() { Job job ->
+    jobs.each { Job job ->
       jobMap.put(job.name, job);
     }
 

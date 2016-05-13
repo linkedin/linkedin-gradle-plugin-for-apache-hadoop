@@ -21,13 +21,13 @@ package com.linkedin.gradle.hadoopdsl;
 class NamedScopeContainerWrapper extends BaseNamedScopeContainer {
   String name;
 
-  public NamedScopeContainerWrapper(NamedScope parentScope, String name) {
+  NamedScopeContainerWrapper(NamedScope parentScope, String name) {
     super(parentScope, name);
     this.name = name;
   }
 
   @Override
-  public BaseNamedScopeContainer clone(NamedScope parentScope) {
+  BaseNamedScopeContainer clone(NamedScope parentScope) {
     return new NamedScopeContainerWrapper(parentScope, name);
   }
 }

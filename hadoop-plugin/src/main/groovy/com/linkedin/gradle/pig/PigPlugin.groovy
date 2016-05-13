@@ -174,7 +174,7 @@ class PigPlugin implements Plugin<Project> {
           logger.lifecycle("\n----------");
           logger.lifecycle("Job name: ${jobName}");
 
-          allProperties.each() { key, value ->
+          allProperties.each { key, value ->
             logger.lifecycle("${key}=${value}");
           }
         }

@@ -20,7 +20,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
-import com.linkedin.gradle.hadoopdsl.PropertySet;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 
@@ -152,22 +151,22 @@ class AzkabanDslCompiler extends BaseCompiler {
     workflow.buildWorkflowTargets(subflow);
 
     // Visit each job to build in the workflow
-    workflow.jobsToBuild.each() { Job job ->
+    workflow.jobsToBuild.each { Job job ->
       visitJobToBuild(job);
     }
 
     // Visit each properties object in the workflow
-    workflow.properties.each() { Properties props ->
+    workflow.properties.each { Properties props ->
       visitProperties(props);
     }
 
     // Visit each subflow to build in the workflow
-    workflow.flowsToBuild.each() { Workflow flow ->
+    workflow.flowsToBuild.each { Workflow flow ->
       visitWorkflow(flow, true);
     }
 
     // Visit each child namespace in the workflow
-    workflow.namespaces.each() { Namespace namespace ->
+    workflow.namespaces.each { Namespace namespace ->
       visitNamespace(namespace);
     }
 

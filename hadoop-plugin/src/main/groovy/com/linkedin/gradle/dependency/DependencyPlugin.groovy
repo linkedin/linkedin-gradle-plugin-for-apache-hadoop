@@ -48,7 +48,7 @@ class DependencyPlugin implements Plugin<Project> {
    * Method to create the checkDependencies task.
    *
    * @param project The Gradle project
-   * @return The created task.
+   * @return The created task
    */
   Task createCheckForDependenciesTask(Project project) {
     return project.tasks.create(name: "checkDependencies", type: getCheckDependencyTask()) {
@@ -58,13 +58,14 @@ class DependencyPlugin implements Plugin<Project> {
   }
 
   /**
-   * Method to create the task disallowLocalDependencies
-   * @param project The gradle project
-   * @return The created task.
+   * Method to create the disallowLocalDependencies task.
+   *
+   * @param project The Gradle project
+   * @return The created task
    */
   Task createDisallowLocalDependenciesTask(Project project) {
     return project.tasks.create(name: "disallowLocalDependencies", type: getDisallowLocalDependencyTask()) {
-      description = "Task to disallow users from checking in local dependencies"
+      description = "Task to disallow users from checking in local dependencies";
       group = "Hadoop Plugin";
     }
   }
@@ -73,17 +74,17 @@ class DependencyPlugin implements Plugin<Project> {
    * Factory method to return the CheckDependencyTask class. Subclasses can override this method to
    * return their own CheckDependencyTask class.
    *
-   * @return Class that implements the CheckDependencyTask
+   * @return Class that extends the CheckDependencyTask class
    */
   Class<? extends CheckDependencyTask> getCheckDependencyTask() {
     return CheckDependencyTask.class;
   }
 
   /**
-   * Factory method to return the DisallowLocalDependencyTask class. Subclasses can override this method to
-   * return their own DisallowLocalDependencyTask class.
+   * Factory method to return the DisallowLocalDependencyTask class. Subclasses can override this
+   * method to return their own DisallowLocalDependencyTask class.
    *
-   * @return Class that implements the DisallowLocalDependencyClass.
+   * @return Class that extends the DisallowLocalDependencyTask class
    */
   Class<? extends DisallowLocalDependencyTask> getDisallowLocalDependencyTask() {
     return DisallowLocalDependencyTask.class;

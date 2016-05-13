@@ -32,7 +32,6 @@ class HelperFunctions {
   static boolean checkExpectedZipFiles(Project project, String zipTaskName, Set<String> expected) {
     def zipTask = project.tasks.findByName(zipTaskName);
     zipTask.execute();
-
     Set<String> actual = new HashSet<String>();
 
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
@@ -63,5 +62,5 @@ class HelperFunctions {
         writer.print("blah");
       }
     }
-  }  
+  }
 }

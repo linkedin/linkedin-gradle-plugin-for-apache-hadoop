@@ -94,25 +94,25 @@ abstract class BasePropertySet {
   void set(Map args) {
     if (args.containsKey("confProperties")) {
       Map<String, String> confProperties = args.confProperties;
-      confProperties.each() { String name, Object value ->
+      confProperties.each { String name, Object value ->
         setConfProperty(name, value);
       }
     }
     if (args.containsKey("hadoopProperties")) {
       Map<String, Object> hadoopProperties = args.hadoopProperties;
-      hadoopProperties.each() { String name, Object value ->
+      hadoopProperties.each { String name, Object value ->
         setConfProperty(name, value);
       }
     }
     if (args.containsKey("jvmProperties")) {
       Map<String, String> jvmProperties = args.jvmProperties;
-      jvmProperties.each() { String name, Object value ->
+      jvmProperties.each { String name, Object value ->
         setJvmProperty(name, value);
       }
     }
     if (args.containsKey("properties")) {
       Map<String, String> properties = args.properties;
-      properties.each() { String name, Object value ->
+      properties.each { String name, Object value ->
         setJobProperty(name, value);
       }
     }
@@ -165,17 +165,17 @@ abstract class BasePropertySet {
    * @param propertySet The BasePropertySet to union to the current object
    */
   void unionProperties(BasePropertySet propertySet) {
-    propertySet.confProperties.each() { String name, Object value ->
+    propertySet.confProperties.each { String name, Object value ->
       if (!confProperties.containsKey(name)) {
         setConfProperty(name, value);
       }
     }
-    propertySet.jvmProperties.each() { String name, Object value ->
+    propertySet.jvmProperties.each { String name, Object value ->
       if (!jvmProperties.containsKey(name)) {
         setJvmProperty(name, value);
       }
     }
-    propertySet.jobProperties.each() { String name, Object value ->
+    propertySet.jobProperties.each { String name, Object value ->
       if (!jobProperties.containsKey(name)) {
         setJobProperty(name, value);
       }
