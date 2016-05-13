@@ -1,7 +1,7 @@
 buildscript {
   dependencies {
-    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.libVersion}.jar")
-    classpath files("${project.liPluginTestDir}/li-hadoop-plugin-${project.libVersion}.jar")
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
+    classpath files("${project.liPluginTestDir}/li-hadoop-plugin-${project.version}.jar", "${project.liPluginTestDir}/li-hadoop-plugin-${project.version}-SNAPSHOT.jar")
   }
 }
 
@@ -29,7 +29,7 @@ buildHadoopZips {
 
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
       actual.add(file.name);
-    }   
+    }
 
     if (!expected.equals(actual)) {
       throw new GradleException("Zip artifact from CRTHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
@@ -40,7 +40,7 @@ buildHadoopZips {
     expected.add("build.gradle");
     expected.add("buildMetadata.json");
     expected.add("buildZipsCRT.gradle");
-    expected.add("li-hadoop-plugin-test-sources.zip")
+    expected.add("li-hadoop-plugin-test-${project.version}-sources.zip")
 
     def zipTask = project.tasks.findByName("azkabanHadoopZip");
     Set<String> actual = new HashSet<String>();
