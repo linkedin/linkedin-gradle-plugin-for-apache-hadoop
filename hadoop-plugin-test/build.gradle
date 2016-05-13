@@ -41,12 +41,6 @@ testCases.each { File file ->
   testFiles.add(relaPath);
 };
 
-// Helper function to determine the version string. This is needed for LinkedIn snapshot builds.
-def buildLibVersion(Project project) {
-  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
-  return isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
-}
-
 // Helper function to determine the location of the Hadoop Plugin jars. LinkedIn internal builds
 // set a different build directory, so we allow overriding the location via a project property.
 def buildPluginDir(Project project) {
@@ -108,7 +102,6 @@ testFiles.each { fileName ->
 
   // Properties to work with LinkedIn internal builds. In LinkedIn internal builds, the build
   // directory is in a different place, so pass the location to the test case task.
-  String libVersion = buildLibVersion(project);
   String pluginDir = buildPluginDir(project);
 
   project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
@@ -117,9 +110,9 @@ testFiles.each { fileName ->
 
     // If a test fails that is supposed to pass, we want to see the stacktrace.
     if ("positive".equals(baseDirName)) {
-      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}", "--stacktrace"
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "--stacktrace"
     } else {
-      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "-PlibVersion=${libVersion}"
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}"
     }
 
     ignoreExitValue true;
@@ -187,15 +180,13 @@ test.dependsOn runTestCasesAndCompareOutput;
 // Test for including the sources zip and scmMetadata in the Hadoop zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
   dependsOn runTestCasesAndCompareOutput;
-  description = "Runs Hadoop DSL test case for building Hadoop zips"
+  description = "Runs Hadoop DSL test case for building Hadoop zips";
   group = "Hadoop DSL Tests";
 
-  String libVersion = buildLibVersion(project);
-  String pluginDir = buildPluginDir(project);
-
   buildFile = "buildZips.gradle";
-  startParameter.projectProperties.put("libVersion", libVersion);
+  String pluginDir = buildPluginDir(project);
   startParameter.projectProperties.put("pluginTestDir", pluginDir);
+  startParameter.projectProperties.put("version", project.version);
   tasks = ['buildHadoopZips'];
 }
 

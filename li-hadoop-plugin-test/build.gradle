@@ -20,12 +20,6 @@ task initTestCases() {
   group = "Hadoop DSL Tests";
 }
 
-// Helper function to determine the version string. This is needed for LinkedIn snapshot builds.
-def buildLibVersion(Project project) {
-  boolean isSnapshot = project.hasProperty("snapshot") && "true".equals(project.snapshot);
-  return isSnapshot ? "${project.version}-SNAPSHOT" : "${project.version}";
-}
-
 // Helper function to determine the location of the li-hadoop-plugin jars. LinkedIn internal builds
 // set a different build directory, so we allow overriding the location via a project property.
 def buildLiPluginDir(Project project) {
@@ -40,14 +34,13 @@ def buildPluginDir(Project project) {
 
 // Test for including the sources zip and scmMetadata in the Hadoop zip and building the CRT zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
-  String libVersion = buildLibVersion(project);
   String liPluginDir = buildLiPluginDir(project);
   String pluginDir = buildPluginDir(project);
 
   buildFile = "buildZipsCRT.gradle";
-  startParameter.projectProperties.put("libVersion", libVersion);
   startParameter.projectProperties.put("liPluginTestDir", liPluginDir);
   startParameter.projectProperties.put("pluginTestDir", pluginDir);
+  startParameter.projectProperties.put("version", project.version);
   tasks = ['buildHadoopZips'];
 }
 
