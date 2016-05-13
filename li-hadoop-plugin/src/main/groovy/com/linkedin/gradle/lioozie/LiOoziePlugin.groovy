@@ -72,8 +72,8 @@ class LiOoziePlugin extends OoziePlugin {
   @Override
   OozieProject makeDefaultOozieProject(Project project) {
     OozieProject oozieProject = makeOozieProject();
-    oozieProject.clusterURI = "webhdfs://eat1-nertznn01.grid.linkedin.com:50070";
-    oozieProject.oozieURI = "http://eat1-nertzoz01.grid.linkedin.com:11000/oozie/";
+    oozieProject.clusterURI = "webhdfs://ltx1-holdemnn01.grid.linkedin.com:50070";
+    oozieProject.oozieURI = "http://ltx1-holdemoz01.grid.linkedin.com:11000/oozie/";
     oozieProject.oozieZipTask = "";
     oozieProject.projectName = "";
     oozieProject.uploadPath = "/user/${System.getProperty('user.name')}";

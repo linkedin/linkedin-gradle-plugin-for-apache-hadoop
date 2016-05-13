@@ -29,11 +29,11 @@ package com.linkedin.gradle.hadoopdsl.job;
  *   kafkaPushJob('jobName') {
  *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
  *     usesTopic 'kafkatestpush'                                       // Required
- *     usesNameNode 'hdfs://eat1-magicnn01.grid.linkedin.com:9000'     // Required
+ *     usesNameNode 'hdfs://theNameNode.linkedin.com:9000'             // Required
  *     usesBatchNumBytes 1000000                                       // Optional
  *     usesDisableSchemaRegistration true                              // Optional
- *     usesKafkaUrl 'eat1-ei2-kafka-vip-c.stg.linkedin.com:10251'      // Optional
- *     usesSchemaRegistryUrl 'http://eat1-app501.stg.linkedin.com:10252/schemaRegistry/schemas'  // Optional
+ *     usesKafkaUrl 'theKafkaNode.linkedin.com:10251'                  // Optional
+ *     usesSchemaRegistryUrl 'http://theKafkaNode.linkedin.com:10252/schemaRegistry/schemas'  // Optional
  *     usesDisableAuditing true                                        // Optional
  *   }
  * </pre>

@@ -17,27 +17,28 @@ package com.linkedin.gradle.oozie;
 
 final class OozieConstants {
   /**
-   * The URI of the cluster e.g. webhdfs://eat1-nertznn01.grid.linkedin.com:50070.
+   * The URI of the cluster e.g. webhdfs://theNameNode.linkedin.com:50070.
    */
   public static final String OOZIE_CLUSTER_URI = "clusterURI";
 
   /**
-   * The URI of the oozie system to interact with. e.g. http://eat1-nertzoz01.grid.linkedin.com:11000/oozie/
+   * The URI of the Oozie system to interact with e.g. http://theOozieNode.linkedin.com:11000/oozie/.
    */
   public static final String OOZIE_SYSTEM_URI = "oozieURI";
 
   /**
-   * The Name of the project. A directory will be created at PATH_TO_UPLOAD with this name.
+   * The name of the project. A directory will be created at PATH_TO_UPLOAD with this name.
    */
   public static final String OOZIE_PROJECT_NAME = "projectName";
 
   /**
-   * The Name of the zipTask. e.g. azkabanHadoopZip
+   * The name of the zipTask e.g. azkabanHadoopZip.
    */
   public static final String OOZIE_ZIP_TASK = "oozieZipTask";
+
   /**
-   * The Path where project directory must be created e.g.
-   * webhdfs://eat1-nertznn01.grid.linkedin.com:50070/user/annag.
+   * The path where project directory must be created e.g.
+   * webhdfs://theNameNode.linkedin.com:50070/user/annag.
    */
   public static final String PATH_TO_UPLOAD = "uploadPath";
 }

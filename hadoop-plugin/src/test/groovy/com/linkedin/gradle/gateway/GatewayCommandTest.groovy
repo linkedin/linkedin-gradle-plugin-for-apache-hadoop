@@ -34,7 +34,7 @@ class GatewayCommandTest {
     project = ProjectBuilder.builder().withName("foobar").build();
     String localCacheDir = "~/.hadoopPlugin";
     String remoteCacheDir = "~/.hadoopPlugin";
-    String remoteHostName = "eat1-nertzaz03.grid.linkedin.com";
+    String remoteHostName = "theGatewayNode.linkedin.com";
     String remoteSshOpts = "";
     gateway = new GatewayCommand(project, localCacheDir, remoteCacheDir, remoteHostName, remoteSshOpts);
   }
@@ -42,8 +42,8 @@ class GatewayCommandTest {
   @Test
   void testGatewayCommandMethods() {
     assert("cd ~/.hadoopPlugin/${project.name}; testCommand" == gateway.buildCommandLocal("testCommand"));
-    assert("ssh  -tt eat1-nertzaz03.grid.linkedin.com 'cd ~/.hadoopPlugin/${project.name}; testCommand'" == gateway.buildCommandRemote("testCommand"));
-    assert("ssh  eat1-nertzaz03.grid.linkedin.com mkdir -p ~/.hadoopPlugin" == gateway.buildMkdirCommandRemote());
-    assert("rsync -av ~/.hadoopPlugin/${project.name} -e \"ssh \" eat1-nertzaz03.grid.linkedin.com:~/.hadoopPlugin" == gateway.buildRsyncCommandRemote());
+    assert("ssh  -tt theGatewayNode.linkedin.com 'cd ~/.hadoopPlugin/${project.name}; testCommand'" == gateway.buildCommandRemote("testCommand"));
+    assert("ssh  theGatewayNode.linkedin.com mkdir -p ~/.hadoopPlugin" == gateway.buildMkdirCommandRemote());
+    assert("rsync -av ~/.hadoopPlugin/${project.name} -e \"ssh \" theGatewayNode.linkedin.com:~/.hadoopPlugin" == gateway.buildRsyncCommandRemote());
   }
 }
