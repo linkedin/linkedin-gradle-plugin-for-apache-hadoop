@@ -1,6 +1,6 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
 type=VoldemortBuildandPush
-dependencies=jobs1_job11
+dependencies=jobs1_job11Required
 avro.key.field=memberId
 avro.serializer.versioned=false
 avro.value.field=firstName

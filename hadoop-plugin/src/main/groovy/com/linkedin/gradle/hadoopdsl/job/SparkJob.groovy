@@ -42,19 +42,18 @@ package com.linkedin.gradle.hadoopdsl.job;
  *     queue 'marathon'
  *}* </pre>
  */
-
 class SparkJob extends HadoopJavaProcessJob {
-  Map<String, Object> sparkConfs;
-  Set<String> flags;
-  List<String> appParams;
   String appClass;
-  String executionJar;
-  String yarnQueue;
-  String jars;
-  String executorMemory;
+  List<String> appParams;
   String driverMemory;
-  int executorCores;
-  int numExecutors;
+  String executionJar;
+  Integer executorCores;
+  String executorMemory;
+  Set<String> flags;
+  String jars;
+  Integer numExecutors;
+  Map<String, Object> sparkConfs;
+  String yarnQueue;
 
   /**
    * Constructor for a SparkJob.
@@ -63,10 +62,10 @@ class SparkJob extends HadoopJavaProcessJob {
    */
   SparkJob(String jobName) {
     super(jobName);
-    sparkConfs = new LinkedHashMap<String, Object>();
-    flags = new HashSet<String>();
-    appParams = new LinkedList<String>()
     setJobProperty("type", "spark");
+    appParams = new LinkedList<String>();
+    flags = new HashSet<String>();
+    sparkConfs = new LinkedHashMap<String, Object>();
   }
 
   /**
@@ -86,18 +85,17 @@ class SparkJob extends HadoopJavaProcessJob {
    * @return The cloned job
    */
   SparkJob clone(SparkJob cloneJob) {
-    cloneJob.properties.putAll(properties);
-    cloneJob.sparkConfs.putAll(sparkConfs);
-    cloneJob.flags.addAll(flags);
-    cloneJob.appParams.addAll(appParams);
     cloneJob.appClass = appClass;
-    cloneJob.executionJar = executionJar;
-    cloneJob.yarnQueue = yarnQueue;
-    cloneJob.executorCores = executorCores;
-    cloneJob.numExecutors = numExecutors;
+    cloneJob.appParams.addAll(appParams);
     cloneJob.driverMemory = driverMemory;
+    cloneJob.executionJar = executionJar;
+    cloneJob.executorCores = executorCores;
     cloneJob.executorMemory = executorMemory;
+    cloneJob.flags.addAll(flags);
     cloneJob.jars = jars;
+    cloneJob.numExecutors = numExecutors;
+    cloneJob.sparkConfs.putAll(sparkConfs);
+    cloneJob.yarnQueue = yarnQueue;
     return super.clone(cloneJob);
   }
 

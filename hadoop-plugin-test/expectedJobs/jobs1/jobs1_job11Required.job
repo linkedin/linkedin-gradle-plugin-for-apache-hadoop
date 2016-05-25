@@ -1,0 +1,5 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=spark
+dependencies=jobs1_job11
+class=com.linkedin.hello.spark.HelloSpark
+execution-jar=hello-spark.jar
