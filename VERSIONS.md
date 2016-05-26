@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.4
+
+* Fixes for Apache Spark job type
+
 0.9.3
 
 * Update LinkedIn-specific overrides for tasks
