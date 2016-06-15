@@ -13,7 +13,9 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  *   hdfsToTeradataJob('jobName') {
  *     hostName 'dw.foo.com'  // Required
  *     userId 'scott' //Required
- *     credentialName 'com.linkedin.teradata.scott' //Required
+ *     credentialName 'com.linkedin.teradata.scott' //*Required
+ *     encryptedCredential '' //*Required
+ *     cryptoKeyFilePath '/hdfs/file/path' //*Required
  *     sourceHdfsPath '/job/data/src' //Required
  *     targetTable 'teradatatable' //Required
  *     avroSchemaPath '/job/data/src/avro.avsc'
@@ -29,6 +31,8 @@ class HdfsToTeradataJob extends Job {
   String hostName;
   String userId;
   String credentialName;
+  String encryptedCredential;
+  String cryptoKeyFilePath;
   String sourceHdfsPath;
   String targetTable;
   String avroSchemaPath;
@@ -66,6 +70,16 @@ class HdfsToTeradataJob extends Job {
   void credentialName(String credentialName) {
     this.credentialName = credentialName;
     setJobProperty("td.credentialName", credentialName);
+  }
+
+  void encryptedCredential(String encryptedCredential) {
+    this.encryptedCredential = encryptedCredential;
+    setJobProperty("td.encrypted.credential", encryptedCredential);
+  }
+
+  void cryptoKeyFilePath(String cryptoKeyFilePath) {
+    this.cryptoKeyFilePath = cryptoKeyFilePath;
+    setJobProperty("td.crypto.key.path", cryptoKeyFilePath);
   }
 
   void sourceHdfsPath(String sourceHdfsPath) {
@@ -124,6 +138,8 @@ class HdfsToTeradataJob extends Job {
     cloneJob.hostName = hostName;
     cloneJob.userId = userId;
     cloneJob.credentialName = credentialName;
+    cloneJob.encryptedCredential = encryptedCredential;
+    cloneJob.cryptoKeyFilePath = cryptoKeyFilePath;
     cloneJob.sourceHdfsPath = sourceHdfsPath;
     cloneJob.targetTable = targetTable;
     cloneJob.avroSchemaPath = avroSchemaPath;

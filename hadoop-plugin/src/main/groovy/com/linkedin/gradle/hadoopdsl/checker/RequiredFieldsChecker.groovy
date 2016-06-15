@@ -30,6 +30,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.SqlJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -190,9 +191,9 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(HdfsToTeradataJob job) {
     foundError |= validateNotEmpty(job, "hostName", job.hostName);
     foundError |= validateNotEmpty(job, "userId", job.userId);
-    foundError |= validateNotEmpty(job, "credentialName", job.credentialName);
     foundError |= validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
     foundError |= validateNotEmpty(job, "targetTable", job.targetTable);
+    foundError |= validateTeradataCredential(job, job.credentialName, job.encryptedCredential, job.cryptoKeyFilePath)
 
     boolean isAvroSchemaExist = false;
     isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
@@ -208,8 +209,8 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(TeradataToHdfsJob job) {
     foundError |= validateNotEmpty(job, "hostName", job.hostName);
     foundError |= validateNotEmpty(job, "userId", job.userId);
-    foundError |= validateNotEmpty(job, "credentialName", job.credentialName);
     foundError |= validateNotEmpty(job, "targetHdfsPath", job.targetHdfsPath);
+    foundError |= validateTeradataCredential(job, job.credentialName, job.encryptedCredential, job.cryptoKeyFilePath)
 
     boolean isSourceExist = false;
     isSourceExist ^= job.sourceTable == null || job.sourceTable.isEmpty();
@@ -240,6 +241,32 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     foundError |= validateNotEmpty(job, "espressoKey", job.espressoKey);
     foundError |= validateNotEmpty(job, "espressoOperation", job.espressoOperation);
     foundError |= validateNotEmpty(job, "errorHdfsPath", job.errorHdfsPath);
+  }
+
+  @Override
+  void visitJob(SqlJob job) {
+    foundError |= validateNotEmpty(job, "jdbcDriverClass", job.jdbcDriverClass);
+    foundError |= validateNotEmpty(job, "jdbcUrl", job.jdbcUrl);
+    foundError |= validateNotEmpty(job, "jdbcUserId", job.jdbcUserId);
+    foundError |= validateNotEmpty(job, "jdbcEncryptedCredential", job.jdbcEncryptedCredential);
+    foundError |= validateNotEmpty(job, "jdbcCryptoKeyPath", job.jdbcCryptoKeyPath);
+  }
+
+  private boolean validateTeradataCredential(Job job,
+                                             String credentialName,
+                                             String encryptedCredential,
+                                             String cryptoKeyFilePath) {
+    boolean isCredentialExist = false;
+    isCredentialExist ^= credentialName == null || credentialName.isEmpty() == null;
+    isCredentialExist ^= encryptedCredential == null || encryptedCredential.isEmpty() == null;
+    if(!isCredentialExist) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either credentialName or encryptedCredential defined");
+      return true;
+    }
+
+    if (encryptedCredential != null && !encryptedCredential.isEmpty()) {
+      return validateNotEmpty(job, "cryptoKeyFilePath", cryptoKeyFilePath);
+    }
   }
 
   boolean validateNotEmpty(Job job, String name, String val) {

@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -827,5 +828,17 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   GobblinJob gobblinJob(String name, Closure configure) {
     return configureJob(factory.makeGobblinJob(name), configure);
+  }
+
+  /**
+   * DSL sqlJob method. Creates a SqlJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  SqlJob sqlJob(String name, Closure configure) {
+    return configureJob(factory.makeSqlJob(name), configure);
   }
 }
