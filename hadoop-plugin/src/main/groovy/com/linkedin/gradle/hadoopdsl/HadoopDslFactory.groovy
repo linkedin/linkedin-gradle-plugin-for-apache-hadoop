@@ -30,6 +30,7 @@ import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.SqlJob
 import com.linkedin.gradle.hadoopdsl.job.StartJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -242,6 +243,16 @@ class HadoopDslFactory {
    */
   GobblinJob makeGobblinJob(String name) {
     return new GobblinJob(name);
+  }
+
+  /**
+   * Factory method to build a SqlJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  SqlJob makeSqlJob(String name) {
+    return new SqlJob(name);
   }
 
   /**

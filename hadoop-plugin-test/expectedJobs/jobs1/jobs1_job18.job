@@ -1,0 +1,11 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=sql
+dependencies=jobs1_job17
+jdbc.crypto.key.path=/hdfs/path/to/cryptokey/file
+jdbc.driver.class=com.teradata.jdbc.TeraDriver
+jdbc.encrypted.credential=eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ
+jdbc.sql.1=DELETE test_table_publish ALL;
+jdbc.sql.2=INSERT INTO test_table_publish SELECT * FROM test_table;
+jdbc.url=/job/data/src
+jdbc.userid=foo
+user.to.proxy=testUser

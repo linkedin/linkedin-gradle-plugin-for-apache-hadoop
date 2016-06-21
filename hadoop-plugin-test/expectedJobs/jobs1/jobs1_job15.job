@@ -6,7 +6,8 @@ force.output.overwrite=true
 hadoop.config=-Dmapreduce.map.child.java.opts='-Xmx1G -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true' -Dmapreduce.job.user.classpath.first=true
 source.td.tablename=dwh_stg.scott_users
 target.hdfs.path=/data/test/users/teradata_to_hdfs_test
-td.credentialName=com.linkedin.teradata.scott
+td.crypto.key.path=/hdfs/path/crypto/key/file
+td.encrypted.credential=eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ253QUN0Z3E5SnlMMjhMV
 td.hostname=dw.teradata.com
 td.userid=scott
 user.to.proxy=scott

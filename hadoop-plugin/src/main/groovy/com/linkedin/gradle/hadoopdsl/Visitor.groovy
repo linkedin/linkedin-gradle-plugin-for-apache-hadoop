@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+import com.linkedin.gradle.hadoopdsl.job.SqlJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -62,4 +63,5 @@ interface Visitor {
   void visitJob(TeradataToHdfsJob job);
   void visitJob(HdfsToEspressoJob job);
   void visitJob(GobblinJob job);
+  void visitJob(SqlJob job);
 }

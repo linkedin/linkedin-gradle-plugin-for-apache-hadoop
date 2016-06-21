@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The follwing were contributed by Jin Hyuk Chang. Thanks, Jin Hyuk!
+* `DSS-4743: Hadoop DSL for SQL job type. Adding encrypted password support on Teradata job type in Hadoop DSL.`
 * `DSS-3870: Hadoop DSL for new Azkaban job type. Teradata <-> HDFS, HDFS -> Espresso, and Gobblin`
 
 The following were contributed by Anthony Hsu. Thanks, Anthony!

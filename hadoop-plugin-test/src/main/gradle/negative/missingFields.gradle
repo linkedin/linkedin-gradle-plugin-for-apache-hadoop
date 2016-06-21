@@ -78,6 +78,10 @@ hadoop {
       depends 'job15'
     }
 
-    targets 'job16'
+    sqlJob('job17') {
+      depends 'job16'
+    }
+
+    targets 'job17'
   }
 }

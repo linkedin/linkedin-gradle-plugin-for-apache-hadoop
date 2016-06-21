@@ -14,14 +14,14 @@ RequiredFieldsChecker ERROR: VoldemortBuildPushJob job11 has the following requi
 RequiredFieldsChecker ERROR: HadoopShellJob job12 must set command or commands
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: hostName
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: userId
-RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: credentialName
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: sourceHdfsPath
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: targetTable
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either credentialName or encryptedCredential defined
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either avroSchemaPath or avroSchemaInline defined
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: hostName
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: userId
-RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: credentialName
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: targetHdfsPath
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either credentialName or encryptedCredential defined
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either sourceTable or sourceQuery defined
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either avroSchemaPath or avroSchemaInline defined
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following error: qps should be a positive number
@@ -33,6 +33,11 @@ RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required 
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoKey
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoOperation
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: errorHdfsPath
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcDriverClass
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUrl
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUserId
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcEncryptedCredential
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcCryptoKeyPath
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
 :hadoop-plugin-test:test_missingFields FAILED
 

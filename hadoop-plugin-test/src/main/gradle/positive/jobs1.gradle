@@ -243,7 +243,8 @@ hadoop {
     hdfsToTeradataJob('job14') {
       hostName 'dw.teradata.com'                         //Required
       userId 'scott'                                     //Required
-      credentialName 'com.linkedin.teradata.scott'       //Required
+      encryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ253QUN0Z3E5SnlMMjhMV'  //Required
+      cryptoKeyFilePath '/hdfs/path/crypto/key/file'     //Required
       sourceHdfsPath '/data/test/users/daily/2015-10-07' //Required
       targetTable 'dwh_stg.scott_users'                  //Required
       avroSchemaPath '/data/test/users/user.avsc'
@@ -260,7 +261,8 @@ hadoop {
     teradataToHdfsJob('job15') {
       hostName 'dw.teradata.com'                         //Required
       userId 'scott'                                     //Required
-      credentialName 'com.linkedin.teradata.scott'       //Required
+      encryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ253QUN0Z3E5SnlMMjhMV'   //Required
+      cryptoKeyFilePath '/hdfs/path/crypto/key/file'     //Required
       sourceTable 'dwh_stg.scott_users'                //Required
       targetHdfsPath '/data/test/users/teradata_to_hdfs_test' //Required
       avroSchemaPath '/data/test/users/user.avsc'
@@ -310,6 +312,19 @@ hadoop {
       depends 'job16'
     }
 
-    targets 'job17'
+    sqlJob('job18') {
+      jdbcDriverClass 'com.teradata.jdbc.TeraDriver' //Required
+      jdbcUrl '/job/data/src'            //Required
+      jdbcUserId 'foo'                   //Required
+      jdbcEncryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'  //Required
+      jdbcCryptoKeyPath '/hdfs/path/to/cryptokey/file'                 //Required
+      set properties: [
+        'user.to.proxy' : 'testUser',
+        'jdbc.sql.1' : 'DELETE test_table_publish ALL;',
+        'jdbc.sql.2' : 'INSERT INTO test_table_publish SELECT * FROM test_table;'
+      ]
+      depends 'job17'
+    }
+    targets 'job18'
   }
 }
