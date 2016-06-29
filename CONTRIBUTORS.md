@@ -66,3 +66,7 @@ The following were contributed by Akshay Rai. Thanks, Akshay!
 
 The following were contributed by Keith Dsouza. Thanks, Keith!
 * `Added support to the KafkaPushJob to accept the disable.auditing property`
+
+The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
+* `LIHADOOP-20985 azkabanUpload throwing 500 error`
+
