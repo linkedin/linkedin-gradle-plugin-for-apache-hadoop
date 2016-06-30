@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.6
+
+* Made multipart file upload to be compliant with httpclient 4.3.1 version.
+* Upgraded httpclient and httpmime libraries to 4.3.1 version.
+
 0.9.5
 
 * Added SQL job type support.

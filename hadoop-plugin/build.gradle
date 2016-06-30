@@ -23,8 +23,8 @@ dependencies {
   compile('org.apache.hadoop:hadoop-common:2.3.0') { transitive = false }
   compile('org.apache.hadoop:hadoop-hdfs:2.3.0')   { transitive = false }
   compile('org.apache.oozie:oozie-client:4.2.0')
-  compile 'org.apache.httpcomponents:httpclient:4.1'
-  compile 'org.apache.httpcomponents:httpmime:4.1'
+  compile 'org.apache.httpcomponents:httpclient:4.3.1'
+  compile 'org.apache.httpcomponents:httpmime:4.3.1'
   compile 'org.json:json:20090211'
 
   runtime 'com.googlecode.json-simple:json-simple:1.1'

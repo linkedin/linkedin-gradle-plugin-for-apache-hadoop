@@ -15,11 +15,13 @@
  */
 package com.linkedin.gradle.azkaban;
 
+
 import com.linkedin.gradle.util.HtmlUtil;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -29,16 +31,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
-
 import org.json.JSONObject;
 
 /**
@@ -91,16 +90,19 @@ class AzkabanUploadTask extends DefaultTask {
       logger.lifecycle("Resuming previous Azkaban session");
     }
 
-    MultipartEntity mpEntity = new MultipartEntity();
-    mpEntity.addPart("ajax", new StringBody("upload"));
-    mpEntity.addPart("file", new FileBody(archivePath, "application/zip"));
-    mpEntity.addPart("project", new StringBody(azkProject.azkabanProjName));
+    MultipartEntityBuilder mpEntityBuilder = MultipartEntityBuilder.create()
+        .addTextBody("ajax", "upload")
+        .addBinaryBody("file", archivePath, ContentType.create("application/zip"), archivePath.getName())
+        .addTextBody("project", azkProject.azkabanProjName);
+
     if (!azkProject.azkabanValidatorAutoFix || !azkProject.azkabanValidatorAutoFix.equals("off")) {
-      mpEntity.addPart("fix", new StringBody("on"));
+      mpEntityBuilder.addTextBody("fix", "on");
     }
 
+    HttpEntity reqEntity = mpEntityBuilder.build();
+
     HttpPost httpPost = new HttpPost(azkProject.azkabanUrl + "/manager");
-    httpPost.setEntity(mpEntity);
+    httpPost.setEntity(reqEntity);
     httpPost.setHeader("Accept", "*/*");
     httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
 
@@ -119,7 +121,7 @@ class AzkabanUploadTask extends DefaultTask {
       HttpResponse response = httpClient.execute(httpPost);
 
       if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-        throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode());
+        throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode() + "\nAlternately, you can upload the zip to your project via Azkaban UI.");
       }
 
       logger.lifecycle("--------------------------------------------------------------------------------");
