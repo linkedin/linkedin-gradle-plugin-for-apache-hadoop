@@ -13,12 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopdsl
+package com.linkedin.gradle.lihadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
-
+import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
+import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
 
 /**
@@ -46,5 +47,14 @@ class LiHadoopDslFactory extends HadoopDslFactory {
    */
   PigLiJob makePigLiJob(String name) {
     return new PigLiJob(name);
+  }
+
+  /**
+   * Factory method to build a Linkedin-specific LiPigBangBangJob
+   * @param name The job name
+   * @return The job
+   */
+  LiPigBangBangJob makeLiPigBangBangJob(String name) {
+    return new LiPigBangBangJob(name);
   }
 }

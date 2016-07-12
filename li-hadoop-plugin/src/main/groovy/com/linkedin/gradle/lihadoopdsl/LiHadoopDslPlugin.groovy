@@ -15,10 +15,13 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
+
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
-
+import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
+import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
+
 
 /**
  * LinkedIn-specific customizations to the Hadoop DSL Plugin.
@@ -39,6 +42,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
 
     super.apply(project);
     project.extensions.add("pigLiJob", this.&pigLiJob);
+    project.extensions.add("liPigBangBangJob", this.&liPigBangBangJob);
   }
 
   /**
@@ -62,5 +66,17 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
   PigLiJob pigLiJob(String name, Closure configure) {
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return configureJob(liFactory.makePigLiJob(name), configure);
+  }
+
+  /**
+   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in scope with the given name
+   * and configuration
+   * @param name The Job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  LiPigBangBangJob liPigBangBangJob(String name, Closure configure) {
+    LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
+    return configureJob(liFactory.makeLiPigBangBangJob(name), configure);
   }
 }
