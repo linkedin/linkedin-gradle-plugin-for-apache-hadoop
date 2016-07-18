@@ -17,6 +17,23 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.11
+
+* Add HadoopValidatorPlugin with PigValidatorPlugin in its stack
+
+0.9.10
+
+* LIHADOOP-21658 Refactor AzkabanUploadTask in Hadoop Plugin by creating AzkabanHelper class
+
+0.9.9
+
+* Correct subtle error in evalHadoopClosure that can occur if the hadoopClosure is not declared in global scope
+* Correct minor error with runSparkJob task for li-hadoop-plugin override
+
+0.9.8
+
+* Work around for the gradle issue where output to console is overwritten by status line.
+
 0.9.7
 
 * Modified Spark plugin so that Spark job run on YARN cluster unless explicitly specified otherwise.

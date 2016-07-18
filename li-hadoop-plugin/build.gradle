@@ -6,6 +6,20 @@ plugins {
 // The group will be overriden in LinkedIn builds
 group=rootProject.group
 
+configurations {
+  provided
+}
+
+sourceSets {
+  main {
+    compileClasspath+=configurations.provided
+  }
+  test {
+    compileClasspath+=configurations.provided
+    runtimeClasspath+=configurations.provided
+  }
+}
+
 repositories {
   mavenCentral()
 }
@@ -13,8 +27,13 @@ repositories {
 dependencies {
   compile gradleApi()
   compile localGroovy()
-  compile project(":hadoop-plugin")
+
+  compile (project(":hadoop-plugin"))
+  provided (project(":hadoop-plugin"))
+
+
 }
+
 
 task sourceJar(type: Jar) {
   description = 'An archive of the source code for the Hadoop Gradle Plugin - LinkedIn customizations'
