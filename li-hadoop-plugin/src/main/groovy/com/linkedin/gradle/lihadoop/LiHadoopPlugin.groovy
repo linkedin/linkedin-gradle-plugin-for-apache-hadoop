@@ -16,8 +16,10 @@
 package com.linkedin.gradle.lihadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin
-import com.linkedin.gradle.hadoop.HadoopPlugin;
+import com.linkedin.gradle.hadoop.HadoopPlugin
+import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
+import com.linkedin.gradle.lihadoopValidator.LiHadoopValidatorPlugin
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
@@ -125,6 +127,17 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends SparkPlugin> getSparkPluginClass() {
     return LiSparkPlugin.class;
+  }
+
+  /**
+   * Returns the LinkedIn-specific LiHadoopValidatorPlugin class. Subclasses can override this method to
+   * return their own HadoopValidatorPlugin class.
+   *
+   * @return Class that implements the HadoopValidatorPlugin
+   */
+  @Override
+  Class<? extends HadoopValidatorPlugin> getHadoopValidatorPluginClass(){
+    return LiHadoopValidatorPlugin.class
   }
 
   /**

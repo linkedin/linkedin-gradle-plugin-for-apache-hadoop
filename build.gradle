@@ -18,7 +18,7 @@
 group='com.linkedin.hadoop-plugin'
 
 // In LinkedIn internal builds, some directories are set to be in a different
-// place, so we set some project properties with that information.
+// place, so we set some project propeties with that information.
 boolean isLinkedInBuild = project.hasProperty('overrideBuildEnvironment')
 
 if (isLinkedInBuild) {
