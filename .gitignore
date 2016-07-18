@@ -1,4 +1,6 @@
 *.iml
+*.ipr
+*.iws
 .classpath
 .gradle
 .project

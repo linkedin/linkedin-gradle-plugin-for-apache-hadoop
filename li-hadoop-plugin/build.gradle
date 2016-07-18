@@ -13,8 +13,35 @@ repositories {
 dependencies {
   compile gradleApi()
   compile localGroovy()
-  compile project(":hadoop-plugin")
+  compile(group: 'com.linkedin.linkedin-pig', name: 'linkedin-pig', version: '0.15.0.14', classifier: 'h2')
+  compile module(group: 'com.linkedin.pig', name: 'pig', version: '0.15.0.14') {
+    transitive = false
+    //include module: 'pig-udfs'
+    //exclude module: 'trevni-avro'
+    //exclude module: 'avro-tools'
+    //exclude module: 'hive-exec'
+  }
+  //compile(group: 'com.linkedin.hadoop', name: 'hadoop-common', version: '2.3.0.135'){transitive = false}
+  //compile(group: 'com.linkedin.hadoop', name: 'hadoop-hdfs', version: '2.3.0.135'){transitive = false}
+  /*compile(group: 'dk.brics.automaton', name: 'automaton', version: '1.11-8'){transitive = false}
+  compile(group: 'com.linkedin.avro-14-h2', name: 'avro', version: '1.4.1-h2'){transitive = false}
+  compile(group: 'com.linkedin.avro-schemas', name: 'avro-schemas-builder', version: '5.0.523'){transitive = false}
+  compile(group: 'com.linkedin.datafu', name: 'datafu', version: '1.2.0'){transitive = false}
+  compile(group: 'kafka', name: 'hadoop-producer', version: '0.8.0-b6479e8ad'){transitive = false}
+  compile(group: 'org.codehaus.jackson', name: 'jackson-core-asl', version: '1.9.13'){transitive = false}
+  compile(group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.13'){transitive = false}
+  compile(group: 'joda-time', name: 'joda-time', version: '2.5'){transitive = false}
+  compile(group: 'org.json', name: 'json-simple', version: '1.1'){transitive = false}
+  compile(group: 'kafka', name: 'kafka_2.10', version: '0.8.1.114'){transitive = false}
+  compile(group: 'org.xerial.snappy', name: 'snappy-java', version: '1.0.4.1'){transitive = false}
+  compile(group: 'voldemort', name: 'voldemort', version: '0.94'){transitive = false}
+  compile(group: 'com.101tec', name: 'zkclient', version: '0.3'){transitive = false}
+  compile(group: 'com.linkedin.li-hadoop-util', name: 'pig-udfs', version: '0.1.9'){transitive = false}*/
+
+  compile (project(":hadoop-plugin"))
+
 }
+
 
 task sourceJar(type: Jar) {
   description = 'An archive of the source code for the Hadoop Gradle Plugin - LinkedIn customizations'
