@@ -34,4 +34,22 @@ class LiSparkPlugin extends SparkPlugin {
   SparkExtension makeSparkExtension(Project project) {
     return new LiSparkExtension(project);
   }
+
+  @Override
+  String buildRemoteSparkCmd(String executionJar, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
+
+    // At LinkedIn, we prefer all jobs submitted to gateway running on YARN cluster, instead of gateway.
+    // This customization sets master to YARN if no master option is provided by user.
+    // Or prints a gentle warning if master is specifically set to local.
+    if (properties.containsKey("master")) {
+      if (properties.get("master").toLowerCase() ==~ /local.*/) {
+        logger.lifecycle("This job is configured to run in local mode. It will run on gateway instead of on Hadoop YARN cluster. It may run very slowly and will take up limited gateway resources. If this is not the desired behavior, check out go/hadoopplugin, go/sparkfaq and go/hadoopdsl for help on how to set master option.")
+      }
+    } else {
+      logger.lifecycle("No master option is provided, configuring job to run on YARN by default.")
+      properties.put("master", "yarn");
+    }
+
+    return super.buildRemoteSparkCmd(executionJar, appClass, confs, flags, appParams, properties)
+  }
 }

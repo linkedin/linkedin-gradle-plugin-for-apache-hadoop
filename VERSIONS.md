@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.7
+
+* Modified Spark plugin so that Spark job run on YARN cluster unless explicitly specified otherwise.
+
 0.9.6
 
 * Made multipart file upload to be compliant with httpclient 4.3.1 version.
@@ -37,7 +41,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.9.2
 
-* Large number of minor fixes to reduce LinkedIn codestyle and codenarc check failures 
+* Large number of minor fixes to reduce LinkedIn codestyle and codenarc check failures
 * Increase build robustness for LinkedIn ligradle builds, which keep changing how SNAPSHOT versions work
 
 0.9.1
@@ -79,7 +83,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.7.10
 
-* Fix for LinkedIn PCX builds 
+* Fix for LinkedIn PCX builds
 * LIHADOOP-17034 Create HadoopShell job type in Hadoop DSL
 
 0.7.9
