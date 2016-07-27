@@ -72,4 +72,5 @@ The following were contributed by Keith Dsouza. Thanks, Keith!
 
 The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `LIHADOOP-20985 azkabanUpload throwing 500 error`
+* `DI-584 Login prompt missing when uploading to Azkaban`
 
