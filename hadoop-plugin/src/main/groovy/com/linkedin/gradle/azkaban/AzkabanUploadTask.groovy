@@ -69,7 +69,8 @@ class AzkabanUploadTask extends DefaultTask {
       logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
       logger.lifecycle("Azkaban user name: ${azkProject.azkabanUserName}");
       logger.lifecycle("Azkaban project name: ${azkProject.azkabanProjName}");
-      sessionId = AzkabanHelper.azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword("\nAzkaban password: "));
+      logger.lifecycle("Azkaban password: ");
+      sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
     }
     else {
       logger.lifecycle("Resuming previous Azkaban session");
