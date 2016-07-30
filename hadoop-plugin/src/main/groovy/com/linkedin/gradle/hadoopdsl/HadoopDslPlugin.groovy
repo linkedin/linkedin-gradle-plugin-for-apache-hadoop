@@ -234,8 +234,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     Closure g = f.clone();
     // The "magic" in this method is that the "this" pointer of the closure is altered to the
     // target object, cause it to resolve Hadoop DSL methods correctly, starting from the target.
-    g.delegate = target;
-    g();
+    project.configure(target, g);
   }
 
   /**

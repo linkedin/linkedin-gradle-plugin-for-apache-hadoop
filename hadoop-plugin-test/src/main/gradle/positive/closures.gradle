@@ -103,3 +103,20 @@ hadoop {
   evalHadoopClosure name: 'namedClosure1', defs: 'closure1', targetName: 'closuresWorkflow'
   assert(lookup('closuresWorkflow.closure1.common') != null)
 }
+
+// Test a hadoopClosure defined inside of hadoop scope. There was a bug earlier where the delegates
+// of the objects declared inside the closure did not resolve correctly to the target object.
+hadoop {
+  hadoopClosure name: 'namedInnerClosure', closure: {
+    noOpJob('innerNoOpJob') {
+      set properties: [
+        'foo' : 'bar'
+      ]
+    }
+  }
+
+  workflow('innerWorkflow') {
+    evalHadoopClosure name: 'namedInnerClosure', defs: 'default'
+    targets 'innerNoOpJob'
+  }
+}
