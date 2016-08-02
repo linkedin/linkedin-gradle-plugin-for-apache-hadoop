@@ -19,8 +19,7 @@ import com.linkedin.gradle.hadoopdsl.BaseCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
-import com.linkedin.gradle.hadoopdsl.Properties;
-import com.linkedin.gradle.hadoopdsl.PropertySet;
+import com.linkedin.gradle.hadoopdsl.Properties
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -45,14 +44,7 @@ import com.linkedin.gradle.oozie.xsd.workflow.MAPREDUCE;
 import com.linkedin.gradle.oozie.xsd.workflow.PIG;
 import com.linkedin.gradle.oozie.xsd.workflow.PREPARE;
 import com.linkedin.gradle.oozie.xsd.workflow.START;
-import com.linkedin.gradle.oozie.xsd.workflow.WORKFLOWAPP;
-
-import com.linkedin.gradle.oozie.xsd.shell.ObjectFactory as CommandObjectFactory;
-import com.linkedin.gradle.oozie.xsd.shell.ACTION as Command;
-import com.linkedin.gradle.oozie.xsd.shell.CONFIGURATION as COMMAND_CONFIGURATION;
-import com.linkedin.gradle.oozie.xsd.shell.DELETE as COMMAND_DELETE;
-import com.linkedin.gradle.oozie.xsd.shell.PREPARE as COMMAND_PREPARE;
-
+import com.linkedin.gradle.oozie.xsd.workflow.WORKFLOWAPP
 import com.linkedin.gradle.oozie.xsd.hive.ObjectFactory as HiveObjectFactory;
 import com.linkedin.gradle.oozie.xsd.hive.ACTION as Hive;
 import com.linkedin.gradle.oozie.xsd.hive.CONFIGURATION as HIVE_CONFIGURATION;
@@ -381,7 +373,7 @@ class OozieDslCompiler extends BaseCompiler {
 
     // Jars are added from jobProperties. The execution-jar is also added to jars.
     StringBuilder buildJars = new StringBuilder();
-    buildJars.append(job.executionJar);
+    buildJars.append(job.executionTarget);
     if (job.jobProperties.containsKey("jars")) {
       buildJars.append(",");
       buildJars.append(job.jobProperties.get("jars"));

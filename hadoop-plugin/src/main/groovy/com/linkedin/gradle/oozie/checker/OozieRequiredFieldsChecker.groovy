@@ -47,7 +47,7 @@ class OozieRequiredFieldsChecker extends RequiredFieldsChecker {
 
   @Override
   void visitJob(SparkJob job) {
-    if (job.appClass == null || job.appClass.isEmpty() || job.executionJar == null || job.executionJar.isEmpty() || !job.jobProperties.containsKey("master") || !job.jobProperties.containsKey("deploy-mode")) {
+    if (job.appClass == null || job.appClass.isEmpty() || job.executionTarget == null || job.executionTarget.isEmpty() || !job.jobProperties.containsKey("master") || !job.jobProperties.containsKey("deploy-mode")) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set uses, executes and should set master and deploy-mode in the properties");
       foundError = true;
     }

@@ -200,10 +200,15 @@ hadoop {
       depends 'job10'
     }
 
-    sparkJob('job11Required') {
-      uses 'com.linkedin.hello.spark.HelloSpark' // required
+    sparkJob('job11RequiredJar') {
+      uses 'com.linkedin.hello.spark.HelloSpark' // conditional
       executes 'hello-spark.jar' // required
       depends 'job11'
+    }
+
+    sparkJob('job11RequiredPy') {
+      executes 'hello-pyspark.py' //required
+      depends 'job11RequiredJar'
     }
 
     voldemortBuildPushJob('job12') {
@@ -231,7 +236,7 @@ hadoop {
       usesAvroData true                   // Optional
       usesAvroKeyField 'memberId'         // Optional unless isAvroData is true
       usesAvroValueField 'firstName'      // Optional unless isAvroData is true
-      depends 'job11Required'
+      depends 'job11RequiredPy'
       queue 'marathon'
     }
 
