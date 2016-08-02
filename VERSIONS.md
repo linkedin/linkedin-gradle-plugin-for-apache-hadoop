@@ -17,10 +17,14 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.10
+
+* LIHADOOP-21658 Refactor AzkabanUploadTask in Hadoop Plugin by creating AzkabanHelper class
+
 0.9.9
 
 * Correct subtle error in evalHadoopClosure that can occur if the hadoopClosure is not declared in global scope
-* Correct minor error with runSparkJob task for li-hadoop-plugin override 
+* Correct minor error with runSparkJob task for li-hadoop-plugin override
 
 0.9.8
 
