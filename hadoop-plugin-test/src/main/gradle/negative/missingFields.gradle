@@ -54,8 +54,25 @@ hadoop {
       depends 'job9'
     }
 
-    voldemortBuildPushJob('job11') {
+    sparkJob('job10Jar1') {
+      executes 'hello-spark.jar'
       depends 'job10'
+    }
+
+    sparkJob('job10Jar2') {
+      uses ''
+      executes 'hello-spark.jar'
+      depends 'job10Jar1'
+    }
+
+    sparkJob('job10Py') {
+      uses 'com.linkedin.HelloSpark'
+      executes 'hello_pyspark.py'
+      depends 'job10Jar2'
+    }
+
+    voldemortBuildPushJob('job11') {
+      depends 'job10Py'
     }
 
     hadoopShellJob('job12') {

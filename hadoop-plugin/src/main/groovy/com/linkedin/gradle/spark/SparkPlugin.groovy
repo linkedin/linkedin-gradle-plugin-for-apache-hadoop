@@ -158,12 +158,12 @@ class SparkPlugin implements Plugin<Project> {
           throw new GradleException("Spark job with name ${sparkJob.name} does not have 'uses' set");
         }
 
-        if (sparkJob.executionJar == null) {
+        if (sparkJob.executionTarget == null) {
           throw new GradleException("Spark job with name ${sparkJob.name} does not have 'executes' set");
         }
 
         def scriptName = project.jobName;
-        writeSparkExecJar(scriptName, sparkJob.executionJar, sparkJob.appClass, sparkJob.sparkConfs, sparkJob.flags, sparkJob.appParams, sparkJob.jobProperties);
+        writeSparkExecJar(scriptName, sparkJob.executionTarget, sparkJob.appClass, sparkJob.sparkConfs, sparkJob.flags, sparkJob.appParams, sparkJob.jobProperties);
 
         String projectDir = "${sparkExtension.sparkCacheDir}/${project.name}";
         commandLine "bash", "${projectDir}/run_${project.jobName}.sh"
@@ -180,7 +180,7 @@ class SparkPlugin implements Plugin<Project> {
    * @param jvmProperties The JVM properties
    * @param confProperties The Hadoop Configuration properties
    */
-  void writeSparkExecJar(String scriptName, String executionJar, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
+  void writeSparkExecJar(String scriptName, String executionTarget, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
     String projectDir = "${sparkExtension.sparkCacheDir}/${project.name}";
     String sparkCommand = sparkExtension.sparkCommand;
 
@@ -198,7 +198,7 @@ class SparkPlugin implements Plugin<Project> {
         out.writeLine("echo Syncing local directory ${projectDir} to ${remoteCacheDir} on host ${remoteHostName}");
         out.writeLine(buildRemoteRsyncCmd());
         out.writeLine("echo Executing ${sparkCommand} on host ${remoteHostName}");
-        out.writeLine(buildRemoteSparkCmd(executionJar, appClass, confs, flags, appParams, properties));
+        out.writeLine(buildRemoteSparkCmd(executionTarget, appClass, confs, flags, appParams, properties));
       }
     } else {
       new File("${projectDir}/run_${scriptName}.sh").withWriter { out ->
@@ -206,7 +206,7 @@ class SparkPlugin implements Plugin<Project> {
         out.writeLine("echo ====================");
         out.writeLine("echo Running the script ${projectDir}/run_${scriptName}.sh");
         out.writeLine("echo Executing ${sparkCommand} on the local host");
-        out.writeLine(buildLocalSparkCmd(executionJar, appClass, confs, flags, appParams, properties));
+        out.writeLine(buildLocalSparkCmd(executionTarget, appClass, confs, flags, appParams, properties));
       }
     }
   }
@@ -248,7 +248,7 @@ class SparkPlugin implements Plugin<Project> {
    * @param confProperties The Hadoop Configuration properties
    * @return Command that invokes Spark on the remote host
    */
-  String buildRemoteSparkCmd(String executionJar, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
+  String buildRemoteSparkCmd(String executionTarget, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
     String sparkCommand = sparkExtension.sparkCommand;
     String sparkOptions = SparkSubmitHelper.buildSparkOptions(properties);
     String sparkConfs = SparkSubmitHelper.buildSparkConfs(confs);
@@ -259,13 +259,13 @@ class SparkPlugin implements Plugin<Project> {
     String remoteSshOpts = sparkExtension.remoteSshOpts;
     String remoteCacheDir = sparkExtension.remoteCacheDir;
     String remoteProjDir = "${remoteCacheDir}/${project.name}";
-    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${sparkCommand} ${sparkOptions} ${sparkConfs} ${sparkFlags} ${sparkAppClass} ${executionJar} ${sparkAppParameters}'";
+    return "ssh ${remoteSshOpts} -tt ${remoteHostName} 'cd ${remoteProjDir}; ${sparkCommand} ${sparkOptions} ${sparkConfs} ${sparkFlags} ${sparkAppClass} ${executionTarget} ${sparkAppParameters}'";
   }
 
   /**
    * Method to build command that should invoke spark on the local system
    *
-   * @param executionJar The application jar to run
+   * @param executionTarget The application jar to run
    * @param appClass The application's main class
    * @param confs The spark configurations to be passed to spark-submit
    * @param flags The spark flags which should be passed to spark-submit
@@ -273,7 +273,7 @@ class SparkPlugin implements Plugin<Project> {
    * @param properties other spark options such as "master, jars, etc"
    * @return Command that invokes spark on local system.
    */
-  String buildLocalSparkCmd(String executionJar, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
+  String buildLocalSparkCmd(String executionTarget, String appClass, Map<String, Object> confs, Set<String> flags, List<String> appParams, Map<String, Object> properties) {
     String sparkCommand = sparkExtension.sparkCommand;
     String sparkOptions = SparkSubmitHelper.buildSparkOptions(properties);
     String sparkConfs = SparkSubmitHelper.buildSparkConfs(confs);
@@ -281,7 +281,7 @@ class SparkPlugin implements Plugin<Project> {
     String sparkAppParameters = SparkSubmitHelper.buildSparkAppParams(appParams);
     String sparkAppClass = SparkSubmitHelper.buildSparkClass(appClass);
     String projectDir = "${sparkExtension.sparkCacheDir}/${project.name}";
-    return "cd ${projectDir}; ${sparkCommand} $sparkOptions $sparkConfs $sparkFlags $sparkAppClass $executionJar $sparkAppParameters";
+    return "cd ${projectDir}; ${sparkCommand} $sparkOptions $sparkConfs $sparkFlags $sparkAppClass $executionTarget $sparkAppParameters";
   }
 
   /**

@@ -9,7 +9,10 @@ RequiredFieldsChecker ERROR: JavaProcessJob job6 must set javaClass
 RequiredFieldsChecker ERROR: KafkaPushJob job7 must set inputPath
 RequiredFieldsChecker ERROR: KafkaPushJob job7 must set topic
 RequiredFieldsChecker ERROR: PigJob job9 must set script
-RequiredFieldsChecker ERROR: SparkJob job10 must set uses and executes
+RequiredFieldsChecker ERROR: SparkJob job10 must set executes
+RequiredFieldsChecker ERROR: SparkJob job10Jar1 must set uses for Java application
+RequiredFieldsChecker ERROR: SparkJob job10Jar2 must set uses for Java application
+RequiredFieldsChecker ERROR: SparkJob job10Py must not set uses for Python application
 RequiredFieldsChecker ERROR: VoldemortBuildPushJob job11 has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc
 RequiredFieldsChecker ERROR: HadoopShellJob job12 must set command or commands
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: hostName

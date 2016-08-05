@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 class TestSparkPlugin {
-  String executionJar;
+  String executionTarget;
   String appClass;
   Map<String, Object> confs;
   Set<String> flags;
@@ -32,7 +32,7 @@ class TestSparkPlugin {
 
   @Before
   void setup() {
-    executionJar = "execution-jar";
+    executionTarget = "execution-jar";
     appClass = "com.linkedin.foo"
     flags = ["version", "verbose"];
     appParams = ["param1", "param2"];
@@ -57,7 +57,7 @@ class TestSparkPlugin {
       group = "Hadoop Plugin";
     }
     plugin.apply(project);
-    String actual = plugin.buildLocalSparkCmd(executionJar, appClass, confs, flags, appParams, properties);
+    String actual = plugin.buildLocalSparkCmd(executionTarget, appClass, confs, flags, appParams, properties);
     String expected = "cd .hadoopPlugin/test; spark-submit --jars jar1,jar2,jar3 --master yarn-cluster  --conf key1=value1 --conf key2=value2 --conf key3=value3 --version --verbose --class com.linkedin.foo execution-jar param1 param2";
     Assert.assertEquals(expected, actual);
   }
@@ -72,7 +72,7 @@ class TestSparkPlugin {
       group = "Hadoop Plugin";
     }
     plugin.apply(project);
-    String actual = plugin.buildRemoteSparkCmd(executionJar, appClass, confs, flags, appParams, properties);
+    String actual = plugin.buildRemoteSparkCmd(executionTarget, appClass, confs, flags, appParams, properties);
     String expected = "ssh remotesshoption -tt remoteHost 'cd remotecachedir/test; spark-submit --jars jar1,jar2,jar3 --master yarn-cluster  --conf key1=value1 --conf key2=value2 --conf key3=value3 --version --verbose --class com.linkedin.foo execution-jar param1 param2'"
     Assert.assertEquals(expected, actual);
   }

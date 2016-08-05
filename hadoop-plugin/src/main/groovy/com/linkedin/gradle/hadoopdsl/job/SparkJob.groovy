@@ -46,7 +46,7 @@ class SparkJob extends HadoopJavaProcessJob {
   String appClass;
   List<String> appParams;
   String driverMemory;
-  String executionJar;
+  String executionTarget;
   Integer executorCores;
   String executorMemory;
   Set<String> flags;
@@ -88,7 +88,7 @@ class SparkJob extends HadoopJavaProcessJob {
     cloneJob.appClass = appClass;
     cloneJob.appParams.addAll(appParams);
     cloneJob.driverMemory = driverMemory;
-    cloneJob.executionJar = executionJar;
+    cloneJob.executionTarget = executionTarget;
     cloneJob.executorCores = executorCores;
     cloneJob.executorMemory = executorMemory;
     cloneJob.flags.addAll(flags);
@@ -177,15 +177,16 @@ class SparkJob extends HadoopJavaProcessJob {
     setJobProperty("class", appClass);
   }
 
+
   /**
    * DSL method executes specifies the execution-jar for the spark job. The specified value can be either
    * an absolute or relative path to the execution jar. This method causes the property execution-jar=value
    * to be added to the job. This method is required to build the job.
-   * @param executionJar
+   * @param executionTarget
    */
-  void executes(String executionJar) {
-    this.executionJar = executionJar;
-    setJobProperty("execution-jar", executionJar);
+  void executes(String executionTarget) {
+    this.executionTarget = executionTarget;
+    setJobProperty("execution-jar", executionTarget);
   }
 
   /**

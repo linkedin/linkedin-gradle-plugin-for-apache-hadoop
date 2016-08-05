@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=spark
+dependencies=jobs1_job11RequiredJar
+execution-jar=hello-pyspark.py

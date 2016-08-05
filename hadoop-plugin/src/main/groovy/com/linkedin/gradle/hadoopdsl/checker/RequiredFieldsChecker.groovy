@@ -152,9 +152,28 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(SparkJob job) {
-    if(job.appClass == null || job.appClass.isEmpty() || job.executionJar == null || job.executionJar.isEmpty()) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set uses and executes");
+
+    // executes is a required field for both java and python applications. For java, this is the jar file. For python, this is the py file.
+    // uses is a conditional field. It's required for java applications and should NOT be used for python applications.
+
+    if(job.executionTarget == null || job.executionTarget.isEmpty()) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set executes");
       foundError = true;
+      return;
+    }
+
+    if(job.executionTarget.toLowerCase().endsWith(".jar")) {
+      if(job.appClass == null || job.appClass.isEmpty()) {
+        project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set uses for Java application")
+        foundError = true
+      }
+    }
+
+    if(job.executionTarget.toLowerCase().endsWith(".py")) {
+      if(job.appClass != null) {
+        project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must not set uses for Python application")
+        foundError = true
+      }
     }
   }
 
