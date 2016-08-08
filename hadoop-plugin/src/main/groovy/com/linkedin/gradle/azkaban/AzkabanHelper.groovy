@@ -118,7 +118,6 @@ class AzkabanHelper {
    * @return The content from the response
    */
   static String parseContent(InputStream response) {
-    logger.lifecycle("AzkabanHelper: parseContent");
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(new InputStreamReader(response));
@@ -144,7 +143,6 @@ class AzkabanHelper {
    * @return The parsed response
    */
   static String parseResponse(String response) {
-    logger.lifecycle("AzkabanHelper: parseResponse");
     String newline = System.getProperty("line.separator");
     return HtmlUtil.toText(response).replaceAll("azkaban.failure.message=", newline + newline);
   }
@@ -155,7 +153,6 @@ class AzkabanHelper {
    * @return sessionId The saved session id
    */
   static String readSession() {
-    logger.lifecycle("AzkabanHelper: readSession");
     File file = new File(System.getProperty("user.home") + "/.azkaban/session.properties");
     String sessionId = null;
     if (file.exists()) {
@@ -174,7 +171,6 @@ class AzkabanHelper {
    * @param sessionId The session id
    */
   static void saveSession(String sessionId) {
-    logger.lifecycle("AzkabanHelper: saveSession");
     if (!sessionId) {
       throw new GradleException("No session ID obtained to save");
     }
@@ -208,25 +204,58 @@ class AzkabanHelper {
   }
 
   /**
-   * Makes sure that the pre-requisites of using the azkaban tasks are satisfied.
+   * Configures the fields for azkabanUploadTask.
    *
    * @param azkProject The AzkabanProject
+   * @return boolean to save the entered fields to .azkabanPlugin.json
    */
-  static void configureTask(AzkabanProject azkProject) {
+  static boolean configureTask(AzkabanProject azkProject) {
     def console = System.console();
     if (console == null) {
       throw new GradleException(
           "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.");
     }
 
-    if (!azkProject.azkabanUserName) {
-      azkProject.azkabanUserName = console.readLine("\nAzkaban user name: ");
-      logger.lifecycle("Run writeAzkabanPluginJson task and enter azkabanUserName field in .azkabanPlugin.json to automatically fetch the username.");
+    logger.lifecycle("INTERACTIVE MODE:");
+    logger.lifecycle("Current Azkaban project name : ${azkProject.azkabanProjName}");
+    logger.lifecycle("Current Azkaban URL : ${azkProject.azkabanUrl}");
+    logger.lifecycle("Current Azkaban username : ${azkProject.azkabanUserName}");
+    logger.lifecycle("Current Azkaban ZipTask : ${azkProject.azkabanZipTask}");
+
+    try{
+      def input = console.readLine("\nWant to change any of the above? [y/N] :");
+      if (input.toString().trim().toLowerCase() == 'y') {
+        input = console.readLine("New Azkaban project name (leave blank to restore current):");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanProjName = input.toString();
+        }
+
+        input = console.readLine("New Azkaban URL (leave blank to restore current):");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanUrl = input.toString();
+        }
+
+        input = console.readLine("New Azkaban username (leave blank to restore current):");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanUserName = input.toString();
+        }
+
+        input = console.readLine("New Azkaban ZipTask [run ligradle tasks to know about existing ziptasks](leave blank to restore current):");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanZipTask = input.toString();
+        }
+
+        input = console.readLine("\nSave these changes to the .azkabanPlugin.json file? [Y/n] :");
+        if (input.toString().trim().toLowerCase() == 'n') {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    } catch (IOException ex) {
+      logger.error("Failed in taking input from user in Interactive mode." + "\n" + ex.toString());
     }
 
-    if (!azkProject.azkabanProjName) {
-      azkProject.azkabanProjName = console.readLine("\nAzkaban project name: ");
-      logger.lifecycle("Run writeAzkabanPluginJson task and enter azkabanProjName field in .azkabanPlugin.json to automatically fetch the azkaban project name.");
-    }
+    return false;
   }
 }

@@ -76,4 +76,5 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* 'LIHADOOP-21797 Automate the creation of the .azkabanPlugin.json file'
 * 'LIHADOOP-21658 Refactor AzkabanUploadTask in Hadoop Plugin by creating AzkabanHelper class'
