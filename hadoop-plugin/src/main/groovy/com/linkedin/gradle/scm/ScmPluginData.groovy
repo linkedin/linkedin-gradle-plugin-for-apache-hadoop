@@ -25,6 +25,7 @@ class ScmPluginData {
     sourceExclude.add("**/.metadata");
     sourceExclude.add("**/bin");
     sourceExclude.add("**/build");
+    sourceExclude.add("**/resources");
     sourceExclude.add("**/target");
   }
 }
