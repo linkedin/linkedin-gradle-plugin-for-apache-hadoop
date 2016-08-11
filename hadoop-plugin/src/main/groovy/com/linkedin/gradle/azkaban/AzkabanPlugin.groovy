@@ -23,6 +23,8 @@ import groovy.json.JsonBuilder;
 import groovy.json.JsonSlurper;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -34,6 +36,10 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
  * AzkabanPlugin implements features for Azkaban, including building the Hadoop DSL for Azkaban.
  */
 class AzkabanPlugin implements Plugin<Project> {
+
+  boolean interactive = true;
+  private final static Logger logger = Logging.getLogger(AzkabanPlugin);
+
   /**
    * Applies the AzkabanPlugin. This adds the Gradle task that builds the Hadoop DSL for Azkaban.
    * Plugin users should have their build tasks depend on this task.
@@ -90,10 +96,17 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   Task createUploadTask(Project project) {
     return project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
-      description = "Uploads Hadoop zip archive to Azkaban";
+      description = "Uploads Hadoop zip archive to Azkaban. Use -PskipInteractive command line parameter to" +
+          " skip asking for confirmation and ONLY read from the .azkabanPlugin.json file.";
       group = "Hadoop Plugin";
 
       doFirst {
+        // Enable users to skip the interactive mode
+        if (project.hasProperty("skipInteractive")) {
+          logger.lifecycle("Skipping Interactive mode");
+          interactive = false;
+        }
+
         azkProject = readAzkabanProject(project);
         String zipTaskName = azkProject.azkabanZipTask;
         if (!zipTaskName) {
@@ -110,6 +123,12 @@ class AzkabanPlugin implements Plugin<Project> {
         }
 
         archivePath = zipTaskCont.archivePath;
+      }
+
+      doLast {
+        if (interactive) {
+          logger.lifecycle("\nUse -PskipInteractive command line parameter to skip asking for confirmation and ONLY read from the .azkabanPlugin.json file.");
+        }
       }
     }
   }
@@ -216,16 +235,31 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   AzkabanProject readAzkabanProject(Project project) {
     def pluginJson = readAzkabanPluginJson(project);
-    if (pluginJson == null) {
-      throw new GradleException("\n\nPlease run \"gradle writeAzkabanPluginJson\" to create a default .azkabanPlugin.json file in your project directory which you can then edit.\n")
+    AzkabanProject azkProject = makeDefaultAzkabanProject(); //changed makeAzkabanProject here to makeDefaultAzkabanProject()
+
+    if (pluginJson != null) {
+      // If the file exists, the task should use this information, but give the user the chance
+      // to confirm or change the Azkaban URL / project / user / ZipTask. If the user changes this information,
+      // ask them if they want to save the changes (to the .azkabanPlugin.json file).
+
+      azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
+      azkProject.azkabanUrl = pluginJson[AZK_URL];
+      azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
+      azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
+      azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
+    } else {
+      // The file doesn't exist, the azkabanUpload task should ask the user for this information.
+      logger.lifecycle("File .azkabanPlugin.json not found. Automatically switching to Interactive mode");
+      interactive = true;
     }
 
-    AzkabanProject azkProject = makeAzkabanProject();
-    azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
-    azkProject.azkabanUrl = pluginJson[AZK_URL];
-    azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
-    azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
-    azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
+    // When specifying this command line parameter, the task should fail if the file does not exist or is not completely filled out.
+    if(interactive && AzkabanHelper.configureTask(azkProject)) { //configureTask is called only if interactive is true
+      String updatedPluginJson = new JsonBuilder(azkProject).toPrettyString();
+      new File(getPluginJsonPath(project)).write(updatedPluginJson);
+    }
+
     return azkProject;
   }
+
 }

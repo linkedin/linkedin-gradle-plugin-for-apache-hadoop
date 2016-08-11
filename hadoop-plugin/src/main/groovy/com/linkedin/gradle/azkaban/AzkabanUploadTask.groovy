@@ -51,8 +51,7 @@ class AzkabanUploadTask extends DefaultTask {
       // The .azkabanPlugin.json file must specify at least the Azkaban URL.
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-    //configureTask
-    AzkabanHelper.configureTask(azkProject);
+
     uploadToAzkaban(AzkabanHelper.readSession());
   }
 
