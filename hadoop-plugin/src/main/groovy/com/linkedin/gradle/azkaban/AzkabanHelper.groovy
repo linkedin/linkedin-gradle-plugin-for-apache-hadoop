@@ -212,40 +212,42 @@ class AzkabanHelper {
   static boolean configureTask(AzkabanProject azkProject) {
     def console = System.console();
     if (console == null) {
-      throw new GradleException(
-          "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.");
+      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+      throw new GradleException(msg);
     }
 
-    logger.lifecycle("INTERACTIVE MODE:");
-    logger.lifecycle("Current Azkaban project name : ${azkProject.azkabanProjName}");
-    logger.lifecycle("Current Azkaban URL : ${azkProject.azkabanUrl}");
-    logger.lifecycle("Current Azkaban username : ${azkProject.azkabanUserName}");
-    logger.lifecycle("Current Azkaban ZipTask : ${azkProject.azkabanZipTask}");
+    logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
+    logger.lifecycle("Current Azkaban project name: ${azkProject.azkabanProjName}");
+    logger.lifecycle("Current Azkaban URL: ${azkProject.azkabanUrl}");
+    logger.lifecycle("Current Azkaban user name: ${azkProject.azkabanUserName}");
+    logger.lifecycle("Current Azkaban Zip task: ${azkProject.azkabanZipTask}");
 
-    try{
-      def input = console.readLine("\nWant to change any of the above? [y/N] :");
+    try {
+      logger.lifecycle("\nWant to change any of the above? [y/N]: ");
+      def input = console.readLine();
+
       if (input.toString().trim().toLowerCase() == 'y') {
-        input = console.readLine("New Azkaban project name (leave blank to restore current):");
+        input = console.readLine("New Azkaban project name [enter to leave unchanged]: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = console.readLine("New Azkaban URL (leave blank to restore current):");
+        input = console.readLine("New Azkaban URL [enter to leave unchanged]: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = console.readLine("New Azkaban username (leave blank to restore current):");
+        input = console.readLine("New Azkaban user name [enter to leave unchanged]: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
         }
 
-        input = console.readLine("New Azkaban ZipTask [run ligradle tasks to know about existing ziptasks](leave blank to restore current):");
+        input = console.readLine("New Azkaban Zip task (run 'ligradle tasks' to find existing Zip tasks) [enter to leave unchanged]: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }
 
-        input = console.readLine("\nSave these changes to the .azkabanPlugin.json file? [Y/n] :");
+        input = console.readLine("Save these changes to the .azkabanPlugin.json file? [Y/n]: ");
         if (input.toString().trim().toLowerCase() == 'n') {
           return false;
         } else {
