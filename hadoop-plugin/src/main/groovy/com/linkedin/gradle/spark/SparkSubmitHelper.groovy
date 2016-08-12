@@ -66,7 +66,7 @@ class SparkSubmitHelper {
    * @return String of the form "--class $appClass" which can be directly passed to spark-submit
    */
   static String buildSparkClass(String appClass) {
-    return "--class $appClass";
+    return appClass == null ? "" : "--class $appClass";
   }
 
   /**

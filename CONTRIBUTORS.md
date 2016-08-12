@@ -24,6 +24,7 @@ Vaughan.
 ### Contributors
 
 The following were contributed by Jun "Tony" Zhou. Thanks, Tony!
+* `Added python Spark support for runSparkJob task.`
 * `Added support for submitting python Spark applications with Spark job type. Corresponsing tests are added.`
 * `Added application running mode check in Spark plugin. Spark job now run on YARN cluster unless explicitly specified otherwise.`
 
