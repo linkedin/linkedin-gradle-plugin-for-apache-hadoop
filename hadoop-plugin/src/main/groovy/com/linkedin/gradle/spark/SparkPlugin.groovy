@@ -154,12 +154,20 @@ class SparkPlugin implements Plugin<Project> {
           throw new GradleException("Could not find Spark job with name ${project.jobName} configured in the project ${project.name}. Please check the job name and run the task from within the module directory in which your jobs are configured.");
         }
 
-        if (sparkJob.appClass == null) {
-          throw new GradleException("Spark job with name ${sparkJob.name} does not have 'uses' set");
+        if (sparkJob.executionTarget == null || sparkJob.executionTarget.isEmpty()) {
+          throw new GradleException("SparkJob ${sparkJob.name} must set executes");
         }
 
-        if (sparkJob.executionTarget == null) {
-          throw new GradleException("Spark job with name ${sparkJob.name} does not have 'executes' set");
+        if (sparkJob.executionTarget.toLowerCase().endsWith(".jar")) {
+          if(sparkJob.appClass == null || sparkJob.appClass.isEmpty()) {
+            throw new GradleException("SparkJob ${sparkJob.name} must set uses for Java application");
+          }
+        }
+
+        if (sparkJob.executionTarget.toLowerCase().endsWith(".py")) {
+          if(sparkJob.appClass != null) {
+            throw new GradleException("SparkJob ${sparkJob.name} must not set uses for Python application");
+          }
         }
 
         def scriptName = project.jobName;
