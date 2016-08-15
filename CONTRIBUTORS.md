@@ -29,6 +29,7 @@ The following were contributed by Jun "Tony" Zhou. Thanks, Tony!
 * `Added application running mode check in Spark plugin. Spark job now run on YARN cluster unless explicitly specified otherwise.`
 
 The following were contributed by Jin Hyuk Chang. Thanks, Jin Hyuk!
+* `DSS-5053: Added Hive ORC table as a source in hdfsToTeradata job type.`
 * `DSS-4743: Hadoop DSL for SQL job type. Adding encrypted password support on Teradata job type in Hadoop DSL.`
 * `DSS-3870: Hadoop DSL for new Azkaban job type. Teradata <-> HDFS, HDFS -> Espresso, and Gobblin`
 

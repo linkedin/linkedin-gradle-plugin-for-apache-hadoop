@@ -1,0 +1,13 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hdfsToTeradata
+dependencies=jobs1_job18
+hdfs.fileformat=orcfile
+source.hive.databasename=hive_database
+source.hive.tablename=hive_table
+target.td.tablename=dwh_stg.scott_users
+td.crypto.key.path=/hdfs/path/to/cryptokey/file
+td.encrypted.credential=eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ
+td.hostname=dw.teradata.com
+td.userid=foo
+tdch.jobtype=hive
+user.to.proxy=testUser

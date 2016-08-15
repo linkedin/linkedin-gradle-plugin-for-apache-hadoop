@@ -17,10 +17,10 @@ RequiredFieldsChecker ERROR: VoldemortBuildPushJob job11 has the following requi
 RequiredFieldsChecker ERROR: HadoopShellJob job12 must set command or commands
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: hostName
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: userId
-RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: sourceHdfsPath
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: targetTable
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either credentialName or encryptedCredential defined
 RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either avroSchemaPath or avroSchemaInline defined
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: sourceHdfsPath
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: hostName
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: userId
 RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: targetHdfsPath

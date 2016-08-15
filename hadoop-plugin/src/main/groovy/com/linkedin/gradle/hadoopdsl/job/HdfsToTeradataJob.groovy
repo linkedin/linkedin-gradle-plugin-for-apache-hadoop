@@ -31,15 +31,21 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  *     credentialName 'com.linkedin.teradata.scott' //*Required
  *     encryptedCredential '' //*Required
  *     cryptoKeyFilePath '/hdfs/file/path' //*Required
- *     sourceHdfsPath '/job/data/src' //Required
+ *     sourceHiveDatabase 'hive_database_name' //**Required
+ *     sourceHiveTable 'hive_table_name' //**Required
+ *     sourceHdfsPath '/job/data/src' //**Required
+ *     avroSchemaPath '/job/data/src/avro.avsc' //**Required
+ *     avroSchemaInline '{"type":"record","namespace":"com.example","name":"FullName","fields":[{"name":"first","type":"string"},{"name":"last","type":"string"}]}' //**Required
  *     targetTable 'teradatatable' //Required
- *     avroSchemaPath '/job/data/src/avro.avsc'
- *     avroSchemaInline '{"type":"record","namespace":"com.example","name":"FullName","fields":[{"name":"first","type":"string"},{"name":"last","type":"string"}]}'
+ *
  *     set hadoopProperties: [
  *       'hadoopPropertyName1' : 'hadoopPropertyValue1',
  *       'hadoopPropertyName2' : 'hadoopPropertyValue2'
  *     ]
  *   }
+ *
+ *   **Required: To use Hive as a source, both sourceHiveDatabase and sourceHiveTable need to be defined.
+ *               To use Avro file as a source, sourceHdfsPath and either avroSchemaPath or avroSchemaInline needs to be defined.
  * </pre>
  */
 class HdfsToTeradataJob extends Job {
@@ -48,10 +54,15 @@ class HdfsToTeradataJob extends Job {
   String credentialName;
   String encryptedCredential;
   String cryptoKeyFilePath;
+
+  String sourceHiveDatabase;
+  String sourceHiveTable;
+
   String sourceHdfsPath;
-  String targetTable;
   String avroSchemaPath;
   String avroSchemaInline;
+
+  String targetTable;
   Map<String, Object> hadoopProperties;
 
   HdfsToTeradataJob(String jobName) {
@@ -97,14 +108,24 @@ class HdfsToTeradataJob extends Job {
     setJobProperty("td.crypto.key.path", cryptoKeyFilePath);
   }
 
+  void sourceHiveDatabase(String sourceHiveDatabase) {
+    this.sourceHiveDatabase = sourceHiveDatabase;
+    setJobProperty("source.hive.databasename", sourceHiveDatabase);
+  }
+
+  /**
+   * Setting table name. Also, setting jobtype as hive.
+   * @param sourceHiveTable
+   */
+  void sourceHiveTable(String sourceHiveTable) {
+    this.sourceHiveTable = sourceHiveTable;
+    setJobProperty("source.hive.tablename", sourceHiveTable);
+    setJobProperty("tdch.jobtype", "hive");
+  }
+
   void sourceHdfsPath(String sourceHdfsPath) {
     this.sourceHdfsPath = sourceHdfsPath;
     setJobProperty("source.hdfs.path", sourceHdfsPath);
-  }
-
-  void targetTable(String targetTable) {
-    this.targetTable = targetTable;
-    setJobProperty("target.td.tablename", targetTable);
   }
 
   void avroSchemaPath(String avroSchemaPath) {
@@ -115,6 +136,11 @@ class HdfsToTeradataJob extends Job {
   void avroSchemaInline(String avroSchemaInline) {
     this.avroSchemaInline = avroSchemaInline;
     setJobProperty("avro.schema.inline", avroSchemaInline);
+  }
+
+  void targetTable(String targetTable) {
+    this.targetTable = targetTable;
+    setJobProperty("target.td.tablename", targetTable);
   }
 
   void setHadoopProperty(String name, Object value) {
@@ -155,10 +181,12 @@ class HdfsToTeradataJob extends Job {
     cloneJob.credentialName = credentialName;
     cloneJob.encryptedCredential = encryptedCredential;
     cloneJob.cryptoKeyFilePath = cryptoKeyFilePath;
+    cloneJob.sourceHiveDatabase = sourceHiveDatabase;
+    cloneJob.sourceHiveTable = sourceHiveTable;
     cloneJob.sourceHdfsPath = sourceHdfsPath;
-    cloneJob.targetTable = targetTable;
     cloneJob.avroSchemaPath = avroSchemaPath;
     cloneJob.avroSchemaInline = avroSchemaInline;
+    cloneJob.targetTable = targetTable;
     cloneJob.hadoopProperties = new LinkedHashMap<String, String>(hadoopProperties);
     return super.clone(cloneJob);
   }
