@@ -330,6 +330,22 @@ hadoop {
       ]
       depends 'job17'
     }
-    targets 'job18'
+
+    hdfsToTeradataJob('job19') {
+      hostName 'dw.teradata.com'  // Required
+      userId 'foo' //Required
+      cryptoKeyFilePath '/hdfs/path/to/cryptokey/file'
+      encryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'
+      targetTable 'dwh_stg.scott_users'
+      sourceHiveDatabase 'hive_database'
+      sourceHiveTable 'hive_table'
+      set properties: [
+        "user.to.proxy": "testUser",
+        "hdfs.fileformat": "orcfile"
+      ]
+      depends 'job18'
+    }
+
+    targets 'job19'
   }
 }

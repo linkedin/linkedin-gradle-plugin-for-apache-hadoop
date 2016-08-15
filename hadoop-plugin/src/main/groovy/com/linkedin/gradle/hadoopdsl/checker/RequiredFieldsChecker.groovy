@@ -210,10 +210,28 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(HdfsToTeradataJob job) {
     foundError |= validateNotEmpty(job, "hostName", job.hostName);
     foundError |= validateNotEmpty(job, "userId", job.userId);
-    foundError |= validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
     foundError |= validateNotEmpty(job, "targetTable", job.targetTable);
     foundError |= validateTeradataCredential(job, job.credentialName, job.encryptedCredential, job.cryptoKeyFilePath)
 
+    validateSource(job);
+  }
+
+  /**
+   * Check if the job would use Hive as a source or Avro file as a source. Depends on which source it would use, check required fields accordingly.
+   * Note that this method will update foundError local variable.
+   * @param job
+   */
+  private void validateSource(HdfsToTeradataJob job) {
+    //Check if the source is Hive
+    if (!isEmpty(job.sourceHiveDatabase) || !isEmpty(job.sourceHiveTable)) {
+      foundError |= validateNotEmpty(job, "sourceHiveDatabase", job.sourceHiveDatabase);
+      foundError |= validateNotEmpty(job, "sourceHiveTable", job.sourceHiveTable);
+      foundError |= validateTrue(job, "Avro source should have not defined, when Hive source is defined.",
+                                 isEmpty(job.sourceHdfsPath) && isEmpty(job.avroSchemaPath) && isEmpty(job.avroSchemaInline));
+      return;
+    }
+
+    //Check required fields for Avro
     boolean isAvroSchemaExist = false;
     isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
     isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
@@ -222,6 +240,12 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
       foundError = true;
     }
+
+    foundError = validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
+  }
+
+  private boolean isEmpty(String s) {
+    return s == null || s.isEmpty();
   }
 
   @Override

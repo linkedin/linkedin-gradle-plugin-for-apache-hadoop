@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.9.15
+
+* Added Hive ORC table as a source in hdfsToTeradata job type
+
 0.9.14
 
 * Added python Spark support for runSparkJob task
