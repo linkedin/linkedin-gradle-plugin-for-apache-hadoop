@@ -96,22 +96,19 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   Task createUploadTask(Project project) {
     return project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
-      description = "Uploads Hadoop zip archive to Azkaban. Use -PskipInteractive command line parameter to" +
-          " skip asking for confirmation and ONLY read from the .azkabanPlugin.json file.";
+      description = "Uploads Hadoop zip archive to Azkaban. Use -PskipInteractive command line " +
+          "parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.";
       group = "Hadoop Plugin";
 
       doFirst {
         // Enable users to skip the interactive mode
         if (project.hasProperty("skipInteractive")) {
-          logger.lifecycle("Skipping Interactive mode");
+          logger.lifecycle("Skipping interactive mode");
           interactive = false;
         }
 
-        if (project.hasProperty("showProgress")) {
-          AzkabanUploadTask.showProgress = true;
-        }
-
         azkProject = readAzkabanProject(project);
+
         String zipTaskName = azkProject.azkabanZipTask;
         if (!zipTaskName) {
           throw new GradleException("\nPlease set the property 'azkabanZipTask' in the .azkabanPlugin.json file");
@@ -119,11 +116,11 @@ class AzkabanPlugin implements Plugin<Project> {
 
         def zipTaskCont = project.getProject().tasks[zipTaskName];
         if (zipTaskCont == null) {
-          throw new GradleException("\nThe task " + zipTaskName + " doesn't exist. Please specify a Zip task after configuring it in your build.gradle file.");
+          throw new GradleException("\nThe task ${zipTaskName} doesn't exist. Please specify a Gradle Zip task after configuring it in your build.gradle file.");
         }
 
         if (!zipTaskCont instanceof Zip) {
-          throw new GradleException("\nThe task " + zipTaskName + " is not a Zip task. Please specify a Zip task after configuring it in your build.gradle file.");
+          throw new GradleException("\nThe task ${zipTaskName} is not a Zip task. Please specify a Gradle Zip task after configuring it in your build.gradle file.");
         }
 
         archivePath = zipTaskCont.archivePath;
@@ -131,18 +128,14 @@ class AzkabanPlugin implements Plugin<Project> {
 
       doLast {
         if (interactive) {
-          logger.lifecycle("\nUse -PskipInteractive command line parameter to skip asking for confirmation and ONLY read from the .azkabanPlugin.json file.");
-        }
-
-        if (!AzkabanUploadTask.showProgress) {
-          logger.lifecycle("Use -PshowProgress command line parameter to show the Zip Upload status.");
+          logger.lifecycle("\nUse -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.");
         }
       }
     }
   }
 
   /**
-   * Creates the task to write the plugin json.
+   * Creates the task to write the plugin json file.
    *
    * @param project The Gradle project
    * @return The created task
@@ -243,26 +236,26 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   AzkabanProject readAzkabanProject(Project project) {
     def pluginJson = readAzkabanPluginJson(project);
-    AzkabanProject azkProject = makeDefaultAzkabanProject(); //changed makeAzkabanProject here to makeDefaultAzkabanProject()
+    AzkabanProject azkProject = makeDefaultAzkabanProject();
 
     if (pluginJson != null) {
       // If the file exists, the task should use this information, but give the user the chance
-      // to confirm or change the Azkaban URL / project / user / ZipTask. If the user changes this information,
+      // to confirm or change the values read from the file. If the user changes this information,
       // ask them if they want to save the changes (to the .azkabanPlugin.json file).
-
       azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
       azkProject.azkabanUrl = pluginJson[AZK_URL];
       azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
       azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
       azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
     } else {
-      // The file doesn't exist, the azkabanUpload task should ask the user for this information.
-      logger.lifecycle("File .azkabanPlugin.json not found. Automatically switching to Interactive mode");
+      // If the file doesn't exist, the task should automatically ask the user for this information
+      logger.lifecycle("File .azkabanPlugin.json not found. Automatically switching to interactive mode.");
       interactive = true;
     }
 
-    // When specifying this command line parameter, the task should fail if the file does not exist or is not completely filled out.
-    if(interactive && AzkabanHelper.configureTask(azkProject)) { //configureTask is called only if interactive is true
+    // When specifying this command line parameter, the task should fail if the file does not
+    // exist or is not completely filled out
+    if (interactive && AzkabanHelper.configureTask(azkProject)) {
       String updatedPluginJson = new JsonBuilder(azkProject).toPrettyString();
       new File(getPluginJsonPath(project)).write(updatedPluginJson);
     }
