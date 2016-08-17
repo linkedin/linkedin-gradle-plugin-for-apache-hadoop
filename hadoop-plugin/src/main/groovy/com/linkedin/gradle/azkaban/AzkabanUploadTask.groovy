@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.azkaban;
 
-
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -30,9 +29,11 @@ import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
+
 import org.json.JSONObject;
 
 /**
@@ -41,7 +42,6 @@ import org.json.JSONObject;
 class AzkabanUploadTask extends DefaultTask {
   File archivePath;
   AzkabanProject azkProject;
-  static boolean showProgress = false; // Enabler for progress bar
 
   /**
    * The Gradle task action for uploading the zip file to Azkaban.
@@ -49,11 +49,36 @@ class AzkabanUploadTask extends DefaultTask {
   @TaskAction
   void upload() {
     if (azkProject.azkabanUrl == null) {
-      // The .azkabanPlugin.json file must specify at least the Azkaban URL.
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-
     uploadToAzkaban(AzkabanHelper.readSession());
+  }
+
+  /**
+   * Builds the progress bar and callback listener for the upload.
+   *
+   * @return The progress callback listener for the upload
+   */
+  ProgressHttpEntityWrapper.ProgressCallback buildProgressCallback() {
+    File zipfile = new File(archivePath.toString())
+    int sizeInKB = zipfile.length() / 1024;
+
+    logger.lifecycle("Once the zip is uploaded, Azkaban will validate your zip with Byte-Ray to complete the upload")
+    logger.lifecycle("Zip upload progress...");
+    logger.lifecycle("0%                                                                                                100% (${sizeInKB.toString()} KB)");
+    logger.lifecycle("|                                                                                                  |");
+    int progressLimiter = 0;
+
+    return new ProgressHttpEntityWrapper.ProgressCallback() {
+      @Override
+      public void progress(float progress) {
+        if((int)progress > progressLimiter && progressLimiter <= 100) {
+          progressLimiter++;
+          print("x");
+          System.out.flush();
+        }
+      }
+    }
   }
 
   /**
@@ -62,7 +87,6 @@ class AzkabanUploadTask extends DefaultTask {
    * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
    */
   void uploadToAzkaban(String sessionId) {
-
     // If no previous session is available, obtain a session id from server by sending login credentials.
     if (sessionId == null) {
       logger.lifecycle("No previous session found. Logging into Azkaban:");
@@ -81,41 +105,23 @@ class AzkabanUploadTask extends DefaultTask {
         .addBinaryBody("file", archivePath, ContentType.create("application/zip"), archivePath.getName())
         .addTextBody("project", azkProject.azkabanProjName);
 
-    if (!azkProject.azkabanValidatorAutoFix || !azkProject.azkabanValidatorAutoFix.equals("off")) {
+    if (azkProject.azkabanValidatorAutoFix != "off") {
       mpEntityBuilder.addTextBody("fix", "on");
     }
 
     HttpEntity reqEntity = mpEntityBuilder.build();
-
     HttpPost httpPost = new HttpPost(azkProject.azkabanUrl + "/manager");
     httpPost.setEntity(reqEntity);
     httpPost.setHeader("Accept", "*/*");
     httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
 
-    if (showProgress) {
-      //Upload status
-      int progressLimiter = 0;
-      File zipfile = new File(archivePath.toString())
-      int sizeInKB = zipfile.length() / 1024;
-      logger.lifecycle("Zip Upload Progress...");
-      logger.lifecycle("0%                                                                                                100%(" + sizeInKB.toString() + "KB)");
-      logger.lifecycle("|                                                                                                  |");
+    // Setup the progress bar and callback 
+    ProgressHttpEntityWrapper.ProgressCallback progressCallback = buildProgressCallback();
+    httpPost.setEntity(new ProgressHttpEntityWrapper(reqEntity, progressCallback));
 
-      ProgressHttpEntityWrapper.ProgressCallback progressCallback = new ProgressHttpEntityWrapper.ProgressCallback() {
-        @Override
-        public void progress(float progress) {
-          if((int)progress > progressLimiter && progressLimiter != 100) {
-            progressLimiter++;
-            print("x");
-            System.out.flush();
-          }
-        }
-      }
-
-      httpPost.setEntity(new ProgressHttpEntityWrapper(reqEntity, progressCallback));
-    }
-
+    // Now build the HttpClient object and execute the upload
     HttpClient httpClient = new DefaultHttpClient();
+
     try {
       SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
         @Override

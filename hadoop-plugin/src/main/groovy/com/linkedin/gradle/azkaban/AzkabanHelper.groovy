@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.azkaban;
 
-
 import com.linkedin.gradle.util.HtmlUtil;
 
 import java.security.cert.CertificateException;
@@ -32,9 +31,11 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+
 import org.json.JSONObject;
 
 /**
@@ -91,7 +92,6 @@ class AzkabanHelper {
       // logger.lifecycle("\n" + result);  // Commented out to not display the session id on the screen
       logger.lifecycle("--------------------------------------------------------------------------------");
 
-      // Check if the login is successful
       JSONObject jsonObj = new JSONObject(result);
 
       if (jsonObj.has("error")) {
@@ -227,22 +227,22 @@ class AzkabanHelper {
       def input = console.readLine();
 
       if (input.toString().trim().toLowerCase() == 'y') {
-        input = console.readLine("New Azkaban project name [enter to leave unchanged]: ");
+        input = console.readLine("New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = console.readLine("New Azkaban URL [enter to leave unchanged]: ");
+        input = console.readLine("New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = console.readLine("New Azkaban user name [enter to leave unchanged]: ");
+        input = console.readLine("New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
         }
 
-        input = console.readLine("New Azkaban Zip task (run 'ligradle tasks' to find existing Zip tasks) [enter to leave unchanged]: ");
+        input = console.readLine("New Azkaban Zip task (run 'ligradle tasks' to find existing Zip tasks) [enter to accept '${azkProject.azkabanZipTask}']: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }

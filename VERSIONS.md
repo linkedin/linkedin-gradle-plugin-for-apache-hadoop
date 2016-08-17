@@ -19,6 +19,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.9.16
 
+* Minor fixes to how the upload status of the Azkaban zip is displayed
 * LIHADOOP-22222 Display Upload Status of Zip when running azkabanUpload task
 
 0.9.15
