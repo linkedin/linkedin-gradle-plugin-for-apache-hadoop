@@ -41,6 +41,7 @@ import org.json.JSONObject;
 class AzkabanUploadTask extends DefaultTask {
   File archivePath;
   AzkabanProject azkProject;
+  static boolean showProgress = false; // Enabler for progress bar
 
   /**
    * The Gradle task action for uploading the zip file to Azkaban.
@@ -91,6 +92,29 @@ class AzkabanUploadTask extends DefaultTask {
     httpPost.setHeader("Accept", "*/*");
     httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
 
+    if (showProgress) {
+      //Upload status
+      int progressLimiter = 0;
+      File zipfile = new File(archivePath.toString())
+      int sizeInKB = zipfile.length() / 1024;
+      logger.lifecycle("Zip Upload Progress...");
+      logger.lifecycle("0%                                                                                                100%(" + sizeInKB.toString() + "KB)");
+      logger.lifecycle("|                                                                                                  |");
+
+      ProgressHttpEntityWrapper.ProgressCallback progressCallback = new ProgressHttpEntityWrapper.ProgressCallback() {
+        @Override
+        public void progress(float progress) {
+          if((int)progress > progressLimiter && progressLimiter != 100) {
+            progressLimiter++;
+            print("x");
+            System.out.flush();
+          }
+        }
+      }
+
+      httpPost.setEntity(new ProgressHttpEntityWrapper(reqEntity, progressCallback));
+    }
+
     HttpClient httpClient = new DefaultHttpClient();
     try {
       SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustStrategy() {
@@ -109,7 +133,7 @@ class AzkabanUploadTask extends DefaultTask {
         throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode() + "\nAlternately, you can upload the zip to your project via Azkaban UI.");
       }
 
-      logger.lifecycle("--------------------------------------------------------------------------------");
+      logger.lifecycle("\n--------------------------------------------------------------------------------");
       logger.lifecycle(AzkabanHelper.parseResponse(response.toString()));
       String result = AzkabanHelper.parseContent(response.getEntity().getContent());
       logger.lifecycle("\n" + result);

@@ -107,6 +107,10 @@ class AzkabanPlugin implements Plugin<Project> {
           interactive = false;
         }
 
+        if (project.hasProperty("showProgress")) {
+          AzkabanUploadTask.showProgress = true;
+        }
+
         azkProject = readAzkabanProject(project);
         String zipTaskName = azkProject.azkabanZipTask;
         if (!zipTaskName) {
@@ -128,6 +132,10 @@ class AzkabanPlugin implements Plugin<Project> {
       doLast {
         if (interactive) {
           logger.lifecycle("\nUse -PskipInteractive command line parameter to skip asking for confirmation and ONLY read from the .azkabanPlugin.json file.");
+        }
+
+        if (!AzkabanUploadTask.showProgress) {
+          logger.lifecycle("Use -PshowProgress command line parameter to show the Zip Upload status.");
         }
       }
     }
