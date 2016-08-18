@@ -320,6 +320,19 @@ class Workflow extends BaseNamedScopeContainer {
   }
 
   /**
+   * DSL method for a subflow that declares the targets in the parent workflow upon which this
+   * workflow depends.
+   *
+   * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared targets and
+   *             required key 'targetNames' specifies the list of targets for the workflow
+   */
+  void flowDepends(Map args) {
+    boolean clear = args.containsKey("clear") ? args["clear"] : false;
+    List<String> targetNames = args["targetNames"];
+    flowDepends(clear, targetNames);
+  }
+
+  /**
    * DSL method that declares the targets for the workflow.
    *
    * @param targetNames The variable-length targets for the workflow
@@ -354,7 +367,7 @@ class Workflow extends BaseNamedScopeContainer {
    * DSL method that declares the targets for the workflow.
    *
    * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared targets and
-   *                  required key 'targetNames' specifies the list of targets for the workflow
+   *             required key 'targetNames' specifies the list of targets for the workflow
    */
   void targets(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
