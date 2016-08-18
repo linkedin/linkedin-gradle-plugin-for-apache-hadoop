@@ -107,7 +107,7 @@ hadoop {
       }
 
       workflow('flow2') {
-        flowDepends 'job1'
+        flowDepends clear: true, targetNames: ['job1']
 
         propertyFile('flow2common') {
           baseProperties 'common'
