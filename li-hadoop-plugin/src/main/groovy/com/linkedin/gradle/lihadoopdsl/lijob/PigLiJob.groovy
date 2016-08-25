@@ -13,9 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopdsl;
+package com.linkedin.gradle.lihadoopdsl.lijob;
+
 
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+
 
 /**
  * Extend the Hadoop Plugin Job classes with the LinkedIn-specific "pigLi" job type.
@@ -41,9 +43,10 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
  *       'param2' : 'val2'
  *     ]
  *     queue 'marathon
- *   }
+ *  }
  * </pre>
  */
+
 class PigLiJob extends PigJob {
   /**
    * Constructor for a PigLiJob.

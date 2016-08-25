@@ -15,9 +15,10 @@
  */
 package com.linkedin.gradle.liazkaban;
 
-import com.linkedin.gradle.azkaban.AzkabanPlugin;
-import com.linkedin.gradle.azkaban.AzkabanProject
 
+import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.azkaban.AzkabanPlugin;
+import com.linkedin.gradle.azkaban.AzkabanProject;
 import org.gradle.api.Project;
 
 /**
@@ -42,5 +43,17 @@ class LiAzkabanPlugin extends AzkabanPlugin {
     azkabanProject.azkabanValidatorAutoFix = "true";
     azkabanProject.azkabanZipTask = "";
     return azkabanProject;
+  }
+
+  /**
+   * Factory method to build the Hadoop DSL compiler for Azkaban. Subclasses can override this
+   * method to provide their own compiler.
+   *
+   * @param project The Gradle project
+   * @return The AzkabanDslCompiler
+   */
+  @Override
+  AzkabanDslCompiler makeCompiler(Project project) {
+    return new LiAzkabanDslCompiler(project);
   }
 }

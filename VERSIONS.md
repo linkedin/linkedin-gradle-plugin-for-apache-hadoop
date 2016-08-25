@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.1
+
+* Integrate bangbang with li-hadoop-plugin
+
 0.10.0
 
 * Add HadoopValidatorPlugin with PigValidatorPlugin in its stack
