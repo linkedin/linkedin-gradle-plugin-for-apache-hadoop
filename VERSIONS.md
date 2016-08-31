@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.2
+
+* Misc update on Java doc and test cases
+
 0.10.1
 
 * Integrate bangbang with li-hadoop-plugin

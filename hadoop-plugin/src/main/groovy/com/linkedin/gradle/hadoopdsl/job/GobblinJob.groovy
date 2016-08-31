@@ -28,12 +28,12 @@ package com.linkedin.gradle.hadoopdsl.job;
  *     workDir '/job/data/src'  //Optional
  *     preset 'mysqlToHdfs'     //Optional
  *     set properties: [        //Optional Add Gobblin job properties. (https://github.com/linkedin/gobblin/wiki/Working-with-Job-Configuration-Files)
- *       'source.querybased.schema' : 'merlin_users',
+ *       'source.querybased.schema' : 'DATABASE',
  *       'source.entity' : 'user',
- *       'source.conn.host' : 'eat1-db42.corp.linkedin.com',
- *       'source.conn.username' : 'merlin_u',
- *       'source.conn.password' : 'ENC(7Bv+t0aw5rdyOYuyLqkrpTetE3KvfDRK)',
- *       'encrypt.key.loc' : '/jobs/jnchang/mstr_merlin.key',
+ *       'source.conn.host' : 'mysql.host.com'
+ *       'source.conn.username' : 'USERNAME',
+ *       'source.conn.password' : 'ENCRYPTED_PASSWORD'
+ *       'encrypt.key.loc' : '/path/to/key'
  *       'extract.table.type' : 'snapshot_only',
  *       'extract.is.full' : true,
  *       'data.publisher.replace.final.dir' : true,
