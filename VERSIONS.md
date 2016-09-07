@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.3
+
+* LIHADOOP-22655 Automate creation of Azkaban Project during azkabanUpload task
+* LIHADOOP-22654 Enable azkabanUpload task to validate session before uploading
+
 0.10.2
 
 * Misc update on Java doc and test cases

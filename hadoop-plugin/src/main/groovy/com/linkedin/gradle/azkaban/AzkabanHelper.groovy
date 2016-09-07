@@ -17,6 +17,10 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.util.HtmlUtil;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -163,6 +167,24 @@ class AzkabanHelper {
       }
     }
     return sessionId;
+  }
+
+  /**
+   * HTTP POST implementation
+   *
+   * @param uri URI of HTTP POST request
+   * @return The response String
+   */
+  static String responseFromPOST(URI uri) {
+    HttpPost httpPost = new HttpPost(uri);
+    httpPost.setHeader("Accept", "*/*");
+    httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
+    httpClient.close();
+
+    return response;
   }
 
   /**
