@@ -64,11 +64,15 @@ class AzkabanUploadTask extends DefaultTask {
     // If no previous session is available, obtain a session id from server by sending login credentials.
     if (sessionId == null) {
       logger.lifecycle("No previous session found. Logging into Azkaban.");
+      logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
       logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
-      logger.lifecycle("Azkaban user name: ${azkProject.azkabanUserName}");
-      logger.lifecycle("Azkaban project name: ${azkProject.azkabanProjName}");
-      logger.lifecycle("Azkaban password: ");
-      sessionId = AzkabanHelper.azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword(" Input>"));
+      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
+
+      // Give Gradle time to flush the logger to the screen and write its progress log line at the
+      // bottom of the screen, so we can augment this line with a prompt for the password
+      sleep(500);
+      System.console().format(" > Enter password: ").flush();
+      sessionId = AzkabanHelper.azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
     }
     else {
       logger.lifecycle("Resuming previous Azkaban session");
@@ -106,7 +110,7 @@ class AzkabanUploadTask extends DefaultTask {
   /**
    * Automates the creation of Azkaban project if not exists and uploads the zip file to Azkaban.
    *
-   * @param sessionId
+   * @param sessionId The Azkaban session id
    */
   void createProjectAndUpload(String sessionId) {
     URI createProjectURI = new URIBuilder(azkProject.azkabanUrl)
@@ -114,7 +118,7 @@ class AzkabanUploadTask extends DefaultTask {
         .setParameter("session.id", sessionId)
         .setParameter("action", "create")
         .setParameter("name", azkProject.azkabanProjName)
-        .setParameter("description", "Created automatically by Gradle task azkabanUpload")
+        .setParameter("description", "Created automatically by Gradle azkabanUpload task")
         .build();
 
     String responseFromCreate = AzkabanHelper.responseFromPOST(createProjectURI);
@@ -130,7 +134,7 @@ class AzkabanUploadTask extends DefaultTask {
 
     // If create project API call returns error
     if (responseJson.get("status").toString().contains("success")) {
-      logger.lifecycle("Automatically created project: ${azkProject.azkabanProjName} in Azkaban.");
+      logger.lifecycle("Automatically created project ${azkProject.azkabanProjName} in Azkaban.");
     } else if (responseJson.get("status").toString().equals("error") && !responseJson.get("message").toString().contains("already exists")) {
       logger.error("No project ${azkProject.azkabanProjName} found in Azkaban.");
     }
@@ -138,9 +142,9 @@ class AzkabanUploadTask extends DefaultTask {
   }
 
   /**
-   * Handles uploading Zip file to Azkaban.
+   * Handles uploading the zip file to Azkaban.
    *
-   * @param sessionId
+   * @param sessionId The Azkaban session id
    */
   void performUpload(String sessionId) {
     MultipartEntityBuilder mpEntityBuilder = MultipartEntityBuilder.create()
