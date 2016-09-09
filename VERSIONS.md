@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.4
+
+* Cause the azkabanUpload task to prompt the user for their password as part of the progress line
+
 0.10.3
 
 * LIHADOOP-22655 Automate creation of Azkaban Project during azkabanUpload task

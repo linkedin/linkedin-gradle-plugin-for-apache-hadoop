@@ -239,13 +239,16 @@ class AzkabanHelper {
     }
 
     logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
-    logger.lifecycle("Current Azkaban project name: ${azkProject.azkabanProjName}");
-    logger.lifecycle("Current Azkaban URL: ${azkProject.azkabanUrl}");
-    logger.lifecycle("Current Azkaban user name: ${azkProject.azkabanUserName}");
-    logger.lifecycle("Current Azkaban Zip task: ${azkProject.azkabanZipTask}");
+    logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
+    logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
+    logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
+    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
 
     try {
-      logger.lifecycle("\nWant to change any of the above? [y/N]: ");
+      // Give Gradle time to flush the logger to the screen and write its progress log line at the
+      // bottom of the screen, so we can augment this line with a prompt for the password
+      sleep(500);
+      console.format(" > Want to change any of the above? [y/N]: ").flush();
       def input = console.readLine();
 
       if (input.toString().trim().toLowerCase() == 'y') {
@@ -277,7 +280,7 @@ class AzkabanHelper {
         }
       }
     } catch (IOException ex) {
-      logger.error("Failed in taking input from user in Interactive mode." + "\n" + ex.toString());
+      logger.error("Failed in taking input from user in interactive mode." + "\n" + ex.toString());
     }
 
     return false;
