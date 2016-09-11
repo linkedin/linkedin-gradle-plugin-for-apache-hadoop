@@ -22,14 +22,14 @@ hadoopZip {
     }
   }
 
-  zip("magic") {
+  zip("holdem") {
     from("src") {
       into "src"
       include "main/**/**"
     }
   }
 
-  zip("canasta") {
+  zip("war") {
     from("src") { }
   }
 

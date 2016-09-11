@@ -81,12 +81,12 @@ class LiHadoopZipExtension extends HadoopZipExtension {
   /**
    * <pre>
    *   hadoopZip {
-   *     zip("magic") {
+   *     zip("holdem") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("canasta") {
+   *     zip("war") {
    *       from ("src/") {
    *         into "src"
    *       }
@@ -103,7 +103,7 @@ class LiHadoopZipExtension extends HadoopZipExtension {
     super.zip(zipName, closure);
   }
 
-  /** 
+  /**
    * Creates a zip archive that contains the .crt file and is setup correctly to work with CRT. CRT
    * has a couple of weird bugs. To be able to deploy from CRT, there must be:
    *

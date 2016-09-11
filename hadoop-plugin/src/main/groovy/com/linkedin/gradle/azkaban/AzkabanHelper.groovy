@@ -16,10 +16,12 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.util.HtmlUtil;
-
+import com.linkedin.gradle.zip.HadoopZipExtension;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.gradle.api.Project;
+import org.gradle.api.file.CopySpec;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -229,9 +231,10 @@ class AzkabanHelper {
    * Configures the fields for azkabanUploadTask.
    *
    * @param azkProject The AzkabanProject
+   * @param project The Gradle Project
    * @return boolean to save the entered fields to .azkabanPlugin.json
    */
-  static boolean configureTask(AzkabanProject azkProject) {
+  static boolean configureTask(AzkabanProject azkProject, Project project) {
     def console = System.console();
     if (console == null) {
       String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
@@ -267,7 +270,23 @@ class AzkabanHelper {
           azkProject.azkabanUserName = input.toString();
         }
 
-        input = console.readLine("New Azkaban Zip task (run 'ligradle tasks' to find existing Zip tasks) [enter to accept '${azkProject.azkabanZipTask}']: ");
+        HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
+        Map<String, CopySpec> zipMap = hadoopZipExtension.getZipMap();
+
+        if (zipMap.isEmpty()) {
+          logger.lifecycle("No zips configured in the hadoopZip block");
+        } else {
+          logger.lifecycle("\nFound the following zips in the hadoopZip block:");
+          def counter = 1;
+          zipMap.each { String zipName, CopySpec copySpec ->
+            logger.lifecycle("${counter++}. ${zipName} - Enter \"${zipName}HadoopZip\" to use this zip");
+          }
+          logger.lifecycle("(Or you can use the name of any other Gradle zip task)");
+        }
+
+        //waiting for the above logger statements to flush
+        sleep(500);
+        input = console.readLine(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ");
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }
