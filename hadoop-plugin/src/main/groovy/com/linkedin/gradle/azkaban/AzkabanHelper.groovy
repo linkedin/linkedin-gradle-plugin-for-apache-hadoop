@@ -118,6 +118,97 @@ class AzkabanHelper {
   }
 
   /**
+   * Configures the fields for azkabanUploadTask.
+   *
+   * @param azkProject The AzkabanProject
+   * @param project The Gradle Project
+   * @return boolean to save the entered fields to .azkabanPlugin.json
+   */
+  static boolean configureTask(AzkabanProject azkProject, Project project) {
+    def console = System.console();
+    if (console == null) {
+      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+      throw new GradleException(msg);
+    }
+
+    logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
+    logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
+    logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
+    logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
+    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
+
+    def input = "y";
+    try {
+      if (!azkProject.azkabanProjName.isEmpty()
+          && !azkProject.azkabanUrl.isEmpty()
+          && !azkProject.azkabanUserName.isEmpty()
+          && !azkProject.azkabanZipTask.isEmpty()) {
+        input = consoleInput(" > Want to change any of the above? [y/N]: ");
+      }
+
+      if (input.equalsIgnoreCase("y")) {
+        input = consoleInput(" > New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanProjName = input.toString();
+        }
+
+        input = consoleInput(" > New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanUrl = input.toString();
+        }
+
+        input = consoleInput(" > New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanUserName = input.toString();
+        }
+
+        HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
+        Map<String, CopySpec> zipMap = hadoopZipExtension.getZipMap();
+
+        if (zipMap.isEmpty()) {
+          logger.lifecycle("No zips configured in the hadoopZip block");
+        } else {
+          logger.lifecycle("\nFound the following zips in the hadoopZip block:");
+          def counter = 1;
+          zipMap.each { String zipName, CopySpec copySpec ->
+            logger.lifecycle("${counter++}. ${zipName} - Enter \"${zipName}HadoopZip\" to use this zip");
+          }
+          logger.lifecycle("(Or you can use the name of any other Gradle zip task)");
+        }
+
+        input = consoleInput(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ");
+        if (input != null && !input.isEmpty()) {
+          azkProject.azkabanZipTask = input.toString();
+        }
+
+        input = consoleInput("> Save these changes to the .azkabanPlugin.json file? [Y/n]: ");
+        return !input.equalsIgnoreCase("n");
+      }
+    } catch (IOException ex) {
+      logger.error("Failed in taking input from user in interactive mode." + "\n" + ex.toString());
+    }
+
+    return false;
+  }
+
+  /**
+   * Gets input from Gradle console
+   *
+   * @param console System Console
+   * @param message Message to be printed for taking input
+   * @return input Trimmed input
+   */
+  static String consoleInput(String message) {
+    // Give Gradle time to flush the logger to the screen and write its progress log line at the
+    // bottom of the screen, so we can augment this line with a prompt for the input
+    sleep(500);
+    def console = System.console();
+    console.format(message).flush();
+    String input = console.readLine().toString().trim();
+    return input;
+  }
+
+  /**
    * Gets the content from the HTTP response.
    *
    * @param The HTTP response as an input stream
@@ -225,83 +316,5 @@ class AzkabanHelper {
     catch (IOException ex) {
       logger.error("Unable to store session ID to file: " + file.toString() + "\n" + ex.toString());
     }
-  }
-
-  /**
-   * Configures the fields for azkabanUploadTask.
-   *
-   * @param azkProject The AzkabanProject
-   * @param project The Gradle Project
-   * @return boolean to save the entered fields to .azkabanPlugin.json
-   */
-  static boolean configureTask(AzkabanProject azkProject, Project project) {
-    def console = System.console();
-    if (console == null) {
-      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-      throw new GradleException(msg);
-    }
-
-    logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
-    logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
-    logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
-    logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
-    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
-
-    try {
-      // Give Gradle time to flush the logger to the screen and write its progress log line at the
-      // bottom of the screen, so we can augment this line with a prompt for the password
-      sleep(500);
-      console.format(" > Want to change any of the above? [y/N]: ").flush();
-      def input = console.readLine();
-
-      if (input.toString().trim().toLowerCase() == 'y') {
-        input = console.readLine("New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ");
-        if (input != null && !input.isEmpty()) {
-          azkProject.azkabanProjName = input.toString();
-        }
-
-        input = console.readLine("New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ");
-        if (input != null && !input.isEmpty()) {
-          azkProject.azkabanUrl = input.toString();
-        }
-
-        input = console.readLine("New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ");
-        if (input != null && !input.isEmpty()) {
-          azkProject.azkabanUserName = input.toString();
-        }
-
-        HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
-        Map<String, CopySpec> zipMap = hadoopZipExtension.getZipMap();
-
-        if (zipMap.isEmpty()) {
-          logger.lifecycle("No zips configured in the hadoopZip block");
-        } else {
-          logger.lifecycle("\nFound the following zips in the hadoopZip block:");
-          def counter = 1;
-          zipMap.each { String zipName, CopySpec copySpec ->
-            logger.lifecycle("${counter++}. ${zipName} - Enter \"${zipName}HadoopZip\" to use this zip");
-          }
-          logger.lifecycle("(Or you can use the name of any other Gradle zip task)");
-        }
-
-        //waiting for the above logger statements to flush
-        sleep(500);
-        input = console.readLine(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ");
-        if (input != null && !input.isEmpty()) {
-          azkProject.azkabanZipTask = input.toString();
-        }
-
-        input = console.readLine("Save these changes to the .azkabanPlugin.json file? [Y/n]: ");
-        if (input.toString().trim().toLowerCase() == 'n') {
-          return false;
-        } else {
-          return true;
-        }
-      }
-    } catch (IOException ex) {
-      logger.error("Failed in taking input from user in interactive mode." + "\n" + ex.toString());
-    }
-
-    return false;
   }
 }
