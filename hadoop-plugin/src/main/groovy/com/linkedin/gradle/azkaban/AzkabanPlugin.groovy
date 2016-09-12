@@ -232,6 +232,7 @@ class AzkabanPlugin implements Plugin<Project> {
   /**
    * Load the Azkaban project properties defined in the .azkabanPlugin.json file.
    *
+   * @param project The Gradle Project
    * @return An AzkabanProject object with the properties set
    */
   AzkabanProject readAzkabanProject(Project project) {
@@ -255,7 +256,7 @@ class AzkabanPlugin implements Plugin<Project> {
 
     // When specifying this command line parameter, the task should fail if the file does not
     // exist or is not completely filled out
-    if (interactive && AzkabanHelper.configureTask(azkProject)) {
+    if (interactive && AzkabanHelper.configureTask(azkProject, project)) {
       String updatedPluginJson = new JsonBuilder(azkProject).toPrettyString();
       new File(getPluginJsonPath(project)).write(updatedPluginJson);
     }

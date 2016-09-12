@@ -79,10 +79,11 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-22809 Display configured Hadoop zips during azkabanUpload task`
+* `LIHADOOP-22655 Automate creation of Azkaban Project during azkabanUpload task. Also avoids uploading twice on invalid session`
+* `LIHADOOP-22222 Display Upload Status of Zip while running azkabanUpload task`
 * `LIHADOOP-21797 Automate the creation of the .azkabanPlugin.json file`
 * `LIHADOOP-21658 Refactor AzkabanUploadTask in Hadoop Plugin by creating AzkabanHelper class`
-* `LIHADOOP-22222 Display Upload Status of Zip while running azkabanUpload task`
-* `LIHADOOP-22655 Automate creation of Azkaban Project during azkabanUpload task. Also avoids uploading twice on invalid session`
 
 The following were contributed by Pratik Satish. Thanks, Pratik!
 * `LIHADOOP-21429 Add HadoopValidatorPlugin with PigValidatorPlugin in its stack`

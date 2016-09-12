@@ -67,12 +67,12 @@ class HadoopZipExtension {
    *         into "common"
    *       }
    *     }
-   *     zip("magic") {
+   *     zip("holdem") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("canasta") {
+   *     zip("war") {
    *       from ("azkaban/") {
    *         into "."
    *       }
@@ -113,12 +113,12 @@ class HadoopZipExtension {
   /**
    * <pre>
    *   hadoopZip {
-   *     zip("magic") {
+   *     zip("holdem") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("canasta") {
+   *     zip("war") {
    *       from ("src/") {
    *         into "src"
    *       }
