@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.6
+
+* LIHADOOP-22822 The azkabanUpload task should automatically go into edit mode if there are missing required fields
+
 0.10.5
 
 * LIHADOOP-22809 Displaying configured Hadoop zips during azkabanUpload task

@@ -40,7 +40,7 @@ The following were contributed by Jonathan Hung. Thanks, Jonathan!
 * `TOOLS-67569 Block Hadoop Client Teams from checking in Hadoop Jars in their MP`
 
 The following were contributed by Anant Nag. Thanks, Anant!
-* `LIHADOOP-18923: Integrate bangbang with li-hadoop-plugin
+* `LIHADOOP-18923: Integrate bangbang with li-hadoop-plugin`
 * `LIHADOOP-18499 Add extra typed methods for Hadoop DSL SparkJob properties`
 * `LIHADOOP-6730: Add clusterProvided configuration for dependency management`
 * `LIHADOOP-17034 Create HadoopShell job type in Hadoop DSL`
@@ -79,6 +79,7 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-22822 The azkabanUpload task should automatically go into edit mode if there are missing required fields`
 * `LIHADOOP-22809 Display configured Hadoop zips during azkabanUpload task`
 * `LIHADOOP-22655 Automate creation of Azkaban Project during azkabanUpload task. Also avoids uploading twice on invalid session`
 * `LIHADOOP-22222 Display Upload Status of Zip while running azkabanUpload task`
