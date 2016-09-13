@@ -17,11 +17,6 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.util.HtmlUtil;
 import com.linkedin.gradle.zip.HadoopZipExtension;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.gradle.api.Project;
-import org.gradle.api.file.CopySpec;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -35,10 +30,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.Project;
+import org.gradle.api.file.CopySpec;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
@@ -121,8 +121,8 @@ class AzkabanHelper {
    * Configures the fields for azkabanUploadTask.
    *
    * @param azkProject The AzkabanProject
-   * @param project The Gradle Project
-   * @return boolean to save the entered fields to .azkabanPlugin.json
+   * @param project The Gradle project
+   * @return Whether or not to save the updated fields to the .azkabanPlugin.json file
    */
   static boolean configureTask(AzkabanProject azkProject, Project project) {
     def console = System.console();
@@ -135,53 +135,45 @@ class AzkabanHelper {
     logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
     logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
     logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
-    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
+    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}\n");
 
-    def input = "y";
     try {
-      if (!azkProject.azkabanProjName.isEmpty()
-          && !azkProject.azkabanUrl.isEmpty()
-          && !azkProject.azkabanUserName.isEmpty()
-          && !azkProject.azkabanZipTask.isEmpty()) {
-        input = consoleInput(" > Want to change any of the above? [y/N]: ");
+      def input = "y";
+      boolean mustUpdate = (azkProject.azkabanProjName.isEmpty()
+        || azkProject.azkabanUrl.isEmpty()
+        || azkProject.azkabanUserName.isEmpty()
+        || azkProject.azkabanZipTask.isEmpty());
+      if (!mustUpdate) {
+        input = consoleInput(" > Want to change any of the above? [y/N]: ", true);
       }
 
       if (input.equalsIgnoreCase("y")) {
-        input = consoleInput(" > New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ");
+        input = consoleInput("${mustUpdate ? ' > ' : ''}New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ", mustUpdate);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = consoleInput(" > New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ");
+        input = consoleInput("New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ", false);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = consoleInput(" > New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ");
+        input = consoleInput("New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ", false);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
         }
 
-        HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
-        Map<String, CopySpec> zipMap = hadoopZipExtension.getZipMap();
+        // Display a list of the zips configured in the user's hadoopZip block. This will help the
+        // user to enter an appropriate Azkaban Zip task name.
+        showConfiguredHadoopZips(project);
+        logger.lifecycle("(You can also enter the name of any other Gradle Zip task whose zip you want upload to Azkaban)\n");
 
-        if (zipMap.isEmpty()) {
-          logger.lifecycle("No zips configured in the hadoopZip block");
-        } else {
-          logger.lifecycle("\nFound the following zips in the hadoopZip block:");
-          def counter = 1;
-          zipMap.each { String zipName, CopySpec copySpec ->
-            logger.lifecycle("${counter++}. ${zipName} - Enter \"${zipName}HadoopZip\" to use this zip");
-          }
-          logger.lifecycle("(Or you can use the name of any other Gradle zip task)");
-        }
-
-        input = consoleInput(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ");
+        input = consoleInput(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ", true);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }
 
-        input = consoleInput("> Save these changes to the .azkabanPlugin.json file? [Y/n]: ");
+        input = consoleInput("Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
         return !input.equalsIgnoreCase("n");
       }
     } catch (IOException ex) {
@@ -192,20 +184,22 @@ class AzkabanHelper {
   }
 
   /**
-   * Gets input from Gradle console
+   * Helper routine to get input from the system console.
    *
-   * @param console System Console
    * @param message Message to be printed for taking input
-   * @return input Trimmed input
+   * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
+   * @return The trimmed input
    */
-  static String consoleInput(String message) {
+  static String consoleInput(String message, boolean shortDelay) {
     // Give Gradle time to flush the logger to the screen and write its progress log line at the
     // bottom of the screen, so we can augment this line with a prompt for the input
-    sleep(500);
+    if (shortDelay) {
+      sleep(500);
+    }
+
     def console = System.console();
     console.format(message).flush();
-    String input = console.readLine().toString().trim();
-    return input;
+    return console.readLine().trim();
   }
 
   /**
@@ -316,5 +310,33 @@ class AzkabanHelper {
     catch (IOException ex) {
       logger.error("Unable to store session ID to file: " + file.toString() + "\n" + ex.toString());
     }
+  }
+
+  /**
+   * Helper function to display the zips configured with the HadoopZipExtension to the screen.
+   * <p>
+   * This is intended to make it easier for users to understand how the zips they configure
+   * in the hadoopZip block are translated into Gradle Zip tasks.
+   *
+   * @param The Gradle project
+   * @return Whether or not there are any zips configured with with the HadoopZipExtension
+   */
+  static boolean showConfiguredHadoopZips(Project project) {
+    HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
+    boolean foundZips = !hadoopZipExtension.zipMap.isEmpty()
+
+    if (foundZips) {
+      logger.lifecycle("\nThe following zips are declared in the hadoopZip block");
+      logger.lifecycle("------------------------------------------------------");
+      def counter = 1;
+      hadoopZipExtension.zipMap.each { String zipName, CopySpec copySpec ->
+        logger.lifecycle("${counter++}. ${zipName} : Enter '${zipName}HadoopZip' to use this zip");
+      }
+      logger.lifecycle("------------------------------------------------------");
+    } else {
+      logger.lifecycle("\nNo zips configured in the hadoopZip block. Consider using the hadoopZip block to easily configure Hadoop zips for your project.");
+    }
+
+    return foundZips;
   }
 }

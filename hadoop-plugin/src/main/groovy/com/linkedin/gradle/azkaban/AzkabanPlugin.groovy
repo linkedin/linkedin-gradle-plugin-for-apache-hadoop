@@ -263,5 +263,4 @@ class AzkabanPlugin implements Plugin<Project> {
 
     return azkProject;
   }
-
 }

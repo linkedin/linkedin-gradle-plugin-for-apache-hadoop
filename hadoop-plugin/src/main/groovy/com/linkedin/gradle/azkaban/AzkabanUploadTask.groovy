@@ -63,10 +63,10 @@ class AzkabanUploadTask extends DefaultTask {
   void authenticateAndUploadToAzkaban(String sessionId) {
     // If no previous session is available, obtain a session id from server by sending login credentials.
     if (sessionId == null) {
-      logger.lifecycle("No previous session found. Logging into Azkaban.");
+      logger.lifecycle("No previous session found. Logging into Azkaban.\n");
       logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
       logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
-      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
+      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}\n");
 
       // Give Gradle time to flush the logger to the screen and write its progress log line at the
       // bottom of the screen, so we can augment this line with a prompt for the password
