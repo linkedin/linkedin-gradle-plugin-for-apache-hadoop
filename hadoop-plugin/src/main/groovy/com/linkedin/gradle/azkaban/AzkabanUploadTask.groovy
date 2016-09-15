@@ -68,10 +68,16 @@ class AzkabanUploadTask extends DefaultTask {
       logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
       logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}\n");
 
+      def console = System.console();
+      if (console == null) {
+        String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+        throw new GradleException(msg);
+      }
+
       // Give Gradle time to flush the logger to the screen and write its progress log line at the
       // bottom of the screen, so we can augment this line with a prompt for the password
       sleep(500);
-      System.console().format(" > Enter password: ").flush();
+      console.format(" > Enter password: ").flush();
       sessionId = AzkabanHelper.azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
     }
     else {
@@ -91,8 +97,8 @@ class AzkabanUploadTask extends DefaultTask {
 
     logger.lifecycle("Once the zip is uploaded, Azkaban will validate your zip with Byte-Ray to complete the upload")
     logger.lifecycle("Zip upload progress...");
-    logger.lifecycle("0%                                                                                                100% (${sizeInKB.toString()} KB)");
-    logger.lifecycle("|                                                                                                  |");
+    logger.lifecycle("0%                20%                 40%                 60%                 80%                 100% (${sizeInKB.toString()} KB)");
+    logger.lifecycle("|        |         |         |         |         |         |         |         |         |         |");
     int progressLimiter = 0;
 
     return new ProgressHttpEntityWrapper.ProgressCallback() {

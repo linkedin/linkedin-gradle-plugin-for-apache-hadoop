@@ -144,21 +144,21 @@ class AzkabanHelper {
         || azkProject.azkabanUserName.isEmpty()
         || azkProject.azkabanZipTask.isEmpty());
       if (!mustUpdate) {
-        input = consoleInput(" > Want to change any of the above? [y/N]: ", true);
+        input = consoleInput(console, " > Want to change any of the above? [y/N]: ", true);
       }
 
       if (input.equalsIgnoreCase("y")) {
-        input = consoleInput("${mustUpdate ? ' > ' : ''}New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ", mustUpdate);
+        input = consoleInput(console, "${mustUpdate ? ' > ' : ''}New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ", mustUpdate);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = consoleInput("New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ", false);
+        input = consoleInput(console, "New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ", false);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = consoleInput("New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ", false);
+        input = consoleInput(console, "New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ", false);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
         }
@@ -168,12 +168,12 @@ class AzkabanHelper {
         showConfiguredHadoopZips(project);
         logger.lifecycle("(You can also enter the name of any other Gradle Zip task whose zip you want upload to Azkaban)\n");
 
-        input = consoleInput(" > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ", true);
+        input = consoleInput(console, " > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ", true);
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }
 
-        input = consoleInput("Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
+        input = consoleInput(console, "Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
         return !input.equalsIgnoreCase("n");
       }
     } catch (IOException ex) {
@@ -186,18 +186,18 @@ class AzkabanHelper {
   /**
    * Helper routine to get input from the system console.
    *
+   * @param console Using existing console, thereby preventing NullPointerException
    * @param message Message to be printed for taking input
    * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
    * @return The trimmed input
    */
-  static String consoleInput(String message, boolean shortDelay) {
+  static String consoleInput(Console console, String message, boolean shortDelay) {
     // Give Gradle time to flush the logger to the screen and write its progress log line at the
     // bottom of the screen, so we can augment this line with a prompt for the input
     if (shortDelay) {
       sleep(500);
     }
 
-    def console = System.console();
     console.format(message).flush();
     return console.readLine().trim();
   }
