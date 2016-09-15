@@ -13,23 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.libangbang;
-
 
 class LiPigCommand extends LiHadoopShellCommand {
 
-//  private static final String PIG_ADDITIONAL_JARS = "pig.additional.jars";
-//  private static final String UDF_IMPORT = "udf.import.list";
   private static final String HADOOP_INJECT = "hadoop-inject.";
   private static final String PARAM = "param";
-  private static final String ENV = "env.";
   private static final String PIG_COMMAND = "pig";
   private static final String FILE = "pig.script";
 
   private List<String> argumentList;
   private Map<String, String> environmentMap;
-  private static final String PIG_JAVA_OPTS = "PIG_JAVA_OPTS";
   private List<String> javaOptsList;
 
   public LiPigCommand(Map<String, String> properties) {
@@ -52,8 +46,6 @@ class LiPigCommand extends LiHadoopShellCommand {
         this.argumentList.addAll(getParameters(key, value));
       } else if (key.startsWith(HADOOP_INJECT)) {
         addToJavaOptsList(key, value);
-      } else if (key.startsWith(ENV)) {
-        addToEnvironment(key, value);
       }
     }
   }
@@ -66,20 +58,6 @@ class LiPigCommand extends LiHadoopShellCommand {
   void addToJavaOptsList(String key, String value) {
     String property = (key.substring(key.indexOf(".") + 1));
     javaOptsList.add(getJvmString(property, value));
-  }
-
-  /**
-   * Adds the given key and value to the environment
-   * @param key The key of the environment
-   * @param value The value of the environment
-   */
-  void addToEnvironment(String key, String value) {
-    String environmentKey = key.substring(key.indexOf(".") + 1);
-    if (environmentMap.containsKey(environmentKey)) {
-      environmentMap.put(environmentKey, [environmentMap.get(environmentKey), environmentMap].join(" "));
-      return;
-    }
-    environmentMap.put(environmentKey , value);
   }
 
   /**
@@ -98,7 +76,6 @@ class LiPigCommand extends LiHadoopShellCommand {
     parameterList.add(String.format("%s=%s", key.substring(key.indexOf(".") + 1), value));
     return parameterList;
   }
-
 
   @Override
   List<String> getArguments() {
