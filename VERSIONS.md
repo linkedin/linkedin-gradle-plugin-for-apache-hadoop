@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.8
+
+* LIHADOOP-22850 Handle null console and minor changes in upload bar's dispaly
+
 0.10.7
 
 * Minor touch-ups to the azkabanUpload task console messsages
