@@ -21,7 +21,7 @@ package com.linkedin.gradle.util;
  * This is currently used for formatting Azkaban returned HttpResponse to improve the readability
  * of Azkaban generated messages.
  */
-class HtmlUtil {
+public class HtmlUtil {
   /**
    * Make the class constructor private for this utility class.
    */

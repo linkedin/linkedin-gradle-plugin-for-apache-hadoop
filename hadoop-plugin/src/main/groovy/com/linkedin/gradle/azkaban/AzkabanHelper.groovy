@@ -30,11 +30,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -42,7 +39,12 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 
 /**
  * AzkabanHelper is a helper class for the Azkaban Tasks.
@@ -203,6 +205,85 @@ class AzkabanHelper {
   }
 
   /**
+   * Converts epoch to Date format.
+   *
+   * @param epoch timestamp
+   * @return Date format in string. Returns "- "if epoch is -1
+   */
+  static String epochToDate(String epoch) {
+    if (epoch.equals("-1")) {
+      return "-"
+    } else {
+      Date date = new Date(Long.parseLong(epoch));
+      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+      return dateFormat.format(date);
+    }
+  }
+
+  /**
+   * Fetch Sorted flows from JSON Response
+   *
+   * @param responseJson The response object from Azkaban API call "fetchprojectflows"
+   * @param azkProject The Gradle Project
+   * @return flows The list of flow names sorted in lexicographic order
+   */
+  static List<String> fetchSortedFlows(JSONObject responseJson, AzkabanProject azkProject) {
+    List<String> flows = new ArrayList<String>();
+    if (responseJson.has("flows")) {
+      JSONArray jflows = responseJson.getJSONArray("flows");
+      if (!jflows.length()) {
+        throw new GradleException("No defined flows in project : ${azkProject.azkabanProjName}");
+      }
+
+      for (int i = 0; i < jflows.length(); i++) {
+        JSONObject jflow = jflows.getJSONObject(i);
+        if (jflow.has("flowId")) {
+          flows.add(jflow.get("flowId").toString());
+        }
+      }
+    }
+    Collections.sort(flows);
+
+    return flows;
+  }
+
+  /**
+   * Returns time elapsed between start and end epoch times. Incase startEpoch is -1, returns "-". In case endEpoch is -1, returns
+   * time elapsed between start and current epoch.
+   *
+   * @param startEpoch Starting epoch timestamp
+   * @param endEpoch Ending epoch timestamp
+   * @return elapsedTime Time elapsed between start and stop Epoch time
+   */
+  static String getElapsedTime(String startEpoch, String endEpoch) throws IllegalArgumentException {
+    if (startEpoch.equals("-1")) {
+      return "-";
+    } else if (endEpoch.equals("-1")) {
+      endEpoch = Long.toString(Instant.now().toEpochMilli());
+    }
+
+    if (startEpoch > endEpoch) {
+      throw new IllegalArgumentException();
+    }
+
+    int elapsed = Math.toIntExact((Long.parseLong(endEpoch) - Long.parseLong(startEpoch)))/1000;
+    int elapsedSecs = elapsed % 60;
+    int elapsedMins = ((int)(elapsed / 60)) % 60;
+    int elapsedHours = elapsed / 3600;
+
+    StringBuilder elapsedFormatted = new StringBuilder();
+
+    if (elapsedHours) {
+      elapsedFormatted.append("${elapsedHours} Hr ");
+    } else if (elapsedMins) {
+      elapsedFormatted.append("${elapsedMins} Min ");
+    }
+    elapsedFormatted.append("${elapsedSecs} Sec");
+
+    return elapsedFormatted.toString();
+  }
+
+  /**
    * Gets the content from the HTTP response.
    *
    * @param The HTTP response as an input stream
@@ -239,6 +320,54 @@ class AzkabanHelper {
   }
 
   /**
+   * Pretty-Prints the Flow Statistics
+   *
+   * @param flow Azkaban flowname
+   * @param execId Execution Id of the flow
+   * @param status Execution status of the flow
+   * @param jobStatus List of status statistics for jobs of the flow
+   */
+  static void printFlowStats(String flow, String execId, String status, List<String> jobStatus) {
+    System.out.print(String.format("%-35s", flow));
+    System.out.print(String.format("| %-15s", execId));
+    System.out.print(String.format("| %-10s", status));
+    if(execId == "NONE") {
+      jobStatus.each {
+        System.out.print(String.format("| %-10s", "-"));
+      }
+    } else {
+      jobStatus.each { values ->
+        System.out.print(String.format("| %-10s", values));
+      }
+    }
+
+    System.out.println();
+    System.out.flush();
+  }
+
+  /**
+   * Pretty-Prints the Job Statistics
+   *
+   * @param jobName Job name
+   * @param jobType Type of job like pigli, hive, javaJob etc
+   * @param jobStatus Status of the Job
+   * @param jobStartTime Start time of the Job
+   * @param jobEndTime End time of the Job
+   * @param elapsed Elapsed time after the Job execution starts until end time
+   */
+  static void printJobStats(String jobName, String jobType, String jobStatus, String jobStartTime, String jobEndTime, String elapsed) {
+    System.out.print(String.format("%-50s", jobName));
+    System.out.print(String.format("| %-10s", jobType));
+    System.out.print(String.format("| %-12s", jobStatus));
+    System.out.print(String.format("| %-20s", jobStartTime));
+    System.out.print(String.format("| %-20s", jobEndTime));
+    System.out.print(String.format("| %-20s", elapsed));
+
+    System.out.println();
+    System.out.flush();
+  }
+
+  /**
    * Reads the session id from session.file in the user's ~/.azkaban directory.
    *
    * @return sessionId The saved session id
@@ -257,21 +386,37 @@ class AzkabanHelper {
   }
 
   /**
-   * HTTP POST implementation
+   * Generates sessionId in case it is previously null by logging in to Azkaban.
    *
-   * @param uri URI of HTTP POST request
-   * @return The response String
+   * @param sessionId Current Azkaban Session ID
+   * @param azkProject The Gradle Project
+   * @return sessionId Updated Session ID
    */
-  static String responseFromPOST(URI uri) {
-    HttpPost httpPost = new HttpPost(uri);
-    httpPost.setHeader("Accept", "*/*");
-    httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+  static String resumeOrGetSession(String sessionId, AzkabanProject azkProject) throws GradleException {
+    // If no previous session is available, obtain a session id from server by sending login credentials.
+    if (sessionId == null) {
+      logger.lifecycle("No previous session found. Logging into Azkaban.\n");
+      logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
+      logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
+      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}\n");
 
-    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-    String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
-    httpClient.close();
+      def console = System.console();
+      if (console == null) {
+        String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+        throw new GradleException(msg);
+      }
 
-    return response;
+      // Give Gradle time to flush the logger to the screen and write its progress log line at the
+      // bottom of the screen, so we can augment this line with a prompt for the password
+      sleep(500);
+      console.format(" > Enter password: ").flush();
+      sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
+    }
+    else {
+      logger.lifecycle("Resuming previous Azkaban session");
+    }
+
+    return sessionId;
   }
 
   /**
@@ -323,7 +468,7 @@ class AzkabanHelper {
    */
   static boolean showConfiguredHadoopZips(Project project) {
     HadoopZipExtension hadoopZipExtension = project.extensions.getByName("hadoopZip");
-    boolean foundZips = !hadoopZipExtension.zipMap.isEmpty()
+    boolean foundZips = !hadoopZipExtension.zipMap.isEmpty();
 
     if (foundZips) {
       logger.lifecycle("\nThe following zips are declared in the hadoopZip block");

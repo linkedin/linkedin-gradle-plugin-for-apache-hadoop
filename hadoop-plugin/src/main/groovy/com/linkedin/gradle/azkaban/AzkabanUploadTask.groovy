@@ -13,11 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.azkaban
+
+import com.linkedin.gradle.util.HttpUtil;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -26,9 +31,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.gradle.api.DefaultTask;
@@ -38,7 +40,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.json.JSONObject;
 
 /**
- * AzkabanUploadTask handles uploading of the zip file to azkaban.
+ * AzkabanUploadTask handles uploading of the zip file to Azkaban.
  */
 class AzkabanUploadTask extends DefaultTask {
   File archivePath;
@@ -61,28 +63,7 @@ class AzkabanUploadTask extends DefaultTask {
    * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
    */
   void authenticateAndUploadToAzkaban(String sessionId) {
-    // If no previous session is available, obtain a session id from server by sending login credentials.
-    if (sessionId == null) {
-      logger.lifecycle("No previous session found. Logging into Azkaban.\n");
-      logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
-      logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
-      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}\n");
-
-      def console = System.console();
-      if (console == null) {
-        String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-        throw new GradleException(msg);
-      }
-
-      // Give Gradle time to flush the logger to the screen and write its progress log line at the
-      // bottom of the screen, so we can augment this line with a prompt for the password
-      sleep(500);
-      console.format(" > Enter password: ").flush();
-      sessionId = AzkabanHelper.azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
-    }
-    else {
-      logger.lifecycle("Resuming previous Azkaban session");
-    }
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
     createProjectAndUpload(sessionId);
   }
 
@@ -104,7 +85,7 @@ class AzkabanUploadTask extends DefaultTask {
     return new ProgressHttpEntityWrapper.ProgressCallback() {
       @Override
       public void progress(float progress) {
-        if((int)progress > progressLimiter && progressLimiter <= 100) {
+        if(((int)progress) > progressLimiter && progressLimiter <= 100) {
           progressLimiter++;
           print("x");
           System.out.flush();
@@ -127,7 +108,7 @@ class AzkabanUploadTask extends DefaultTask {
         .setParameter("description", "Created automatically by Gradle azkabanUpload task")
         .build();
 
-    String responseFromCreate = AzkabanHelper.responseFromPOST(createProjectURI);
+    String responseFromCreate = HttpUtil.responseFromPOST(createProjectURI);
 
     // Check if session has expired. If so, re-login.
     if (responseFromCreate.toLowerCase().contains("error") && responseFromCreate.toLowerCase().contains("login")) {

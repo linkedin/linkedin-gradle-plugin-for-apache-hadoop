@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.11
+
+* LIHADOOP-21680 Azkaban CLI Features Create Project, Flow Status, Execute Flow and Cancel Flow
+
 0.10.10
 
 * LIHADOOP-23413: Changes to make Hadoop Validator work. Automates creating .hadoopValidatorProperties file and properly sets krb5.conf
