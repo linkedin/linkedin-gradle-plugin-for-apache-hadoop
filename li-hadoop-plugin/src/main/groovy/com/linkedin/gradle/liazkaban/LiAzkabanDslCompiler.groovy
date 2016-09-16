@@ -16,7 +16,6 @@
 
 package com.linkedin.gradle.liazkaban;
 
-
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.libangbang.LiHadoopShellCommand;
@@ -30,6 +29,7 @@ import org.gradle.api.Project;
 class LiAzkabanDslCompiler extends AzkabanDslCompiler {
 
   private static final String BANGBANG_TEMPLATE = "LiBangBangJob.template";
+  private static final String PIG_JAVA_OPTS = "env.PIG_JAVA_OPTS";
   private LiHadoopShellCommandFactory bangBangCommandFactory;
 
   /**
@@ -62,22 +62,52 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
       return;
     }
 
-    // since it is a hadoopShell job type, only two properties are relevant.
-    Set<String> relevantProperties = ['type','command'];
+    Map<String,String> azkabanOptions = new HashMap<String,String>();
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_LINK_WORKFLOW_URL,"\${${LiAzkabanJavaProperties.AZKABAN_LINK_WORKFLOW_URL}}")
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_LINK_ATTEMPT_URL,"\${${LiAzkabanJavaProperties.AZKABAN_LINK_ATTEMPT_URL}}")
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_LINK_JOB_URL,"\${${LiAzkabanJavaProperties.AZKABAN_LINK_JOB_URL}}")
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_LINK_EXECUTION_URL,"\${${LiAzkabanJavaProperties.AZKABAN_LINK_EXECUTION_URL}}")
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_JOB_INNODES,"\${${LiAzkabanJavaProperties.AZKABAN_JOB_INNODES}}")
+    azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_JOB_OUTNODES,"\${${LiAzkabanJavaProperties.AZKABAN_JOB_OUTNODES}}")
+
+    // create jvm string of the form -Dkey1=value1 -Dkey2=value2
+    StringBuffer azkabanOpts = new StringBuffer();
+    azkabanOptions.each { key,value -> azkabanOpts.append("-D${key}=${value} "); }
+    String azkabanJvmString =  azkabanOpts.toString();
+
+    // add the azkabanjvmString to PIG_JAVA_OPTS to add them to job conf.
+    if(allProperties.hasProperty(PIG_JAVA_OPTS)) {
+      allProperties.put(PIG_JAVA_OPTS, allProperties.get(PIG_JAVA_OPTS) + " " + azkabanJvmString);
+    } else {
+      allProperties.put(PIG_JAVA_OPTS, azkabanJvmString);
+    }
+    // since it is a hadoopShell job type, only some of the properties are relevant.
     String fileName = job.buildFileName(this.parentScope);
 
     File file = new File(this.parentDirectory, "${fileName}.job");
     List<String> sortedKeys = sortPropertiesToBuild(allProperties.keySet());
+    List<String> filteredKeys = new ArrayList<String>();
+    Set<String> irrelevantProperties = ['pig.script','pig.home',/param.*/,'use.user.pig.jar',/hadoop-inject.*/];
 
-    file.withWriter { out ->
-      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
-      sortedKeys.each { key ->
-        if(relevantProperties.contains(key)) {
-          out.writeLine("${key}=${allProperties.get(key)}");
+    for(String key: sortedKeys) {
+      boolean isRelevant = true;
+      for(String property: irrelevantProperties) {
+        if(key.matches(property)) {
+          isRelevant = false;
+          break;
         }
+      }
+      if(isRelevant) {
+        filteredKeys.add(key);
       }
     }
 
+    file.withWriter { out ->
+      out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
+      filteredKeys.each { key ->
+          out.writeLine("${key}=${allProperties.get(key)}");
+      }
+    }
     // Set to read-only to remind people that they should not be editing the job files.
     file.setWritable(false);
   }
