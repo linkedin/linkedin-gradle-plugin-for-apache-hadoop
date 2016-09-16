@@ -16,6 +16,7 @@
 package com.linkedin.gradle.liazkaban;
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.azkaban.AzkabanProject;
 
@@ -27,6 +28,17 @@ import org.gradle.api.Project;
 class LiAzkabanPlugin extends AzkabanPlugin {
 
   private static final String MESSAGE_URL = "https://gitli.corp.linkedin.com/hadoop-dev/azkaban-linkedin-files/raw/li-hadoop-plugin_message.txt";
+
+  /**
+   * Factory method to return the AzkabanFlowStatusTask class. Subclasses can override this method to
+   * return their own AzkabanFlowStatusTask class.
+   *
+   * @return Class that implements the AzkabanFlowStatusTask
+   */
+  @Override
+  Class<? extends AzkabanFlowStatusTask> getAzkabanFlowStatusTaskClass() {
+    return LiAzkabanFlowStatusTask.class;
+  }
 
   /**
    * Factory method to build a default AzkabanProject for use with the writePluginJson method. Can

@@ -4,6 +4,7 @@
 .classpath
 .gradle
 .hadoopValidatorProperties
+.idea
 .project
 .settings
 bin

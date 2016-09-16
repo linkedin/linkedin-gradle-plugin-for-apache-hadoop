@@ -37,7 +37,7 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
  */
 class AzkabanPlugin implements Plugin<Project> {
 
-  boolean interactive = true;
+  static boolean interactive = true;
   protected final Logger logger = Logging.getLogger(AzkabanPlugin);
 
   /**
@@ -49,6 +49,10 @@ class AzkabanPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     createBuildFlowsTask(project);
+    createCancelFlowTask(project);
+    createCreateProjectTask(project);
+    createExecuteFlowTask(project);
+    createFlowStatusTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
   }
@@ -89,6 +93,107 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
+   * Creates the task to Cancel running flow in Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createCancelFlowTask(Project project) {
+    return project.task("azkabanCancelFlow", type: AzkabanCancelFlowTask) { task ->
+      description = "Kills a running flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project, false);
+
+        if (project.hasProperty("execId")) {
+          logger.lifecycle("Skipping interactive mode");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        interactive = true;
+      }
+    }
+  }
+
+  /**
+   * Creates the task to create a new project in Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createCreateProjectTask(Project project) {
+    return project.task("azkabanCreateProject", type: AzkabanCreateProjectTask) { task ->
+      description = "Creates a new Project in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project, false);
+      }
+    }
+  }
+
+  /**
+   * Creates the task to execute flows in Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createExecuteFlowTask(Project project) {
+    return project.task("azkabanExecuteFlow", type: AzkabanExecuteFlowTask) { task ->
+      description = "Executes flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project, false);
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Skipping interactive mode");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        if (interactive) {
+          logger.lifecycle("\nTo skip interactive mode use -Pflow command line parameter and enter a comma separated list of flows.");
+        }
+        interactive = true;
+      }
+    }
+  }
+
+  /**
+   * Creates the task to get flow status to Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createFlowStatusTask(Project project) {
+    return project.task("azkabanFlowStatus", type: getAzkabanFlowStatusTaskClass()) { task ->
+      description = "Gets the status of all the flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project, false);
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Displaying Job level Status");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        if (interactive) {
+          logger.lifecycle("\nTo get job status use -Pflow command line parameter and provide a comma delimited list of flow names.");
+        }
+        interactive = true;
+      }
+    }
+  }
+
+  /**
    * Creates the task to upload to Azkaban.
    *
    * @param project The Gradle project
@@ -107,7 +212,7 @@ class AzkabanPlugin implements Plugin<Project> {
           interactive = false;
         }
 
-        azkProject = readAzkabanProject(project);
+        azkProject = readAzkabanProject(project, interactive);
 
         String zipTaskName = azkProject.azkabanZipTask;
         if (!zipTaskName) {
@@ -131,6 +236,7 @@ class AzkabanPlugin implements Plugin<Project> {
           logger.lifecycle("\nUse -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.");
           printUploadMessage();
         }
+        interactive = true;
       }
     }
   }
@@ -155,6 +261,16 @@ class AzkabanPlugin implements Plugin<Project> {
         }
       }
     }
+  }
+
+  /**
+   * Factory method to return the AzkabanFlowStatusTask class. Subclasses can override this method to
+   * return their own AzkabanFlowStatusTask class.
+   *
+   * @return Class that implements the AzkabanFlowStatusTask
+   */
+  Class<? extends AzkabanFlowStatusTask> getAzkabanFlowStatusTaskClass() {
+    return AzkabanFlowStatusTask.class;
   }
 
   /**
@@ -240,9 +356,10 @@ class AzkabanPlugin implements Plugin<Project> {
    * Load the Azkaban project properties defined in the .azkabanPlugin.json file.
    *
    * @param project The Gradle Project
+   * @param interactive Enable interactive mode prompt for users to fill-in .azkabanPlugin.json file
    * @return An AzkabanProject object with the properties set
    */
-  AzkabanProject readAzkabanProject(Project project) {
+  AzkabanProject readAzkabanProject(Project project, boolean interactive) {
     def pluginJson = readAzkabanPluginJson(project);
     AzkabanProject azkProject = makeDefaultAzkabanProject();
 
