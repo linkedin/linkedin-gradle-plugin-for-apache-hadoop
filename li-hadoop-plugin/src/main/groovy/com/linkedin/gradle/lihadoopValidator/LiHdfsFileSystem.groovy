@@ -15,14 +15,11 @@
  */
 package com.linkedin.gradle.lihadoopValidator;
 
+import com.linkedin.gradle.hdfs.HdfsFileSystem;
 
-import com.linkedin.gradle.hdfs.HdfsFileSystem
 import org.apache.hadoop.fs.PathFilter;
-
 import org.apache.hadoop.fs.Path;
-
 import org.gradle.api.Project;
-
 
 /**
  * HDFS file system abstraction for the Hadoop Plugin that uses WebHDFS.

@@ -50,12 +50,12 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getAzkabanPluginClass());
     project.getPlugins().apply(getDependencyPluginClass());
     project.getPlugins().apply(getHadoopDslPluginClass());
+    project.getPlugins().apply(getHadoopValidatorPluginClass());
     project.getPlugins().apply(getHadoopZipPluginClass());
     project.getPlugins().apply(getOoziePluginClass());
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
     project.getPlugins().apply(getSparkPluginClass());
-    project.getPlugins().apply(getHadoopValidatorPluginClass());
     setupTaskDependencies(project);
   }
 
@@ -165,6 +165,16 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
+   * Factory method to return the HadoopValidatorPlugin class. Subclasses can override this method to return
+   * their own HadoopValidatorPlugin class.
+   *
+   * @return Class that implements the HadoopValidatorPlugin
+   */
+  Class<? extends HadoopValidatorPlugin> getHadoopValidatorPluginClass() {
+    return HadoopValidatorPlugin.class;
+  }
+
+  /**
    * Factory method to return the HadoopZipPlugin class. Subclasses can override this method to
    * return their own HadoopZipPlugin class.
    *
@@ -215,16 +225,6 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to return the HadoopValidatorPlugin class. Subclasses can override this method to return
-   * their own HadoopValidatorPlugin class.
-   *
-   * @return Class that implements the HadoopValidatorPlugin
-   */
-  Class<? extends HadoopValidatorPlugin> getHadoopValidatorPluginClass() {
-    return HadoopValidatorPlugin.class;
-  }
-
-  /**
    * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
    * method to customize their own task dependencies.
    *
@@ -234,6 +234,7 @@ class HadoopPlugin implements Plugin<Project> {
     setupAzkabanPluginTaskDependencies(project);
     setupDependencyPluginTaskDependencies(project);
     setupHadoopDslPluginTaskDependencies(project);
+    setupHadoopValidatorPluginTaskDependencies(project);
     setupHadoopZipPluginTaskDependencies(project);
     setupOoziePluginTaskDependencies(project);
     setupPigPluginTaskDependencies(project);
@@ -274,6 +275,16 @@ class HadoopPlugin implements Plugin<Project> {
    * @param project The Gradle project
    */
   void setupHadoopDslPluginTaskDependencies(Project project) {
+    // Empty - enables subclasses to override
+  }
+
+  /**
+   * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
+   * method to customize their own task dependencies.
+   *
+   * @param project The Gradle project
+   */
+  void setupHadoopValidatorPluginTaskDependencies(Project project) {
     // Empty - enables subclasses to override
   }
 

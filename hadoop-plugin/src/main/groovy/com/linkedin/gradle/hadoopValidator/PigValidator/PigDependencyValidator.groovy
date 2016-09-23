@@ -15,9 +15,11 @@
  */
 package com.linkedin.gradle.hadoopValidator.PigValidator;
 
+import com.linkedin.gradle.hadoopValidator.HadoopValidatorUtil;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hdfs.HdfsFileSystem;
+
 import org.apache.hadoop.fs.Path;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -26,7 +28,6 @@ import org.gradle.api.tasks.TaskAction;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 /**
  * PigDependencyValidator is the class that provides the Task for validation of dependencies mentioned in the Apache Pig Scripts
@@ -70,6 +71,8 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
     while ((read = krbInputStream.read(bytes)) != -1) {
       krbOutputStream.write(bytes, 0, read);
     }
+
+    System.setProperty("java.security.krb5.conf", krb5.getAbsolutePath());
 
     URI clusterURI = null;
     String clusterURIString;
@@ -180,6 +183,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
 
   /**
    * Extracts all dependencies mentioned in the Pig script file
+   *
    * @param file The Pig script which is to be validated
    * @return udfs The List of dependencies in the script file
    */
@@ -218,7 +222,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
               _m = (fileName =~ /\:50070/);
               _m.find();
               String uri = "web" + fileName[0..<_m.end()];
-              udfs.add(new Dependency(fileName[(_m.end() + 1)..-1], count, Dependency.PathType.HDFS, uri, reg_command))
+              udfs.add(new Dependency(URLEncoder.encode(fileName[(_m.end() + 1)..-1], "UTF-8"), count, Dependency.PathType.HDFS, uri, reg_command));
             } else if (fileName.length() > 6 && fileName[0..5] == "ivy://") {
               udfs.add(new Dependency(fileName[6..-1], count, Dependency.PathType.REPO, null, reg_command));
             } else if (fileName.length() > 5 && fileName[0..4] == "file:") {
@@ -248,6 +252,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
 
   /**
    * Utility function for unquoting a string if it is quoted
+   *
    * @param s The string to be unquoted
    * @return s the unquoted string
    */
@@ -260,6 +265,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
 
   /**
    * Checks the response from the artifact location url in the ivy repository supplied
+   *
    * @param urlString The url of the artifact location in the repository
    * @param lineno the line no of the dependency in the pig script file where it is mentioned
    * @throws MalformedURLException if the url is malformed.
@@ -279,6 +285,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
 
   /**
    * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   *
    * @param pathName The pathname to be resolved
    * @return pathName The resolved pathName
    */
@@ -287,8 +294,9 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * getter for all incorrect paths found across all pig scripts generated.
+   * Getter for all incorrect paths found across all pig scripts generated.
    * Can be used to report all the errors together in one place.
+   *
    * @return List of incorrect paths, with associated error messages, containing script file name.
    */
   ArrayList<Tuple> getIncorrectPaths() {
@@ -296,10 +304,10 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
-   * @param krb5 the kerberos configuration file to configure kerberos access
-   *
+   * Initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
    * Subclasses may override this method to provide their own HdfsFileSystem
+   *
+   * @param krb5 the kerberos configuration file to configure kerberos access
    */
   void initHdfsFileSystem(File krb5) {
     fileSystem = new HdfsFileSystem(project, krb5);
@@ -356,7 +364,8 @@ class Dependency {
   }
 
   /**
-   * return the string information corresponding to the input PathType
+   * Returns the string information corresponding to the input PathType
+   *
    * @return string info about the pathtype
    */
   String getTypePath() {

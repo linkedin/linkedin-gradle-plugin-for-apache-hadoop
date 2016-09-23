@@ -15,16 +15,15 @@
  */
 package com.linkedin.gradle.lihadoopValidator.liPigValidator;
 
-
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigDependencyValidator;
 import com.linkedin.gradle.lihadoopValidator.LiHdfsFileSystem;
 
 class LiPigDependencyValidator extends PigDependencyValidator {
   /**
-   * initializes LiHdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
-   * @param krb5 the kerberos configuration file to configure kerberos access
-   *
+   * Initializes LiHdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
    * Subclasses may override this method to provide their own LiHdfsFileSystem
+   *
+   * @param krb5 the kerberos configuration file to configure kerberos access
    */
   @Override
   void initHdfsFileSystem(File krb5) {
@@ -33,6 +32,7 @@ class LiPigDependencyValidator extends PigDependencyValidator {
 
   /**
    * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   *
    * @param pathName The pathname to be resolved
    * @return pathName The resolved pathName
    */

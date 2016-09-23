@@ -75,6 +75,17 @@ class LiHadoopPlugin extends HadoopPlugin {
   }
 
   /**
+   * Returns the LinkedIn-specific LiHadoopValidatorPlugin class. Subclasses can override this method to
+   * return their own HadoopValidatorPlugin class.
+   *
+   * @return Class that implements the HadoopValidatorPlugin
+   */
+  @Override
+  Class<? extends HadoopValidatorPlugin> getHadoopValidatorPluginClass(){
+    return LiHadoopValidatorPlugin.class
+  }
+
+  /**
    * Returns the LinkedIn-specific LiHadoopZipPlugin class. Subclasses can override this method to
    * return their own HadoopZipPlugin class.
    *
@@ -127,17 +138,6 @@ class LiHadoopPlugin extends HadoopPlugin {
   @Override
   Class<? extends SparkPlugin> getSparkPluginClass() {
     return LiSparkPlugin.class;
-  }
-
-  /**
-   * Returns the LinkedIn-specific LiHadoopValidatorPlugin class. Subclasses can override this method to
-   * return their own HadoopValidatorPlugin class.
-   *
-   * @return Class that implements the HadoopValidatorPlugin
-   */
-  @Override
-  Class<? extends HadoopValidatorPlugin> getHadoopValidatorPluginClass(){
-    return LiHadoopValidatorPlugin.class
   }
 
   /**

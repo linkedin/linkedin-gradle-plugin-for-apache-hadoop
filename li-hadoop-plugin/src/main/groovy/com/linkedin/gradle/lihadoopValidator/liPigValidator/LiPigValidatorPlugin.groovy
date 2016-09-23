@@ -15,11 +15,9 @@
  */
 package com.linkedin.gradle.lihadoopValidator.liPigValidator;
 
-
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigDataValidator;
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigDependencyValidator;
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigValidatorPlugin;
-
 
 /**
  * LinkedIn-specific customizations to the Hadoop Validator Plugin.
