@@ -15,14 +15,13 @@
  */
 package com.linkedin.gradle.hadoopValidator.PigValidator;
 
-
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+
 import org.apache.pig.Main;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
-
 
 /**
  * PigSyntaxValidator is the class that provides the Task for validation of syntax mentioned in the Apache Pig Scripts
@@ -66,6 +65,17 @@ class PigSyntaxValidator extends DefaultTask implements PigValidator {
 
     ArrayList<String> _args = new ArrayList<String>();
     File script;
+
+    InputStream krbInputStream = this.getClass().getClassLoader().getResourceAsStream("krb5.conf");
+    File krb5 = new File(System.getProperty("java.io.tmpdir"), "krb5.conf");
+    OutputStream krbOutputStream = new FileOutputStream(krb5);
+
+    int read;
+    byte[] bytes = new byte[1024];
+    while ((read = krbInputStream.read(bytes)) != -1) {
+      krbOutputStream.write(bytes, 0, read);
+    }
+    System.setProperty("java.security.krb5.conf", krb5.getAbsolutePath());
 
     jobMap.each { PigJob pigJob, NamedScope parentScope ->
       script = new File(pigJob.script);

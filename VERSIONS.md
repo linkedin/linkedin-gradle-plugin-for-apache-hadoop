@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.10.10
+
+* LIHADOOP-23413: Changes to make Hadoop Validator work. Automates creating .hadoopValidatorProperties file and properly sets krb5.conf
+
 0.10.9
 
 * LIHADOOP-23255: Add azkaban jvm properties to the jobConf for bangbang

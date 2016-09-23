@@ -40,7 +40,7 @@ dependencies {
   compile 'org.apache.httpcomponents:httpclient:4.3.1'
   compile 'org.apache.httpcomponents:httpmime:4.3.1'
   compile 'org.json:json:20090211'
-  provided('org.apache.pig:pig:0.15.0') {transitive = false}
+  compile('org.apache.pig:pig:0.15.0') {transitive = false}
   compile('joda-time:joda-time:2.9.3')
   compile('jline:jline:1.0')
   compile('org.antlr:antlr-runtime:3.5.2')

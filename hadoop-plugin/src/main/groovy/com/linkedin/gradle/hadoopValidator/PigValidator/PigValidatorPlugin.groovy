@@ -15,12 +15,12 @@
  */
 package com.linkedin.gradle.hadoopValidator.PigValidator;
 
-
 import com.linkedin.gradle.hadoopValidator.ValidatorPlugin;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.pig.PigTaskHelper;
 import com.linkedin.gradle.zip.HadoopZipExtension;
+
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -28,7 +28,6 @@ import org.gradle.api.Task;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.copy.CopySpecInternal;
-
 
 /**
  * PigValidatorPlugin is the class that provides a Gradle Plugin which checks script files of Apache Pig,
@@ -149,6 +148,7 @@ class PigValidatorPlugin implements ValidatorPlugin {
   /**
    * Calls the getCopySpec method on each hadoopZip copyspec configured using hadoopDSL.
    * The actual population is done by getCopySpecFiles
+   *
    * @return the list of source files of all configured CopySpecs in the project
    */
   ArrayList<File> createListZipFiles() {

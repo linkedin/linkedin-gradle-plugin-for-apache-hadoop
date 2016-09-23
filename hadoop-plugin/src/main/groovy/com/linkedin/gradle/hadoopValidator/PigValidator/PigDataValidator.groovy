@@ -19,12 +19,12 @@ import com.linkedin.gradle.hadoopValidator.HadoopValidatorUtil;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hdfs.HdfsFileSystem;
+
 import org.apache.hadoop.fs.Path;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.util.regex.Matcher;
-
 
 /**
  * PigDataValidator is the class that provides the Task for validation of datafiles mentioned in the Apache Pig Scripts
@@ -39,6 +39,7 @@ class PigDataValidator extends DefaultTask implements PigValidator {
 
   /**
    * Extracts all data filenames mentioned in the Pig script file
+   *
    * @param file The Pig script which is to be validated
    * @return data The List of data filenames in the script file
    */
@@ -112,6 +113,7 @@ class PigDataValidator extends DefaultTask implements PigValidator {
     while ((read = krbInputStream.read(bytes)) != -1) {
       krbOutputStream.write(bytes, 0, read);
     }
+    System.setProperty("java.security.krb5.conf", krb5.getAbsolutePath());
     initHdfsFileSystem(krb5);
 
     URI clusterURI;
@@ -159,6 +161,7 @@ class PigDataValidator extends DefaultTask implements PigValidator {
 
   /**
    * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   *
    * @param pathName The pathname to be resolved
    * @return pathName The resolved pathName
    */
@@ -167,8 +170,9 @@ class PigDataValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * getter for all incorrect paths found across all pig scripts generated.
+   * Getter for all incorrect paths found across all pig scripts generated.
    * Can be used to report all the errors together in one place.
+   *
    * @return List of incorrect paths, with associated error messages, containing script file name.
    */
   ArrayList<Tuple> getIncorrectPaths() {
@@ -176,10 +180,10 @@ class PigDataValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
-   * @param krb5 the kerberos configuration file to configure kerberos access
-   *
+   * Initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies.
    * Subclasses may override this method to provide their own HdfsFileSystem
+   *
+   * @param krb5 the kerberos configuration file to configure kerberos access
    */
   void initHdfsFileSystem(File krb5) {
     fileSystem = new HdfsFileSystem(project, krb5);

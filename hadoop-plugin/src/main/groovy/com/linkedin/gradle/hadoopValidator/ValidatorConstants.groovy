@@ -15,9 +15,7 @@
  */
 package com.linkedin.gradle.hadoopValidator;
 
-public interface ValidatorTask {
-  /**
-   * Sublclasses must implement this function which performs a particular check as a language validator
-   */
-  public void validate();
+final class ValidatorConstants {
+  public static final String NAME_NODE = "NameNode";
+  public static final String REPOSITORY_URL = "repositoryURL";
 }

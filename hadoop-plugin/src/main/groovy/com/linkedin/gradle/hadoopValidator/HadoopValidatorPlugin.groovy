@@ -21,7 +21,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownTaskException;
 
-
 /**
  * HadoopValidatorPlugin is the class that provides a Gradle Plugin which checks for Hadoop ecosystem applications
  * like Apache Pig.
@@ -33,7 +32,7 @@ class HadoopValidatorPlugin implements Plugin<Project> {
   /**
    * Applies the Hadoop Validator Plugin, which in turn applies the PigValidator plugin.
    *
-   * @param project The Gradle project
+   * @param project The Gradle Project
    */
   @Override
   void apply(Project project) {
@@ -43,7 +42,6 @@ class HadoopValidatorPlugin implements Plugin<Project> {
       return;
     }
     readValidatorProperties();
-
 
     PigValidatorPlugin plugin = getPigValidatorPlugin().newInstance();
     plugin.properties = this.properties;
@@ -60,17 +58,6 @@ class HadoopValidatorPlugin implements Plugin<Project> {
   }
 
   /**
-   * Reads the properties file containing information to configure the plugin.
-   */
-  void readValidatorProperties() {
-    File file = new File("${project.projectDir}/.hadoopValidatorProperties");
-    if (file.exists()) {
-      properties = new Properties();
-      file.withInputStream { inputStream -> properties.load(inputStream); }
-    }
-  }
-
-  /**
    * Factory method to return the PigValidatorPlugin class. Subclasses can override this method to return
    * their own PigValidatorPlugin class.
    *
@@ -78,5 +65,48 @@ class HadoopValidatorPlugin implements Plugin<Project> {
    */
   Class<? extends PigValidatorPlugin> getPigValidatorPlugin() {
     return PigValidatorPlugin.class;
+  }
+
+  /**
+   * Reads the properties file containing information to configure the plugin.
+   */
+  void readValidatorProperties() {
+    File file = new File("${project.projectDir}/.hadoopValidatorProperties");
+    if (!file.exists()) {
+      writeValidatorProperties();
+    }
+    properties = new Properties();
+    file.withInputStream { inputStream -> properties.load(inputStream); }
+  }
+
+  /**
+   * Set Hadoop Validator Properties
+   *
+   * @param properties Hadoop Validator properties
+   */
+  void setValidatorProperties(Properties properties) {
+    properties.setProperty(ValidatorConstants.NAME_NODE, "");
+    properties.setProperty(ValidatorConstants.REPOSITORY_URL, "");
+  }
+
+  /**
+   * Sets and writes the Hadoop Validator properties to .hadoopValidatorProperties
+   */
+  void writeValidatorProperties() {
+    File file = new File("${project.projectDir}/.hadoopValidatorProperties");
+    try {
+      file.withWriter { writer ->
+        Properties properties = new Properties();
+        setValidatorProperties(properties);
+        properties.store(writer, null);
+      }
+
+      // Make the file readable only by the user. The Java File API makes this a little awkward to express.
+      file.setReadable(false, false);
+      file.setReadable(true, true);
+    }
+    catch (IOException ex) {
+      project.logger.error("Unable to store session ID to file: " + file.toString() + "\n" + ex.toString());
+    }
   }
 }

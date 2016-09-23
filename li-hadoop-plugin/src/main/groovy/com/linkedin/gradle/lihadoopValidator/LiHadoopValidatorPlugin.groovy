@@ -15,11 +15,10 @@
  */
 package com.linkedin.gradle.lihadoopValidator;
 
-
 import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigValidatorPlugin;
+import com.linkedin.gradle.hadoopValidator.ValidatorConstants;
 import com.linkedin.gradle.lihadoopValidator.liPigValidator.LiPigValidatorPlugin;
-
 
 /**
  * LinkedIn-specific customizations to the Hadoop Validator Plugin.
@@ -35,5 +34,16 @@ class LiHadoopValidatorPlugin extends HadoopValidatorPlugin {
   @Override
   Class<? extends PigValidatorPlugin> getPigValidatorPlugin() {
     return LiPigValidatorPlugin.class;
+  }
+
+  /**
+   * Factory method which sets the Validator properties to configure the plugin.
+   *
+   * @param properties
+   */
+  @Override
+  void setValidatorProperties(Properties properties) {
+    properties.setProperty(ValidatorConstants.NAME_NODE, "hdfs://ltx1-holdemnn01.grid.linkedin.com:9000");
+    properties.setProperty(ValidatorConstants.REPOSITORY_URL, "http://artifactory.corp.linkedin.com:8081/artifactory/ext-libraries");
   }
 }
