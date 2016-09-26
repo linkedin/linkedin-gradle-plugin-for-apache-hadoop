@@ -17,6 +17,7 @@ package com.linkedin.gradle.liazkaban;
 
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.azkaban.AzkabanProject;
 import org.gradle.api.Project;
@@ -25,6 +26,17 @@ import org.gradle.api.Project;
  * LinkedIn-specific customizations to the Azkaban Plugin.
  */
 class LiAzkabanPlugin extends AzkabanPlugin {
+  /**
+   * Factory method to return the AzkabanFlowStatusTask class. Subclasses can override this method to
+   * return their own AzkabanFlowStatusTask class.
+   *
+   * @return Class that implements the AzkabanFlowStatusTask
+   */
+  @Override
+  Class<? extends AzkabanFlowStatusTask> getAzkabanFlowStatusTaskClass() {
+    return LiAzkabanFlowStatusTask.class;
+  }
+
   /**
    * Factory method to build a default AzkabanProject for use with the writePluginJson method. Can
    * be overridden by subclasses.

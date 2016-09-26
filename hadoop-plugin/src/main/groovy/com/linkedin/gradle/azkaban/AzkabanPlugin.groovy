@@ -37,7 +37,7 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
  */
 class AzkabanPlugin implements Plugin<Project> {
 
-  boolean interactive = true;
+  static boolean interactive = true;
   private final static Logger logger = Logging.getLogger(AzkabanPlugin);
 
   /**
@@ -49,6 +49,10 @@ class AzkabanPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     createBuildFlowsTask(project);
+    createCreateProjectTask(project);
+    createExecuteFlowTask(project);
+    createFlowStatusTask(project);
+    createKillFlowTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
   }
@@ -84,6 +88,107 @@ class AzkabanPlugin implements Plugin<Project> {
 
         AzkabanDslCompiler compiler = makeCompiler(project);
         compiler.compile(plugin);
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  Task createCreateProjectTask(Project project) {
+    return project.task("azkabanCreateProject", type: AzkabanCreateProjectTask) { task ->
+      description = "Creates a new Project in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        azkProject = readAzkabanProject(project);
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  Task createExecuteFlowTask(Project project) {
+    return project.task("azkabanExecuteFlow", type: AzkabanExecuteFlowTask) { task ->
+      description = "Executes flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        interactive = false;
+        azkProject = readAzkabanProject(project);
+        interactive = true;
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Skipping interactive mode");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        if (interactive) {
+          logger.lifecycle("\nTo skip interactive mode use -Pflow command line parameter and provide a comma separated list of flow names to execute.");
+        }
+        interactive = true;
+      }
+    }
+  }
+
+  /**
+   * Creates the task to get flow status to Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createFlowStatusTask(Project project) {
+    return project.task("azkabanFlowStatus", type: getAzkabanFlowStatusTaskClass()) { task ->
+      description = "Gets the status of all the flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        interactive = false;
+        azkProject = readAzkabanProject(project);
+        interactive = true;
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Displaying Job level Status");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        if (interactive) {
+          logger.info("\nTo get job status use -Pflow command line parameter and provide a comma delimited list of flow names.");
+        }
+        interactive = true;
+      }
+    }
+  }
+
+  /**
+   * Creates the task to Kill running flow in Azkaban.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createKillFlowTask(Project project) {
+    return project.task("azkabanKillFlow", type: AzkabanKillFlowTask) { task ->
+      description = "Kills a running flows in Azkaban";
+      group = "Hadoop's Azkaban Plugin";
+
+      doFirst {
+        interactive = false;
+        azkProject = readAzkabanProject(project);
+        interactive = true;
+
+        if (project.hasProperty("execId")) {
+          logger.lifecycle("Skipping interactive mode");
+          interactive = false;
+        }
+      }
+
+      doLast {
+        interactive = true;
       }
     }
   }
@@ -130,6 +235,7 @@ class AzkabanPlugin implements Plugin<Project> {
         if (interactive) {
           logger.lifecycle("\nUse -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.");
         }
+        interactive = true;
       }
     }
   }
@@ -154,6 +260,16 @@ class AzkabanPlugin implements Plugin<Project> {
         }
       }
     }
+  }
+
+  /**
+   * Factory method to return the AzkabanFlowStatusTask class. Subclasses can override this method to
+   * return their own AzkabanFlowStatusTask class.
+   *
+   * @return Class that implements the AzkabanFlowStatusTask
+   */
+  Class<? extends AzkabanFlowStatusTask> getAzkabanFlowStatusTaskClass() {
+    return AzkabanFlowStatusTask.class;
   }
 
   /**
