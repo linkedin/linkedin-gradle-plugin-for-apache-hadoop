@@ -131,8 +131,8 @@ class LiHadoopZipExtension extends HadoopZipExtension {
    */
   Task createDeploymentZipTask(Project project) {
     return project.tasks.create(name: "CRTHadoopZip", type: Zip) { task ->
-      // archiveName = "${project.name}-${project.version}.zip";
-      // classifier = "defaultArtifact";
+      archiveName = "${project.name}-${project.version}.zip";
+      classifier = "defaultArtifact";;
       description = "Creates a Hadoop CRT deployment zip archive";
       group = "Hadoop Plugin";
 
@@ -155,7 +155,7 @@ class LiHadoopZipExtension extends HadoopZipExtension {
 
       // When everything is done, print out a message
       doLast {
-        project.logger.lifecycle("Prepared Hadoop zip archive for CRT at: ${archivePath}");
+        project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
       }
     }
   }
