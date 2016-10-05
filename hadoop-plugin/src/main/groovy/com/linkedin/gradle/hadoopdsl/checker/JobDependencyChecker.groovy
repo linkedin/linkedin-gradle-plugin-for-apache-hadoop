@@ -151,7 +151,7 @@ class JobDependencyChecker extends BaseStaticChecker {
       Set<Job> ancestors = ancestorMap.get(job.name);
 
       // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
-      job.reading.each { String readPath ->
+      job.reading.values().each { String readPath ->
         if (writeMap.containsKey(readPath)) {
           writeMap.get(readPath).each { Job writeJob ->
             if (job == writeJob) {
@@ -252,7 +252,7 @@ class JobDependencyChecker extends BaseStaticChecker {
 
     // Note that HDFS paths are case-sensitive, so we don't alter the path casing.
     workflow.jobs.each { Job job ->
-      job.writing.each { String writePath ->
+      job.writing.values().each { String writePath ->
         Set<Job> writeJobs = writeMap.get(writePath);
 
         if (writeJobs == null) {

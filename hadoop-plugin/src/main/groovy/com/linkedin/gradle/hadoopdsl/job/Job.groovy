@@ -44,8 +44,8 @@ class Job {
   String name;
   Set<String> dependencyNames;
   Map<String, Object> jobProperties;
-  List<String> reading;
-  List<String> writing;
+  Map<String, String> reading;
+  Map<String, String> writing;
 
   /**
    * Base constructor for a Job.
@@ -56,8 +56,8 @@ class Job {
     dependencyNames = new LinkedHashSet<String>();
     jobProperties = new LinkedHashMap<String, Object>();
     name = jobName;
-    reading = new ArrayList<String>();
-    writing = new ArrayList<String>();
+    reading = new LinkedHashMap<String, String>();
+    writing = new LinkedHashMap<String, String>();
   }
 
   /**
@@ -159,8 +159,8 @@ class Job {
     cloneJob.basePropertySetName = basePropertySetName;
     cloneJob.dependencyNames.addAll(dependencyNames);
     cloneJob.jobProperties.putAll(jobProperties);
-    cloneJob.reading.addAll(reading);
-    cloneJob.writing.addAll(writing);
+    cloneJob.reading.putAll(reading);
+    cloneJob.writing.putAll(writing);
     return cloneJob;
   }
 
@@ -242,7 +242,7 @@ class Job {
   void reads(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
-      reading.add(entry.value);
+      reading.put(entry.key, entry.value);
       setJobProperty(entry.key, entry.value);
     }
   }
@@ -261,7 +261,7 @@ class Job {
   void writes(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
-      writing.add(entry.value);
+      writing.put(entry.key, entry.value);
       setJobProperty(entry.key, entry.value);
     }
   }

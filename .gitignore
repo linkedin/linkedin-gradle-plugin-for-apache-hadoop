@@ -3,6 +3,7 @@
 *.iws
 .classpath
 .gradle
+.hadoopValidatorProperties
 .project
 .settings
 bin

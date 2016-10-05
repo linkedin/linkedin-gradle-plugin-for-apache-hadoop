@@ -33,6 +33,14 @@ hadoop {
 
     job('job3') {
       reads files: [
+        // We'll overwrite the key foo. If foo is not overwritten, then we will get an additional
+        // error in the expected output about an inferred dependency on job2, but if it is
+        // overwritten, we should not. I had an error in my implementation earlier of how the read
+        // and write paths were being stored that did not let you overwrite the keys you declared,
+        // which you should be able to do.
+        'foo' : '/data/databases/bazz'
+      ]
+      reads files: [
         'foo' : '/data/databases/foo'
       ]
       writes files: [
