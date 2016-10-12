@@ -15,16 +15,19 @@
  */
 package com.linkedin.gradle.liazkaban;
 
-
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.azkaban.AzkabanProject;
+
 import org.gradle.api.Project;
 
 /**
  * LinkedIn-specific customizations to the Azkaban Plugin.
  */
 class LiAzkabanPlugin extends AzkabanPlugin {
+
+  private static final String MESSAGE_URL = "https://gitli.corp.linkedin.com/hadoop-dev/azkaban-linkedin-files/raw/li-hadoop-plugin_message.txt";
+
   /**
    * Factory method to build a default AzkabanProject for use with the writePluginJson method. Can
    * be overridden by subclasses.
@@ -55,5 +58,21 @@ class LiAzkabanPlugin extends AzkabanPlugin {
   @Override
   AzkabanDslCompiler makeCompiler(Project project) {
     return new LiAzkabanDslCompiler(project);
+  }
+
+  /**
+   * Prints Linkedin specific message after upload to Azkaban completes, mostly to notify Azkaban users of
+   * upcoming changes. Subclasses can override this method.
+   */
+  @Override
+  void printUploadMessage() {
+    try {
+      String message = MESSAGE_URL.toURL().getText();
+      if (!message.isEmpty() && message.length() > 0) {
+        logger.lifecycle("\n"+message);
+      }
+    } catch (Exception ex) {
+      logger.error("Failed to fetch message. Error: " + ex.getMessage());
+    }
   }
 }

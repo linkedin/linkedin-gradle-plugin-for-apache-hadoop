@@ -104,7 +104,7 @@ class AzkabanUploadTask extends DefaultTask {
     return new ProgressHttpEntityWrapper.ProgressCallback() {
       @Override
       public void progress(float progress) {
-        if((int)progress > progressLimiter && progressLimiter <= 100) {
+        if(((int)progress) > progressLimiter && progressLimiter <= 100) {
           progressLimiter++;
           print("x");
           System.out.flush();
@@ -195,7 +195,7 @@ class AzkabanUploadTask extends DefaultTask {
       logger.lifecycle("\n--------------------------------------------------------------------------------");
       logger.lifecycle(AzkabanHelper.parseResponse(response.toString()));
       String result = AzkabanHelper.parseContent(response.getEntity().getContent());
-      logger.lifecycle("\n" + result);
+      logger.lifecycle(result);
       logger.lifecycle("--------------------------------------------------------------------------------");
 
       // Check if there was an error during the upload.

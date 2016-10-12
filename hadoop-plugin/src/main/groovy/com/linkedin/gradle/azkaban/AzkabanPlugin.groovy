@@ -38,7 +38,7 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
 class AzkabanPlugin implements Plugin<Project> {
 
   boolean interactive = true;
-  private final static Logger logger = Logging.getLogger(AzkabanPlugin);
+  protected final Logger logger = Logging.getLogger(AzkabanPlugin);
 
   /**
    * Applies the AzkabanPlugin. This adds the Gradle task that builds the Hadoop DSL for Azkaban.
@@ -129,6 +129,7 @@ class AzkabanPlugin implements Plugin<Project> {
       doLast {
         if (interactive) {
           logger.lifecycle("\nUse -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.");
+          printUploadMessage();
         }
       }
     }
@@ -197,6 +198,12 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   AzkabanProject makeDefaultAzkabanProject(Project project) {
     return makeAzkabanProject();
+  }
+
+  /**
+   * Prints a message after upload to Azkaban is done. Subclasses can override this method.
+   */
+  void printUploadMessage() {
   }
 
   /**
