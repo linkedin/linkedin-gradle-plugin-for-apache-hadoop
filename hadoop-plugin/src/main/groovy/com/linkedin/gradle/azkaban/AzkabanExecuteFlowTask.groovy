@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.client.AzkabanClient;
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -50,30 +50,29 @@ class AzkabanExecuteFlowTask extends DefaultTask {
 
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
 
+    //Fetch flows of the project
+    String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
+
+    if (fetchFlowsResponse.toLowerCase().contains("error")) {
+      // Check if session has expired. If so, re-login.
+      if (fetchFlowsResponse.toLowerCase().contains("session")) {
+        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        executeAzkabanFlow(null);
+      } else {
+        // If response contains other than session error
+        logger.error("Fetching flows from ${azkProject.azkabanUrl} failed. Reason: ${new JSONObject(fetchFlowsResponse).get("error")}");
+      }
+      return;
+    }
+
+    List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
+    if (flows.isEmpty()) {
+      logger.lifecycle("No flows defined in current project");
+      return;
+    }
+
+    List<String> inputFlows;
     try {
-      //Fetch flows of the project
-      String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
-
-      if (fetchFlowsResponse.toLowerCase().contains("error")) {
-        // Check if session has expired. If so, re-login.
-        if (fetchFlowsResponse.toLowerCase().contains("session")) {
-          logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
-          executeAzkabanFlow(null);
-        } else {
-          // If response contains other than session error
-          logger.error("Fetching flows from ${azkProject.azkabanUrl} failed. Reason: ${new JSONObject(fetchFlowsResponse).get("error")}");
-        }
-        return;
-      }
-
-      List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
-      if (flows.isEmpty()) {
-        logger.lifecycle("No flows defined in current project");
-        return;
-      }
-
-      List<String> inputFlows;
-
       if (AzkabanPlugin.interactive) {
         printFlowsWithIndices(flows);
         Set<String> indexSet = getFlowIndicesInput();
@@ -90,15 +89,14 @@ class AzkabanExecuteFlowTask extends DefaultTask {
           }
         }
       }
-
-      List<String> responseList = AzkabanClient.batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
-      printFlowExecutionResponses(responseList);
-
     } catch (IndexOutOfBoundsException ex) {
       logger.error("${ex.getMessage()} : Entered indices not in range, try again.");
-    } catch (Exception ex) {
-      logger.error("Could not Execute Flow.\n${ex.getMessage()}");
+      return;
     }
+
+    List<String> responseList = AzkabanClient.batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
+    printFlowExecutionResponses(responseList);
+
   }
 
   /**

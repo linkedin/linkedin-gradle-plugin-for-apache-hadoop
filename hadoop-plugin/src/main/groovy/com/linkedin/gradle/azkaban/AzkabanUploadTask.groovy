@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.client.AzkabanClient;
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

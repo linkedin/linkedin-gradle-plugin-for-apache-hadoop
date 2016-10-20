@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.client.AzkabanClient;
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -46,38 +46,33 @@ class AzkabanCreateProjectTask extends DefaultTask {
    * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
    */
   void createAzkabanProject(String sessionId) {
-    try {
-      sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
 
-      def console = System.console();
-      if (console == null) {
-        String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-        throw new GradleException(msg);
-      }
-
-      String input = AzkabanHelper.consoleInput(console, " > Enter Project description: ", false);
-      while (input.isEmpty()) {
-        input = AzkabanHelper.consoleInput(console, "Enter Non-Empty Project description: ", false);
-      }
-
-      String response = AzkabanClient.createProject(azkProject.azkabanUrl, azkProject.azkabanProjName, input, sessionId);
-
-      if (response.toLowerCase().contains("error")) {
-        // Check if session has expired. If so, re-login.
-        if (response.toLowerCase().contains("login")) {
-          logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
-          createAzkabanProject(null);
-        } else {
-          // If response contains other than login error
-          logger.error("Creating Project in ${azkProject.azkabanUrl} failed. Reason: " + new JSONObject(response).get("message"));
-        }
-        return;
-      }
-
-      logger.lifecycle("Successfully created project: ${azkProject.azkabanProjName} in Azkaban.");
-
-    } catch (IOException ex) {
-      ex.printStackTrace();
+    def console = System.console();
+    if (console == null) {
+      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+      throw new GradleException(msg);
     }
+
+    String input = AzkabanHelper.consoleInput(console, " > Enter Project description: ", false);
+    while (input.isEmpty()) {
+      input = AzkabanHelper.consoleInput(console, "Enter Non-Empty Project description: ", false);
+    }
+
+    String response = AzkabanClient.createProject(azkProject.azkabanUrl, azkProject.azkabanProjName, input, sessionId);
+
+    if (response.toLowerCase().contains("error")) {
+      // Check if session has expired. If so, re-login.
+      if (response.toLowerCase().contains("login")) {
+        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        createAzkabanProject(null);
+      } else {
+        // If response contains other than login error
+        logger.error("Creating Project in ${azkProject.azkabanUrl} failed. Reason: " + new JSONObject(response).get("message"));
+      }
+      return;
+    }
+
+    logger.lifecycle("Successfully created project: ${azkProject.azkabanProjName} in Azkaban.");
   }
 }

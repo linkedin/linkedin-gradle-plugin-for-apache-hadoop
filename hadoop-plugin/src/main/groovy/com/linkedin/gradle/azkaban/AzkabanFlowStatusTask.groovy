@@ -15,8 +15,9 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.client.AzkabanClient;
-
+import com.linkedin.gradle.azkaban.client.AzkabanClient
+import com.linkedin.gradle.azkaban.client.AzkabanStatus
+import com.linkedin.gradle.util.AzkabanClientUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
@@ -51,68 +52,63 @@ class AzkabanFlowStatusTask extends DefaultTask {
 
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
 
-    try {
-      //Fetch flows of the project
-      String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
+    //Fetch flows of the project
+    String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
-      if (fetchFlowsResponse.toLowerCase().contains("error")) {
-        // Check if session has expired. If so, re-login.
-        if (fetchFlowsResponse.toLowerCase().contains("session")) {
-          logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
-          getAzkabanFlowStatus(null);
-        } else {
-          // If response contains other than session error
-          logger.error("Fetching flows from " + azkProject.azkabanUrl + " failed. Reason: " + new JSONObject(fetchFlowsResponse).get("error"));
-        }
-        return;
-      }
-
-      List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
-      if (flows.isEmpty()) {
-        logger.lifecycle("No flows defined in current project");
-        return;
-      }
-
-      //Pool HTTP Get requests for getting most recent ExecID for each flow
-      List<String> responseList = AzkabanClient.batchfetchLatestExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, flows, sessionId);
-
-      List<String> execIds = new ArrayList<String>();
-      for (String execResponse : responseList) {
-        JSONObject execIDResponse = new JSONObject(execResponse);
-        if (execIDResponse.has("error")) {
-          logger.error("Could not get flow due to " + execIDResponse.get("error").toString());
-          return;
-        } else if (execIDResponse.has("executions")) {
-          JSONArray lastExecArray = execIDResponse.getJSONArray("executions");
-          if (lastExecArray != null && !lastExecArray.isNull(0)) {
-            JSONObject lastExecObj = new JSONObject(lastExecArray.get(0).toString());
-            execIds.add(lastExecObj.get("execId").toString());
-          }
-        }
-      }
-
-      if (!execIds.isEmpty()) {
-        //Pool HTTP Get requests for getting exec Job statuses
-        responseList = AzkabanClient.batchfetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
-
-        if (project.hasProperty("flow")) {
-          if (project.getProperties().get("flow").toString().isEmpty()) {
-            jobStatus(flows, responseList);
-          } else {
-            List<String> sortedFlowSet = new ArrayList(new HashSet<String>(Arrays.asList(project.getProperties().get("flow").toString().split(",+"))));
-            Collections.sort(sortedFlowSet);
-            jobStatus(sortedFlowSet, responseList);
-          }
-        } else {
-          flowStatus(flows, responseList);
-        }
-
+    if (fetchFlowsResponse.toLowerCase().contains("error")) {
+      // Check if session has expired. If so, re-login.
+      if (fetchFlowsResponse.toLowerCase().contains("session")) {
+        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        getAzkabanFlowStatus(null);
       } else {
-        logger.lifecycle("Project ${azkProject.azkabanProjName} has no flow previously executed.");
+        // If response contains other than session error
+        logger.error("Fetching flows from " + azkProject.azkabanUrl + " failed. Reason: " + new JSONObject(fetchFlowsResponse).get("error"));
+      }
+      return;
+    }
+
+    List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
+    if (flows.isEmpty()) {
+      logger.lifecycle("No flows defined in current project");
+      return;
+    }
+
+    //Pool HTTP Get requests for getting most recent ExecID for each flow
+    List<String> responseList = AzkabanClient.batchFetchLatestExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, flows, sessionId);
+
+    List<String> execIds = new ArrayList<String>();
+    for (String execResponse : responseList) {
+      JSONObject execIDResponse = new JSONObject(execResponse);
+      if (execIDResponse.has("error")) {
+        logger.error("Could not get flow due to " + execIDResponse.get("error").toString());
+        return;
+      } else if (execIDResponse.has("executions")) {
+        JSONArray lastExecArray = execIDResponse.getJSONArray("executions");
+        if (lastExecArray != null && !lastExecArray.isNull(0)) {
+          JSONObject lastExecObj = new JSONObject(lastExecArray.get(0).toString());
+          execIds.add(lastExecObj.get("execId").toString());
+        }
+      }
+    }
+
+    if (!execIds.isEmpty()) {
+      //Pool HTTP Get requests for getting exec Job statuses
+      responseList = AzkabanClient.batchFetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
+
+      if (project.hasProperty("flow")) {
+        if (project.getProperties().get("flow").toString().isEmpty()) {
+          jobStatus(flows, responseList);
+        } else {
+          List<String> sortedFlowSet = new ArrayList(new HashSet<String>(Arrays.asList(project.getProperties().get("flow").toString().split(",+"))));
+          Collections.sort(sortedFlowSet);
+          jobStatus(sortedFlowSet, responseList);
+        }
+      } else {
+        flowStatus(flows, responseList);
       }
 
-    } catch (Exception ex) {
-      logger.info("Could not fetch flow status. ${ex.getMessage()}");
+    } else {
+      logger.lifecycle("Project ${azkProject.azkabanProjName} has no flow previously executed.");
     }
   }
 
@@ -132,10 +128,10 @@ class AzkabanFlowStatusTask extends DefaultTask {
 
           String execid = jobsObject.get("execid").toString();
           String flowStatus = jobsObject.get("status").toString();
-          String flowSubmitTime = AzkabanHelper.epochToDate(jobsObject.get("submitTime").toString());
-          String flowStartTime = AzkabanHelper.epochToDate(jobsObject.get("startTime").toString());
-          String flowEndTime = AzkabanHelper.epochToDate(jobsObject.get("endTime").toString());
-          String flowElapsedTime = AzkabanHelper.getElapsedTime(jobsObject.get("startTime").toString(), jobsObject.get("endTime").toString());
+          String flowSubmitTime = AzkabanClientUtil.epochToDate(jobsObject.get("submitTime").toString());
+          String flowStartTime = AzkabanClientUtil.epochToDate(jobsObject.get("startTime").toString());
+          String flowEndTime = AzkabanClientUtil.epochToDate(jobsObject.get("endTime").toString());
+          String flowElapsedTime = AzkabanClientUtil.getElapsedTime(jobsObject.get("startTime").toString(), jobsObject.get("endTime").toString());
 
           System.out.println("\nFlow: ${flow} | Exec Id: ${execid} | Status: ${flowStatus} | Submitted: ${flowSubmitTime} | Started: ${flowStartTime} | Ended : ${flowEndTime} | Elapsed: ${flowElapsedTime}");
 
@@ -150,10 +146,10 @@ class AzkabanFlowStatusTask extends DefaultTask {
                 JSONObject job = new JSONObject(jobArray.get(i).toString());
                 String jobName = job.get("id").toString();
                 String jobStatus = job.get("status").toString();
-                String jobStartTime = AzkabanHelper.epochToDate(job.get("startTime").toString());
-                String jobEndTime = AzkabanHelper.epochToDate(job.get("endTime").toString());
+                String jobStartTime = AzkabanClientUtil.epochToDate(job.get("startTime").toString());
+                String jobEndTime = AzkabanClientUtil.epochToDate(job.get("endTime").toString());
                 String jobType = job.get("type").toString();
-                String jobElapsedTime = AzkabanHelper.getElapsedTime(job.get("startTime").toString(), job.get("endTime").toString());
+                String jobElapsedTime = AzkabanClientUtil.getElapsedTime(job.get("startTime").toString(), job.get("endTime").toString());
                 AzkabanHelper.printJobStats(jobName, jobType, jobStatus, jobStartTime, jobEndTime, jobElapsedTime);
               }
             }

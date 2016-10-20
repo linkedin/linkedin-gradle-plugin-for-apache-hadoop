@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban
+package com.linkedin.gradle.azkaban.client;
 
-public class AzkabanStatus {
+class AzkabanStatus {
 
   private int _cancelled;
   private int _disabled;
@@ -37,7 +37,7 @@ public class AzkabanStatus {
    * Get cancelled jobs count
    * @return _cancelled Cancelled jobs count
    */
-  public int getCancelled() {
+  int getCancelled() {
     return _cancelled;
   }
 
@@ -45,7 +45,7 @@ public class AzkabanStatus {
    * Get disabled jobs count
    * @return _disabled Disabled jobs count
    */
-  public int getDisabled() {
+  int getDisabled() {
     return _disabled;
   }
 
@@ -53,7 +53,7 @@ public class AzkabanStatus {
    * Get failed jobs count
    * @return _failed Failed jobs count
    */
-  public int getFailed() {
+  int getFailed() {
     return _failed;
   }
 
@@ -61,7 +61,7 @@ public class AzkabanStatus {
    * Get jobs count which are ready
    * @return _ready Ready jobs count
    */
-  public int getReady() {
+  int getReady() {
     return _ready;
   }
 
@@ -69,7 +69,7 @@ public class AzkabanStatus {
    * Get running jobs count
    * @return _running Running jobs count
    */
-  public int getRunning() {
+  int getRunning() {
     return _running;
   }
 
@@ -77,7 +77,7 @@ public class AzkabanStatus {
    * Get succeeded jobs count
    * @return _succeeded Succeeded jobs count
    */
-  public int getSucceeded() {
+  int getSucceeded() {
     return _succeeded;
   }
 
@@ -85,7 +85,7 @@ public class AzkabanStatus {
    * Get Total jobs count
    * @return _total Total jobs count
    */
-  public int getTotal() {
+  int getTotal() {
     return _cancelled + _disabled + _failed + _ready + _running + _succeeded;
   }
 
@@ -94,7 +94,7 @@ public class AzkabanStatus {
    *
    * @param status
    */
-  public void increment(String status) {
+  void increment(String status) {
     switch (status) {
       case "CANCELLED":
         _cancelled++;
@@ -130,7 +130,7 @@ public class AzkabanStatus {
    *
    * @return Status String
    */
-  public List<String> getStatusValues() {
+  List<String> getStatusValues() {
     List<String> values = new ArrayList<String>();
     values.add(Integer.toString(getRunning()));
     values.add(Integer.toString(getSucceeded()));
@@ -142,7 +142,7 @@ public class AzkabanStatus {
     return values;
   }
 
-  public static List<String> getStatusLabels() {
+  static List<String> getStatusLabels() {
     List<String> labels = new ArrayList<String>();
     labels.add("Running");
     labels.add("Succeeded");

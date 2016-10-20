@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.client;
+package com.linkedin.gradle.azkaban.client;
 
 class AzkabanParams {
   public static final String ACTION = "action";

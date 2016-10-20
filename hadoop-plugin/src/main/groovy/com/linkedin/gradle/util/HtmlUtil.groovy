@@ -21,7 +21,7 @@ package com.linkedin.gradle.util;
  * This is currently used for formatting Azkaban returned HttpResponse to improve the readability
  * of Azkaban generated messages.
  */
-public class HtmlUtil {
+class HtmlUtil {
   /**
    * Make the class constructor private for this utility class.
    */
@@ -33,7 +33,7 @@ public class HtmlUtil {
    * @param html The HTML whose content we want to make more readable
    * @return The text content extracted from the HTML
    */
-  public static String toText(String html) {
+  static String toText(String html) {
     String newline = System.getProperty("line.separator");
     return html == null ? "" : html
         .replaceAll("<br/>", newline)

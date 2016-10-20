@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.client.AzkabanClient;
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
+import com.linkedin.gradle.util.AzkabanClientUtil;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
@@ -96,7 +97,7 @@ class AzkabanCancelFlowTask extends DefaultTask {
 
         if (AzkabanPlugin.interactive) {
           //Pool HTTP Get requests for getting exec Job statuses
-          responseList = AzkabanClient.batchfetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
+          responseList = AzkabanClient.batchFetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
           printStatus(flows, responseList);
 
           //Get exec ID's to kill
@@ -169,10 +170,10 @@ class AzkabanCancelFlowTask extends DefaultTask {
 
           String execid = jobsObject.get("execid").toString();
           //String flowStatus = jobsObject.get("status").toString();
-          String flowSubmitTime = AzkabanHelper.epochToDate(jobsObject.get("submitTime").toString());
-          String flowStartTime = AzkabanHelper.epochToDate(jobsObject.get("startTime").toString());
-          //String flowEndTime = AzkabanHelper.epochToDate(jobsObject.get("endTime").toString());
-          String flowElapsedTime = AzkabanHelper.getElapsedTime(jobsObject.get("startTime").toString(), jobsObject.get("endTime").toString());
+          String flowSubmitTime = AzkabanClientUtil.epochToDate(jobsObject.get("submitTime").toString());
+          String flowStartTime = AzkabanClientUtil.epochToDate(jobsObject.get("startTime").toString());
+          //String flowEndTime = AzkabanClientUtil.epochToDate(jobsObject.get("endTime").toString());
+          String flowElapsedTime = AzkabanClientUtil.getElapsedTime(jobsObject.get("startTime").toString(), jobsObject.get("endTime").toString());
 
           System.out.println("Flow: ${flow} | Exec Id: ${execid} | Submitted: ${flowSubmitTime} | Started: ${flowStartTime} | Elapsed: ${flowElapsedTime}");
 
@@ -187,10 +188,10 @@ class AzkabanCancelFlowTask extends DefaultTask {
                 JSONObject job = new JSONObject(jobArray.get(i).toString());
                 String jobName = job.get("id").toString();
                 String jobStatus = job.get("status").toString();
-                String jobStartTime = AzkabanHelper.epochToDate(job.get("startTime").toString());
-                String jobEndTime = AzkabanHelper.epochToDate(job.get("endTime").toString());
+                String jobStartTime = AzkabanClientUtil.epochToDate(job.get("startTime").toString());
+                String jobEndTime = AzkabanClientUtil.epochToDate(job.get("endTime").toString());
                 String jobType = job.get("type").toString();
-                String jobElapsedTime = AzkabanHelper.getElapsedTime(job.get("startTime").toString(), job.get("endTime").toString());
+                String jobElapsedTime = AzkabanClientUtil.getElapsedTime(job.get("startTime").toString(), job.get("endTime").toString());
                 AzkabanHelper.printJobStats(jobName, jobType, jobStatus, jobStartTime, jobEndTime, jobElapsedTime);
               }
             }

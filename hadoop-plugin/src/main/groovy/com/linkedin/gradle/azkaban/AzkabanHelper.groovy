@@ -17,7 +17,6 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.util.HtmlUtil;
 import com.linkedin.gradle.zip.HadoopZipExtension;
-import org.json.JSONArray;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -33,18 +32,13 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 
 /**
  * AzkabanHelper is a helper class for the Azkaban Tasks.
@@ -205,22 +199,6 @@ class AzkabanHelper {
   }
 
   /**
-   * Converts epoch to Date format.
-   *
-   * @param epoch timestamp
-   * @return Date format in string. Returns "- "if epoch is -1
-   */
-  static String epochToDate(String epoch) {
-    if (epoch.equals("-1")) {
-      return "-"
-    } else {
-      Date date = new Date(Long.parseLong(epoch));
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-      return dateFormat.format(date);
-    }
-  }
-
-  /**
    * Fetch Sorted flows from JSON Response
    *
    * @param responseJson The response object from Azkaban API call "fetchprojectflows"
@@ -249,46 +227,6 @@ class AzkabanHelper {
     }
 
     return flows;
-  }
-
-  /**
-   * Returns time elapsed between start and end epoch times. Incase startEpoch is -1, returns "-".
-   * In case endEpoch is -1, returns time elapsed between start and current epoch.
-   *
-   * @param startEpoch Starting epoch timestamp
-   * @param endEpoch Ending epoch timestamp
-   * @return elapsedTime Time elapsed between start and stop Epoch time
-   */
-  static String getElapsedTime(String startEpoch, String endEpoch) throws IllegalArgumentException, ArithmeticException {
-    if (startEpoch.equals("-1")) {
-      return "-";
-    } else if (endEpoch.equals("-1")) {
-      endEpoch = Long.toString(Instant.now().toEpochMilli());
-    }
-
-    Long start = Long.parseLong(startEpoch);
-    Long end = Long.parseLong(endEpoch);
-
-    if (start < 0 || end < 0 || start > end) {
-      throw new IllegalArgumentException();
-    }
-
-    int elapsed = (end - start)/1000L;
-    int elapsedSecs = elapsed % 60;
-    int elapsedMins = ((int)(elapsed / 60)) % 60;
-    int elapsedHours = elapsed / 3600;
-
-    StringBuilder elapsedFormatted = new StringBuilder();
-
-    if (elapsedHours) {
-      elapsedFormatted.append("${elapsedHours} Hr ");
-    }
-    if (elapsedHours || elapsedMins) {
-      elapsedFormatted.append("${elapsedMins} Min ");
-    }
-    elapsedFormatted.append("${elapsedSecs} Sec");
-
-    return elapsedFormatted.toString();
   }
 
   /**

@@ -1,5 +1,4 @@
 group 'rootProject.group'
-version '0.10.11'
 
 apply plugin: 'groovy'
 

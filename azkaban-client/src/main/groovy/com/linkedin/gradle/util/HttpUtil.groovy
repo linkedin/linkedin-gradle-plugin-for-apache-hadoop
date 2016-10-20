@@ -32,9 +32,9 @@ import org.gradle.api.logging.Logging;
 /**
  * Utility class for handling HTTP request and responses.
  * <p>
- * This is currently used by azkaban classes for HTTP request handling.
+ * This is currently used by Azkaban classes for HTTP request handling.
  */
-public class HttpUtil {
+class HttpUtil {
 
   private final static Logger logger = Logging.getLogger(this.class);
 
@@ -49,31 +49,33 @@ public class HttpUtil {
     connectionManager.setDefaultMaxPerRoute(20);
     CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
 
-    // create a thread for each URI
-    GetThread[] threads = new GetThread[uriList.size()];
-    for (int i = 0; i < threads.length; i++) {
-      HttpGet httpget = new HttpGet(uriList.get(i));
-      threads[i] = new GetThread(httpClient, httpget);
+    try {
+      // create a thread for each URI
+      GetThread[] threads = new GetThread[uriList.size()];
+      for (int i = 0; i < threads.length; i++) {
+        HttpGet httpGet = new HttpGet(uriList.get(i));
+        threads[i] = new GetThread(httpClient, httpGet);
+      }
+
+      // start the threads
+      for (int j = 0; j < threads.length; j++) {
+        threads[j].start();
+      }
+
+      // join the threads
+      for (int j = 0; j < threads.length; j++) {
+        threads[j].join();
+      }
+
+      List<String> responseList = new ArrayList<String>();
+      for (int j = 0; j < threads.length; j++) {
+        responseList.add(threads[j].getResponse());
+      }
+      return responseList; //finally will always execute in spite of return statement
+
+    } finally {
+      httpClient.close();
     }
-
-    // start the threads
-    for (int j = 0; j < threads.length; j++) {
-      threads[j].start();
-    }
-
-    // join the threads
-    for (int j = 0; j < threads.length; j++) {
-      threads[j].join();
-    }
-
-    List<String> responseList = new ArrayList<String>();
-    for (int j = 0; j < threads.length; j++) {
-      responseList.add(threads[j].getResponse());
-    }
-
-    httpClient.close();
-
-    return responseList;
   }
 
   /**
@@ -84,11 +86,12 @@ public class HttpUtil {
    */
   static String responseFromGET(URI uri) {
     CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-    String response = EntityUtils.toString(httpClient.execute(new HttpGet(uri)).getEntity());
-    httpClient.close();
-
-    return response;
+    try {
+      String response = EntityUtils.toString(httpClient.execute(new HttpGet(uri)).getEntity());
+      return response;
+    } finally {
+      httpClient.close();
+    }
   }
 
   /**
@@ -103,29 +106,31 @@ public class HttpUtil {
     httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
     CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-    String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
-    httpClient.close();
-
-    return response;
+    try {
+      String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
+      return response;
+    } finally {
+      httpClient.close();
+    }
   }
 
   /**
    * Creates the thread which returns a response object for a get request
    *
    * @param httpClient Closeable Http Client
-   * @param httpget
+   * @param httpGet
    * @return response Returns the response string of respective thread.
    */
   static class GetThread extends Thread {
     private final CloseableHttpClient httpClient;
     private final HttpClientContext context;
-    private final HttpGet httpget;
+    private final HttpGet httpGet;
     private String response;
 
-    public GetThread(CloseableHttpClient httpClient, HttpGet httpget) {
+    public GetThread(CloseableHttpClient httpClient, HttpGet httpGet) {
       this.httpClient = httpClient;
       this.context = HttpClientContext.create();
-      this.httpget = httpget;
+      this.httpGet = httpGet;
     }
 
     public String getResponse() {
@@ -135,7 +140,7 @@ public class HttpUtil {
     @Override
     public void run() {
       try {
-        CloseableHttpResponse httpResponse = httpClient.execute(httpget, context);
+        CloseableHttpResponse httpResponse = httpClient.execute(httpGet, context);
         try {
           response = EntityUtils.toString(httpResponse.getEntity());
         } finally {

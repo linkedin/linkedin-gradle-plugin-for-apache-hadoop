@@ -13,13 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.client;
+package com.linkedin.gradle.azkaban.client;
 
 import com.linkedin.gradle.util.HttpUtil;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
- * CreateProject Class creates a new project in Azkaban.
+ * Azkaban Client for Azkaban.
  */
 class AzkabanClient {
   /**
@@ -27,8 +27,8 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param description
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban. The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param description Project Description
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String createProject(String URL, String projectName, String description, String sessionId) throws Exception {
@@ -46,8 +46,8 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param flow
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param flow Flow Name
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String executeFlow(String URL, String projectName, String flow, String sessionId) throws Exception {
@@ -65,10 +65,10 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param flow
-   * @param startIndex
-   * @param endIndex
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param flow Flow Name
+   * @param startIndex Index of execution to start from
+   * @param endIndex Index of execution to end
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String fetchExecutionsList(String URL, String projectName, String flow, String startIndex, String endIndex, String sessionId) throws Exception {
@@ -88,8 +88,8 @@ class AzkabanClient {
    * from Azkaban.
    *
    * @param URL AzkabanCluster URL
-   * @param execId
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param execId Azkaban flow execution id
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String fetchFlowExecution(String URL, String execId, String sessionId) throws Exception {
@@ -106,7 +106,7 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String fetchProjectFlows(String URL, String projectName, String sessionId) throws Exception {
@@ -123,8 +123,8 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param flows
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param flows List of all flows in the Project
+   * @param sessionId The Azkaban session id
    * @return
    */
   static List<String> batchFlowExecution(String URL, String projectName, List<String> flows, String sessionId) throws Exception {
@@ -148,10 +148,10 @@ class AzkabanClient {
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
    * @param flows List of Flow names for which latest execution is needed
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param sessionId The Azkaban session id
    * @return List of response containing Latest execution for each flow.
    */
-  static List<String> batchfetchLatestExecution(String URL, String projectName, List<String> flows, String sessionId) throws Exception {
+  static List<String> batchFetchLatestExecution(String URL, String projectName, List<String> flows, String sessionId) throws Exception {
     //Pool HTTP Get requests for getting most recent ExecID for each flow
     List<URI> uriList = new ArrayList<URI>();
     for (String flow : flows) {
@@ -172,11 +172,11 @@ class AzkabanClient {
    * Fetches a batch of Flow Executions from Azkaban.
    *
    * @param URL AzkabanCluster URL
-   * @param execIds
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param execIds List of Azkaban flow execution ids
+   * @param sessionId The Azkaban session id
    * @return
    */
-  static List<String> batchfetchFlowExecution(String URL, List<String> execIds, String sessionId) throws Exception {
+  static List<String> batchFetchFlowExecution(String URL, List<String> execIds, String sessionId) throws Exception {
     List<URI> uriList = new ArrayList<URI>();
     execIds.each { execId ->
       uriList.add(new URIBuilder(URL)
@@ -193,8 +193,8 @@ class AzkabanClient {
    * Cancels Flow Execution in Azkaban.
    *
    * @param URL AzkabanCluster URL
-   * @param execId
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param execId Azkaban flow execution id
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String cancelFlowExecution(String URL, String execId, String sessionId) throws Exception {
@@ -210,8 +210,8 @@ class AzkabanClient {
    * Cancels a batch of Executions in Azkaban.
    *
    * @param URL AzkabanCluster URL
-   * @param execIds
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param execIds List of Azkaban flow execution ids
+   * @param sessionId The Azkaban session id
    * @return
    */
   static List<String> batchCancelFlowExecution(String URL, Set<String> execIds, String sessionId) throws Exception {
@@ -232,8 +232,8 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param flow
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param flow Flow Name
+   * @param sessionId The Azkaban session id
    * @return
    */
   static String getRunningExecutions(String URL, String projectName, String flow, String sessionId) throws Exception {
@@ -251,8 +251,8 @@ class AzkabanClient {
    *
    * @param URL AzkabanCluster URL
    * @param projectName Azkaban Project Name
-   * @param flows
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param flows List of all flows in the Project
+   * @param sessionId The Azkaban session id
    * @return
    */
   static List<String> batchGetRunningExecutions(String URL, String projectName, List<String> flows, String sessionId) throws Exception {

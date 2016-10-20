@@ -13,22 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.util;
 
-import org.gradle.api.GradleException;
-import org.json.JSONObject;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 class AzkabanHelperTest {
+
   @Test
-  public void TestFetchSortedFlows() {
-    assertEquals(AzkabanHelper.fetchSortedFlows(new JSONObject("{\"project\" : \"test-azkaban\",   \"projectId\" : 192,   \"flows\" : [ {     \"flowId\" : \"test\"   }, {     \"flowId\" : \"test2\"   } ] }")), ["test", "test2"]);
-    assertEquals(AzkabanHelper.fetchSortedFlows(new JSONObject("{}")), []);
+  public void TestEpochToDate() {
+    assertEquals(AzkabanClientUtil.epochToDate("-1"), "-");
   }
 
-  @Test(expected = GradleException.class)
-  public void TestGradleException() {
-    AzkabanHelper.fetchSortedFlows(new JSONObject("{\"project\" : \"test-azkaban\",   \"projectId\" : 192,   \"flows\" : [ ] }"));
+  @Test
+  public void TestGetElapsedTime() {
+    assertEquals(AzkabanClientUtil.getElapsedTime("-1", "anything"), "-");
+    assertNotEquals(AzkabanClientUtil.getElapsedTime("1476786100", "-1"), "-");
+    assertEquals(AzkabanClientUtil.getElapsedTime("1476786100000", "1476786100000"), "0 Sec");
+    assertEquals(AzkabanClientUtil.getElapsedTime("1476786100000", "1476786238000"), "2 Min 18 Sec");
+    assertEquals(AzkabanClientUtil.getElapsedTime("1476776100000", "1476786238000"), "2 Hr 48 Min 58 Sec");
   }
 }
