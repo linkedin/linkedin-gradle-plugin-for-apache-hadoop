@@ -80,6 +80,7 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-21680 Azkaban CLI Features Create Project, Flow Status, Execute Flow and Cancel Flow`
 * `LIHADOOP-23788 Display custom message after azkabanUpload task`
 * `LIHADOOP-22850 Handle null console and minor changes in upload bar's display`
 * `LIHADOOP-22822 The azkabanUpload task should automatically go into edit mode if there are missing required fields`

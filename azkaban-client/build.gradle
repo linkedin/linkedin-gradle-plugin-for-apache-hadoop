@@ -1,0 +1,24 @@
+group 'rootProject.group'
+
+apply plugin: 'groovy'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+
+  compile 'org.apache.httpcomponents:httpclient:4.5.2'
+  compile 'org.apache.httpcomponents:httpcore:4.4.5'
+  compile 'org.apache.httpcomponents:httpmime:4.5.2'
+  compile 'org.json:json:20090211'
+  compile 'joda-time:joda-time:2.9.4'
+  compile 'jline:jline:2.12.1'
+
+  runtime 'com.sun.jersey:jersey-client:1.19.1'
+  runtime 'com.sun.jersey:jersey-core:1.19.1'
+
+  testCompile group: 'junit', name: 'junit', version: '4.11'
+}

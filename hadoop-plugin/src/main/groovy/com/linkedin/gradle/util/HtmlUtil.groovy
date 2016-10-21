@@ -33,7 +33,7 @@ class HtmlUtil {
    * @param html The HTML whose content we want to make more readable
    * @return The text content extracted from the HTML
    */
-  public static String toText(String html) {
+  static String toText(String html) {
     String newline = System.getProperty("line.separator");
     return html == null ? "" : html
         .replaceAll("<br/>", newline)
