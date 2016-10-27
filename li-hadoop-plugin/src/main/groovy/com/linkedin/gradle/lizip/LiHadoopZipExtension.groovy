@@ -120,7 +120,9 @@ class LiHadoopZipExtension extends HadoopZipExtension {
    *
    * To work around these problems, we'll give the CRT zip the special "defaultArtifact"
    * classifier. When the Tools Python code constructs the artifact-spec, it will explicitly use an
-   * artifact with this classifier in the "artifact" line. This accomplishes #1 above.
+   * artifact with this classifier in the "artifact" line. This accomplishes #1 above. UPDATE: in
+   * ligradle-core 2.x and above, there is an explicit mechanism for selecting the default artifact.
+   * Once ligradle-core 1.x is permaently EOL'd, we can remove the previous mechanism.
    *
    * Then we'll explicitly set the archiveName property on the zip so that it has the right form.
    * This accomplishes #2 above. These two together produce the artifacts and an artifact-spec.json
@@ -132,7 +134,6 @@ class LiHadoopZipExtension extends HadoopZipExtension {
   Task createDeploymentZipTask(Project project) {
     return project.tasks.create(name: "CRTHadoopZip", type: Zip) { task ->
       archiveName = "${project.name}-${project.version}.zip";
-      classifier = "defaultArtifact";;
       description = "Creates a Hadoop CRT deployment zip archive";
       group = "Hadoop Plugin";
 
@@ -153,9 +154,23 @@ class LiHadoopZipExtension extends HadoopZipExtension {
       // Add the task to project artifacts
       project.artifacts.add("archives", task);
 
+      // Set the task as the default artifact in the artifact-spec.json. This is supported in
+      // ligradle-core 2.x and above.
+      def artifactSpecTask = project.tasks.findByName("generateModuleArtifactSpec");
+
+      if (artifactSpecTask != null && artifactSpecTask.hasProperty("defaultArtifact")) {
+        artifactSpecTask.defaultArtifact = task;
+      }
+      else {
+        // The old way was that we set a special classifier that old ligradle to select the
+        // artifact produced from the task as the default artifact in the artifact-spec.json. Once
+        // RUM and ligradle-core 1.x are permanently EOL'd, we can remove this mechanism.
+        classifier = "defaultArtifact";
+      }
+
       // When everything is done, print out a message
       doLast {
-        project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
+        project.logger.lifecycle("Prepared archive for Hadoop CRT deployment at: ${archivePath}");
       }
     }
   }
