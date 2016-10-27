@@ -179,7 +179,7 @@ class HadoopZipExtension {
 
       // When everything is done, print out a message
       doLast {
-        project.logger.lifecycle("Prepared Hadoop zip archive at: ${archivePath}");
+        project.logger.lifecycle("Prepared archive for Hadoop zip '${zipName}' at: ${archivePath}");
       }
     }
   }
