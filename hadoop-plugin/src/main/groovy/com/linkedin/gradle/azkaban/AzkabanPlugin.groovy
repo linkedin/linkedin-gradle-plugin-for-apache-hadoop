@@ -93,7 +93,7 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the task to Cancel running flow in Azkaban.
+   * Creates the task to Cancel a running flow in Azkaban.
    *
    * @param project The Gradle project
    * @return The created task
@@ -165,7 +165,7 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the task to get flow status to Azkaban.
+   * Creates the task to get flow status from Azkaban.
    *
    * @param project The Gradle project
    * @return The created task

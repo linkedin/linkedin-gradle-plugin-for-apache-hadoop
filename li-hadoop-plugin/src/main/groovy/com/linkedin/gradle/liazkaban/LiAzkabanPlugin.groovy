@@ -81,7 +81,7 @@ class LiAzkabanPlugin extends AzkabanPlugin {
     try {
       String message = MESSAGE_URL.toURL().getText();
       if (!message.isEmpty() && message.length() > 0) {
-        logger.lifecycle("\n"+message);
+        logger.lifecycle("\n"+message.trim());
       }
     } catch (Exception ex) {
       logger.error("Failed to fetch message. Error: " + ex.getMessage());
