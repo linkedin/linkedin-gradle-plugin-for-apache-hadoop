@@ -144,17 +144,26 @@ class AzkabanHelper {
       }
 
       if (input.equalsIgnoreCase("y")) {
-        input = consoleInput(console, "${mustUpdate ? ' > ' : ''}New Azkaban project name [enter to accept '${azkProject.azkabanProjName}']: ", mustUpdate);
+        input = consoleInput(console, "${mustUpdate ? ' > ' : ''}New Azkaban project name ${azkProject.azkabanProjName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanProjName}']" }: ", mustUpdate);
+        while (azkProject.azkabanProjName.isEmpty() && input.isEmpty()) {
+          input = consoleInput(console, "New Azkaban project name (nonempty): ", false);
+        }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = consoleInput(console, "New Azkaban URL [enter to accept '${azkProject.azkabanUrl}']: ", false);
+        input = consoleInput(console, "New Azkaban URL ${azkProject.azkabanUrl.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUrl}']"}: ", false);
+        while (azkProject.azkabanUrl.isEmpty() && input.isEmpty()) {
+          input = consoleInput(console, "New Azkaban URL (nonempty): ", false);
+        }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = consoleInput(console, "New Azkaban user name [enter to accept '${azkProject.azkabanUserName}']: ", false);
+        input = consoleInput(console, "New Azkaban user name ${azkProject.azkabanUserName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUserName}']"}: ", false);
+        while (azkProject.azkabanUserName.isEmpty() && input.isEmpty()) {
+          input = consoleInput(console, "New Azkaban user name (nonempty): ", false);
+        }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
         }
@@ -164,7 +173,10 @@ class AzkabanHelper {
         showConfiguredHadoopZips(project);
         logger.lifecycle("(You can also enter the name of any other Gradle Zip task whose zip you want upload to Azkaban)\n");
 
-        input = consoleInput(console, " > New Azkaban Zip task [enter to accept '${azkProject.azkabanZipTask}']: ", true);
+        input = consoleInput(console, " > New Azkaban Zip task ${azkProject.azkabanZipTask.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanZipTask}']"}: ", true);
+        while (azkProject.azkabanZipTask.isEmpty() && input.isEmpty()) {
+          input = consoleInput(console, "New Azkaban Zip task (nonempty): ", false);
+        }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }

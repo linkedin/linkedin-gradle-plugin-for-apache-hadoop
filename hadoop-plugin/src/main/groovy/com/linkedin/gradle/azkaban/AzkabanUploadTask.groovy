@@ -177,7 +177,7 @@ class AzkabanUploadTask extends DefaultTask {
         throw new GradleException(jsonObj.get("error").toString());
       }
 
-      logger.lifecycle("\nZip " + archivePath.toString() + " uploaded successfully to " + httpPost.getURI() + "?project=" + azkProject.azkabanProjName);
+      logger.lifecycle("Zip " + archivePath.toString() + " uploaded successfully to " + httpPost.getURI() + "?project=" + azkProject.azkabanProjName);
     }
     finally {
       httpClient.getConnectionManager().shutdown();

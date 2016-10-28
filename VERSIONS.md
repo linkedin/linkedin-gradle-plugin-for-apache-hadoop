@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.1
+
+* LIHADOOP-24274 Checks for empty fields in .azkabanplugin.json
+
 0.11.0
 
 * LIHADOOP-24299 Add support in the Hadoop Plugin for choosing the default artifact for Hadoop CRT deployments
