@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.2
+
+* LIHADOOP-24729 Addressed improper console output for azkabanExecuteFlow task
+* Fix jline dependency override in hadoop-plugin from azkaban-client subproject
+
 0.11.1
 
 * LIHADOOP-24274 Checks for empty fields in .azkabanplugin.json
