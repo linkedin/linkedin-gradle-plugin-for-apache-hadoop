@@ -105,10 +105,11 @@ class AzkabanExecuteFlowTask extends DefaultTask {
    * @return indexSet Set of entered indices corresponding to flows
    */
   static Set<String> getFlowIndicesInput() {
-    String input = AzkabanHelper.consoleInput(System.console(), " > Enter indices of flows to be executed > ", false);
+    def console = System.console();
+    String input = AzkabanHelper.consoleInput(console, " > Enter indices of flows to be executed > ", true);
     Set<String> indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
-    while(indexSet.isEmpty()) {
-      input = AzkabanHelper.consoleInput(System.console(), " > Enter correct indices of flows to be executed > ", false);
+    while(!input.trim().length() || indexSet.isEmpty()) {
+      input = AzkabanHelper.consoleInput(console, "> Enter correct indices of flows to be executed > ", true);
       indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
     }
     return indexSet;
@@ -120,10 +121,7 @@ class AzkabanExecuteFlowTask extends DefaultTask {
    * @param flows List of flows in the Azkaban Project.
    */
   void printFlowsWithIndices(List<String> flows) {
-    logger.lifecycle("-----    -----");
-    logger.lifecycle("INDEX    FLOWS");
-    logger.lifecycle("-----    -----");
-
+    logger.lifecycle("-----    -----\nINDEX    FLOWS\n-----    -----");
     flows.eachWithIndex { String flow, index ->
       logger.lifecycle(" ${index}       ${flow}");
     }
