@@ -203,7 +203,7 @@ class Job {
    */
   void depends(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
-    List<String> targetNames = args["targetNames"];
+    List<String> targetNames = (List<String>)args["targetNames"];
     depends(clear, targetNames);
   }
 

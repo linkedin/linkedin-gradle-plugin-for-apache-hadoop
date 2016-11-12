@@ -84,6 +84,6 @@ class StartJob extends NoOpJob {
    */
   StartJob clone(StartJob cloneJob) {
     cloneJob.flowDependencyNames.addAll(flowDependencyNames);
-    return super.clone(cloneJob);
+    return ((StartJob)super.clone(cloneJob));
   }
 }

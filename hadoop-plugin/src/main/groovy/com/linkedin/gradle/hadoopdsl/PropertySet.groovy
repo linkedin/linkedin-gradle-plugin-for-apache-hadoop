@@ -66,7 +66,7 @@ class PropertySet extends BasePropertySet {
    * @return The cloned PropertySet
    */
   PropertySet clone(PropertySet clonePropertySet) {
-    return super.clone(clonePropertySet);
+    return ((PropertySet)super.clone(clonePropertySet));
   }
 
   /**

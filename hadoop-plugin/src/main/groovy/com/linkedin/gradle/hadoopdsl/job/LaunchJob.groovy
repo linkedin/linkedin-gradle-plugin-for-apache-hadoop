@@ -66,6 +66,6 @@ class LaunchJob extends NoOpJob {
    * @return The cloned job
    */
   LaunchJob clone(LaunchJob cloneJob) {
-    return super.clone(cloneJob);
+    return ((LaunchJob)super.clone(cloneJob));
   }
 }

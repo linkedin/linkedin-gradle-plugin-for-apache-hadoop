@@ -253,7 +253,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     setDefinitionSet(definitionSetName);
 
     hadoopClosures.each { Closure f ->
-      Closure g = f.clone();
+      Closure g = (Closure)f.clone();
       // The "magic" in this method is that the "this" pointer of the closure is altered to the
       // HadoopDslExtension instance, so that evaluating the closure will cause it to resolve Hadoop
       // DSL methods correctly.

@@ -187,7 +187,7 @@ class HdfsToTeradataJob extends Job {
     cloneJob.avroSchemaPath = avroSchemaPath;
     cloneJob.avroSchemaInline = avroSchemaInline;
     cloneJob.targetTable = targetTable;
-    cloneJob.hadoopProperties = new LinkedHashMap<String, String>(hadoopProperties);
-    return super.clone(cloneJob);
+    cloneJob.hadoopProperties.putAll(hadoopProperties);
+    return ((HdfsToTeradataJob)super.clone(cloneJob));
   }
 }

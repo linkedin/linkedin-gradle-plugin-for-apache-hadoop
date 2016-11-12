@@ -108,7 +108,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     Map<String, String> allProperties = super.buildProperties(parentScope);
-    if (isAvroData != null && isAvroData == true) {
+    if (isAvroData != null && isAvroData) {
       allProperties["avro.key.field"] = avroKeyField;
       allProperties["avro.value.field"] = avroValueField;
     }
@@ -156,7 +156,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
     cloneJob.isAvroData = isAvroData;
     cloneJob.avroKeyField = avroKeyField;
     cloneJob.avroValueField = avroValueField;
-    return super.clone(cloneJob);
+    return ((VoldemortBuildPushJob)super.clone(cloneJob));
   }
 
   /**

@@ -96,7 +96,7 @@ class SparkJob extends HadoopJavaProcessJob {
     cloneJob.numExecutors = numExecutors;
     cloneJob.sparkConfs.putAll(sparkConfs);
     cloneJob.yarnQueue = yarnQueue;
-    return super.clone(cloneJob);
+    return ((SparkJob)super.clone(cloneJob));
   }
 
   /**

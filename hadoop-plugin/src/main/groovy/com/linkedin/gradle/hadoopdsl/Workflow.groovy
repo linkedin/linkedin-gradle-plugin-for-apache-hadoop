@@ -245,7 +245,7 @@ class Workflow extends BaseNamedScopeContainer {
   Workflow clone(Workflow workflow) {
     workflow.launchDependencies.addAll(launchDependencies);
     workflow.parentDependencies.addAll(parentDependencies);
-    return super.clone(workflow);
+    return ((Workflow)super.clone(workflow));
   }
 
   /**
@@ -328,7 +328,7 @@ class Workflow extends BaseNamedScopeContainer {
    */
   void flowDepends(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
-    List<String> targetNames = args["targetNames"];
+    List<String> targetNames = (List<String>)args["targetNames"];
     flowDepends(clear, targetNames);
   }
 
@@ -371,7 +371,7 @@ class Workflow extends BaseNamedScopeContainer {
    */
   void targets(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
-    List<String> targetNames = args["targetNames"];
+    List<String> targetNames = (List<String>)args["targetNames"];
     targets(clear, targetNames);
   }
 

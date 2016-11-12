@@ -69,7 +69,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.namespaces = new ArrayList<Namespace>();
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
-    this.workflows = new ArrayList<Job>();
+    this.workflows = new ArrayList<Workflow>();
   }
 
   /**
@@ -87,7 +87,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.namespaces = new ArrayList<Namespace>();
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
-    this.workflows = new ArrayList<Job>();
+    this.workflows = new ArrayList<Workflow>();
   }
 
   /**
@@ -126,8 +126,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
 
     for (PropertySet propertySet : propertySets) {
       PropertySet clone = propertySet.clone(container.getScope());
-      workflow.propertySets.add(clone);
-      workflow.scope.bind(clone.name, clone);
+      container.propertySets.add(clone);
+      container.scope.bind(clone.name, clone);
     }
 
     for (Workflow workflow : workflows) {
@@ -146,7 +146,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned object
    */
   Job cloneJob(String name) {
-    Job job = scope.lookup(name);
+    Job job = (Job)scope.lookup(name);
     if (job == null) {
       throw new Exception("Could not find job ${name} from scope ${scope.levelName}");
     }
@@ -173,7 +173,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned object
    */
   Namespace cloneNamespace(String name) {
-    Namespace namespace = scope.lookup(name);
+    Namespace namespace = (Namespace)scope.lookup(name);
     if (namespace == null) {
       throw new Exception("Could not find namespace ${name} from scope ${scope.levelName}");
     }
@@ -201,7 +201,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned object
    */
   Properties clonePropertyFile(String name) {
-    Properties props = scope.lookup(name);
+    Properties props = (Properties)scope.lookup(name);
     if (props == null) {
       throw new Exception("Could not find propertyFile ${name} from scope ${scope.levelName}");
     }
@@ -228,7 +228,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned object
    */
   PropertySet clonePropertySet(String name) {
-    PropertySet propertySet = scope.lookup(name);
+    PropertySet propertySet = (PropertySet)scope.lookup(name);
     if (propertySet == null) {
       throw new Exception("Could not find PropertySet ${name} from scope ${scope.levelName}");
     }
@@ -255,7 +255,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The cloned object
    */
   Workflow cloneWorkflow(String name) {
-    Workflow workflow = scope.lookup(name);
+    Workflow workflow = (Workflow)scope.lookup(name);
     if (workflow == null) {
       throw new Exception("Could not find workflow ${name} from scope ${scope.levelName}");
     }
@@ -359,7 +359,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured job that was added to the workflow
    */
-  Job addJob(String name, Closure configure) {
+  Job addJob(String name, @DelegatesTo(Job) Closure configure) {
     return configureJob(cloneJob(name), configure);
   }
 
@@ -373,7 +373,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured job that was added to the workflow
    */
-  Job addJob(String name, String rename, Closure configure) {
+  Job addJob(String name, String rename, @DelegatesTo(Job) Closure configure) {
     return configureJob(cloneJob(name, rename), configure);
   }
 
@@ -385,7 +385,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured namespace that was bound in scope
    */
-  Namespace addNamespace(String name, Closure configure) {
+  Namespace addNamespace(String name, @DelegatesTo(Namespace) Closure configure) {
     return configureNamespace(cloneNamespace(name), configure);
   }
 
@@ -399,7 +399,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured namespace that was bound in scope
    */
-  Namespace addNamespace(String name, String rename, Closure configure) {
+  Namespace addNamespace(String name, String rename, @DelegatesTo(Namespace) Closure configure) {
     return configureNamespace(cloneNamespace(name, rename), configure);
   }
 
@@ -411,7 +411,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured properties object that was bound in scope
    */
-  Properties addPropertyFile(String name, Closure configure) {
+  Properties addPropertyFile(String name, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(clonePropertyFile(name), configure);
   }
 
@@ -425,7 +425,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured properties object that was bound in scope
    */
-  Properties addPropertyFile(String name, String rename, Closure configure) {
+  Properties addPropertyFile(String name, String rename, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(clonePropertyFile(name, rename), configure);
   }
 
@@ -437,7 +437,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured PropertySet that was bound in scope
    */
-  Properties addPropertySet(String name, Closure configure) {
+  PropertySet addPropertySet(String name, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(clonePropertySet(name), configure);
   }
 
@@ -451,7 +451,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured PropertySet that was bound in scope
    */
-  Properties addPropertySet(String name, String rename, Closure configure) {
+  PropertySet addPropertySet(String name, String rename, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(clonePropertySet(name, rename), configure);
   }
 
@@ -463,7 +463,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured workflow that was bound in scope
    */
-  Workflow addWorkflow(String name, Closure configure) {
+  Workflow addWorkflow(String name, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(cloneWorkflow(name), configure);
   }
 
@@ -477,7 +477,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured workflow that was bound in scope
    */
-  Workflow addWorkflow(String name, String rename, Closure configure) {
+  Workflow addWorkflow(String name, String rename, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(cloneWorkflow(name, rename), configure);
   }
 
@@ -592,7 +592,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The namespace
    */
-  Namespace namespace(String name, Closure configure) {
+  Namespace namespace(String name, @DelegatesTo(Namespace) Closure configure) {
     // Check if the namespace is in scope at this level
     Object boundObject = scope.thisLevel.get(name);
     if (boundObject == null) {
@@ -614,7 +614,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new properties object
    */
-  Properties propertyFile(String name, Closure configure) {
+  Properties propertyFile(String name, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(factory.makeProperties(name), configure);
   }
 
@@ -626,7 +626,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new PropertySet object
    */
-  PropertySet propertySet(String name, Closure configure) {
+  PropertySet propertySet(String name, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(factory.makePropertySet(name, scope), configure);
   }
 
@@ -637,7 +637,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new workflow
    */
-  Workflow workflow(String name, Closure configure) {
+  Workflow workflow(String name, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(factory.makeWorkflow(name, project, scope), configure);
   }
 
@@ -648,7 +648,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  Job job(String name, Closure configure) {
+  Job job(String name, @DelegatesTo(Job) Closure configure) {
     return configureJob(factory.makeJob(name), configure);
   }
 
@@ -659,8 +659,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  CommandJob commandJob(String name, Closure configure) {
-    return configureJob(factory.makeCommandJob(name), configure);
+  CommandJob commandJob(String name, @DelegatesTo(CommandJob) Closure configure) {
+    return ((CommandJob)configureJob(factory.makeCommandJob(name), configure));
   }
 
   /**
@@ -671,8 +671,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  HadoopJavaJob hadoopJavaJob(String name, Closure configure) {
-    return configureJob(factory.makeHadoopJavaJob(name), configure);
+  HadoopJavaJob hadoopJavaJob(String name, @DelegatesTo(HadoopJavaJob) Closure configure) {
+    return ((HadoopJavaJob)configureJob(factory.makeHadoopJavaJob(name), configure));
   }
 
   /**
@@ -683,8 +683,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure.
    * @return The new job
    */
-  HadoopShellJob hadoopShellJob(String name, Closure configure) {
-    return configureJob(factory.makeHadoopShellJob(name), configure);
+  HadoopShellJob hadoopShellJob(String name, @DelegatesTo(HadoopShellJob) Closure configure) {
+    return ((HadoopShellJob)configureJob(factory.makeHadoopShellJob(name), configure));
   }
 
   /**
@@ -694,8 +694,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  HiveJob hiveJob(String name, Closure configure) {
-    return configureJob(factory.makeHiveJob(name), configure);
+  HiveJob hiveJob(String name, @DelegatesTo(HiveJob) Closure configure) {
+    return ((HiveJob)configureJob(factory.makeHiveJob(name), configure));
   }
 
   /**
@@ -708,9 +708,9 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The new job
    */
   @Deprecated
-  JavaJob javaJob(String name, Closure configure) {
+  JavaJob javaJob(String name, @DelegatesTo(JavaJob) Closure configure) {
     project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
-    return configureJob(factory.makeJavaJob(name), configure);
+    return ((JavaJob)configureJob(factory.makeJavaJob(name), configure));
   }
 
   /**
@@ -721,8 +721,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  JavaProcessJob javaProcessJob(String name, Closure configure) {
-    return configureJob(factory.makeJavaProcessJob(name), configure);
+  JavaProcessJob javaProcessJob(String name, @DelegatesTo(JavaProcessJob) Closure configure) {
+    return ((JavaProcessJob)configureJob(factory.makeJavaProcessJob(name), configure));
   }
 
   /**
@@ -733,8 +733,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  KafkaPushJob kafkaPushJob(String name, Closure configure) {
-    return configureJob(factory.makeKafkaPushJob(name), configure);
+  KafkaPushJob kafkaPushJob(String name, @DelegatesTo(KafkaPushJob) Closure configure) {
+    return ((KafkaPushJob)configureJob(factory.makeKafkaPushJob(name), configure));
   }
 
   /**
@@ -744,8 +744,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  NoOpJob noOpJob(String name, Closure configure) {
-    return configureJob(factory.makeNoOpJob(name), configure);
+  NoOpJob noOpJob(String name, @DelegatesTo(NoOpJob) Closure configure) {
+    return ((NoOpJob)configureJob(factory.makeNoOpJob(name), configure));
   }
 
   /**
@@ -755,18 +755,19 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  PigJob pigJob(String name, Closure configure) {
-    return configureJob(factory.makePigJob(name), configure);
+  PigJob pigJob(String name, @DelegatesTo(PigJob) Closure configure) {
+    return ((PigJob)configureJob(factory.makePigJob(name), configure));
   }
 
   /**
-   * DSL sparkJob method. Creates a sparkJob in scope with the given name and configuration.
+   * DSL sparkJob method. Creates a SparkJob in scope with the given name and configuration.
+   *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  SparkJob sparkJob(String name, Closure configure) {
-    return configureJob(factory.makeSparkJob(name), configure);
+  SparkJob sparkJob(String name, @DelegatesTo(SparkJob) Closure configure) {
+    return ((SparkJob)configureJob(factory.makeSparkJob(name), configure));
   }
 
   /**
@@ -777,68 +778,65 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure) {
-    return configureJob(factory.makeVoldemortBuildPushJob(name), configure);
+  VoldemortBuildPushJob voldemortBuildPushJob(String name, @DelegatesTo(VoldemortBuildPushJob) Closure configure) {
+    return ((VoldemortBuildPushJob)configureJob(factory.makeVoldemortBuildPushJob(name), configure));
   }
 
   /**
-   * DSL hdfsToTeradataJob method. Creates a HdfsToTeradataJob in scope with the given name
-   * and configuration.
+   * DSL hdfsToTeradataJob method. Creates a HdfsToTeradataJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  HdfsToTeradataJob hdfsToTeradataJob(String name, Closure configure) {
-    return configureJob(factory.makeHdfsToTeradataJob(name), configure);
+  HdfsToTeradataJob hdfsToTeradataJob(String name, @DelegatesTo(HdfsToTeradataJob) Closure configure) {
+    return ((HdfsToTeradataJob)configureJob(factory.makeHdfsToTeradataJob(name), configure));
   }
 
   /**
-   * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name
-   * and configuration.
+   * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  TeradataToHdfsJob teradataToHdfsJob(String name, Closure configure) {
-    return configureJob(factory.makeTeradataToHdfsJob(name), configure);
+  TeradataToHdfsJob teradataToHdfsJob(String name, @DelegatesTo(TeradataToHdfsJob) Closure configure) {
+    return ((TeradataToHdfsJob)configureJob(factory.makeTeradataToHdfsJob(name), configure));
   }
 
   /**
-   * DSL hdfsToEspressoJob method. Creates a HdfsToEspressoJob in scope with the given name
-   * and configuration.
+   * DSL hdfsToEspressoJob method. Creates a HdfsToEspressoJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  HdfsToEspressoJob hdfsToEspressoJob(String name, Closure configure) {
-    return configureJob(factory.makeHdfsToEspressoJob(name), configure);
+  HdfsToEspressoJob hdfsToEspressoJob(String name, @DelegatesTo(HdfsToEspressoJob) Closure configure) {
+    return ((HdfsToEspressoJob)configureJob(factory.makeHdfsToEspressoJob(name), configure));
   }
 
-
   /**
-   * DSL gobblinJob method. Creates a GobblinJob in scope with the given name
-   * and configuration.
+   * DSL gobblinJob method. Creates a GobblinJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  GobblinJob gobblinJob(String name, Closure configure) {
-    return configureJob(factory.makeGobblinJob(name), configure);
+  GobblinJob gobblinJob(String name, @DelegatesTo(GobblinJob) Closure configure) {
+    return ((GobblinJob)configureJob(factory.makeGobblinJob(name), configure));
   }
 
   /**
-   * DSL sqlJob method. Creates a SqlJob in scope with the given name
-   * and configuration.
+   * DSL sqlJob method. Creates a SqlJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  SqlJob sqlJob(String name, Closure configure) {
-    return configureJob(factory.makeSqlJob(name), configure);
+  SqlJob sqlJob(String name, @DelegatesTo(SqlJob) Closure configure) {
+    return ((SqlJob)configureJob(factory.makeSqlJob(name), configure));
   }
 }

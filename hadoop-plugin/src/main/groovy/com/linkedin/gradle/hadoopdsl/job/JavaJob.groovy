@@ -77,7 +77,7 @@ class JavaJob extends HadoopJavaProcessJob {
    */
   JavaJob clone(JavaJob cloneJob) {
     cloneJob.jobClass = jobClass;
-    return super.clone(cloneJob);
+    return ((JavaJob)super.clone(cloneJob));
   }
 
   /**

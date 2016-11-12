@@ -166,7 +166,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
     cloneJob.cacheFiles.putAll(cacheFiles);
     cloneJob.confProperties.putAll(confProperties);
     cloneJob.queueName = queueName;
-    return super.clone(cloneJob);
+    return ((HadoopJavaProcessJob)super.clone(cloneJob));
   }
 
   /**

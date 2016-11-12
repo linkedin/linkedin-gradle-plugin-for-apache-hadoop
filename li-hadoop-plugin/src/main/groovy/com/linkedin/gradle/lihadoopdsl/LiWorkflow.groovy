@@ -15,13 +15,11 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
-
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Workflow
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
-
 
 /**
  * LinkedIn-specific customizations to Workflow that allow for additional LinkedIn-specific job
@@ -65,7 +63,7 @@ class LiWorkflow extends Workflow {
    * @return The cloned workflow
    */
   LiWorkflow clone(LiWorkflow workflow) {
-    return super.clone(workflow);
+    return ((LiWorkflow)super.clone(workflow));
   }
 
   /**
@@ -77,17 +75,18 @@ class LiWorkflow extends Workflow {
    * @return The new job
    */
   PigLiJob pigLiJob(String name, Closure configure) {
-    return configureJob(((LiHadoopDslFactory)factory).makePigLiJob(name), configure);
+    return ((PigLiJob)configureJob(((LiHadoopDslFactory)factory).makePigLiJob(name), configure));
   }
 
   /**
-   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in workflow scope with the
-   * given name and configuration
+   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in workflow scope with the given name
+   * and configuration.
+   *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
   LiPigBangBangJob liPigBangBangJob(String name, Closure configure) {
-    return configureJob(((LiHadoopDslFactory) factory).makeLiPigBangBangJob(name), configure);
+    return ((LiPigBangBangJob)configureJob(((LiHadoopDslFactory) factory).makeLiPigBangBangJob(name), configure));
   }
 }

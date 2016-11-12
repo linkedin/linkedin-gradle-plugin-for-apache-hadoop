@@ -17,7 +17,6 @@ package com.linkedin.gradle.hadoopdsl.job;
 
 /**
  * Job class for type=hdfsToEspressoJob jobs.
- *
  * <p>
  * These are documented internally at LinkedIn at https://iwww.corp.linkedin.com/wiki/cf/pages/viewpage.action?pageId=145670487
  * This is the job type to move data from HDFS to Espresso
@@ -136,6 +135,6 @@ class HdfsToEspressoJob extends Job {
     cloneJob.espressoSubkeys = espressoSubkeys;
     cloneJob.espressoOperation = espressoOperation;
     cloneJob.errorHdfsPath = errorHdfsPath;
-    return super.clone(cloneJob);
+    return ((HdfsToEspressoJob)super.clone(cloneJob));
   }
 }
