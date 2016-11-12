@@ -39,7 +39,7 @@ package com.linkedin.gradle.hadoopdsl.job;
  * </pre>
  */
 class KafkaPushJob extends HadoopJavaJob {
-    // Required
+  // Required
   String inputPath;
   String topic;
   String nameNode;
@@ -85,7 +85,7 @@ class KafkaPushJob extends HadoopJavaJob {
     cloneJob.nameNode = nameNode;
     cloneJob.schemaRegistryUrl = schemaRegistryUrl;
     cloneJob.disableAuditing = disableAuditing
-    return super.clone(cloneJob);
+    return ((KafkaPushJob)super.clone(cloneJob));
   }
 
   /**

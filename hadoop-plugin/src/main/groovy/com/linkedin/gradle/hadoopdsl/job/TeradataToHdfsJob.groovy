@@ -21,19 +21,19 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  * Job class for type=teradataToHdfsJob jobs.
  * <p>
  * According to the Azkaban documentation at http://azkaban.github.io/azkaban/docs/latest/#job-types,
- * this is the job type to move data from HDFS to Teradata
+ * this is the job type to move data from HDFS to Teradata.
  * <p>
  * In the DSL, a TeradataToHdfsJob can be specified with:
  * <pre>
  *   teradataToHdfsJob('jobName') {
- *     hostName 'dw.foo.com'  // Required
- *     userId 'scott' //Required
- *     credentialName 'com.linkedin.teradata.scott' //*Required
- *     encryptedCredential '' //Required
- *     cryptoKeyFilePath '/hdfs/file/path' //Required
- *     sourceTable 'person' //Either sourceTable or sourceQuery is required
- *     sourceQuery 'select * from person;' //Either sourceTable or sourceQuery is required
- *     targetHdfsPath '/job/data/test/output' //Required
+ *     hostName 'dw.foo.com'                        // Required
+ *     userId 'scott'                               // Required
+ *     credentialName 'com.linkedin.teradata.scott' // Required
+ *     encryptedCredential ''                       // Required
+ *     cryptoKeyFilePath '/hdfs/file/path'          // Required
+ *     sourceTable 'person'                         // Either sourceTable or sourceQuery is required
+ *     sourceQuery 'select * from person;'          // Either sourceTable or sourceQuery is required
+ *     targetHdfsPath '/job/data/test/output'       // Required
  *     avroSchemaPath '/job/data/src/avro.avsc'
  *     avroSchemaInline '{"type":"record","namespace":"com.example","name":"FullName","fields":[{"name":"first","type":"string"},{"name":"last","type":"string"}]}'
  *     set hadoopProperties: [
@@ -167,7 +167,7 @@ class TeradataToHdfsJob extends Job {
     cloneJob.targetHdfsPath = targetHdfsPath;
     cloneJob.avroSchemaPath = avroSchemaPath;
     cloneJob.avroSchemaInline = avroSchemaInline;
-    cloneJob.hadoopProperties = new LinkedHashMap<String, String>(hadoopProperties);
-    return super.clone(cloneJob);
+    cloneJob.hadoopProperties.putAll(hadoopProperties);
+    return ((TeradataToHdfsJob)super.clone(cloneJob));
   }
 }

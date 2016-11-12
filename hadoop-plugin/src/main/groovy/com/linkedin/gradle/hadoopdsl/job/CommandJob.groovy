@@ -88,7 +88,7 @@ class CommandJob extends Job {
   CommandJob clone(CommandJob cloneJob) {
     cloneJob.command = command;
     cloneJob.commands = commands;
-    return super.clone(cloneJob);
+    return ((CommandJob)super.clone(cloneJob));
   }
 
   /**

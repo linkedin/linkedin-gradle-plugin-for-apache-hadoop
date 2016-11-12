@@ -86,7 +86,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // WARN if a workflow declares flow dependency targets, but is not a subflow
-    if (!workflow.parentDependencies.isEmpty() && subflow == false) {
+    if (!workflow.parentDependencies.isEmpty() && !subflow) {
       project.logger.lifecycle("WorkflowJobChecker WARNING: Workflow ${workflow.name} declares the flow dependency targets ${workflow.parentDependencies}, but is not itself a subflow. The flow dependencies will be ignored.");
     }
 
@@ -111,7 +111,7 @@ class WorkflowJobChecker extends BaseStaticChecker {
     }
 
     // The workflow must have passed the previous static checks before calling buildWorkflowTargets
-    if (workflowError == false) {
+    if (!workflowError) {
 
       // Identify the job and subflow targets that will be built
       workflow.buildWorkflowTargets(subflow);

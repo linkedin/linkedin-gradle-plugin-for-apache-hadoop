@@ -93,7 +93,7 @@ abstract class BasePropertySet {
    */
   void set(Map args) {
     if (args.containsKey("confProperties")) {
-      Map<String, String> confProperties = args.confProperties;
+      Map<String, Object> confProperties = args.confProperties;
       confProperties.each { String name, Object value ->
         setConfProperty(name, value);
       }
@@ -105,13 +105,13 @@ abstract class BasePropertySet {
       }
     }
     if (args.containsKey("jvmProperties")) {
-      Map<String, String> jvmProperties = args.jvmProperties;
+      Map<String, Object> jvmProperties = args.jvmProperties;
       jvmProperties.each { String name, Object value ->
         setJvmProperty(name, value);
       }
     }
     if (args.containsKey("properties")) {
-      Map<String, String> properties = args.properties;
+      Map<String, Object> properties = args.properties;
       properties.each { String name, Object value ->
         setJobProperty(name, value);
       }

@@ -54,7 +54,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured job that was added to the workflow
    */
-  Job addJob(String name, Closure configure);
+  Job addJob(String name, @DelegatesTo(Job) Closure configure);
 
   /**
    * DSL addJob method. Looks up the job with given name, clones it, renames the clone to the
@@ -66,7 +66,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured job that was added to the workflow
    */
-  Job addJob(String name, String rename, Closure configure);
+  Job addJob(String name, String rename, @DelegatesTo(Job) Closure configure);
 
   /**
    * DSL addPropertyFile method. Looks up the properties with given name, clones it, configures the
@@ -76,7 +76,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured properties object that was bound in scope
    */
-  Properties addPropertyFile(String name, Closure configure);
+  Properties addPropertyFile(String name, @DelegatesTo(Properties) Closure configure);
 
   /**
    * DSL addPropertyFile method. Looks up the properties with given name, clones it, renames the
@@ -88,7 +88,29 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured properties object that was bound in scope
    */
-  Properties addPropertyFile(String name, String rename, Closure configure);
+  Properties addPropertyFile(String name, String rename, @DelegatesTo(Properties) Closure configure);
+
+  /**
+   * DSL addPropertySet method. Looks up the PropertySet with given name, clones it, configures the
+   * clone with the given configuration closure and binds the clone in scope.
+   *
+   * @param name The PropertySet name to lookup
+   * @param configure The configuration closure
+   * @return The cloned and configured PropertySet that was bound in scope
+   */
+  PropertySet addPropertySet(String name, @DelegatesTo(PropertySet) Closure configure);
+
+  /**
+   * DSL addPropertySet method. Looks up the PropertySet with given name, clones it, renames the
+   * clone to the specified name, configures the clone with the given configuration closure and
+   * binds the clone in scope.
+   *
+   * @param name The PropertySet name to lookup
+   * @param rename The new name to give the cloned PropertySet
+   * @param configure The configuration closure
+   * @return The cloned, renamed and configured PropertySet that was bound in scope
+   */
+  PropertySet addPropertySet(String name, String rename, @DelegatesTo(PropertySet) Closure configure);
 
   /**
    * DSL addWorkflow method. Looks up the workflow with given name, clones it, configures the clone
@@ -98,7 +120,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured workflow that was bound in scope
    */
-  Workflow addWorkflow(String name, Closure configure);
+  Workflow addWorkflow(String name, @DelegatesTo(Workflow) Closure configure);
 
   /**
    * DSL addWorkflow method. Looks up the workflow with given name, clones it, renames the clone to
@@ -110,7 +132,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured workflow that was bound in scope
    */
-  Workflow addWorkflow(String name, String rename, Closure configure);
+  Workflow addWorkflow(String name, String rename, @DelegatesTo(Workflow) Closure configure);
 
   /**
    * DSL evalHadoopClosure method. Evaluates the specified hadoopClosure against the specified
@@ -181,7 +203,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new properties object
    */
-  Properties propertyFile(String name, Closure configure);
+  Properties propertyFile(String name, @DelegatesTo(Properties) Closure configure);
 
   /**
    * DSL workflow method. Creates a Workflow in scope with the given name and configuration.
@@ -190,7 +212,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new workflow
    */
-  Workflow workflow(String name, Closure configure);
+  Workflow workflow(String name, @DelegatesTo(Workflow) Closure configure);
 
   /**
    * DSL job method. Creates an Job in scope with the given name and configuration.
@@ -199,7 +221,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  Job job(String name, Closure configure);
+  Job job(String name, @DelegatesTo(Job) Closure configure);
 
   /**
    * DSL commandJob method. Creates a CommandJob in scope with the given name and configuration.
@@ -208,7 +230,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  CommandJob commandJob(String name, Closure configure);
+  CommandJob commandJob(String name, @DelegatesTo(CommandJob) Closure configure);
 
   /**
    * DSL hadoopJavaJob method. Creates a HadoopJavaJob in scope with the given name and
@@ -218,7 +240,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  HadoopJavaJob hadoopJavaJob(String name, Closure configure);
+  HadoopJavaJob hadoopJavaJob(String name, @DelegatesTo(HadoopJavaJob) Closure configure);
 
   /**
    * DSL hadoopShellJob method. Creates a HadoopShellJob in scope with the given name and
@@ -228,7 +250,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure.
    * @return The new job
    */
-  HadoopShellJob hadoopShellJob(String name, Closure configure);
+  HadoopShellJob hadoopShellJob(String name, @DelegatesTo(HadoopShellJob) Closure configure);
 
   /**
    * DSL hiveJob method. Creates a HiveJob in scope with the given name and configuration.
@@ -237,7 +259,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  HiveJob hiveJob(String name, Closure configure);
+  HiveJob hiveJob(String name, @DelegatesTo(HiveJob) Closure configure);
 
   /**
    * @deprecated JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob.
@@ -249,7 +271,7 @@ interface NamedScopeContainer {
    * @return The new job
    */
   @Deprecated
-  JavaJob javaJob(String name, Closure configure);
+  JavaJob javaJob(String name, @DelegatesTo(JavaJob) Closure configure);
 
   /**
    * DSL javaProcessJob method. Creates a JavaProcessJob in scope with the given name and
@@ -259,7 +281,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  JavaProcessJob javaProcessJob(String name, Closure configure);
+  JavaProcessJob javaProcessJob(String name, @DelegatesTo(JavaProcessJob) Closure configure);
 
   /**
    * DSL kafkaPushJob method. Creates a KafkaPushJob in scope with the given name and
@@ -269,7 +291,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  KafkaPushJob kafkaPushJob(String name, Closure configure);
+  KafkaPushJob kafkaPushJob(String name, @DelegatesTo(KafkaPushJob) Closure configure);
 
   /**
    * DSL noOpJob method. Creates a NoOpJob in scope with the given name and configuration.
@@ -278,7 +300,7 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  NoOpJob noOpJob(String name, Closure configure);
+  NoOpJob noOpJob(String name, @DelegatesTo(NoOpJob) Closure configure);
 
   /**
    * DSL pigJob method. Creates a PigJob in scope with the given name and configuration.
@@ -287,16 +309,16 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  PigJob pigJob(String name, Closure configure);
+  PigJob pigJob(String name, @DelegatesTo(PigJob) Closure configure);
 
   /**
-   * DSL sparkJob method. Creates a sparkJob in scope with the given name and configuration.
+   * DSL sparkJob method. Creates a SparkJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  SparkJob sparkJob(String name, Closure configure);
+  SparkJob sparkJob(String name, @DelegatesTo(SparkJob) Closure configure);
 
   /**
    * DSL voldemortBuildPushJob method. Creates a VoldemortBuildPushJob in scope with the given name
@@ -306,55 +328,53 @@ interface NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  VoldemortBuildPushJob voldemortBuildPushJob(String name, Closure configure);
+  VoldemortBuildPushJob voldemortBuildPushJob(String name, @DelegatesTo(VoldemortBuildPushJob) Closure configure);
 
   /**
-   * DSL hdfsToTeradataJob method. Creates a HdfsToTeradataJob in scope with the given name
-   * and configuration.
+   * DSL hdfsToTeradataJob method. Creates a HdfsToTeradataJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  HdfsToTeradataJob hdfsToTeradataJob(String name, Closure configure);
+  HdfsToTeradataJob hdfsToTeradataJob(String name, @DelegatesTo(HdfsToTeradataJob) Closure configure);
 
   /**
-   * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name
-   * and configuration.
+   * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  TeradataToHdfsJob teradataToHdfsJob(String name, Closure configure);
+  TeradataToHdfsJob teradataToHdfsJob(String name, @DelegatesTo(TeradataToHdfsJob) Closure configure);
 
   /**
-   * DSL hdfsToEspresso method. Creates a HdfsToEspressoJob in scope with the given name
-   * and configuration.
+   * DSL hdfsToEspresso method. Creates a HdfsToEspressoJob in scope with the given name and
+   * configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  HdfsToEspressoJob hdfsToEspressoJob(String name, Closure configure);
+  HdfsToEspressoJob hdfsToEspressoJob(String name, @DelegatesTo(HdfsToEspressoJob) Closure configure);
 
   /**
-   * DSL gobblinJob method. Creates a GobblinJob in scope with the given name
-   * and configuration.
+   * DSL gobblinJob method. Creates a GobblinJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  GobblinJob gobblinJob(String name, Closure configure);
+  GobblinJob gobblinJob(String name, @DelegatesTo(GobblinJob) Closure configure);
 
   /**
-   * DSL sqlJob method. Creates a SqlJob in scope with the given name
-   * and configuration.
+   * DSL sqlJob method. Creates a SqlJob in scope with the given name and configuration.
    *
    * @param name The job name
    * @param configure The configuration closure
    * @return The new job
    */
-  SqlJob sqlJob(String name, Closure configure);
+  SqlJob sqlJob(String name, @DelegatesTo(SqlJob) Closure configure);
 }

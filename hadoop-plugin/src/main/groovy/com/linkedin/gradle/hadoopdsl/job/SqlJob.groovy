@@ -17,7 +17,6 @@ package com.linkedin.gradle.hadoopdsl.job;
 
 /**
  * Job class for type=sql jobs.
- *
  * <p>
  * These are currently internal job type at LinkedIn.
  * This is the job type to execute one or more SQL statements.
@@ -92,12 +91,12 @@ class SqlJob extends Job {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  HdfsToEspressoJob clone(HdfsToEspressoJob cloneJob) {
+  SqlJob clone(SqlJob cloneJob) {
     cloneJob.jdbcDriverClass = jdbcDriverClass;
     cloneJob.jdbcUrl = jdbcUrl;
     cloneJob.jdbcUserId = jdbcUserId;
     cloneJob.jdbcEncryptedCredential = jdbcEncryptedCredential;
     cloneJob.jdbcCryptoKeyPath = jdbcCryptoKeyPath;
-    return super.clone(cloneJob);
+    return ((SqlJob)super.clone(cloneJob));
   }
 }

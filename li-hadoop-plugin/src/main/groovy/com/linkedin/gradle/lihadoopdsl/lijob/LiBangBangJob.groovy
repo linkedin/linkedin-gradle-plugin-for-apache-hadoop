@@ -13,36 +13,37 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.lihadoopdsl.lijob;
 
 /**
- * All the bangbang supported jobtypes must implement this interface
+ * All the bangbang supported job types must implement this interface
  **/
-
 interface LiBangBangJob {
-
   /**
-   * Specify the gradle coordinates of the compiler to user for running the script
-   * @param dependency The gradle coordinates of the compiler to use
-   */
-  void runsOn(String dependency);
-
-  /**
-   * Specify whether to overwrite the generated gradle file or not.
-   * @param overWrite if true then generated file will be overwritten else not
-   */
-  void overwrite(boolean overWrite);
-
-  /**
-   * Returns the dependency of compiler which was set using runsOn
-   * @return the dependency of compiler set using runsOn
+   * Returns the dependency of compiler which was set using runsOn.
+   *
+   * @return The dependency of compiler set using runsOn
    */
   String getDependency();
 
   /**
-   * Returns true if the generated script should be overwritten else returns false
-   * @return true if the generated script should be overwritten else returns false
+   * Whether or not the generated script should be overwritten.
+   *
+   * @return Whether or not the generated script should be overwritten
    */
   boolean isOverwritten();
+
+  /**
+   * Specify whether to overwrite the generated Gradle file or not.
+   *
+   * @param overWrite Whether the generated file will be overwritten or not
+   */
+  void overwrite(boolean overWrite);
+
+  /**
+   * Specify the Gradle coordinates of the compiler to user for running the script.
+   *
+   * @param dependency The Gradle coordinates of the compiler to use
+   */
+  void runsOn(String dependency);
 }

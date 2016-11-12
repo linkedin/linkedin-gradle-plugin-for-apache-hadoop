@@ -1,0 +1,16 @@
+/**
+ * Groovy DSL script that provides syntax completion hints for Intellij IDEA.
+ */
+def globalContext = context(filetypes: ["gradle", "hadoopdsl"])
+
+contributor(globalContext) {
+  method name: "hadoop", params: [closure: "groovy.lang.Closure"], type: "void"
+}
+
+def closureContext = context(filetypes: ["gradle", "hadoopdsl"], scope: closureScope(isArg: true))
+
+contributor(closureContext, {
+  if (enclosingCall("hadoop")) {
+    delegatesTo(findClass("com.linkedin.gradle.hadoopdsl.HadoopDslExtension"))
+  }
+})

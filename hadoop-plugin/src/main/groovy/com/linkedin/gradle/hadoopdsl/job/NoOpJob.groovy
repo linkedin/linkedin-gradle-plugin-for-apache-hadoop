@@ -53,6 +53,6 @@ class NoOpJob extends Job {
    * @return The cloned job
    */
   NoOpJob clone(NoOpJob cloneJob) {
-    return super.clone(cloneJob);
+    return ((NoOpJob)super.clone(cloneJob));
   }
 }

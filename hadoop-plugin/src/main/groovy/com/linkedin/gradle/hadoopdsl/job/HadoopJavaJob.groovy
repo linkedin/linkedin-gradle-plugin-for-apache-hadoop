@@ -79,7 +79,7 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
     cloneJob.jobClass = jobClass;
     cloneJob.mapClass = mapClass;
     cloneJob.reduceClass = reduceClass;
-    return super.clone(cloneJob);
+    return ((HadoopJavaJob)super.clone(cloneJob));
   }
 
   /**

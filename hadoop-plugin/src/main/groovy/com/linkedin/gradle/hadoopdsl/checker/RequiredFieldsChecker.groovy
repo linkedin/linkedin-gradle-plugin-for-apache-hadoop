@@ -152,25 +152,24 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(SparkJob job) {
-
     // executes is a required field for both java and python applications. For java, this is the jar file. For python, this is the py file.
     // uses is a conditional field. It's required for java applications and should NOT be used for python applications.
 
-    if(job.executionTarget == null || job.executionTarget.isEmpty()) {
+    if (job.executionTarget == null || job.executionTarget.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set executes");
       foundError = true;
       return;
     }
 
-    if(job.executionTarget.toLowerCase().endsWith(".jar")) {
-      if(job.appClass == null || job.appClass.isEmpty()) {
+    if (job.executionTarget.toLowerCase().endsWith(".jar")) {
+      if (job.appClass == null || job.appClass.isEmpty()) {
         project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must set uses for Java application")
         foundError = true
       }
     }
 
-    if(job.executionTarget.toLowerCase().endsWith(".py")) {
-      if(job.appClass != null) {
+    if (job.executionTarget.toLowerCase().endsWith(".py")) {
+      if (job.appClass != null) {
         project.logger.lifecycle("RequiredFieldsChecker ERROR: SparkJob ${job.name} must not set uses for Python application")
         foundError = true
       }
@@ -195,13 +194,13 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     boolean emptyAvroKeyFd = job.avroKeyField == null || job.avroKeyField.isEmpty();
     boolean emptyAvroValFd = job.avroValueField == null || job.avroValueField.isEmpty();
 
-    if (job.isAvroData == true && (emptyAvroKeyFd || emptyAvroValFd)) {
+    if (job.isAvroData && (emptyAvroKeyFd || emptyAvroValFd)) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: VoldemortBuildPushJob ${job.name} must set both avroKeyField and avroValueField when isAvroData is set to true");
       foundError = true;
     }
 
     // Print a warning if avroKeyField or avroValueField is set but isAvroData is false
-    if (job.isAvroData == false && (!emptyAvroKeyFd || !emptyAvroValFd)) {
+    if (!job.isAvroData && (!emptyAvroKeyFd || !emptyAvroValFd)) {
       project.logger.lifecycle("RequiredFieldsChecker WARNING: VoldemortBuildPushJob ${job.name} will not use avroKeyField and avroValueField since isAvroData is set to false");
     }
   }
@@ -212,40 +211,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     foundError |= validateNotEmpty(job, "userId", job.userId);
     foundError |= validateNotEmpty(job, "targetTable", job.targetTable);
     foundError |= validateTeradataCredential(job, job.credentialName, job.encryptedCredential, job.cryptoKeyFilePath)
-
     validateSource(job);
-  }
-
-  /**
-   * Check if the job would use Hive as a source or Avro file as a source. Depends on which source it would use, check required fields accordingly.
-   * Note that this method will update foundError local variable.
-   * @param job
-   */
-  private void validateSource(HdfsToTeradataJob job) {
-    //Check if the source is Hive
-    if (!isEmpty(job.sourceHiveDatabase) || !isEmpty(job.sourceHiveTable)) {
-      foundError |= validateNotEmpty(job, "sourceHiveDatabase", job.sourceHiveDatabase);
-      foundError |= validateNotEmpty(job, "sourceHiveTable", job.sourceHiveTable);
-      foundError |= validateTrue(job, "Avro source should have not defined, when Hive source is defined.",
-                                 isEmpty(job.sourceHdfsPath) && isEmpty(job.avroSchemaPath) && isEmpty(job.avroSchemaInline));
-      return;
-    }
-
-    //Check required fields for Avro
-    boolean isAvroSchemaExist = false;
-    isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
-    isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
-
-    if(!isAvroSchemaExist) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
-      foundError = true;
-    }
-
-    foundError = validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
-  }
-
-  private boolean isEmpty(String s) {
-    return s == null || s.isEmpty();
   }
 
   @Override
@@ -258,7 +224,8 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     boolean isSourceExist = false;
     isSourceExist ^= job.sourceTable == null || job.sourceTable.isEmpty();
     isSourceExist ^= job.sourceQuery == null || job.sourceQuery.isEmpty();
-    if(!isSourceExist) {
+
+    if (!isSourceExist) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either sourceTable or sourceQuery defined");
       foundError = true;
     }
@@ -267,7 +234,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
     isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
 
-    if(!isAvroSchemaExist) {
+    if (!isAvroSchemaExist) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
       foundError = true;
     }
@@ -295,14 +262,46 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     foundError |= validateNotEmpty(job, "jdbcCryptoKeyPath", job.jdbcCryptoKeyPath);
   }
 
-  private boolean validateTeradataCredential(Job job,
-                                             String credentialName,
-                                             String encryptedCredential,
-                                             String cryptoKeyFilePath) {
+  /**
+   * Validates the source for an HdfsToTeradataJob job. Checks the required fields based on whether
+   * the source is Hive or an Avro file.
+   *
+   * @param job The HdfsToTeradataJob job to validate
+   */
+  void validateSource(HdfsToTeradataJob job) {
+    // Check if the source is Hive
+    if (!isEmpty(job.sourceHiveDatabase) || !isEmpty(job.sourceHiveTable)) {
+      foundError |= validateNotEmpty(job, "sourceHiveDatabase", job.sourceHiveDatabase);
+      foundError |= validateNotEmpty(job, "sourceHiveTable", job.sourceHiveTable);
+      foundError |= validateTrue(job, "Avro source should have not defined, when Hive source is defined.",
+          isEmpty(job.sourceHdfsPath) && isEmpty(job.avroSchemaPath) && isEmpty(job.avroSchemaInline));
+      return;
+    }
+
+    // Check required fields for when the source is an Avro file
+    boolean isAvroSchemaExist = false;
+    isAvroSchemaExist ^= job.avroSchemaPath == null || job.avroSchemaPath.isEmpty();
+    isAvroSchemaExist ^= job.avroSchemaInline == null || job.avroSchemaInline.isEmpty();
+
+    if (!isAvroSchemaExist) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either avroSchemaPath or avroSchemaInline defined");
+      foundError = true;
+    }
+
+    foundError = validateNotEmpty(job, "sourceHdfsPath", job.sourceHdfsPath);
+  }
+
+  boolean validateTeradataCredential(
+      Job job,
+      String credentialName,
+      String encryptedCredential,
+      String cryptoKeyFilePath) {
+
     boolean isCredentialExist = false;
-    isCredentialExist ^= credentialName == null || credentialName.isEmpty() == null;
-    isCredentialExist ^= encryptedCredential == null || encryptedCredential.isEmpty() == null;
-    if(!isCredentialExist) {
+    isCredentialExist ^= credentialName == null || credentialName.isEmpty();
+    isCredentialExist ^= encryptedCredential == null || encryptedCredential.isEmpty();
+
+    if (!isCredentialExist) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: ${job.getClass().getSimpleName()} ${job.name} needs either credentialName or encryptedCredential defined");
       return true;
     }
@@ -310,6 +309,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     if (encryptedCredential != null && !encryptedCredential.isEmpty()) {
       return validateNotEmpty(job, "cryptoKeyFilePath", cryptoKeyFilePath);
     }
+    return false;
   }
 
   boolean validateNotEmpty(Job job, String name, String val) {
@@ -326,5 +326,9 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       return true;
     }
     return false;
+  }
+
+  boolean isEmpty(String s) {
+    return s == null || s.isEmpty();
   }
 }

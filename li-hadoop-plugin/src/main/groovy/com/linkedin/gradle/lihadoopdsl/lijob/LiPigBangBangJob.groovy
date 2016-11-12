@@ -13,9 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.lihadoopdsl.lijob;
-
 
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
@@ -23,7 +21,7 @@ import com.linkedin.gradle.libangbang.BangBangCommand;
 import groovy.json.internal.LazyMap;
 
 /**
- * Extend the Pig Job class with the LiPigBangBang job type.
+ * Extends the Pig Job class with the LiPigBangBang job type.
  * <p>
  * In the DSL, a LiPigBangBang can be specified with:
  * <pre>
@@ -51,60 +49,29 @@ import groovy.json.internal.LazyMap;
  *  }
  * </pre>
  */
-
 class LiPigBangBangJob extends PigJob implements LiBangBangJob {
-
   String pigDependency;
   Boolean overWrite = true;
 
+  /**
+   * Constructor for a LiPigBangBangJob.
+   *
+   * @param jobName The job name
+   */
   LiPigBangBangJob(String jobName) {
     super(jobName)
   }
 
-/**
- * Get the dependency string of the pig to run
- * @param dependency The dependency string of the pig to run
- */
-  @Override
-  void runsOn(String pigDependency) {
-    this.pigDependency = pigDependency;
-  }
-
   /**
-   * Get the dependency map of the pig to run
-   * @param pigDependency The dependency string of the pig to run
+   * Builds the job properties that go into the generated job file, except for the dependencies
+   * property, which is built by the other overload of the buildProperties method.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jobProperties correctly.
+   *
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
    */
-  void runsOn(LazyMap pigDependency) {
-    this.pigDependency = wrapValueInQuotes(pigDependency);
-  }
-
-  /**
-   * Wraps the value in quotes
-   * @param pigDependency The pig dependency map to convert
-   * @return The Map String in quoted values
-   */
-  private String wrapValueInQuotes(LazyMap pigDependency) {
-    List<String> mapArgs = new ArrayList<String>();
-      pigDependency.each {
-        key,value -> mapArgs.add("$key: '$value'");
-    }
-    return mapArgs.join(", ");
-  }
-
-  void overwrite(boolean overWrite) {
-    this.overWrite = overWrite;
-  }
-
-  @Override
-  String getDependency() {
-    return pigDependency;
-  }
-
-  @Override
-  boolean isOverwritten() {
-    return overWrite;
-  }
-
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     Map<String, String> bangbangBuildProperties = super.buildProperties(parentScope);
@@ -113,8 +80,67 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
     return bangbangBuildProperties;
   }
 
+  /**
+   * Helper function to build the bangbang command for this job.
+   *
+   * @param parentScope The parent scope in which this job is declared
+   * @return The bangbang command for this job
+   */
   String createBangBangCommand(NamedScope parentScope) {
-    return new BangBangCommand.Builder().setGradleFile("${this.buildFileName(parentScope)}.gradle").setTasks(['runShell']).
-        setGradleArguments("--quiet").build().getCommandAsString();
+    return new BangBangCommand.Builder().setGradleFile("${this.buildFileName(parentScope)}.gradle")
+        .setTasks(['runShell']).setGradleArguments("--quiet").build().getCommandAsString();
+  }
+
+  /**
+   * Returns the dependency of the compiler that was set using runsOn.
+   *
+   * @return The dependency of the compiler set using runsOn
+   */
+  @Override
+  String getDependency() {
+    return pigDependency;
+  }
+
+  /**
+   * Whether or not the generated script should be overwritten.
+   *
+   * @return Whether or not the generated script should be overwritten
+   */
+  @Override
+  boolean isOverwritten() {
+    return overWrite;
+  }
+
+  /**
+   * Specify whether to overwrite the generated Gradle file or not.
+   *
+   * @param overWrite Whether the generated file will be overwritten or not
+   */
+  @Override
+  void overwrite(boolean overWrite) {
+    this.overWrite = overWrite;
+  }
+
+  /**
+   * Specify the Gradle coordinates of the compiler to user for running the script.
+   *
+   * @param dependency The Gradle coordinates of the compiler to use
+   */
+  @Override
+  void runsOn(String dependency) {
+    this.pigDependency = dependency;
+  }
+
+  /**
+   * Specifies the dependencies to use for Pig from a map.
+   *
+   * @param dependencyMap The map to convert into the dependencies to use for Pig
+   */
+  void runsOn(LazyMap dependencyMap) {
+    List<String> mapArgs = new ArrayList<String>();
+    dependencyMap.each {
+      key,value -> mapArgs.add("$key: '$value'");
+    }
+    runsOn(mapArgs.join(", "));
   }
 }

@@ -17,17 +17,16 @@ package com.linkedin.gradle.hadoopdsl.job;
 
 /**
  * Job class for type=gobblinJob jobs.
- *
  * <p>
  * According to the Azkaban documentation at http://azkaban.github.io/azkaban/docs/latest/#job-types,
- * this is the job type that lauches Gobblin in Azkaban
+ * this is the job type that launches Gobblin in Azkaban.
  * <p>
  * In the DSL, a GobblinJob can be specified with:
  * <pre>
  *   gobblinJob('jobName') {
- *     workDir '/job/data/src'  //Optional
- *     preset 'mysqlToHdfs'     //Optional
- *     set properties: [        //Optional Add Gobblin job properties. (https://github.com/linkedin/gobblin/wiki/Working-with-Job-Configuration-Files)
+ *     workDir '/job/data/src'  // Optional
+ *     preset 'mysqlToHdfs'     // Optional
+ *     set properties: [        // Optional Add Gobblin job properties: https://github.com/linkedin/gobblin/wiki/Working-with-Job-Configuration-Files
  *       'source.querybased.schema' : 'DATABASE',
  *       'source.entity' : 'user',
  *       'source.conn.host' : 'mysql.host.com'
@@ -45,22 +44,22 @@ package com.linkedin.gradle.hadoopdsl.job;
  * </pre>
  */
 class GobblinJob extends Job {
-  String workDir;
   String preset;
+  String workDir;
 
   GobblinJob(String jobName) {
     super(jobName);
     setJobProperty("type", "gobblin");
   }
 
-  void workDir(String workDir) {
-    this.workDir = workDir;
-    setJobProperty("gobblin.work_dir", workDir);
-  }
-
   void preset(String preset) {
     this.preset = preset;
     setJobProperty("gobblin.config_preset", preset);
+  }
+
+  void workDir(String workDir) {
+    this.workDir = workDir;
+    setJobProperty("gobblin.work_dir", workDir);
   }
 
   /**
@@ -80,8 +79,8 @@ class GobblinJob extends Job {
    * @return The cloned job
    */
   GobblinJob clone(GobblinJob cloneJob) {
-    cloneJob.workDir = workDir;
     cloneJob.preset = preset;
-    return super.clone(cloneJob);
+    cloneJob.workDir = workDir;
+    return ((GobblinJob)super.clone(cloneJob));
   }
 }

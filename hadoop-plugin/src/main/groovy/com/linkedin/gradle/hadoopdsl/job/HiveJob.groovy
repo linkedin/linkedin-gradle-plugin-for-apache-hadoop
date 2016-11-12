@@ -74,7 +74,7 @@ class HiveJob extends HadoopJavaProcessJob {
   HiveJob clone(HiveJob cloneJob) {
     cloneJob.parameters.putAll(parameters);
     cloneJob.script = script;
-    return super.clone(cloneJob);
+    return ((HiveJob)super.clone(cloneJob));
   }
 
   /**

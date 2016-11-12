@@ -102,7 +102,7 @@ class JavaProcessJob extends Job {
     cloneJob.jvmProperties.putAll(jvmProperties);
     cloneJob.xms = xms;
     cloneJob.xmx = xmx;
-    return super.clone(cloneJob);
+    return ((JavaProcessJob)super.clone(cloneJob));
   }
 
   /**
