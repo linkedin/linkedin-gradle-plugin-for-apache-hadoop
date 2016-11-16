@@ -6,6 +6,7 @@ plugins {
   id 'eclipse'
   id 'groovy'
   id 'java'
+  id 'idea'
   id 'maven-publish'
 }
 
@@ -76,7 +77,6 @@ publishing {
   publications {
     oozieJaxbPublication(MavenPublication) {
       from components.java
-
       groupId rootProject.group
       artifactId project.name
       version project.version

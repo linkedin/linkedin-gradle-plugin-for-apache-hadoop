@@ -29,6 +29,20 @@ The Plugin includes the **LinkedIn Gradle DSL for Apache Hadoop** (which we shal
 the "Hadoop DSL" for brevity), a language for specifying jobs and workflows for Hadoop workflow
 schedulers like Azkaban and Apache Oozie.
 
+#### Can I Benefit from the Hadoop Plugin and Hadoop DSL?
+
+The Hadoop Plugin is only useful if you are using Gradle as your build system. If you are using
+Azkaban, you should start using the Hadoop Plugin immediately and you should start using the Hadoop
+DSL as the primary mechanism by which you develop your Azkaban workflows. Read the Hadoop Plugin
+User Guide and the Hadoop DSL Language Reference to get started today.
+
+If you are Apache Pig or Apache Spark, the Hadoop Plugin has some useful tasks for you. The Hadoop
+Plugin includes features for Apache Pig that will statically validate your Pig scripts (saving you
+time instead of finding out that there is a syntax error in your script when you try to run it). If
+you run Hadoop jobs through a gateway, the Plugin includes tasks that will automatically launch
+your Pig and Spark jobs on the gateway (instead of you needing to manually download your code and
+jars to the gateway box first).
+
 #### Hadoop Plugin User Guide
 
 The Hadoop Plugin User Guide is available at [User Guide]
@@ -49,6 +63,7 @@ a short snippet to add to your `build.gradle` file to start using the Hadoop Plu
 
 The project structure is setup as follows:
 
+  * `azkaban-client`: Code to work with Azkaban via the Azkaban REST API
   * `hadoop-plugin`: Code for the various plugins that comprise the Hadoop Plugin
   * `hadoop-plugin-test`: Test cases for the Hadoop Plugin
   * `li-hadoop-plugin`: LinkedIn-specific extensions to the Hadoop Plugin

@@ -17,6 +17,14 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.4
+
+* Minor build setup cleanups and improvements - Apply eclipse and idea plugins to all projects
+
+0.11.3
+
+* Hadoop DSL IDE Syntax Completion for IntelliJ - Minor fixes to Hadoop DSL code and initial gdsl file (#122)
+
 0.11.2
 
 * LIHADOOP-24729 Addressed improper console output for azkabanExecuteFlow task
