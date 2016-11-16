@@ -3,6 +3,7 @@ plugins {
   id 'com.jfrog.bintray' version '1.6'
   id 'eclipse'
   id 'groovy'
+  id 'idea'
   id 'maven-publish'
 }
 
@@ -30,26 +31,23 @@ sourceSets {
 dependencies {
   compile gradleApi()
   compile localGroovy()
-  compile project(":oozie-jaxb")
+
   compile project(":azkaban-client")
+  compile project(":oozie-jaxb")
 
   compile 'javax.xml.bind:jaxb-api:2.2.7'
-  compile('org.apache.hadoop:hadoop-auth:2.3.0')   { transitive = false }
+  compile 'org.antlr:antlr-runtime:3.5.2'
+  compile('org.apache.hadoop:hadoop-auth:2.3.0') { transitive = false }
   compile('org.apache.hadoop:hadoop-common:2.3.0') { transitive = false }
-  compile('org.apache.hadoop:hadoop-hdfs:2.3.0')   { transitive = false }
-  compile('org.apache.oozie:oozie-client:4.2.0')
-  compile 'org.apache.httpcomponents:httpclient:4.3.1'
-  compile 'org.apache.httpcomponents:httpmime:4.3.1'
-  compile 'org.json:json:20090211'
-  compile('org.apache.pig:pig:0.15.0') {transitive = false}
-  compile('joda-time:joda-time:2.9.3')
-  compile('jline:jline:1.0')
-  compile('org.antlr:antlr-runtime:3.5.2')
+  compile('org.apache.hadoop:hadoop-hdfs:2.3.0') { transitive = false }
+  compile 'org.apache.oozie:oozie-client:4.2.0'
+  compile('org.apache.pig:pig:0.15.0') { transitive = false }
 
   runtime 'com.googlecode.json-simple:json-simple:1.1'
   runtime 'com.sun.jersey:jersey-client:1.9'
   runtime 'com.sun.jersey:jersey-core:1.9'
   runtime 'javax.ws.rs:jsr311-api:1.1.1'
+  runtime 'jline:jline:1.0'
   runtime 'org.mortbay.jetty:jetty-util:6.1.25'
 }
 
@@ -91,7 +89,6 @@ publishing {
       from components.java
       artifact sourceJar
       artifact groovydocJar
-
       groupId rootProject.group
       artifactId project.name
       version project.version

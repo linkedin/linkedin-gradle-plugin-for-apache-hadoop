@@ -1,6 +1,7 @@
 plugins {
   id 'eclipse'
   id 'java'
+  id 'idea'
 }
 
 // The group will be overriden in LinkedIn builds
