@@ -24,7 +24,7 @@ import org.gradle.api.Project;
 /**
  * LinkedIn-specific customizations to the Hadoop DSL Plugin.
  */
-class LiHadoopDslPlugin extends HadoopDslPlugin {
+class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer {
   /**
    * Applies the LinkedIn-specific Hadoop DSL Plugin.
    *
@@ -39,8 +39,8 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
     }
 
     super.apply(project);
-    project.extensions.add("pigLiJob", this.&pigLiJob);
     project.extensions.add("liPigBangBangJob", this.&liPigBangBangJob);
+    project.extensions.add("pigLiJob", this.&pigLiJob);
   }
 
   /**
@@ -50,20 +50,8 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
    * @return The HadoopDslFactory to use
    */
   @Override
-  HadoopDslFactory makeFactory() {
+  protected HadoopDslFactory makeFactory() {
     return new LiHadoopDslFactory();
-  }
-
-  /**
-   * DSL pigLiJob method. Creates a PigLiJob in scope with the given name and configuration.
-   *
-   * @param name The job name
-   * @param configure The configuration closure
-   * @return The new job
-   */
-  PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure) {
-    LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
-    return ((PigLiJob)configureJob(liFactory.makePigLiJob(name), configure));
   }
 
   /**
@@ -76,5 +64,20 @@ class LiHadoopDslPlugin extends HadoopDslPlugin {
   LiPigBangBangJob liPigBangBangJob(String name, @DelegatesTo(LiPigBangBangJob) Closure configure) {
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return ((LiPigBangBangJob)configureJob(liFactory.makeLiPigBangBangJob(name), configure));
+  }
+
+  /**
+   * @deprecated PigLiJob now has no differences with PigJob.
+   *
+   * DSL pigLiJob method. Creates a PigLiJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @Deprecated
+  PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure) {
+    LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
+    return ((PigLiJob)configureJob(liFactory.makePigLiJob(name), configure));
   }
 }

@@ -221,7 +221,7 @@ class NamedScope {
    * @return A NamedScopeReference for the binding, or null if the name is not bound in scope
    * @throws Exception If the name is not qualified, or if the qualified portion of the name refers to an object that is not a scope container
    */
-  NamedScopeReference lookupRefQualified(String name) {
+  protected NamedScopeReference lookupRefQualified(String name) {
     if (!name.contains(".")) {
       throw new Exception("lookupRefQualified called with unqualified name ${name}, i.e. a name without a dot");
     }
@@ -252,7 +252,7 @@ class NamedScope {
    * @return A NamedScopeReference for the binding, or null if the name is not bound in scope
    * @throws Exception If the name is not qualified, or if the qualified portion of the name refers to an object that is not a scope container
    */
-  NamedScopeReference lookupRefQualifiedHelper(String name) {
+  protected NamedScopeReference lookupRefQualifiedHelper(String name) {
     // If the name is no longer qualified, look for it in this level.
     if (!name.contains(".")) {
       return thisLevel.containsKey(name) ? new NamedScopeReference(this, thisLevel.get(name), name) : null;

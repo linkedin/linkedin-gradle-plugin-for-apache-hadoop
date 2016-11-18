@@ -232,7 +232,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @return The cloned workflow
    */
   @Override
-  Workflow clone(NamedScope parentScope) {
+  protected Workflow clone(NamedScope parentScope) {
     return clone(new Workflow(name, project, parentScope));
   }
 
@@ -242,7 +242,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param workflow The workflow being cloned
    * @return The cloned workflow
    */
-  Workflow clone(Workflow workflow) {
+  protected Workflow clone(Workflow workflow) {
     workflow.launchDependencies.addAll(launchDependencies);
     workflow.parentDependencies.addAll(parentDependencies);
     return ((Workflow)super.clone(workflow));

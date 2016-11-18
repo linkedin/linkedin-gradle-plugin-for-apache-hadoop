@@ -13,11 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.liazkaban;
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
-import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.libangbang.LiHadoopShellCommand;
 import com.linkedin.gradle.libangbang.LiHadoopShellCommandFactory;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiBangBangJob;
@@ -43,7 +41,8 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
   }
 
   /**
-   * Separate visitor for the BangBang type pig job to build and write gradle file
+   * Separate visitor for the BangBang type Pig job to build and write Gradle file.
+   *
    * @param job The LiPigBangBangJob to build
    */
   void visitJobToBuild(LiPigBangBangJob job) {
@@ -52,9 +51,10 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
   }
 
   /**
-   * This file duplicates functionality from the superclass. We have to remove other
-   * properties from the job file apart from the command and type
-   * @param job The bangbang job
+   * This file duplicates functionality from the superclass. We have to remove other properties
+   * from the job file apart from the command and type.
+   *
+   * @param job The LiPigBangBangJob job to build
    */
   void writeJobFile(LiBangBangJob job) {
     Map<String, String> allProperties = job.buildProperties(this.parentScope);
@@ -70,17 +70,18 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
     azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_JOB_INNODES,"\${${LiAzkabanJavaProperties.AZKABAN_JOB_INNODES}}")
     azkabanOptions.put(LiAzkabanJavaProperties.AZKABAN_JOB_OUTNODES,"\${${LiAzkabanJavaProperties.AZKABAN_JOB_OUTNODES}}")
 
-    // create jvm string of the form -Dkey1=value1 -Dkey2=value2
+    // Create JVM string of the form -Dkey1=value1 -Dkey2=value2
     StringBuffer azkabanOpts = new StringBuffer();
-    azkabanOptions.each { key,value -> azkabanOpts.append("-D${key}=${value} "); }
-    String azkabanJvmString =  azkabanOpts.toString();
+    azkabanOptions.each { key, value -> azkabanOpts.append("-D${key}=${value} "); }
+    String azkabanJvmString = azkabanOpts.toString();
 
-    // add the azkabanjvmString to PIG_JAVA_OPTS to add them to job conf.
-    if(allProperties.hasProperty(PIG_JAVA_OPTS)) {
+    // Add the Azkaban JVM String to PIG_JAVA_OPTS to add them to job conf.
+    if (allProperties.hasProperty(PIG_JAVA_OPTS)) {
       allProperties.put(PIG_JAVA_OPTS, allProperties.get(PIG_JAVA_OPTS) + " " + azkabanJvmString);
     } else {
       allProperties.put(PIG_JAVA_OPTS, azkabanJvmString);
     }
+
     // since it is a hadoopShell job type, only some of the properties are relevant.
     String fileName = job.buildFileName(this.parentScope);
 
@@ -89,15 +90,15 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
     List<String> filteredKeys = new ArrayList<String>();
     Set<String> irrelevantProperties = ['pig.script','pig.home',/param.*/,'use.user.pig.jar',/hadoop-inject.*/];
 
-    for(String key: sortedKeys) {
+    for (String key: sortedKeys) {
       boolean isRelevant = true;
-      for(String property: irrelevantProperties) {
-        if(key.matches(property)) {
+      for (String property: irrelevantProperties) {
+        if (key.matches(property)) {
           isRelevant = false;
           break;
         }
       }
-      if(isRelevant) {
+      if (isRelevant) {
         filteredKeys.add(key);
       }
     }
@@ -105,16 +106,18 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
     file.withWriter { out ->
       out.writeLine("# This file generated from the Hadoop DSL. Do not edit by hand.");
       filteredKeys.each { key ->
-          out.writeLine("${key}=${allProperties.get(key)}");
+        out.writeLine("${key}=${allProperties.get(key)}");
       }
     }
+
     // Set to read-only to remind people that they should not be editing the job files.
     file.setWritable(false);
   }
 
   /**
-   * Takes a LiBangBangJob and writes the gradle file for bangbang
-   * @param job The BangBang Job
+   * Takes a LiBangBangJob and writes the Gradle file for bangbang.
+   *
+   * @param job The LiBangBangJob Job to build
    */
   void writeGradleForJob(LiBangBangJob job) {
     String fileName = job.buildFileName(this.parentScope);
@@ -126,20 +129,20 @@ class LiAzkabanDslCompiler extends AzkabanDslCompiler {
   }
 
   /**
-   * Extracts the information to write from the bangbang template
+   * Extracts the information to write from the bangbang template.
+   *
    * @param job The job for which information should be extracted
-   * @return The Text for the gradle file
+   * @return The text for the gradle file
    */
   String getBangBangGradleText(LiBangBangJob job) {
     LiHadoopShellCommand command = bangBangCommandFactory.getCommand(job, job.buildProperties(this.parentScope));
-
     URL templateURL = Thread.currentThread().getContextClassLoader().getResource(BANGBANG_TEMPLATE);
 
-    // create bindings for the template
+    // Create bindings for the template
     Map<String, Object> bindings = new HashMap<String, Object>();
     bindings.put("dependency", job.getDependency());
     bindings.put("executable", command.getExecutable());
-    bindings.put("argList", command.getArguments())
+    bindings.put("argList", command.getArguments());
     bindings.put("environmentMap", command.getEnvironment());
 
     // Get text from the template

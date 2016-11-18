@@ -39,7 +39,8 @@ abstract class BasePropertySet {
   }
 
   /**
-   * Sets the name of the BasePropertySet from which to get the base properties.
+   * DSL baseProperties method. Sets the name of the BasePropertySet from which to get the base
+   * properties.
    *
    * @param propertySetName The name of the base PropertySet
    */
@@ -53,7 +54,7 @@ abstract class BasePropertySet {
    * @param clonePropertySet The BasePropertySet being cloned
    * @return The cloned BasePropertySet
    */
-  BasePropertySet clone(BasePropertySet clonePropertySet) {
+  protected BasePropertySet clone(BasePropertySet clonePropertySet) {
     clonePropertySet.basePropertySetName = this.basePropertySetName;
     clonePropertySet.confProperties.putAll(this.confProperties);
     clonePropertySet.jobProperties.putAll(this.jobProperties);

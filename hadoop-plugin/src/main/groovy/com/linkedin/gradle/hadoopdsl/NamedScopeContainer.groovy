@@ -69,6 +69,28 @@ interface NamedScopeContainer {
   Job addJob(String name, String rename, @DelegatesTo(Job) Closure configure);
 
   /**
+   * DSL addNamespace method. Looks up the namespace with given name, clones it, configures the
+   * clone with the given configuration closure and binds the clone in scope.
+   *
+   * @param name The namespace name to lookup
+   * @param configure The configuration closure
+   * @return The cloned and configured namespace that was bound in scope
+   */
+  Namespace addNamespace(String name, @DelegatesTo(Namespace) Closure configure);
+
+  /**
+   * DSL addNamespace method. Looks up the namespace with given name, clones it, renames the clone
+   * to the specified name, configures the clone with the given configuration closure and binds the
+   * clone in scope.
+   *
+   * @param name The namespace name to lookup
+   * @param rename The new name to give the cloned namespace
+   * @param configure The configuration closure
+   * @return The cloned, renamed and configured namespace that was bound in scope
+   */
+  Namespace addNamespace(String name, String rename, @DelegatesTo(Namespace) Closure configure);
+
+  /**
    * DSL addPropertyFile method. Looks up the properties with given name, clones it, configures the
    * clone with the given configuration closure and binds the clone in scope.
    *
@@ -196,6 +218,19 @@ interface NamedScopeContainer {
   NamedScopeReference lookupRef(String name);
 
   /**
+   * DSL namespace method. Creates a Namespace in scope with the given name and configuration.
+   * <p>
+   * For ease of organizing the user's Gradle scripts, namespaces can be redeclared at the same
+   * scope level. If the namespace already exists, it will simply be configured with the given
+   * closure configuration.
+   *
+   * @param name The namespace name
+   * @param configure The configuration closure
+   * @return The namespace
+   */
+  Namespace namespace(String name, @DelegatesTo(Namespace) Closure configure);
+
+  /**
    * DSL propertyFile method. Creates a Properties object in scope with the given name and
    * configuration.
    *
@@ -204,6 +239,16 @@ interface NamedScopeContainer {
    * @return The new properties object
    */
   Properties propertyFile(String name, @DelegatesTo(Properties) Closure configure);
+
+  /**
+   * DSL propertySet method. Creates a PropertySet object in scope with the given name and
+   * configuration.
+   *
+   * @param name The PropertySet name
+   * @param configure The configuration closure
+   * @return The new PropertySet object
+   */
+  PropertySet propertySet(String name, @DelegatesTo(PropertySet) Closure configure);
 
   /**
    * DSL workflow method. Creates a Workflow in scope with the given name and configuration.

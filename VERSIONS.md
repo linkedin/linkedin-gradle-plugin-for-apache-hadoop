@@ -19,6 +19,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.11.4
 
+* Hadoop DSL IDE Syntax Completion for IntelliJ - Further improvements to Hadoop DSL code for Intellij
 * Minor build setup cleanups and improvements - Apply eclipse and idea plugins to all projects
 
 0.11.3

@@ -145,7 +145,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @return The cloned scope container
    */
   @Override
-  HadoopDslPlugin clone(NamedScope parentScope) {
+  protected HadoopDslPlugin clone(NamedScope parentScope) {
     throw new Exception("The Hadoop DSL Plugin is a singleton and cannot be cloned.")
   }
 
@@ -231,7 +231,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     }
 
     Closure f = namedHadoopClosures.get(closureName);
-    Closure g = f.clone();
+    Closure g = (Closure)f.clone();
     // The "magic" in this method is that the "this" pointer of the closure is altered to the
     // target object, cause it to resolve Hadoop DSL methods correctly, starting from the target.
     project.configure(target, g);
@@ -354,7 +354,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *
    * @return The factory to use
    */
-  HadoopDslFactory makeFactory() {
+  protected HadoopDslFactory makeFactory() {
     return new HadoopDslFactory();
   }
 

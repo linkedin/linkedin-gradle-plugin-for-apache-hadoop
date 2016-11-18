@@ -64,6 +64,7 @@ class HadoopPlugin implements Plugin<Project> {
    * @param project The Gradle project
    */
   void addHadoopConfigurations(Project project) {
+    addHadoopDslConfiguration(project);
     addHadoopRuntimeConfiguration(project);
     addClusterProvidedConfiguration(project);
   }
@@ -75,41 +76,39 @@ class HadoopPlugin implements Plugin<Project> {
    * @return The clusterProvided configuration
    */
   Configuration addClusterProvidedConfiguration(Project project) {
-
-    // create clusterProvided configuration and set it as a private configuration.
+    // Create clusterProvided configuration and set it as a private configuration
     Configuration clusterProvided = project.getConfigurations().create("clusterProvided");
     clusterProvided.setVisible(false);
 
-    // we get default, testCompile, compile and runtime configurations from java plugin.
+    // We get default, testCompile, compile and runtime configurations from Java plugin
     project.getPlugins().withType(JavaPlugin) {
 
-      // remove the clusterProvided dependencies from default configuration.
+      // Remove the clusterProvided dependencies from default configuration
       clusterProvided.dependencies.all {
         dep -> project.getConfigurations().getByName('default').exclude group: dep.group, module: dep.name
       }
 
-      // testCompile should extend from clusterProvided so that all the clusterProvided dependencies including transitive
-      // dependencies are on the classpath to facilitate testing.
+      // testCompile should extend from clusterProvided so that all the clusterProvided
+      // dependencies including transitive dependencies are on the classpath to facilitate testing
       project.getConfigurations().getByName("testCompile").extendsFrom(clusterProvided);
 
-      // add clusterProvided jars on the classpath, this will not add transitive dependencies of each jar.
+      // Add clusterProvided jars on the classpath, this will not add transitive dependencies of each jar
       project.sourceSets.main.compileClasspath += clusterProvided
       project.javadoc.classpath += clusterProvided
 
-      // Idea doesn't understand the above classpath modification. Adding it explicitly. Java plugin
-      // is also required for getting non empty scopes.
+      // Idea doesn't understand the above classpath modification. Adding it explicitly. Java
+      // plugin is also required for getting non empty scopes.
       project.getPlugins().withType(IdeaPlugin) {
-
         IdeaModule ideaModule = project.idea.module;
 
-        // Additional checks for map keys.
-        if( ideaModule.scopes.containsKey("PROVIDED") && ideaModule.scopes.PROVIDED.containsKey("plus") ) {
+        // Additional checks for map keys
+        if (ideaModule.scopes.containsKey("PROVIDED") && ideaModule.scopes.PROVIDED.containsKey("plus")) {
           project.idea.module.scopes.PROVIDED.plus += [clusterProvided]
         }
       }
     }
 
-    // Eclipse understands the classpath, but add it, to be on the safe side.
+    // Eclipse understands the classpath, but add it, to be on the safe side
     project.getPlugins().withType(EclipsePlugin) {
       project.eclipse.classpath.plusConfigurations += [clusterProvided]
     }
@@ -117,6 +116,30 @@ class HadoopPlugin implements Plugin<Project> {
     return clusterProvided;
   }
 
+  /**
+   * Creates a Gradle dependency configuration for the Hadoop DSL. This dependency configuration is
+   * only used to hold the jar for the Hadoop DSL for Intellij IDEA syntax auto-completion.
+   *
+   * @param project The Gradle project
+   */
+  protected Configuration addHadoopDslConfiguration(Project project) {
+    Configuration hadoopDslConfiguration = project.getConfigurations().create("hadoopDsl");
+
+    // This configuration should only hold the Hadoop DSL jars and thus should be non-transitive
+    hadoopDslConfiguration.transitive = false;
+
+    // Tell IntelliJ Idea about our custom dependency configuration. Note that the Java plugin is
+    // also required for getting non-empty scopes.
+    project.getPlugins().withType(IdeaPlugin) {
+      IdeaModule ideaModule = project.idea.module;
+
+      if (ideaModule.scopes.containsKey("PROVIDED") && ideaModule.scopes.PROVIDED.containsKey("plus")) {
+        ideaModule.scopes.PROVIDED.plus += [hadoopDslConfiguration];
+      }
+    }
+
+    return hadoopDslConfiguration;
+  }
 
   /**
    * Prepare the "hadoopRuntime" Hadoop configuration for the project.

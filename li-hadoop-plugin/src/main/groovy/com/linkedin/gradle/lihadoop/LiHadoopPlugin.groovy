@@ -37,11 +37,48 @@ import com.linkedin.gradle.lizip.LiHadoopZipPlugin;
 
 import org.gradle.api.Project
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration
 
 /**
  * LinkedIn-specific customizations to the Hadoop Plugin.
  */
 class LiHadoopPlugin extends HadoopPlugin {
+  /**
+   * Creates a Gradle dependency configuration for the Hadoop DSL. This dependency configuration is
+   * only used to hold the jar for the Hadoop DSL for Intellij IDEA syntax auto-completion.
+   *
+   * @param project The Gradle project
+   */
+  @Override
+  protected Configuration addHadoopDslConfiguration(Project project) {
+    Configuration hadoopDslConfiguration = super.addHadoopDslConfiguration(project);
+
+    // Specifically add the jars for the Hadoop DSL to the hadoopDsl configuration. The
+    // configuration is not transitive, so only these jars will be added.
+    String hadoopDslVersion = getJarVersion(HadoopPlugin.class, "hadoop-plugin");
+    String liHadoopDslVersion = getJarVersion(LiHadoopPlugin.class, "li-hadoop-plugin");
+    project.getDependencies().add(hadoopDslConfiguration.name, "com.linkedin.li-hadoop-plugin:hadoop-plugin:$hadoopDslVersion")
+    project.getDependencies().add(hadoopDslConfiguration.name, "com.linkedin.li-hadoop-plugin:li-hadoop-plugin:$liHadoopDslVersion")
+
+    // Return the configuration to the caller
+    return hadoopDslConfiguration;
+  }
+
+  /**
+   * Helper function to determine the jar version in which a class resides.
+   *
+   * @param klass The class whose jar for which we are looking
+   * @param moduleName The known module name for the jar
+   * @return The jar version
+   */
+  protected String getJarVersion(Class klass, String moduleName) {
+    String resourcePath = klass.getResource('/' + klass.getName().replace('.', '/') + ".class").getPath();
+    String jarPath = resourcePath.substring(0, resourcePath.lastIndexOf("!"));
+    String jarName = jarPath.substring(jarPath.lastIndexOf('/') + 1, jarPath.lastIndexOf(".jar"));
+    String jarVersion = jarName.substring(moduleName.length() + 1);
+    return jarVersion;
+  }
+
   /**
    * Factory method to return the LiAzkabanPlugin class. Subclasses can override this method to
    * return their own AzkabanPlugin class.
