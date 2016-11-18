@@ -33,7 +33,7 @@ interface LiNamedScopeContainer extends NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
-  LiPigBangBangJob liPigBangBangJob(String name, Closure configure);
+  LiPigBangBangJob liPigBangBangJob(String name, @DelegatesTo(LiPigBangBangJob) Closure configure);
 
   /**
    * @deprecated PigLiJob now has no differences with PigJob.
@@ -46,5 +46,5 @@ interface LiNamedScopeContainer extends NamedScopeContainer {
    * @return The new job
    */
   @Deprecated
-  PigLiJob pigLiJob(String name, Closure configure);
+  PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure);
 }
