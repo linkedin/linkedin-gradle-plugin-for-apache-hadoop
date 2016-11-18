@@ -15,55 +15,34 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.Workflow
-import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob
+import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
 
 /**
  * LinkedIn-specific customizations to Workflow that allow for additional LinkedIn-specific job
- * types to be created in the workflow.
+ * types to be created in the extension.
  */
-class LiWorkflow extends Workflow implements LiNamedScopeContainer {
+class LiHadoopDslExtension extends HadoopDslExtension implements LiNamedScopeContainer {
   /**
-   * Base constructor for a LiWorkflow.
+   * Base constructor for the HadoopDslExtension
    *
-   * @param name The workflow name
    * @param project The Gradle project
    */
-  LiWorkflow(String name, Project project) {
-    super(name, project);
+  LiHadoopDslExtension(Project project) {
+    super(project)
   }
 
   /**
-   * Constructor for a LiWorkflow given a parent scope.
+   * Constructor for the HadoopDslExtension that is aware of its parent scope (global scope).
    *
-   * @param name The workflow name
    * @param project The Gradle project
    * @param parentScope The parent scope
    */
-  LiWorkflow(String name, Project project, NamedScope parentScope) {
-    super(name, project, parentScope);
-  }
-
-  /**
-   * Clones the workflow.
-   *
-   * @return The cloned workflow
-   */
-  LiWorkflow clone() {
-    return clone(new LiWorkflow(name, project, null));
-  }
-
-  /**
-   * Helper method to set the properties on a cloned workflow.
-   *
-   * @param workflow The workflow being cloned
-   * @return The cloned workflow
-   */
-  protected LiWorkflow clone(LiWorkflow workflow) {
-    return ((LiWorkflow)super.clone(workflow));
+  LiHadoopDslExtension(Project project, NamedScope parentScope) {
+    super(project, parentScope);
   }
 
   /**

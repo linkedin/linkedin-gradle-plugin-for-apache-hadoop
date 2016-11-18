@@ -114,7 +114,7 @@ class Properties extends BasePropertySet {
    * @param cloneProperties The properties object being cloned
    * @return The cloned properties
    */
-  Properties clone(Properties cloneProperties) {
+  protected Properties clone(Properties cloneProperties) {
     return ((Properties)super.clone(cloneProperties));
   }
 

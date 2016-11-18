@@ -55,7 +55,7 @@ class PropertySet extends BasePropertySet {
    * @param parentScope The parent scope
    * @return The cloned PropertySet
    */
-  PropertySet clone(NamedScope parentScope) {
+  protected PropertySet clone(NamedScope parentScope) {
     return clone(new PropertySet(name, parentScope));
   }
 
@@ -65,7 +65,7 @@ class PropertySet extends BasePropertySet {
    * @param clonePropertySet The PropertySet being cloned
    * @return The cloned PropertySet
    */
-  PropertySet clone(PropertySet clonePropertySet) {
+  protected PropertySet clone(PropertySet clonePropertySet) {
     return ((PropertySet)super.clone(clonePropertySet));
   }
 

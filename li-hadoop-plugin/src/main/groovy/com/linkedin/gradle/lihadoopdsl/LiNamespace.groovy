@@ -16,58 +16,58 @@
 package com.linkedin.gradle.lihadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.Workflow
-import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob
+import com.linkedin.gradle.hadoopdsl.Namespace;
+import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
 
 /**
- * LinkedIn-specific customizations to Workflow that allow for additional LinkedIn-specific job
- * types to be created in the workflow.
+ * LinkedIn-specific customizations to Namespace that allow for additional LinkedIn-specific job
+ * types to be created in the namespace.
  */
-class LiWorkflow extends Workflow implements LiNamedScopeContainer {
+class LiNamespace extends Namespace implements LiNamedScopeContainer {
   /**
-   * Base constructor for a LiWorkflow.
+   * Base constructor for a LiNamespace.
    *
-   * @param name The workflow name
+   * @param name The namespace name
    * @param project The Gradle project
    */
-  LiWorkflow(String name, Project project) {
+  LiNamespace(String name, Project project) {
     super(name, project);
   }
 
   /**
-   * Constructor for a LiWorkflow given a parent scope.
+   * Constructor for a LiNamespace given a parent scope.
    *
-   * @param name The workflow name
+   * @param name The namespace name
    * @param project The Gradle project
    * @param parentScope The parent scope
    */
-  LiWorkflow(String name, Project project, NamedScope parentScope) {
+  LiNamespace(String name, Project project, NamedScope parentScope) {
     super(name, project, parentScope);
   }
 
   /**
-   * Clones the workflow.
+   * Clones the namespace.
    *
-   * @return The cloned workflow
+   * @return The cloned namespace
    */
-  LiWorkflow clone() {
-    return clone(new LiWorkflow(name, project, null));
+  LiNamespace clone() {
+    return clone(new LiNamespace(name, project, null));
   }
 
   /**
-   * Helper method to set the properties on a cloned workflow.
+   * Helper method to set the properties on a cloned namespace.
    *
-   * @param workflow The workflow being cloned
-   * @return The cloned workflow
+   * @param namespace The namespace being cloned
+   * @return The cloned namespace
    */
-  protected LiWorkflow clone(LiWorkflow workflow) {
-    return ((LiWorkflow)super.clone(workflow));
+  protected LiNamespace clone(LiNamespace namespace) {
+    return ((LiNamespace)super.clone(namespace));
   }
 
   /**
-   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in workflow scope with the given name
+   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in namespace scope with the given name
    * and configuration.
    *
    * @param name The job name
@@ -81,7 +81,7 @@ class LiWorkflow extends Workflow implements LiNamedScopeContainer {
   /**
    * @deprecated PigLiJob now has no differences with PigJob.
    *
-   * DSL pigLiJob method. Creates a PigLiJob in workflow scope with the given name and
+   * DSL pigLiJob method. Creates a PigLiJob in namespace scope with the given name and
    * configuration.
    *
    * @param name The job name

@@ -97,7 +97,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param parentScope The new parent scope
    * @return The cloned scope container
    */
-  abstract BaseNamedScopeContainer clone(NamedScope parentScope);
+  protected abstract BaseNamedScopeContainer clone(NamedScope parentScope);
 
   /**
    * Helper method to set the properties on a cloned scope container.
@@ -105,7 +105,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param container The scope container being cloned
    * @return The cloned scope container
    */
-  BaseNamedScopeContainer clone(BaseNamedScopeContainer container) {
+  protected BaseNamedScopeContainer clone(BaseNamedScopeContainer container) {
     for (Job job : jobs) {
       Job clone = job.clone();
       container.jobs.add(clone);
@@ -145,7 +145,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name of the object to clone
    * @return The cloned object
    */
-  Job cloneJob(String name) {
+  protected Job cloneJob(String name) {
     Job job = (Job)scope.lookup(name);
     if (job == null) {
       throw new Exception("Could not find job ${name} from scope ${scope.levelName}");
@@ -160,7 +160,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param rename The new name to give the object
    * @return The cloned object
    */
-  Job cloneJob(String name, String rename) {
+  protected Job cloneJob(String name, String rename) {
     Job job = cloneJob(name);
     job.name = rename;
     return job;
@@ -172,7 +172,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name of the object to clone
    * @return The cloned object
    */
-  Namespace cloneNamespace(String name) {
+  protected Namespace cloneNamespace(String name) {
     Namespace namespace = (Namespace)scope.lookup(name);
     if (namespace == null) {
       throw new Exception("Could not find namespace ${name} from scope ${scope.levelName}");
@@ -187,7 +187,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param rename The new name to give the object
    * @return The cloned object
    */
-  Namespace cloneNamespace(String name, String rename) {
+  protected Namespace cloneNamespace(String name, String rename) {
     Namespace namespace = cloneNamespace(name);
     namespace.name = rename;
     namespace.scope.levelName = rename;
@@ -200,7 +200,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name of the object to clone
    * @return The cloned object
    */
-  Properties clonePropertyFile(String name) {
+  protected Properties clonePropertyFile(String name) {
     Properties props = (Properties)scope.lookup(name);
     if (props == null) {
       throw new Exception("Could not find propertyFile ${name} from scope ${scope.levelName}");
@@ -215,7 +215,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param rename The new name to give the object
    * @return The cloned object
    */
-  Properties clonePropertyFile(String name, String rename) {
+  protected Properties clonePropertyFile(String name, String rename) {
     Properties props = clonePropertyFile(name)
     props.name = rename;
     return props;
@@ -227,7 +227,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name of the object to clone
    * @return The cloned object
    */
-  PropertySet clonePropertySet(String name) {
+  protected PropertySet clonePropertySet(String name) {
     PropertySet propertySet = (PropertySet)scope.lookup(name);
     if (propertySet == null) {
       throw new Exception("Could not find PropertySet ${name} from scope ${scope.levelName}");
@@ -242,7 +242,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param rename The new name to give the object
    * @return The cloned object
    */
-  PropertySet clonePropertySet(String name, String rename) {
+  protected PropertySet clonePropertySet(String name, String rename) {
     PropertySet propertySet = clonePropertySet(name)
     propertySet.name = rename;
     return propertySet;
@@ -254,7 +254,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name of the object to clone
    * @return The cloned object
    */
-  Workflow cloneWorkflow(String name) {
+  protected Workflow cloneWorkflow(String name) {
     Workflow workflow = (Workflow)scope.lookup(name);
     if (workflow == null) {
       throw new Exception("Could not find workflow ${name} from scope ${scope.levelName}");
@@ -269,7 +269,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param rename The new name to give the object
    * @return The cloned object
    */
-  Workflow cloneWorkflow(String name, String rename) {
+  protected Workflow cloneWorkflow(String name, String rename) {
     Workflow workflow = cloneWorkflow(name);
     workflow.name = rename;
     workflow.scope.levelName = rename;
@@ -284,7 +284,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The input job, which is now configured
    */
-  Job configureJob(Job job, Closure configure) {
+  protected Job configureJob(Job job, Closure configure) {
     scope.bind(job.name, job);
     project.configure(job, configure);
     jobs.add(job);
@@ -299,7 +299,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The input namespace, which is now configured
    */
-  Namespace configureNamespace(Namespace namespace, Closure configure) {
+  protected Namespace configureNamespace(Namespace namespace, Closure configure) {
     scope.bind(namespace.name, namespace);
     project.configure(namespace, configure);
     namespaces.add(namespace);
@@ -314,7 +314,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The input properties, which is now configured
    */
-  Properties configureProperties(Properties props, Closure configure) {
+  protected Properties configureProperties(Properties props, Closure configure) {
     scope.bind(props.name, props);
     project.configure(props, configure);
     properties.add(props);
@@ -329,7 +329,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The input PropertySet, which is now configured
    */
-  PropertySet configurePropertySet(PropertySet propertySet, Closure configure) {
+  protected PropertySet configurePropertySet(PropertySet propertySet, Closure configure) {
     scope.bind(propertySet.name, propertySet);
     project.configure(propertySet, configure);
     propertySets.add(propertySet);
@@ -344,7 +344,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The input workflow, which is now configured
    */
-  Workflow configureWorkflow(Workflow workflow, Closure configure) {
+  protected Workflow configureWorkflow(Workflow workflow, Closure configure) {
     scope.bind(workflow.name, workflow);
     project.configure(workflow, configure);
     workflows.add(workflow);

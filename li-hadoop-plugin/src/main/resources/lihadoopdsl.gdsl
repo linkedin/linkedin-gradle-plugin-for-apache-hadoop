@@ -1,0 +1,12 @@
+/**
+ * Groovy DSL script that provides LinkedIn-specific Hadoop DSL syntax completion hints for
+ * Intellij IDEA.
+ */
+def closureContext = context(filetypes: ["gradle", "hadoopdsl"], scope: closureScope(isArg: true))
+
+contributor(closureContext, {
+  if (enclosingCall("hadoop")) {
+    method name: "liPigBangBang", params: [name: "java.lang.String", configure: "groovy.lang.Closure"], type: "com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob"
+    method name: "pigLiJob", params: [name: "java.lang.String", configure: "groovy.lang.Closure"], type: "com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob"
+  }
+})

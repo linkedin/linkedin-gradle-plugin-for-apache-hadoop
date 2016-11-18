@@ -41,14 +41,15 @@ class HadoopPluginTest {
     Project project = ProjectBuilder.builder().build();
     hadoopPlugin.apply(project);
 
-    // Check that hadoop configurations were created successfully.
-    Assert.assertNotNull(project.configurations["hadoopRuntime"]);
+    // Check that the various Hadoop configurations were created successfully
     Assert.assertNotNull(project.configurations["clusterProvided"]);
+    Assert.assertNotNull(project.configurations["hadoopDsl"]);
+    Assert.assertNotNull(project.configurations["hadoopRuntime"]);
   }
 
   /**
-   * Test to check if any dependency added to clusterProvided is present in testCompile and not present in
-   * compile, runtime, hadoopRuntime, default.
+   * Test to check if any dependency added to clusterProvided is present in testCompile and not
+   * present in compile, runtime, hadoopRuntime, default.
    */
   @Test
   void testClusterProvidedConfiguration() {
@@ -86,44 +87,45 @@ class HadoopPluginTest {
     clusterProvided.dependencies.addAll(testDependencies);
 
     // For each dependency, assert if it is present in only testCompile and not in any other configuration.
-    testDependencies.each {
-      dependency ->
-        Assert.assertFalse(project.configurations["compile"].allDependencies.contains(dependency))
-        Assert.assertFalse(project.configurations["default"].allDependencies.contains(dependency))
-        Assert.assertFalse(project.configurations["hadoopRuntime"].allDependencies.contains(dependency))
-        Assert.assertFalse(project.configurations["runtime"].allDependencies.contains(dependency))
-        Assert.assertTrue(project.configurations["testCompile"].allDependencies.contains(dependency))
+    testDependencies.each { dependency ->
+      Assert.assertFalse(project.configurations["compile"].allDependencies.contains(dependency))
+      Assert.assertFalse(project.configurations["default"].allDependencies.contains(dependency))
+      Assert.assertFalse(project.configurations["hadoopRuntime"].allDependencies.contains(dependency))
+      Assert.assertFalse(project.configurations["runtime"].allDependencies.contains(dependency))
+      Assert.assertTrue(project.configurations["testCompile"].allDependencies.contains(dependency))
     }
   }
 
   /**
-   * Checks IDEs support for clusterProvided configuration. We'll apply idea and eclipse plugins and
-   * assert that clusterProvided is added to their classpath.
+   * Checks IDE support for the clusterProvided and hadoopDsl dependency configurations.
+   * <p>
+   * We'll apply eclipse and idea plugins and assert that the clusterProvided configuration is
+   * added to their classpath.
    */
   @Test
   void testClusterProvidedIDESupport() {
     HadoopPlugin hadoopPlugin = new HadoopPlugin();
-    IdeaPlugin ideaPlugin = new IdeaPlugin();
     EclipsePlugin eclipsePlugin = new EclipsePlugin();
+    IdeaPlugin ideaPlugin = new IdeaPlugin();
 
     Project projectWithoutJavaPlugin = ProjectBuilder.builder().build();
-
     projectWithoutJavaPlugin.apply plugin: hadoopPlugin.class
-    projectWithoutJavaPlugin.apply plugin: ideaPlugin.class
     projectWithoutJavaPlugin.apply plugin: eclipsePlugin.class
+    projectWithoutJavaPlugin.apply plugin: ideaPlugin.class
 
-    Assert.assertTrue(projectWithoutJavaPlugin.idea.module.scopes.isEmpty());
     Assert.assertTrue(projectWithoutJavaPlugin.eclipse.classpath.plusConfigurations.contains(projectWithoutJavaPlugin.configurations["clusterProvided"]));
+    Assert.assertTrue(projectWithoutJavaPlugin.idea.module.scopes.isEmpty());
 
     Project projectWithJavaPlugin = ProjectBuilder.builder().build();
     JavaPlugin javaPlugin = new JavaPlugin();
 
-    projectWithJavaPlugin.apply plugin: hadoopPlugin.class
     projectWithJavaPlugin.apply plugin: javaPlugin.class
-    projectWithJavaPlugin.apply plugin: ideaPlugin.class
+    projectWithJavaPlugin.apply plugin: hadoopPlugin.class
     projectWithJavaPlugin.apply plugin: eclipsePlugin.class
+    projectWithJavaPlugin.apply plugin: ideaPlugin.class
 
-    Assert.assertTrue(projectWithJavaPlugin.idea.module.scopes.PROVIDED.plus.contains(projectWithJavaPlugin.configurations["clusterProvided"]));
     Assert.assertTrue(projectWithJavaPlugin.eclipse.classpath.plusConfigurations.contains(projectWithJavaPlugin.configurations["clusterProvided"]));
+    Assert.assertTrue(projectWithJavaPlugin.idea.module.scopes.PROVIDED.plus.contains(projectWithJavaPlugin.configurations["clusterProvided"]));
+    Assert.assertTrue(projectWithJavaPlugin.idea.module.scopes.PROVIDED.plus.contains(projectWithJavaPlugin.configurations["hadoopDsl"]));
   }
 }

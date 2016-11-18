@@ -29,20 +29,6 @@ The Plugin includes the **LinkedIn Gradle DSL for Apache Hadoop** (which we shal
 the "Hadoop DSL" for brevity), a language for specifying jobs and workflows for Hadoop workflow
 schedulers like Azkaban and Apache Oozie.
 
-#### Can I Benefit from the Hadoop Plugin and Hadoop DSL?
-
-The Hadoop Plugin is only useful if you are using Gradle as your build system. If you are using
-Azkaban, you should start using the Hadoop Plugin immediately and you should start using the Hadoop
-DSL as the primary mechanism by which you develop your Azkaban workflows. Read the Hadoop Plugin
-User Guide and the Hadoop DSL Language Reference to get started today.
-
-If you are Apache Pig or Apache Spark, the Hadoop Plugin has some useful tasks for you. The Hadoop
-Plugin includes features for Apache Pig that will statically validate your Pig scripts (saving you
-time instead of finding out that there is a syntax error in your script when you try to run it). If
-you run Hadoop jobs through a gateway, the Plugin includes tasks that will automatically launch
-your Pig and Spark jobs on the gateway (instead of you needing to manually download your code and
-jars to the gateway box first).
-
 #### Hadoop Plugin User Guide
 
 The Hadoop Plugin User Guide is available at [User Guide]
@@ -58,6 +44,34 @@ The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference
 The Hadoop Plugin is now published on [plugins.gradle.org]
 (https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin). Click on the link for
 a short snippet to add to your `build.gradle` file to start using the Hadoop Plugin.
+
+#### Can I Benefit from the Hadoop Plugin and Hadoop DSL?
+
+You must use Gradle as your build system to use the Hadoop Plugin. If you are using Azkaban, you
+should start using the Hadoop Plugin immediately and you should use the Hadoop DSL to develop all
+of your Azkaban workflows.
+
+If you are using Apache Pig, the Plugin includes features that will statically validate your Pig
+scripts, saving you time by finding errors at build time instead of when you run your Pig script.
+
+If you run Apache Pig or Apache Spark on a Hadoop cluster through a gateway node, the Plugin
+includes tasks that will automate the process of launching your Pig or Spark jobs on the gateway
+without you having to manually download your code and dependencies there first.
+
+#### Apache Oozie Status
+
+Although we started on a Hadoop DSL compiler for Oozie, we did not complete it, and it is currently
+not in a usable form. We are not currently working on it, although it is possible we might go back
+and finish it in the future.
+
+#### Recent News
+
+  * `April 2016` We have made a refresh of the [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide) and [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference) Wiki pages
+  * `January 2016` The Hadoop Plugin is now published on [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin)
+  * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
+  * `August 2015` Initial pull requests for Oozie versioned deployments and the Oozie Hadoop DSL compiler have been merged
+  * `August 2015` The Hadoop Plugin and Hadoop DSL were released on Github! See the [LinkedIn Engineering Blog post](https://engineering.linkedin.com/hadoop/open-sourcing-linkedin-gradle-plugin-and-dsl-apache-hadoop) for the announcement!
+  * `July 2015` See our talk at the [Gradle Summit](https://www.youtube.com/watch?v=51NzDgxHr4I)
 
 #### Project Structure
 
@@ -79,18 +93,3 @@ To build the Plugin and run the test cases, run `./gradlew build` from the top-l
 To see all the test tasks, run `./gradlew tasks` from the top-level project directory. You can run
 an individual test with `./gradlew test_testName`. You can also run multiple tests by running
 `./gradlew test_testName1 ... test_testNameN`.
-
-#### Apache Oozie Status
-
-Although we started on a Hadoop DSL compiler for Oozie, we did not complete it, and it is currently
-not in a usable form. We are not currently working on it, although it is possible we might go back
-and finish it in the future.
-
-#### Recent News
-
-  * `April 2016` We have made a refresh of the [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide) and [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference) Wiki pages
-  * `January 2016` The Hadoop Plugin is now published on [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin)
-  * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
-  * `August 2015` Initial pull requests for Oozie versioned deployments and the Oozie Hadoop DSL compiler have been merged
-  * `August 2015` The Hadoop Plugin and Hadoop DSL were released on Github! See the [LinkedIn Engineering Blog post](https://engineering.linkedin.com/hadoop/open-sourcing-linkedin-gradle-plugin-and-dsl-apache-hadoop) for the announcement!
-  * `July 2015` See our talk at the [Gradle Summit](https://www.youtube.com/watch?v=51NzDgxHr4I)

@@ -63,7 +63,8 @@ class PigLiJob extends PigJob {
    *
    * @return The cloned job
    */
+  @Override
   PigLiJob clone() {
-    return clone(new PigLiJob(name));
+    return ((PigLiJob)clone(new PigLiJob(name)));
   }
 }

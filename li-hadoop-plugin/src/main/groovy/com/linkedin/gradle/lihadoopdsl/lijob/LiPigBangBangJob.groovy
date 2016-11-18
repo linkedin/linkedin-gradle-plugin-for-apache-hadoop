@@ -50,8 +50,8 @@ import groovy.json.internal.LazyMap;
  * </pre>
  */
 class LiPigBangBangJob extends PigJob implements LiBangBangJob {
-  String pigDependency;
   Boolean overWrite = true;
+  String pigDependency;
 
   /**
    * Constructor for a LiPigBangBangJob.
@@ -60,6 +60,28 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    */
   LiPigBangBangJob(String jobName) {
     super(jobName)
+  }
+
+  /**
+   * Clones the job.
+   *
+   * @return The cloned job
+   */
+  @Override
+  LiPigBangBangJob clone() {
+    return clone(new LiPigBangBangJob(name));
+  }
+
+  /**
+   * Helper method to set the properties on a cloned job.
+   *
+   * @param cloneJob The job being cloned
+   * @return The cloned job
+   */
+  LiPigBangBangJob clone(LiPigBangBangJob cloneJob) {
+    cloneJob.overWrite = overWrite
+    cloneJob.pigDependency = pigDependency;
+    return ((LiPigBangBangJob)super.clone(cloneJob));
   }
 
   /**

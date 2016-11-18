@@ -60,7 +60,7 @@ class Namespace extends BaseNamedScopeContainer {
    * @return The cloned scope container
    */
   @Override
-  Namespace clone(NamedScope parentScope) {
+  protected Namespace clone(NamedScope parentScope) {
     return ((Namespace)clone(new Namespace(name, project, parentScope)));
   }
 }
