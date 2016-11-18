@@ -15,11 +15,11 @@
  */
 package com.linkedin.gradle.lihadoop;
 
-import com.linkedin.gradle.azkaban.AzkabanPlugin
-import com.linkedin.gradle.hadoop.HadoopPlugin
+import com.linkedin.gradle.azkaban.AzkabanPlugin;
+import com.linkedin.gradle.hadoop.HadoopPlugin;
 import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
-import com.linkedin.gradle.lihadoopValidator.LiHadoopValidatorPlugin
+import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.lihadoopValidator.LiHadoopValidatorPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
@@ -35,9 +35,9 @@ import com.linkedin.gradle.liscm.LiScmPlugin;
 import com.linkedin.gradle.lispark.LiSparkPlugin;
 import com.linkedin.gradle.lizip.LiHadoopZipPlugin;
 
-import org.gradle.api.Project
+import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Configuration;
 
 /**
  * LinkedIn-specific customizations to the Hadoop Plugin.

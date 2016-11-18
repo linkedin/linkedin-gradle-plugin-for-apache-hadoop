@@ -13,15 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.libangbang;
 
 import com.linkedin.gradle.lihadoopdsl.lijob.LiBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 
-
 /**
- * A factory class to create commands for different job types
+ * A factory class to create commands for different job types.
  **/
 class LiHadoopShellCommandFactory {
 

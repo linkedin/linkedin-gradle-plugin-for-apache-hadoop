@@ -41,7 +41,7 @@ The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference
 
 #### Getting the Hadoop Plugin
 
-The Hadoop Plugin is now published on [plugins.gradle.org]
+The Hadoop Plugin is now published at [plugins.gradle.org]
 (https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin). Click on the link for
 a short snippet to add to your `build.gradle` file to start using the Hadoop Plugin.
 
@@ -57,6 +57,9 @@ scripts, saving you time by finding errors at build time instead of when you run
 If you run Apache Pig or Apache Spark on a Hadoop cluster through a gateway node, the Plugin
 includes tasks that will automate the process of launching your Pig or Spark jobs on the gateway
 without you having to manually download your code and dependencies there first.
+
+If you are using Gradle and you feel that you might benefit from any of the above features,
+consider using the Hadoop Plugin and the Hadoop DSL.
 
 #### Apache Oozie Status
 

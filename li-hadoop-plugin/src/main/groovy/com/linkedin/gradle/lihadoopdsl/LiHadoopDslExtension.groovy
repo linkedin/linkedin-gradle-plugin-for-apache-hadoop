@@ -53,7 +53,7 @@ class LiHadoopDslExtension extends HadoopDslExtension implements LiNamedScopeCon
    * @param configure The configuration closure
    * @return The new job
    */
-  LiPigBangBangJob liPigBangBangJob(String name, Closure configure) {
+  LiPigBangBangJob liPigBangBangJob(String name, @DelegatesTo(LiPigBangBangJob) Closure configure) {
     return ((LiPigBangBangJob)configureJob(((LiHadoopDslFactory)factory).makeLiPigBangBangJob(name), configure));
   }
 
@@ -68,7 +68,7 @@ class LiHadoopDslExtension extends HadoopDslExtension implements LiNamedScopeCon
    * @return The new job
    */
   @Deprecated
-  PigLiJob pigLiJob(String name, Closure configure) {
+  PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure) {
     return ((PigLiJob)configureJob(((LiHadoopDslFactory)factory).makePigLiJob(name), configure));
   }
 }

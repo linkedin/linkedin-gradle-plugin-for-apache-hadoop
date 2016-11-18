@@ -15,9 +15,7 @@
  */
 package com.linkedin.gradle.lihadoopdsl.lijob;
 
-
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
-
 
 /**
  * Extend the Hadoop Plugin Job classes with the LinkedIn-specific "pigLi" job type.

@@ -13,16 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.libangbang;
 
 /**
- * All the commands for jobtypes which support bangbang should extend this class
+ * All the commands for jobtypes which support bangbang should extend this class.
  */
 public abstract class LiHadoopShellCommand {
   public abstract List<String> getArguments();
-
   public abstract String getExecutable();
-
   public abstract Map<String, String> getEnvironment();
 }
