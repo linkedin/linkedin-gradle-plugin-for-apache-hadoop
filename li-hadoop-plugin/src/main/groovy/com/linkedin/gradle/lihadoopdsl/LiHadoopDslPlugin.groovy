@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslFactory
+import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;

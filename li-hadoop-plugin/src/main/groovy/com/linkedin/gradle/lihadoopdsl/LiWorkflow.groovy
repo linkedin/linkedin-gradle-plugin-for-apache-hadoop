@@ -13,13 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopdsl
-
+package com.linkedin.gradle.lihadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob
+import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
 
