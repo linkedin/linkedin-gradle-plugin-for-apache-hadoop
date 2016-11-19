@@ -123,6 +123,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param args Args whose required key 'from' specifies the path to the external Gradle script
    * @return True if the external Gradle script exists and was applied; otherwise False
    */
+  @HadoopDslMethod
   boolean applyProfile(Map args) {
     if (!args.containsKey("from")) {
       throw new Exception("Syntax for using applyProfile is 'applyProfile from: \"filePath\"'");
@@ -159,6 +160,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param args A map whose optional key "name" specifies the definition set and whose key "defs" specifies the definitions to add
    * @return The updated definitions
    */
+  @HadoopDslMethod
   Map<String, Object> definitionSet(Map args) {
     Map<String, Object> defs = args.defs;
 
@@ -182,6 +184,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param defs The definitions to add to the definition set
    * @return The updated definitions
    */
+  @HadoopDslMethod
   Map<String, Object> definitionSet(String name, Map<String, Object> defs) {
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Cannot declare a definitionSet with a name that is null or empty.");
@@ -207,6 +210,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *
    * @return The name of the current definition set, or the empty string if it is the default set
    */
+  @HadoopDslMethod
   String definitionSetName() {
     return currentDefinitionSetName;
   }
@@ -271,6 +275,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @return The object, now bound in global scope
    */
   @Deprecated
+  @HadoopDslMethod
   Object global(Object object) {
     if (scope.contains(object.name)) {
       throw new Exception("An object with name ${object.name} requested to be global is already bound in scope ${scope.levelName}");
@@ -291,6 +296,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *             the closure is treated as an anonymous closure.
    * @return The declared closure
    */
+  @HadoopDslMethod
   Closure hadoopClosure(Map args) {
     Closure closure = args.closure;
     String name = args.containsKey("name") ? args.name : "";
@@ -309,6 +315,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *             an anonymous closure
    * @return The declared closure
    */
+  @HadoopDslMethod
   Closure hadoopClosure(Closure closure, String name) {
     if ("".equals(name)) {
       hadoopClosures.add(closure);
@@ -330,6 +337,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param name The definition name
    * @return The definition value
    */
+  @HadoopDslMethod
   Object lookupDef(String name) {
     if (!"default".equals(currentDefinitionSetName)) {
       Map<String, Object> currentDefinitionSet = definitionSetMap.get(currentDefinitionSetName);
@@ -364,6 +372,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    *
    * @param name The name of the definition set to use as the current definition set
    */
+  @HadoopDslMethod
   void setDefinitionSet(String name) {
     if (!definitionSetMap.containsKey(name)) {
       throw new Exception("No definitionSet with the name ${name} has been defined");

@@ -13,7 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl.job;
+package com.linkedin.gradle.hadoopdsl.job
+
+
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
 /**
  * Job class for type=hadoopJava jobs.
@@ -88,6 +91,7 @@ class HadoopJavaJob extends HadoopJavaProcessJob {
    *
    * @param jobClass The Java class for the job
    */
+  @HadoopDslMethod
   @Override
   void uses(String jobClass) {
     this.jobClass = jobClass;

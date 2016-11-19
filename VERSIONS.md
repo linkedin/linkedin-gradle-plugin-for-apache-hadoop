@@ -17,6 +17,14 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.6
+
+* Hadoop DSL IDE Syntax Completion for IntelliJ - Add annotation to help expose top-level Hadoop DSL methods
+
+0.11.5
+
+* Hadoop DSL IDE Syntax Completion for IntelliJ - Further improvements to Hadoop DSL code for Intellij
+    
 0.11.4
 
 * Hadoop DSL IDE Syntax Completion for IntelliJ - Further improvements to Hadoop DSL code for Intellij

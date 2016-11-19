@@ -13,7 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl.job;
+package com.linkedin.gradle.hadoopdsl.job
+
+
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
 /**
  * Job class for type=gobblinJob jobs.
@@ -52,16 +55,6 @@ class GobblinJob extends Job {
     setJobProperty("type", "gobblin");
   }
 
-  void preset(String preset) {
-    this.preset = preset;
-    setJobProperty("gobblin.config_preset", preset);
-  }
-
-  void workDir(String workDir) {
-    this.workDir = workDir;
-    setJobProperty("gobblin.work_dir", workDir);
-  }
-
   /**
    * Clones the job.
    *
@@ -82,5 +75,17 @@ class GobblinJob extends Job {
     cloneJob.preset = preset;
     cloneJob.workDir = workDir;
     return ((GobblinJob)super.clone(cloneJob));
+  }
+
+  @HadoopDslMethod
+  void preset(String preset) {
+    this.preset = preset;
+    setJobProperty("gobblin.config_preset", preset);
+  }
+
+  @HadoopDslMethod
+  void workDir(String workDir) {
+    this.workDir = workDir;
+    setJobProperty("gobblin.work_dir", workDir);
   }
 }

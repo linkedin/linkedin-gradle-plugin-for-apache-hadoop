@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -106,12 +107,13 @@ class JavaProcessJob extends Job {
   }
 
   /**
-   * Sets the classpath for the JavaProcessJob. Note that this sets the classpath for the client
-   * process only. In particular, this does not set the classpath for map and reduce tasks of
-   * Hadoop jobs.
+   * DSL method to set the classpath for the JavaProcessJob. Note that this sets the classpath for
+   * the client process only. In particular, this does not set the classpath for map and reduce
+   * tasks of Hadoop jobs.
    *
    * @param javaClasspath The classpath for the client process
    */
+  @HadoopDslMethod
   void jvmClasspath(String javaClasspath) {
     this.javaClasspath = javaClasspath;
     setJobProperty("classpath", javaClasspath);
@@ -128,6 +130,7 @@ class JavaProcessJob extends Job {
    * @param args Args whose key 'properties' has a map value specifying the job properties to set;
    *   or a key 'jvmProperties' with a map value that specifies the JVM properties to set
    */
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);
@@ -173,6 +176,7 @@ class JavaProcessJob extends Job {
    *
    * @param javaClass The Java class for the job
    */
+  @HadoopDslMethod
   void uses(String javaClass) {
     this.javaClass = javaClass;
     setJobProperty("java.class", javaClass);
@@ -185,6 +189,7 @@ class JavaProcessJob extends Job {
    *
    * @param xmsMb How many megabytes to set with -Xms for the Azkaban process
    */
+  @HadoopDslMethod
   void Xms(int xmsMb) {
     if (xmsMb <= 0) {
       throw new Exception("You must set Xms to be a positive number");
@@ -200,6 +205,7 @@ class JavaProcessJob extends Job {
    *
    * @param xmxMb How many megabytes to set with -Xmx for the Azkaban process
    */
+  @HadoopDslMethod
   void Xmx(int xmxMb) {
     if (xmxMb <= 0) {
       throw new Exception("You must set Xmx to be a positive number");

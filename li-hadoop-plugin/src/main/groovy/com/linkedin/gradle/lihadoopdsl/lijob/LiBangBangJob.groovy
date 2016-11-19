@@ -13,7 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopdsl.lijob;
+package com.linkedin.gradle.lihadoopdsl.lijob
+
+
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
 /**
  * All the bangbang supported job types must implement this interface
@@ -24,6 +27,7 @@ interface LiBangBangJob {
    *
    * @return The dependency of compiler set using runsOn
    */
+  @HadoopDslMethod
   String getDependency();
 
   /**
@@ -31,6 +35,7 @@ interface LiBangBangJob {
    *
    * @return Whether or not the generated script should be overwritten
    */
+  @HadoopDslMethod
   boolean isOverwritten();
 
   /**
@@ -38,6 +43,7 @@ interface LiBangBangJob {
    *
    * @param overWrite Whether the generated file will be overwritten or not
    */
+  @HadoopDslMethod
   void overwrite(boolean overWrite);
 
   /**
@@ -45,5 +51,6 @@ interface LiBangBangJob {
    *
    * @param dependency The Gradle coordinates of the compiler to use
    */
+  @HadoopDslMethod
   void runsOn(String dependency);
 }

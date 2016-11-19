@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl.job;
+package com.linkedin.gradle.hadoopdsl.job
 
+
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -99,6 +101,7 @@ class CommandJob extends Job {
    *
    * @param command The command for the job
    */
+  @HadoopDslMethod
   void uses(String command) {
     this.command = command;
     setJobProperty("command", command);
@@ -112,6 +115,7 @@ class CommandJob extends Job {
    *
    * @param command The command for the job
    */
+  @HadoopDslMethod
   void usesCommands(List<String> commands) {
     this.commands = commands;
   }

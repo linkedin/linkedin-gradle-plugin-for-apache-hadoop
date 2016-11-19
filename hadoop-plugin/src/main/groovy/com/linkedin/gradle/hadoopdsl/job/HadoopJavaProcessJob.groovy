@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -97,6 +98,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    *
    * @param args Args whose key 'files' has a map value specifying the files to cache
    */
+  @HadoopDslMethod
   void caches(Map args) {
     Map<String, String> files = args.files;
     if (files.size() == 0) {
@@ -125,6 +127,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    *
    * @param args Args whose key 'files' has a map value specifying the archives to cache
    */
+  @HadoopDslMethod
   void cachesArchive(Map args) {
     Map<String, String> files = args.files;
     if (files.size() == 0) {
@@ -179,6 +182,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    *
    * @param queueName The name of the queue in which this job should run
    */
+  @HadoopDslMethod
   void queue(String queueName) {
     this.queueName = queueName;
     setConfProperty("mapred.job.queue.name", queueName);
@@ -202,6 +206,7 @@ abstract class HadoopJavaProcessJob extends JavaProcessJob {
    *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set
    *   or a key 'hadoopProperties' that is a synonym for 'confProperties'
    */
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);
