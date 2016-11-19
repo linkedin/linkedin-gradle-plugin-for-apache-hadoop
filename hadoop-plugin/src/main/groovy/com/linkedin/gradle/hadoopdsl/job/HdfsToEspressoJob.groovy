@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=hdfsToEspressoJob jobs.
  * <p>
@@ -59,51 +61,61 @@ class HdfsToEspressoJob extends Job {
     setJobProperty("type", "hdfsToEspresso");
   }
 
+  @HadoopDslMethod
   void qps(int qps) {
     this.qps = qps;
     setJobProperty("espresso.qps", qps);
   }
 
+  @HadoopDslMethod
   void sourceHdfsPath(String sourceHdfsPath) {
     this.sourceHdfsPath = sourceHdfsPath;
     setJobProperty("input.paths", sourceHdfsPath);
   }
 
+  @HadoopDslMethod
   void espressoEndpoint(String espressoEndpoint) {
     this.espressoEndpoint = espressoEndpoint;
     setJobProperty("espresso.endpoint", espressoEndpoint);
   }
 
+  @HadoopDslMethod
   void espressoDatabaseName(String espressoDatabaseName) {
     this.espressoDatabaseName = espressoDatabaseName;
     setJobProperty("espresso.database", espressoDatabaseName);
   }
 
+  @HadoopDslMethod
   void espressoTableName(String espressoTableName) {
     this.espressoTableName = espressoTableName;
     setJobProperty("espresso.table", espressoTableName);
   }
 
+  @HadoopDslMethod
   void espressoContentType(String espressoContentType) {
     this.espressoContentType = espressoContentType;
     setJobProperty("espresso.content.type", espressoContentType);
   }
 
+  @HadoopDslMethod
   void espressoKey(String espressoKey) {
     this.espressoKey = espressoKey;
     setJobProperty("espresso.key", espressoKey);
   }
 
+  @HadoopDslMethod
   void espressoSubkeys(String espressoSubkeys) {
     this.espressoSubkeys = espressoSubkeys;
     setJobProperty("espresso.subkeys", espressoSubkeys);
   }
 
+  @HadoopDslMethod
   void espressoOperation(String espressoOperation) {
     this.espressoOperation = espressoOperation;
     setJobProperty("espresso.operation", espressoOperation);
   }
 
+  @HadoopDslMethod
   void errorHdfsPath(String errorHdfsPath) {
     this.errorHdfsPath = errorHdfsPath;
     setJobProperty("error.path", errorHdfsPath);
@@ -121,6 +133,7 @@ class HdfsToEspressoJob extends Job {
 
   /**
    * Helper method to set the properties on a cloned job.
+   *
    * @param cloneJob The job being cloned
    * @return The cloned job
    */

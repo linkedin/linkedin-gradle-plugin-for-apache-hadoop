@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=gobblinJob jobs.
  * <p>
@@ -52,16 +54,6 @@ class GobblinJob extends Job {
     setJobProperty("type", "gobblin");
   }
 
-  void preset(String preset) {
-    this.preset = preset;
-    setJobProperty("gobblin.config_preset", preset);
-  }
-
-  void workDir(String workDir) {
-    this.workDir = workDir;
-    setJobProperty("gobblin.work_dir", workDir);
-  }
-
   /**
    * Clones the job.
    *
@@ -82,5 +74,17 @@ class GobblinJob extends Job {
     cloneJob.preset = preset;
     cloneJob.workDir = workDir;
     return ((GobblinJob)super.clone(cloneJob));
+  }
+
+  @HadoopDslMethod
+  void preset(String preset) {
+    this.preset = preset;
+    setJobProperty("gobblin.config_preset", preset);
+  }
+
+  @HadoopDslMethod
+  void workDir(String workDir) {
+    this.workDir = workDir;
+    setJobProperty("gobblin.work_dir", workDir);
   }
 }

@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=sql jobs.
  * <p>
@@ -51,26 +53,31 @@ class SqlJob extends Job {
     setJobProperty("type", "sql");
   }
 
+  @HadoopDslMethod
   void jdbcDriverClass(String jdbcDriverClass) {
     this.jdbcDriverClass = jdbcDriverClass;
     setJobProperty("jdbc.driver.class", jdbcDriverClass);
   }
 
+  @HadoopDslMethod
   void jdbcUrl(String jdbcUrl) {
     this.jdbcUrl = jdbcUrl;
     setJobProperty("jdbc.url", jdbcUrl);
   }
 
+  @HadoopDslMethod
   void jdbcUserId(String jdbcUserId) {
     this.jdbcUserId = jdbcUserId;
     setJobProperty("jdbc.userid", jdbcUserId);
   }
 
+  @HadoopDslMethod
   void jdbcEncryptedCredential(String jdbcEncryptedCredential) {
     this.jdbcEncryptedCredential = jdbcEncryptedCredential;
     setJobProperty("jdbc.encrypted.credential", jdbcEncryptedCredential);
   }
 
+  @HadoopDslMethod
   void jdbcCryptoKeyPath(String jdbcCryptoKeyPath) {
     this.jdbcCryptoKeyPath = jdbcCryptoKeyPath;
     setJobProperty("jdbc.crypto.key.path", jdbcCryptoKeyPath);

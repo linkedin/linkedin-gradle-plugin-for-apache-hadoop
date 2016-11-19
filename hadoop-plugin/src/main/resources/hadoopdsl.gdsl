@@ -5,10 +5,17 @@ def globalContext = context(filetypes: ["gradle", "hadoopdsl"])
 
 contributor(globalContext) {
   if (!enclosingCall("hadoop")) {
-    // Expose the Hadoop Extension through the hadoop { ... } block
+    // Expose the Hadoop Extension through the hadoop { ... } block. For the Extension, we will
+    // expose the full object hierarchy so that users can script the Hadoop DSL however they want.
     method name: "hadoop", params: [configure: "groovy.lang.Closure"], type: "com.linkedin.gradle.hadoopdsl.HadoopDslExtension"
 
-    // Add the properties and extensions exposed by the Hadoop Plugin at the top level
-    // findClass("com.linkedin.gradle.hadoopdsl.HadoopDslPlugin")?.methods?.each { add it }
+    // Add the properties and extensions exposed by the Hadoop Plugin. Here, we will only expose
+    // members exposed through the @HadoopDslMethod extension, so that people cannot accidentally
+    // corrupt the internal state of the Hadoop Plugin.
+    findClass("com.linkedin.gradle.hadoopdsl.HadoopDslPlugin")?.methods?.each { m ->
+      if (m.hasAnnotation("com.linkedin.gradle.hadoopdsl.HadoopDslMethod")) {
+        add m
+      }
+    }
   }
 }

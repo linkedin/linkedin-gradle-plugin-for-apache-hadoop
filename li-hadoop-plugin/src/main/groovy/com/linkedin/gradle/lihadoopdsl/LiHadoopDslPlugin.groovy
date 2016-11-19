@@ -16,6 +16,7 @@
 package com.linkedin.gradle.lihadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
@@ -61,6 +62,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   LiPigBangBangJob liPigBangBangJob(String name, @DelegatesTo(LiPigBangBangJob) Closure configure) {
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return ((LiPigBangBangJob)configureJob(liFactory.makeLiPigBangBangJob(name), configure));
@@ -76,6 +78,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
    * @return The new job
    */
   @Deprecated
+  @HadoopDslMethod
   PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure) {
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return ((PigLiJob)configureJob(liFactory.makePigLiJob(name), configure));

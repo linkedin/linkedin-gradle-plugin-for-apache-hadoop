@@ -44,6 +44,7 @@ abstract class BasePropertySet {
    *
    * @param propertySetName The name of the base PropertySet
    */
+  @HadoopDslMethod
   void baseProperties(String propertySetName) {
     this.basePropertySetName = propertySetName;
   }
@@ -92,6 +93,7 @@ abstract class BasePropertySet {
    *   or a key 'hadoopProperties' that is a synonym for 'confProperties';
    *   or a key 'parameters' with a map value that specifies the Hive parameters to set
    */
+  @HadoopDslMethod
   void set(Map args) {
     if (args.containsKey("confProperties")) {
       Map<String, Object> confProperties = args.confProperties;

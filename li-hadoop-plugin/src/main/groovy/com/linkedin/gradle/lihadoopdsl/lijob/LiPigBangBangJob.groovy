@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lihadoopdsl.lijob;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.libangbang.BangBangCommand;
@@ -118,6 +119,7 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    *
    * @return The dependency of the compiler set using runsOn
    */
+  @HadoopDslMethod
   @Override
   String getDependency() {
     return pigDependency;
@@ -128,6 +130,7 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    *
    * @return Whether or not the generated script should be overwritten
    */
+  @HadoopDslMethod
   @Override
   boolean isOverwritten() {
     return overWrite;
@@ -138,6 +141,7 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    *
    * @param overWrite Whether the generated file will be overwritten or not
    */
+  @HadoopDslMethod
   @Override
   void overwrite(boolean overWrite) {
     this.overWrite = overWrite;
@@ -148,6 +152,7 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    *
    * @param dependency The Gradle coordinates of the compiler to use
    */
+  @HadoopDslMethod
   @Override
   void runsOn(String dependency) {
     this.pigDependency = dependency;
@@ -158,6 +163,7 @@ class LiPigBangBangJob extends PigJob implements LiBangBangJob {
    *
    * @param dependencyMap The map to convert into the dependencies to use for Pig
    */
+  @HadoopDslMethod
   void runsOn(LazyMap dependencyMap) {
     List<String> mapArgs = new ArrayList<String>();
     dependencyMap.each {

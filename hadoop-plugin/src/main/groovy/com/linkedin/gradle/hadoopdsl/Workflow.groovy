@@ -259,6 +259,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param jobNames The list of job names on which this workflow depends
    */
   @Deprecated
+  @HadoopDslMethod
   void depends(String... jobNames) {
     project.logger.lifecycle("The Workflow depends method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchDependencies.addAll(jobNames.toList());
@@ -272,6 +273,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param jobNames The list of job names this workflow executes
    */
   @Deprecated
+  @HadoopDslMethod
   void executes(String... targetNames) {
     project.logger.lifecycle("The Workflow executes method is deprecated. Please use the targets method to declare that the workflow ${name} targets the jobs ${jobNames}.")
     launchDependencies.addAll(jobNames.toList());
@@ -301,6 +303,7 @@ class Workflow extends BaseNamedScopeContainer {
    *
    * @param targetNames The list of targets in the parent workflow upon on which this subflow depends
    */
+  @HadoopDslMethod
   void flowDepends(String... targetNames) {
     flowDepends(false, targetNames.toList());
   }
@@ -312,6 +315,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param clear Whether or not to clear the previously declared parent targets
    * @param targetNames The list of targets in the parent workflow upon on which this subflow depends
    */
+  @HadoopDslMethod
   void flowDepends(boolean clear, List<String> targetNames) {
     if (clear) {
       parentDependencies.clear();
@@ -326,6 +330,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared targets and
    *             required key 'targetNames' specifies the list of targets for the workflow
    */
+  @HadoopDslMethod
   void flowDepends(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];
@@ -337,6 +342,7 @@ class Workflow extends BaseNamedScopeContainer {
    *
    * @param targetNames The variable-length targets for the workflow
    */
+  @HadoopDslMethod
   void targets(String... targetNames) {
     targets(targetNames.toList());
   }
@@ -346,6 +352,7 @@ class Workflow extends BaseNamedScopeContainer {
    *
    * @param targetNames The list of targets for the workflow
    */
+  @HadoopDslMethod
   void targets(List<String> targetNames) {
     targets(false, targetNames);
   }
@@ -356,6 +363,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param clear Whether or not to clear the previously declared targets
    * @param targetNames The list of targets for the workflow
    */
+  @HadoopDslMethod
   void targets(boolean clear, List<String> targetNames) {
     if (clear) {
       launchDependencies.clear();
@@ -369,6 +377,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared targets and
    *             required key 'targetNames' specifies the list of targets for the workflow
    */
+  @HadoopDslMethod
   void targets(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];

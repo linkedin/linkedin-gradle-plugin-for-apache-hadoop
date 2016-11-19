@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -164,6 +165,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param storeName
    */
+  @HadoopDslMethod
   void usesStoreName(String storeName) {
     this.storeName = storeName;
     setJobProperty("push.store.name", storeName);
@@ -174,6 +176,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param clusterName
    */
+  @HadoopDslMethod
   void usesClusterName(String clusterName) {
     this.clusterName = clusterName;
     setJobProperty("push.cluster", clusterName);
@@ -184,6 +187,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param buildInputPath
    */
+  @HadoopDslMethod
   void usesInputPath(String buildInputPath) {
     this.buildInputPath = buildInputPath;
     setJobProperty("build.input.path", buildInputPath);
@@ -194,6 +198,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param buildOutputPath
    */
+  @HadoopDslMethod
   void usesOutputPath(String buildOutputPath) {
     this.buildOutputPath = buildOutputPath;
     setJobProperty("build.output.dir", buildOutputPath);
@@ -204,6 +209,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param storeOwners
    */
+  @HadoopDslMethod
   void usesStoreOwners(String storeOwners) {
     this.storeOwners = storeOwners;
     setJobProperty("push.store.owners", storeOwners);
@@ -214,6 +220,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param storeDesc
    */
+  @HadoopDslMethod
   void usesStoreDesc(String storeDesc) {
     this.storeDesc = storeDesc;
     setJobProperty("push.store.description", storeDesc);
@@ -224,6 +231,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param buildTempDir
    */
+  @HadoopDslMethod
   void usesTempDir(String buildTempDir) {
     this.buildTempDir = buildTempDir;
     setJobProperty("build.temp.dir", buildTempDir);
@@ -234,6 +242,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param repFactor
    */
+  @HadoopDslMethod
   void usesRepFactor(Integer repFactor) {
     this.repFactor = repFactor;
     setJobProperty("build.replication.factor", repFactor);
@@ -244,6 +253,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param compressValue
    */
+  @HadoopDslMethod
   void usesCompressValue(Boolean compressValue) {
     this.compressValue = compressValue;
     setJobProperty("build.compress.value", compressValue);
@@ -254,6 +264,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param keySelection
    */
+  @HadoopDslMethod
   void usesKeySelection(String keySelection) {
     this.keySelection = keySelection;
     setJobProperty("key.selection", keySelection);
@@ -264,6 +275,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param valueSelection
    */
+  @HadoopDslMethod
   void usesValueSelection(String valueSelection) {
     this.valueSelection = valueSelection;
     setJobProperty("value.selection", valueSelection);
@@ -274,6 +286,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param numChunks
    */
+  @HadoopDslMethod
   void usesNumChunks(Integer numChunks) {
     this.numChunks = numChunks;
     setJobProperty("num.chunks", numChunks);
@@ -284,6 +297,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param chunkSize
    */
+  @HadoopDslMethod
   void usesChunkSize(Integer chunkSize) {
     this.chunkSize = chunkSize;
     setJobProperty("build.chunk.size", chunkSize);
@@ -294,6 +308,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param keepOutput
    */
+  @HadoopDslMethod
   void usesKeepOutput(Boolean keepOutput) {
     this.keepOutput = keepOutput;
     setJobProperty("build.output.keep", keepOutput);
@@ -305,6 +320,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param pushHttpTimeoutSeconds
    */
+  @HadoopDslMethod
   void usesPushHttpTimeoutSeconds(Integer pushHttpTimeoutSeconds) {
     this.pushHttpTimeoutSeconds = pushHttpTimeoutSeconds;
     setJobProperty("push.http.timeout.seconds", pushHttpTimeoutSeconds);
@@ -315,6 +331,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param pushNode
    */
+  @HadoopDslMethod
   void usesPushNode(Integer pushNode) {
     this.pushNode = pushNode;
     setJobProperty("push.node", pushNode);
@@ -325,6 +342,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param buildStore
    */
+  @HadoopDslMethod
   void usesBuildStore(Boolean buildStore) {
     this.buildStore = buildStore;
     setJobProperty("build", buildStore);
@@ -335,6 +353,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param pushStore
    */
+  @HadoopDslMethod
   void usesPushStore(Boolean pushStore) {
     this.pushStore = pushStore;
     setJobProperty("push", pushStore);
@@ -346,6 +365,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param fetcherProtocol
    */
+  @HadoopDslMethod
   void usesFetcherProtocol(String fetcherProtocol) {
     this.fetcherProtocol = fetcherProtocol;
     setJobProperty("voldemort.fetcher.protocol", fetcherProtocol);
@@ -356,6 +376,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param fetcherPort
    */
+  @HadoopDslMethod
   void usesFetcherPort(String fetcherPort) {
     this.fetcherPort = fetcherPort;
     setJobProperty("voldemort.fetcher.port", fetcherPort);
@@ -367,6 +388,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param isAvroSerializerVersioned
    */
+  @HadoopDslMethod
   void usesAvroSerializerVersioned(Boolean isAvroSerializerVersioned) {
     this.isAvroSerializerVersioned = isAvroSerializerVersioned;
     setJobProperty("avro.serializer.versioned", isAvroSerializerVersioned);
@@ -377,6 +399,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param isAvroData
    */
+  @HadoopDslMethod
   void usesAvroData(Boolean isAvroData) {
     this.isAvroData = isAvroData;
     setJobProperty("build.type.avro", isAvroData);
@@ -388,6 +411,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param avroKeyField
    */
+  @HadoopDslMethod
   void usesAvroKeyField(String avroKeyField) {
     this.avroKeyField = avroKeyField;
     // Only set the job property at build time if isAvroData is true
@@ -399,6 +423,7 @@ class VoldemortBuildPushJob extends HadoopJavaJob {
    *
    * @param avroValueField
    */
+  @HadoopDslMethod
   void usesAvroValueField(String avroValueField) {
     this.avroValueField = avroValueField;
     // Only set the job property at build time if isAvroData is true

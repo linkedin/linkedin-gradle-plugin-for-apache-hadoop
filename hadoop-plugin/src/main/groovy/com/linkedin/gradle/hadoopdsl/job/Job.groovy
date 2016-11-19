@@ -15,7 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet;
+import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
 
@@ -61,10 +62,12 @@ class Job {
   }
 
   /**
-   * Sets the name of the base PropertySet from which to get the base properties.
+   * DSL baseProperties method. Sets the name of the BasePropertySet from which to get the base
+   * properties.
    *
    * @param propertySetName The name of the base PropertySet
    */
+  @HadoopDslMethod
   void baseProperties(String propertySetName) {
     this.basePropertySetName = propertySetName;
   }
@@ -169,6 +172,7 @@ class Job {
    *
    * @param targetNames The variable-length targets on which this job depends
    */
+  @HadoopDslMethod
   void depends(String... targetNames) {
     depends(targetNames.toList());
   }
@@ -178,6 +182,7 @@ class Job {
    *
    * @param targetNames The list of targets on which this job depends
    */
+  @HadoopDslMethod
   void depends(List<String> targetNames) {
     depends(false, targetNames);
   }
@@ -188,6 +193,7 @@ class Job {
    * @param clear Whether or not to clear the previously declared dependencies
    * @param targetNames The list of targets on which this job depends
    */
+  @HadoopDslMethod
   void depends(boolean clear, List<String> targetNames) {
     if (clear) {
       dependencyNames.clear();
@@ -201,6 +207,7 @@ class Job {
    * @param args Args whose optional key 'clear' specifies whether or not to clear the previously declared dependencies
    *                  and required key 'targetNames' specifies the list of targets on which this job depends
    */
+  @HadoopDslMethod
   void depends(Map args) {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];
@@ -239,6 +246,7 @@ class Job {
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
+  @HadoopDslMethod
   void reads(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
@@ -258,6 +266,7 @@ class Job {
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job writes
    */
+  @HadoopDslMethod
   void writes(Map args) {
     Map<String, String> files = args.files;
     for (Map.Entry<String, String> entry : files) {
@@ -272,6 +281,7 @@ class Job {
    *
    * @param args Args whose key 'properties' has a map value specifying the job properties to set
    */
+  @HadoopDslMethod
   void set(Map args) {
     if (args.containsKey("properties")) {
       Map<String, Object> properties = args.properties;

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -74,60 +75,72 @@ class TeradataToHdfsJob extends Job {
     return allProperties;
   }
 
+  @HadoopDslMethod
   void hostName(String hostName) {
     this.hostName = hostName;
     setJobProperty("td.hostname", hostName);
   }
 
+  @HadoopDslMethod
   void userId(String userId) {
     this.userId = userId;
     setJobProperty("td.userid", userId);
   }
 
+  @HadoopDslMethod
   void credentialName(String credentialName) {
     this.credentialName = credentialName;
     setJobProperty("td.credentialName", credentialName);
   }
 
+  @HadoopDslMethod
   void encryptedCredential(String encryptedCredential) {
     this.encryptedCredential = encryptedCredential;
     setJobProperty("td.encrypted.credential", encryptedCredential);
   }
 
+  @HadoopDslMethod
   void cryptoKeyFilePath(String cryptoKeyFilePath) {
     this.cryptoKeyFilePath = cryptoKeyFilePath;
     setJobProperty("td.crypto.key.path", cryptoKeyFilePath);
   }
 
+  @HadoopDslMethod
   void sourceTable(String sourceTable) {
     this.sourceTable = sourceTable;
     setJobProperty("source.td.tablename", sourceTable);
   }
 
+  @HadoopDslMethod
   void sourceQuery(String sourceQuery) {
     this.sourceQuery = sourceQuery;
     setJobProperty("source.td.sourcequery", sourceQuery);
   }
 
+  @HadoopDslMethod
   void targetHdfsPath(String targetHdfsPath) {
     this.targetHdfsPath = targetHdfsPath;
     setJobProperty("target.hdfs.path", targetHdfsPath);
   }
 
+  @HadoopDslMethod
   void avroSchemaPath(String avroSchemaPath) {
     this.avroSchemaPath = avroSchemaPath;
     setJobProperty("avro.schema.path", avroSchemaPath);
   }
 
+  @HadoopDslMethod
   void avroSchemaInline(String avroSchemaInline) {
     this.avroSchemaInline = avroSchemaInline;
     setJobProperty("avro.schema.inline", avroSchemaInline);
   }
 
+  @HadoopDslMethod
   void setHadoopProperty(String name, Object value) {
     hadoopProperties.put(name, value);
   }
 
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);

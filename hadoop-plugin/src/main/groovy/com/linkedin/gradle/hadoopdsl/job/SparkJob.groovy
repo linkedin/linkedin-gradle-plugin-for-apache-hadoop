@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=spark jobs.
  * <p>
@@ -120,6 +122,7 @@ class SparkJob extends HadoopJavaProcessJob {
    *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set;
    *   or a key 'sparkConfs' with a map value that specifies the Spark configuration to set
    */
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);
@@ -138,6 +141,7 @@ class SparkJob extends HadoopJavaProcessJob {
    * @param name The Spark parameter name
    * @param value The Spark parameter value
    */
+  @HadoopDslMethod
   void setConf(String name, Object value) {
     sparkConfs.put(name, value);
     setJobProperty("conf.${name}", value);
@@ -146,8 +150,10 @@ class SparkJob extends HadoopJavaProcessJob {
   /**
    * DSL enableFlags method sets the flags for the job. When the job file is build, job properties
    * of the form flag.flagName=true is added in the job file.
+   *
    * @param flags
    */
+  @HadoopDslMethod
   void enableFlags(List<String> flags) {
     this.flags = flags.toSet();
     flags.each { flag ->
@@ -158,8 +164,10 @@ class SparkJob extends HadoopJavaProcessJob {
   /**
    * DSL appParams method sets the application parameters for the job. When the job file is build, job properties
    * of the form params=value1 value2 value3 is added in the job file.
+   *
    * @param appParams
    */
+  @HadoopDslMethod
   void appParams(List<String> appParams) {
     this.appParams = appParams;
     setJobProperty('params', appParams.join(" "));
@@ -169,21 +177,24 @@ class SparkJob extends HadoopJavaProcessJob {
    * DSL method uses specifies the class to be used for the job. This method
    * causes the property class=value to be added the job. This method
    * is required to build the job.
+   *
    * @param script The Spark script for the job
    */
+  @HadoopDslMethod
   @Override
   void uses(String appClass) {
     this.appClass = appClass;
     setJobProperty("class", appClass);
   }
 
-
   /**
    * DSL method executes specifies the execution-jar for the spark job. The specified value can be either
    * an absolute or relative path to the execution jar. This method causes the property execution-jar=value
    * to be added to the job. This method is required to build the job.
+   *
    * @param executionTarget
    */
+  @HadoopDslMethod
   void executes(String executionTarget) {
     this.executionTarget = executionTarget;
     setJobProperty("execution-jar", executionTarget);
@@ -195,6 +206,7 @@ class SparkJob extends HadoopJavaProcessJob {
    *
    * @param queueName The name of the queue in which this job should run
    */
+  @HadoopDslMethod
   @Override
   void queue(String yarnQueue) {
     this.yarnQueue = yarnQueue;
@@ -204,44 +216,54 @@ class SparkJob extends HadoopJavaProcessJob {
   /**
    * DSL jars methods specifies the jars which should be added to the classpath of spark jobs during execution.
    * This method accepts a comma separated list of jars.
+   *
    * @param jars A comma separated list of jars that should be added to classpath
    */
+  @HadoopDslMethod
   void jars(String jars) {
     this.jars = jars;
     setJobProperty("jars", this.jars);
   }
 
   /**
-   * DSL method to set the executor memory
-   * @param executorMemory The executor memory for the spark job
+   * DSL method to set the executor memory.
+   *
+   * @param executorMemory The executor memory for the Spark job
    */
+  @HadoopDslMethod
   void executorMemory(String executorMemory) {
     this.executorMemory = executorMemory.toLowerCase();
     setJobProperty("executor-memory", this.executorMemory);
   }
 
   /**
-   * DSL method to set the driver memory
-   * @param driverMemory The driver memory for the spark job
+   * DSL method to set the driver memory.
+   *
+   * @param driverMemory The driver memory for the Spark job
    */
+  @HadoopDslMethod
   void driverMemory(String driverMemory) {
     this.driverMemory = driverMemory.toLowerCase();
     setJobProperty("driver-memory", this.driverMemory);
   }
 
   /**
-   * DSL method to set the executor cores
-   * @param executorCores The number of executor cores for the spark job
+   * DSL method to set the number of executor cores.
+   *
+   * @param executorCores The number of executor cores for the Spark job
    */
+  @HadoopDslMethod
   void executorCores(int executorCores) {
     this.executorCores = executorCores;
     setJobProperty("executor-cores", this.executorCores);
   }
 
   /**
-   * DSL method to set the number of executors
-   * @param numExecutors The number of executors for the spark job
+   * DSL method to set the number of executors.
+   *
+   * @param numExecutors The number of executors for the Spark job
    */
+  @HadoopDslMethod
   void numExecutors(int numExecutors) {
     this.numExecutors = numExecutors;
     setJobProperty("num-executors", this.numExecutors);

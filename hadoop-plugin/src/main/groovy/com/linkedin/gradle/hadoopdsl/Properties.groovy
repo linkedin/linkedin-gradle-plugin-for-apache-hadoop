@@ -124,6 +124,7 @@ class Properties extends BasePropertySet {
    * @param name The Hadoop job configuration property to set
    * @param value The Hadoop job configuration property value
    */
+  @HadoopDslMethod
   @Override
   void setConfProperty(String name, Object value) {
     super.setConfProperty(name, value);

@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=KafkaPushJob jobs.
  * <p>
@@ -93,6 +95,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param inputPath
    */
+  @HadoopDslMethod
   void usesInputPath(String inputPath) {
     this.inputPath = inputPath;
     setJobProperty("input.path", inputPath);
@@ -103,6 +106,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param topic
    */
+  @HadoopDslMethod
   void usesTopic(String topic) {
     this.topic = topic;
     setJobProperty("topic", topic);
@@ -113,6 +117,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param batchNumBytes
    */
+  @HadoopDslMethod
   void usesBatchNumBytes(Integer batchNumBytes) {
     this.batchNumBytes = batchNumBytes;
     setJobProperty("batch.num.bytes", batchNumBytes);
@@ -124,6 +129,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param disableSchemaRegistration
    */
+  @HadoopDslMethod
   void usesDisableSchemaRegistration(Boolean disableSchemaRegistration) {
     this.disableSchemaRegistration = disableSchemaRegistration;
     setJobProperty("disable.schema.registration", disableSchemaRegistration);
@@ -134,6 +140,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param kafkaUrl
    */
+  @HadoopDslMethod
   void usesKafkaUrl(String kafkaUrl) {
     this.kafkaUrl = kafkaUrl;
     setJobProperty("kafka.url", kafkaUrl);
@@ -144,6 +151,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param nameNode
    */
+  @HadoopDslMethod
   void usesNameNode(String nameNode) {
     this.nameNode = nameNode;
     setJobProperty("name.node", nameNode);
@@ -155,6 +163,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param schemaRegistryUrl
    */
+  @HadoopDslMethod
   void usesSchemaRegistryUrl(String schemaRegistryUrl) {
     this.schemaRegistryUrl = schemaRegistryUrl;
     setJobProperty("schemaregistry.rest.url", schemaRegistryUrl);
@@ -165,6 +174,7 @@ class KafkaPushJob extends HadoopJavaJob {
    *
    * @param disableAuditing
    */
+  @HadoopDslMethod
   void usesDisableAuditing(Boolean disableAuditing) {
     this.disableAuditing = disableAuditing;
     setJobProperty("disable.auditing", disableAuditing);

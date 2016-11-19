@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
@@ -54,14 +55,11 @@ class HdfsToTeradataJob extends Job {
   String credentialName;
   String encryptedCredential;
   String cryptoKeyFilePath;
-
   String sourceHiveDatabase;
   String sourceHiveTable;
-
   String sourceHdfsPath;
   String avroSchemaPath;
   String avroSchemaInline;
-
   String targetTable;
   Map<String, Object> hadoopProperties;
 
@@ -83,31 +81,37 @@ class HdfsToTeradataJob extends Job {
     return allProperties;
   }
 
+  @HadoopDslMethod
   void hostName(String hostName) {
     this.hostName = hostName;
     setJobProperty("td.hostname", hostName);
   }
 
+  @HadoopDslMethod
   void userId(String userId) {
     this.userId = userId;
     setJobProperty("td.userid", userId);
   }
 
+  @HadoopDslMethod
   void credentialName(String credentialName) {
     this.credentialName = credentialName;
     setJobProperty("td.credentialName", credentialName);
   }
 
+  @HadoopDslMethod
   void encryptedCredential(String encryptedCredential) {
     this.encryptedCredential = encryptedCredential;
     setJobProperty("td.encrypted.credential", encryptedCredential);
   }
 
+  @HadoopDslMethod
   void cryptoKeyFilePath(String cryptoKeyFilePath) {
     this.cryptoKeyFilePath = cryptoKeyFilePath;
     setJobProperty("td.crypto.key.path", cryptoKeyFilePath);
   }
 
+  @HadoopDslMethod
   void sourceHiveDatabase(String sourceHiveDatabase) {
     this.sourceHiveDatabase = sourceHiveDatabase;
     setJobProperty("source.hive.databasename", sourceHiveDatabase);
@@ -117,36 +121,43 @@ class HdfsToTeradataJob extends Job {
    * Setting table name. Also, setting jobtype as hive.
    * @param sourceHiveTable
    */
+  @HadoopDslMethod
   void sourceHiveTable(String sourceHiveTable) {
     this.sourceHiveTable = sourceHiveTable;
     setJobProperty("source.hive.tablename", sourceHiveTable);
     setJobProperty("tdch.jobtype", "hive");
   }
 
+  @HadoopDslMethod
   void sourceHdfsPath(String sourceHdfsPath) {
     this.sourceHdfsPath = sourceHdfsPath;
     setJobProperty("source.hdfs.path", sourceHdfsPath);
   }
 
+  @HadoopDslMethod
   void avroSchemaPath(String avroSchemaPath) {
     this.avroSchemaPath = avroSchemaPath;
     setJobProperty("avro.schema.path", avroSchemaPath);
   }
 
+  @HadoopDslMethod
   void avroSchemaInline(String avroSchemaInline) {
     this.avroSchemaInline = avroSchemaInline;
     setJobProperty("avro.schema.inline", avroSchemaInline);
   }
 
+  @HadoopDslMethod
   void targetTable(String targetTable) {
     this.targetTable = targetTable;
     setJobProperty("target.td.tablename", targetTable);
   }
 
+  @HadoopDslMethod
   void setHadoopProperty(String name, Object value) {
     hadoopProperties.put(name, value);
   }
 
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);

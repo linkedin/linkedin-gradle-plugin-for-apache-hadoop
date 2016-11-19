@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
@@ -33,6 +34,7 @@ interface LiNamedScopeContainer extends NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   LiPigBangBangJob liPigBangBangJob(String name, @DelegatesTo(LiPigBangBangJob) Closure configure);
 
   /**
@@ -46,5 +48,6 @@ interface LiNamedScopeContainer extends NamedScopeContainer {
    * @return The new job
    */
   @Deprecated
+  @HadoopDslMethod
   PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure);
 }

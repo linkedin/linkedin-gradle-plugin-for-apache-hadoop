@@ -359,6 +359,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured job that was added to the workflow
    */
+  @HadoopDslMethod
   Job addJob(String name, @DelegatesTo(Job) Closure configure) {
     return configureJob(cloneJob(name), configure);
   }
@@ -373,6 +374,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured job that was added to the workflow
    */
+  @HadoopDslMethod
   Job addJob(String name, String rename, @DelegatesTo(Job) Closure configure) {
     return configureJob(cloneJob(name, rename), configure);
   }
@@ -385,6 +387,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured namespace that was bound in scope
    */
+  @HadoopDslMethod
   Namespace addNamespace(String name, @DelegatesTo(Namespace) Closure configure) {
     return configureNamespace(cloneNamespace(name), configure);
   }
@@ -399,6 +402,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured namespace that was bound in scope
    */
+  @HadoopDslMethod
   Namespace addNamespace(String name, String rename, @DelegatesTo(Namespace) Closure configure) {
     return configureNamespace(cloneNamespace(name, rename), configure);
   }
@@ -411,6 +415,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured properties object that was bound in scope
    */
+  @HadoopDslMethod
   Properties addPropertyFile(String name, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(clonePropertyFile(name), configure);
   }
@@ -425,6 +430,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured properties object that was bound in scope
    */
+  @HadoopDslMethod
   Properties addPropertyFile(String name, String rename, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(clonePropertyFile(name, rename), configure);
   }
@@ -437,6 +443,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured PropertySet that was bound in scope
    */
+  @HadoopDslMethod
   PropertySet addPropertySet(String name, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(clonePropertySet(name), configure);
   }
@@ -451,6 +458,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured PropertySet that was bound in scope
    */
+  @HadoopDslMethod
   PropertySet addPropertySet(String name, String rename, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(clonePropertySet(name, rename), configure);
   }
@@ -463,6 +471,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned and configured workflow that was bound in scope
    */
+  @HadoopDslMethod
   Workflow addWorkflow(String name, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(cloneWorkflow(name), configure);
   }
@@ -477,6 +486,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The cloned, renamed and configured workflow that was bound in scope
    */
+  @HadoopDslMethod
   Workflow addWorkflow(String name, String rename, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(cloneWorkflow(name, rename), configure);
   }
@@ -490,6 +500,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    *             and whose optional key "targetName" specifies the name of the Hadoop DSL object to set as the closure delegate before evaluating the closure.
    *             If the definition set is not specified, the default definition set is used, and if the target name is not specified, this object is used as the specified delegate target.
    */
+  @HadoopDslMethod
   void evalHadoopClosure(Map args) {
     String closureName = args.name;
     String definitionSetName = args.containsKey("defs") ? args.defs : "default";
@@ -502,6 +513,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * DSL evalHadoopClosures method. Evaluates all the anonymous hadoopClosure closures against the
    * default definition set and using this object as the specified delegate target.
    */
+  @HadoopDslMethod
   void evalHadoopClosures() {
     evalHadoopClosures("default");
   }
@@ -512,6 +524,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    *
    * @param definitionSetName The definition set name to use as the current definition set before evaluating the closures
    */
+  @HadoopDslMethod
   void evalHadoopClosures(String definitionSetName) {
     project.extensions.hadoopDslPlugin.evalHadoopClosures(definitionSetName, this);
   }
@@ -524,6 +537,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    *             and whose optional key "targetName" specifies the name of the Hadoop DSL object to set as the closure delegate before evaluating the closure.
    *             If the definition set is not specified, the default definition set is used, and if the target name is not specified, this object is used as the specified delegate target.
    */
+  @HadoopDslMethod
   void evalHadoopClosures(Map args) {
     String definitionSetName = args.containsKey("defs") ? args.defs : "default";
     String targetName = args.containsKey("targetName") ? args.targetName : null;
@@ -548,6 +562,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The object that is bound in scope to the given name
    * @throws Exception If the given name is not bound in scope
    */
+  @HadoopDslMethod
   Object lookup(String name) {
     Object entry = scope.lookup(name);
     if (entry == null) {
@@ -565,6 +580,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The object that is bound in scope to the given name, with the configuration applied
    * @throws Exception If the given name is not bound in scope
    */
+  @HadoopDslMethod
   Object lookup(String name, Closure configure) {
     Object boundObject = lookup(name);
     project.configure(boundObject, configure);
@@ -577,6 +593,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param name The name to lookup
    * @return The NamedScopeReference for the binding, or null if the given name is not bound in scope
    */
+  @HadoopDslMethod
   NamedScopeReference lookupRef(String name) {
     return scope.lookupRef(name);
   }
@@ -592,6 +609,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The namespace
    */
+  @HadoopDslMethod
   Namespace namespace(String name, @DelegatesTo(Namespace) Closure configure) {
     // Check if the namespace is in scope at this level
     Object boundObject = scope.thisLevel.get(name);
@@ -614,6 +632,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new properties object
    */
+  @HadoopDslMethod
   Properties propertyFile(String name, @DelegatesTo(Properties) Closure configure) {
     return configureProperties(factory.makeProperties(name), configure);
   }
@@ -626,6 +645,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new PropertySet object
    */
+  @HadoopDslMethod
   PropertySet propertySet(String name, @DelegatesTo(PropertySet) Closure configure) {
     return configurePropertySet(factory.makePropertySet(name, scope), configure);
   }
@@ -637,6 +657,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new workflow
    */
+  @HadoopDslMethod
   Workflow workflow(String name, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(factory.makeWorkflow(name, project, scope), configure);
   }
@@ -648,6 +669,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   Job job(String name, @DelegatesTo(Job) Closure configure) {
     return configureJob(factory.makeJob(name), configure);
   }
@@ -659,6 +681,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   CommandJob commandJob(String name, @DelegatesTo(CommandJob) Closure configure) {
     return ((CommandJob)configureJob(factory.makeCommandJob(name), configure));
   }
@@ -671,6 +694,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   HadoopJavaJob hadoopJavaJob(String name, @DelegatesTo(HadoopJavaJob) Closure configure) {
     return ((HadoopJavaJob)configureJob(factory.makeHadoopJavaJob(name), configure));
   }
@@ -683,6 +707,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure.
    * @return The new job
    */
+  @HadoopDslMethod
   HadoopShellJob hadoopShellJob(String name, @DelegatesTo(HadoopShellJob) Closure configure) {
     return ((HadoopShellJob)configureJob(factory.makeHadoopShellJob(name), configure));
   }
@@ -694,6 +719,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   HiveJob hiveJob(String name, @DelegatesTo(HiveJob) Closure configure) {
     return ((HiveJob)configureJob(factory.makeHiveJob(name), configure));
   }
@@ -708,6 +734,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The new job
    */
   @Deprecated
+  @HadoopDslMethod
   JavaJob javaJob(String name, @DelegatesTo(JavaJob) Closure configure) {
     project.logger.lifecycle("JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job ${name} to one of these classes.");
     return ((JavaJob)configureJob(factory.makeJavaJob(name), configure));
@@ -721,6 +748,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   JavaProcessJob javaProcessJob(String name, @DelegatesTo(JavaProcessJob) Closure configure) {
     return ((JavaProcessJob)configureJob(factory.makeJavaProcessJob(name), configure));
   }
@@ -733,6 +761,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   KafkaPushJob kafkaPushJob(String name, @DelegatesTo(KafkaPushJob) Closure configure) {
     return ((KafkaPushJob)configureJob(factory.makeKafkaPushJob(name), configure));
   }
@@ -744,6 +773,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   NoOpJob noOpJob(String name, @DelegatesTo(NoOpJob) Closure configure) {
     return ((NoOpJob)configureJob(factory.makeNoOpJob(name), configure));
   }
@@ -755,6 +785,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   PigJob pigJob(String name, @DelegatesTo(PigJob) Closure configure) {
     return ((PigJob)configureJob(factory.makePigJob(name), configure));
   }
@@ -766,6 +797,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   SparkJob sparkJob(String name, @DelegatesTo(SparkJob) Closure configure) {
     return ((SparkJob)configureJob(factory.makeSparkJob(name), configure));
   }
@@ -778,6 +810,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   VoldemortBuildPushJob voldemortBuildPushJob(String name, @DelegatesTo(VoldemortBuildPushJob) Closure configure) {
     return ((VoldemortBuildPushJob)configureJob(factory.makeVoldemortBuildPushJob(name), configure));
   }
@@ -790,6 +823,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   HdfsToTeradataJob hdfsToTeradataJob(String name, @DelegatesTo(HdfsToTeradataJob) Closure configure) {
     return ((HdfsToTeradataJob)configureJob(factory.makeHdfsToTeradataJob(name), configure));
   }
@@ -802,6 +836,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   TeradataToHdfsJob teradataToHdfsJob(String name, @DelegatesTo(TeradataToHdfsJob) Closure configure) {
     return ((TeradataToHdfsJob)configureJob(factory.makeTeradataToHdfsJob(name), configure));
   }
@@ -814,6 +849,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   HdfsToEspressoJob hdfsToEspressoJob(String name, @DelegatesTo(HdfsToEspressoJob) Closure configure) {
     return ((HdfsToEspressoJob)configureJob(factory.makeHdfsToEspressoJob(name), configure));
   }
@@ -825,6 +861,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   GobblinJob gobblinJob(String name, @DelegatesTo(GobblinJob) Closure configure) {
     return ((GobblinJob)configureJob(factory.makeGobblinJob(name), configure));
   }
@@ -836,6 +873,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @param configure The configuration closure
    * @return The new job
    */
+  @HadoopDslMethod
   SqlJob sqlJob(String name, @DelegatesTo(SqlJob) Closure configure) {
     return ((SqlJob)configureJob(factory.makeSqlJob(name), configure));
   }

@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+
 /**
  * Job class for type=pig jobs.
  * <p>
@@ -84,6 +86,7 @@ class PigJob extends HadoopJavaProcessJob {
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
+  @HadoopDslMethod
   @Override
   void reads(Map args) {
     super.reads(args);
@@ -102,6 +105,7 @@ class PigJob extends HadoopJavaProcessJob {
    *
    * @param args Args whose key 'files' has a map value specifying the HDFS paths this job reads
    */
+  @HadoopDslMethod
   @Override
   void writes(Map args) {
     super.writes(args);
@@ -134,6 +138,7 @@ class PigJob extends HadoopJavaProcessJob {
    *   or a key 'confProperties' with a map value that specifies the Hadoop job configuration properties to set;
    *   or a key 'parameters' with a map value that specifies the Pig parameters to set
    */
+  @HadoopDslMethod
   @Override
   void set(Map args) {
     super.set(args);
@@ -166,6 +171,7 @@ class PigJob extends HadoopJavaProcessJob {
    *
    * @param script The Pig script for the job
    */
+  @HadoopDslMethod
   @Override
   void uses(String script) {
     this.script = script;
