@@ -93,3 +93,6 @@ The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
 
 The following were contributed by Pratik Satish. Thanks, Pratik!
 * `LIHADOOP-21429 Add HadoopValidatorPlugin with PigValidatorPlugin in its stack`
+
+The following were contributed by Ivan Heda. Thanks, Ivan!
+* `Added possibility to have Azkaban password in configuration JSON.`
