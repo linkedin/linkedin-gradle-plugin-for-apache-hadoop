@@ -217,13 +217,13 @@ class AzkabanFlowStatusTask extends DefaultTask {
   /**
    * Builds Dr. Elephant URL
    *
-   * @param execUrl
+   * @param execId Execution Id of the flow
    * @return DrElephantUrl
    */
-  public String getDrElephantURL(String execUrl) {
+  public String getDrElephantURL(String execId) {
     final String DR_ELEPHANT_URL = null;
     if (DR_ELEPHANT_URL != null) {
-      return DR_ELEPHANT_URL + "/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
+      return DR_ELEPHANT_URL;
     }
     return null;
   }
@@ -236,7 +236,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
    void printUrls(String execId) {
      String execUrl = azkProject.azkabanUrl + "/executor?execid=${execId}";
      logger.lifecycle("Execution URL: ${execUrl}");
-     String DrElephantUrl = getDrElephantURL(execUrl);
+     String DrElephantUrl = getDrElephantURL(execId);
      if (DrElephantUrl != null) {
        logger.lifecycle("Dr.Elephant URL: ${DrElephantUrl}");
      }

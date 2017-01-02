@@ -22,18 +22,16 @@ class LiAzkabanFlowStatusTask extends AzkabanFlowStatusTask {
   /**
    * Configuring to print Dr. Elephant URL
    *
-   * @param execUrl Execution URL of the flow.
+   * @param execId Execution Id of the flow
    * @return DrElephantUrl
    */
   @Override
-  public String getDrElephantURL(String execUrl) {
-    final String DR_ELEPHANT_HOLDEM_URL = "http://ltx1-holdemdre01.grid.linkedin.com:8080";
-    final String DR_ELEPHANT_WAR_URL = "http://ltx1-waraz01.grid.linkedin.com:8080";
+  public String getDrElephantURL(String execId) {
 
-    if (execUrl.contains("holdem")) {
-      return "${DR_ELEPHANT_HOLDEM_URL}/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
-    } else if (execUrl.contains("war")) {
-      return "${DR_ELEPHANT_WAR_URL}/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
+    if (azkProject.azkabanUrl.contains("holdem")) {
+      return "http://go/drholdem_plugin%20${execId}";
+    } else if (azkProject.azkabanUrl.contains("war")) {
+      return "http://go/drwar_plugin%20${execId}";
     }
     return null;
   }
