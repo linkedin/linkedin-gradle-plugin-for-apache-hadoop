@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.7
+
+* LIHADOOP-25566 Update Dr.Elephant URL link in azkabanFlowStatus task
+
 0.11.6
 
 * Hadoop DSL IDE Syntax Completion for IntelliJ - Add annotation to help expose top-level Hadoop DSL methods
