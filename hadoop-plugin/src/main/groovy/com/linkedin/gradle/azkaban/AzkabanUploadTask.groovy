@@ -135,7 +135,7 @@ class AzkabanUploadTask extends DefaultTask {
     }
 
     HttpEntity reqEntity = mpEntityBuilder.build();
-    HttpPost httpPost = new HttpPost(azkProject.azkabanUrl + "/manager");
+    HttpPost httpPost = new HttpPost(azkProject.azkabanUrl + (azkProject.azkabanUrl.endsWith("/") ? "" : "/" ) + "manager");
     httpPost.setEntity(reqEntity);
     httpPost.setHeader("Accept", "*/*");
     httpPost.setHeader("Cookie", "azkaban.browser.session.id=" + sessionId);
