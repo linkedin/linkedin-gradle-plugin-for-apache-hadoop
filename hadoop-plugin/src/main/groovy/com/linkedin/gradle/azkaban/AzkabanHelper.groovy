@@ -131,7 +131,10 @@ class AzkabanHelper {
     logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
     logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
     logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
-    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}\n");
+    logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
+    if (azkProject.azkabanPassword != null) {
+      logger.lifecycle("Azkaban Password: ********\n");
+    }
 
     try {
       def input = "y";
@@ -181,6 +184,13 @@ class AzkabanHelper {
           azkProject.azkabanZipTask = input.toString();
         }
 
+        if (azkProject.azkabanPassword != null) {
+          input = consoleSecretInput(console, "New Azkaban password ${azkProject.azkabanPassword.isEmpty() ? '' : "[enter to accept current password]"}: ", false);
+          if (input != null && !input.isEmpty()) {
+            azkProject.azkabanPassword = input.toString();
+          }
+        }
+
         input = consoleInput(console, "Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
         return !input.equalsIgnoreCase("n");
       }
@@ -208,6 +218,17 @@ class AzkabanHelper {
 
     console.format(message).flush();
     return console.readLine().trim();
+  }
+
+  static String  consoleSecretInput(Console console, String message, boolean shortDelay) {
+    // Give Gradle time to flush the logger to the screen and write its progress log line at the
+    // bottom of the screen, so we can augment this line with a prompt for the input
+    if (shortDelay) {
+      sleep(500);
+    }
+
+    console.format(message).flush();
+    return console.readPassword().toString();
   }
 
   /**
@@ -356,22 +377,27 @@ class AzkabanHelper {
       logger.lifecycle("No previous session found. Logging into Azkaban.\n");
       logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
       logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
-      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}\n");
+      logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
+      logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
 
-      def console = System.console();
-      if (console == null) {
-        String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-        throw new GradleException(msg);
+      if ( azkProject.azkabanPassword == null) {
+        def console = System.console();
+        if (console == null) {
+          String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+          throw new GradleException(msg);
+        }
+        // Give Gradle time to flush the logger to the screen and write its progress log line at the
+        // bottom of the screen, so we can augment this line with a prompt for the password
+        sleep(500);
+        console.format(" > Enter password: ").flush();
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
+      } else {
+        logger.lifecycle("Azkaban Password: *********");
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, azkProject.azkabanPassword.toCharArray());
       }
-
-      // Give Gradle time to flush the logger to the screen and write its progress log line at the
-      // bottom of the screen, so we can augment this line with a prompt for the password
-      sleep(500);
-      console.format(" > Enter password: ").flush();
-      sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
     }
     else {
-      logger.lifecycle("Resuming previous Azkaban session");
+      logger.lifecycle("\nResuming previous Azkaban session");
     }
 
     return sessionId;

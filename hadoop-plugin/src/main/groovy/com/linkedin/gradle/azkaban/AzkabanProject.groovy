@@ -21,4 +21,5 @@ class AzkabanProject {
   String azkabanUserName = "";
   String azkabanValidatorAutoFix = "";
   String azkabanZipTask = "";
+  String azkabanPassword = null;
 }

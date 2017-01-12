@@ -21,4 +21,5 @@ final class AzkabanConstants {
   static final String AZK_USER_NAME = "azkabanUserName";
   static final String AZK_VAL_AUTO_FIX = "azkabanValidatorAutoFix";
   static final String AZK_ZIP_TASK = "azkabanZipTask";
+  static final String AZK_PASSWORD = "azkabanPassword";
 }

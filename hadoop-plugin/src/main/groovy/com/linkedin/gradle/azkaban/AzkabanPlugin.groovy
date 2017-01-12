@@ -372,6 +372,7 @@ class AzkabanPlugin implements Plugin<Project> {
       azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
       azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
       azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
+      azkProject.azkabanPassword = pluginJson[AZK_PASSWORD];
     } else {
       // If the file doesn't exist, the task should automatically ask the user for this information
       logger.lifecycle("File .azkabanPlugin.json not found. Automatically switching to interactive mode.");
