@@ -26,14 +26,23 @@ class LiAzkabanFlowStatusTask extends AzkabanFlowStatusTask {
    * @return DrElephantUrl
    */
   @Override
-  public String getDrElephantURL(String execUrl) {
-    final String DR_ELEPHANT_HOLDEM_URL = "http://ltx1-holdemdre01.grid.linkedin.com:8080";
-    final String DR_ELEPHANT_WAR_URL = "http://ltx1-waraz01.grid.linkedin.com:8080";
+  String getDrElephantURL(String execUrl) {
+    final String DR_ELEPHANT_HOLDEM_URL = "http://ltx1-holdemdre01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
+    final String DR_ELEPHANT_WAR_URL = "http://lva1-wardre01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
+    final String DR_ELEPHANT_TAROCK_URL = "http://lva1-tarockaz01.grid.linkedin.com:8080/search?referrer=hadoopplugin&flow-exec-id=";
+    final String DR_ELEPHANT_SPADES_URL = "http://lva1-spadesaz01.grid.linkedin.com:8080/search?referrer=hadoopplugin&flow-exec-id=";
+    final String DR_ELEPHANT_POKEMON_URL = "http://lva1-pokemonaz01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
 
     if (execUrl.contains("holdem")) {
-      return "${DR_ELEPHANT_HOLDEM_URL}/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
+      return DR_ELEPHANT_HOLDEM_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
     } else if (execUrl.contains("war")) {
-      return "${DR_ELEPHANT_WAR_URL}/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
+      return DR_ELEPHANT_WAR_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
+    } else if (execUrl.contains("tarock")) {
+      return DR_ELEPHANT_TAROCK_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
+    } else if (execUrl.contains("spades")) {
+      return DR_ELEPHANT_SPADES_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
+    } else if (execUrl.contains("pokemon")) {
+      return DR_ELEPHANT_POKEMON_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
     }
     return null;
   }
