@@ -80,6 +80,7 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-25566 Update Dr.Elephant URL link in azkabanFlowStatus task`
 * `LIHADOOP-25637 Check for trailing slash in AzkabanUrl when running azkabanUpload task`
 * `LIHADOOP-24274 Checks for empty fields in .azkabanPlugin.json`
 * `LIHADOOP-21680 Azkaban CLI Features Create Project, Flow Status, Execute Flow and Cancel Flow`

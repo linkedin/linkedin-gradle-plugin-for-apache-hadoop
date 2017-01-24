@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.9
+
+* LIHADOOP-25566 Update Dr.Elephant URL link in azkabanFlowStatus task
+
 0.11.8
 
 * LIHADOOP-25637 Check for trailing slash in AzkabanUrl when running azkabanUpload task
