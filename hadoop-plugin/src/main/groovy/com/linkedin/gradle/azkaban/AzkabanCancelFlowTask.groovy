@@ -101,7 +101,7 @@ class AzkabanCancelFlowTask extends DefaultTask {
           printStatus(flows, responseList);
 
           //Get exec ID's to kill
-          String input =  AzkabanHelper.consoleInput(System.console(), " > Enter IDs of executions to be killed:", false);
+          String input =  AzkabanHelper.consoleInput(System.console(), " > Enter IDs of executions to be killed:", true);
           if(input.isEmpty()) {
             logger.error("Entered Nothing, Exiting...");
             return;

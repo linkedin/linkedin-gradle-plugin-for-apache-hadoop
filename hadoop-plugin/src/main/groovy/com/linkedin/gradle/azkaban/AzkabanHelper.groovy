@@ -123,7 +123,7 @@ class AzkabanHelper {
   static boolean configureTask(AzkabanProject azkProject, Project project) {
     def console = System.console();
     if (console == null) {
-      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
+      String msg = "\nCannot access the system console. Refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking";
       throw new GradleException(msg);
     }
 
