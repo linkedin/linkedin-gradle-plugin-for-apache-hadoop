@@ -94,7 +94,9 @@ class HadoopPlugin implements Plugin<Project> {
 
       // Add clusterProvided jars on the classpath, this will not add transitive dependencies of each jar
       project.sourceSets.main.compileClasspath += clusterProvided
-      project.javadoc.classpath += clusterProvided
+      if (project.tasks['javadoc'].hasProperty('classpath')) {
+        project.tasks['javadoc'].classpath += clusterProvided
+      }
 
       // Idea doesn't understand the above classpath modification. Adding it explicitly. Java
       // plugin is also required for getting non empty scopes.

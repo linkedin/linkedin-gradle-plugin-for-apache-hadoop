@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.11
+
+* LIHADOOP-26251 Include check for classpath property in javadoc when setting cluster provided configuration
+
 0.11.10
 
 * LIHADOOP-26059 Change in azkabanUpload task error message and azkabanCancelFlow task console output.
