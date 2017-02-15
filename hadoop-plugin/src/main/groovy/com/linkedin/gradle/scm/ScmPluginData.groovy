@@ -26,5 +26,10 @@ class ScmPluginData {
     sourceExclude.add("**/bin");
     sourceExclude.add("**/build");
     sourceExclude.add("**/target");
+    sourceExclude.add("**/*.bz2");
+    sourceExclude.add("**/*.tar");
+    sourceExclude.add("**/*.tar.gz");
+    sourceExclude.add("**/*.tgz");
+    sourceExclude.add("**/*.zip");
   }
 }
