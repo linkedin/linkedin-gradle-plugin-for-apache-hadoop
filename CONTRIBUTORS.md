@@ -98,3 +98,6 @@ The following were contributed by Pratik Satish. Thanks, Pratik!
 
 The following were contributed by Ivan Heda. Thanks, Ivan!
 * `Added possibility to have Azkaban password in configuration JSON.`
+
+The following were contributed by Alexander Ivaniuk:
+* Add possibility to group jobs into subflows in Azkaban UI
