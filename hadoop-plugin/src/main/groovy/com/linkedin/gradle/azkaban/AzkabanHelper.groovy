@@ -17,6 +17,8 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.util.HtmlUtil;
 import com.linkedin.gradle.zip.HadoopZipExtension;
+import groovy.json.JsonBuilder;
+import groovy.json.JsonSlurper;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -39,6 +41,13 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_PASSWORD;
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_PROJ_NAME;
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_URL;
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_USER_NAME;
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_VAL_AUTO_FIX;
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_ZIP_TASK;
 
 /**
  * AzkabanHelper is a helper class for the Azkaban Tasks.
@@ -468,4 +477,87 @@ class AzkabanHelper {
 
     return foundZips;
   }
+
+
+  /**
+   * Helper method to read the plugin json file as a JSON object. For backwards compatibility
+   * reasons, we should read it as a JSON object instead of coercing it into a domain object.
+   *
+   * @param project The Gradle project
+   * @param jsonPath The path of the json file
+   * @return A JSON object or null if the file does not exist
+   */
+  static def readAzkabanPluginJson(Project project, String jsonPath) {
+    String pluginJsonPath = jsonPath;
+    if (!new File(pluginJsonPath).exists()) {
+      return null;
+    }
+
+    def reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(pluginJsonPath));
+      def slurper = new JsonSlurper();
+      def pluginJson = slurper.parse(reader);
+      return pluginJson;
+    }
+    catch (Exception ex) {
+      throw new GradleException("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
+    }
+    finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+  }
+
+  /**
+   * Reads the AzkabanProject object from the .azkabanPlugin.json file. Returns null if the file doesn't exist
+   *
+   * @param project The Gradle project
+   * @param filePath The path to the json file
+   * @return The created AzkabanProject if file exists, null if file doesn't exist
+   */
+  static AzkabanProject readAzkabanProjectFromJson(Project project, String filePath) {
+
+    def pluginJson = AzkabanHelper.readAzkabanPluginJson(project, filePath);
+
+    AzkabanProject azkProject = new AzkabanProject();
+
+    if (pluginJson != null) {
+      // If the file exists, the task should use this information, but give the user the chance
+      // to confirm or change the values read from the file. If the user changes this information,
+      // ask them if they want to save the changes (to the .azkabanPlugin.json file).
+      azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
+      azkProject.azkabanUrl = pluginJson[AZK_URL];
+      azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
+      azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
+      azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
+      azkProject.azkabanPassword = pluginJson[AZK_PASSWORD];
+      return azkProject;
+    }
+
+    return null;
+  }
+
+  /**
+   * Reads the AzkabanProject from the interactive console
+   *
+   * @param project The Gradle project
+   * @param defaultProject A default AzkabanProject to provide suggestions to the users
+   * @param filePath The path to the .azkabanPlugin.json, used for overwriting the file
+   * @return The created AzkabanProject
+   */
+  static AzkabanProject readAzkabanProjectFromInteractiveConsole(Project project, AzkabanProject defaultProject, String filePath) {
+
+    AzkabanProject azkProject = defaultProject;
+
+    // Write the updated value to the .azkabanPlugin.json file if user wants
+    if (AzkabanHelper.configureTask(azkProject, project)) {
+      String updatedPluginJson = new JsonBuilder(azkProject).toPrettyString();
+      new File(filePath).write(updatedPluginJson);
+    }
+
+    return azkProject;
+  }
+
 }

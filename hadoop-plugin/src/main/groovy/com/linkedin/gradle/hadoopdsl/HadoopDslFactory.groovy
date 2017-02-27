@@ -15,8 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
-import com.linkedin.gradle.hadoopdsl.job.CommandJob
-import com.linkedin.gradle.hadoopdsl.job.GobblinJob
+import com.linkedin.gradle.hadoopdsl.job.CommandJob;
+import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
@@ -30,12 +30,12 @@ import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
-import com.linkedin.gradle.hadoopdsl.job.SqlJob
+import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
-import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
-
+import com.linkedin.gradle.test.TestExtension;
 import org.gradle.api.Project;
 
 /**
@@ -309,5 +309,17 @@ class HadoopDslFactory {
    */
   Workflow makeWorkflow(String name, Project project, NamedScope parentScope) {
     return new Workflow(name, project, parentScope);
+  }
+
+  /**
+   * Factory method to build a Test
+   *
+   * @param name The name of the test
+   * @param project The Gradle project
+   * @param parentScope The parent scope
+   * @return The created Test
+   */
+  TestExtension makeTest(String name, Project project, NamedScope parentScope) {
+    return new TestExtension(name, project, parentScope);
   }
 }

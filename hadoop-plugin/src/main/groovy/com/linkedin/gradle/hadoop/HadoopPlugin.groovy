@@ -23,6 +23,7 @@ import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.spark.SparkPlugin;
+import com.linkedin.gradle.test.TestPlugin;
 import com.linkedin.gradle.zip.HadoopZipPlugin;
 
 import org.gradle.api.Plugin;
@@ -56,6 +57,7 @@ class HadoopPlugin implements Plugin<Project> {
     project.getPlugins().apply(getPigPluginClass());
     project.getPlugins().apply(getScmPluginClass());
     project.getPlugins().apply(getSparkPluginClass());
+    project.getPlugins().apply(getTestPluginClass());
     setupTaskDependencies(project);
   }
 
@@ -240,7 +242,7 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to return the SparkPlugin class. Subclasses can ovverride this method to return
+   * Factory method to return the SparkPlugin class. Subclasses can override this method to return
    * their own SparkPlugin class.
    *
    * @return Class that implements the SparkPlugin
@@ -249,6 +251,15 @@ class HadoopPlugin implements Plugin<Project> {
     return SparkPlugin.class;
   }
 
+  /**
+   * Factory method to return the TestPlugin class. Subclasses can override this method to return their
+   * own TestPlugin class.
+   *
+   * @return  Class that implements the TestPlugin
+   */
+  Class<? extends TestPlugin> getTestPluginClass() {
+    return TestPlugin.class;
+  }
   /**
    * Helper method to setup dependencies between tasks across plugins. Subclasses can override this
    * method to customize their own task dependencies.

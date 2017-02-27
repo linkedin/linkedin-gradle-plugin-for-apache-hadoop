@@ -20,7 +20,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
 import groovy.json.JsonBuilder;
-import groovy.json.JsonSlurper;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.logging.Logger;
@@ -30,7 +29,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.bundling.Zip;
 
-import static com.linkedin.gradle.azkaban.AzkabanConstants.*;
 
 /**
  * AzkabanPlugin implements features for Azkaban, including building the Hadoop DSL for Azkaban.
@@ -323,69 +321,21 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
-   * Helper method to read the plugin json file as a JSON object. For backwards compatibility
-   * reasons, we should read it as a JSON object instead of coercing it into a domain object.
-   *
+   * Reads the AzkabanProject from the .azkabanPlugin.json file or the interactive console
    * @param project The Gradle project
-   * @return A JSON object or null if the file does not exist
-   */
-  def readAzkabanPluginJson(Project project) {
-    String pluginJsonPath = getPluginJsonPath(project);
-    if (!new File(pluginJsonPath).exists()) {
-      return null;
-    }
-
-    def reader = null;
-    try {
-      reader = new BufferedReader(new FileReader(pluginJsonPath));
-      def slurper = new JsonSlurper();
-      def pluginJson = slurper.parse(reader);
-      return pluginJson;
-    }
-    catch (Exception ex) {
-      throw new GradleException("\nError parsing ${pluginJsonPath}.\n" + ex.toString());
-    }
-    finally {
-      if (reader != null) {
-        reader.close();
-      }
-    }
-  }
-
-  /**
-   * Load the Azkaban project properties defined in the .azkabanPlugin.json file.
-   *
-   * @param project The Gradle Project
-   * @param interactive Enable interactive mode prompt for users to fill-in .azkabanPlugin.json file
-   * @return An AzkabanProject object with the properties set
+   * @return The created AzkabanProject
    */
   AzkabanProject readAzkabanProject(Project project, boolean interactive) {
-    def pluginJson = readAzkabanPluginJson(project);
-    AzkabanProject azkProject = makeDefaultAzkabanProject();
-
-    if (pluginJson != null) {
-      // If the file exists, the task should use this information, but give the user the chance
-      // to confirm or change the values read from the file. If the user changes this information,
-      // ask them if they want to save the changes (to the .azkabanPlugin.json file).
-      azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
-      azkProject.azkabanUrl = pluginJson[AZK_URL];
-      azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
-      azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
-      azkProject.azkabanZipTask = pluginJson[AZK_ZIP_TASK];
-      azkProject.azkabanPassword = pluginJson[AZK_PASSWORD];
-    } else {
-      // If the file doesn't exist, the task should automatically ask the user for this information
-      logger.lifecycle("File .azkabanPlugin.json not found. Automatically switching to interactive mode.");
-      interactive = true;
+    AzkabanProject azkabanProject = AzkabanHelper.
+        readAzkabanProjectFromJson(project, getPluginJsonPath(project));
+    if (azkabanProject == null) {
+      azkabanProject = AzkabanHelper.
+          readAzkabanProjectFromInteractiveConsole(project, makeDefaultAzkabanProject(project),
+              getPluginJsonPath(project));
+    } else if (interactive) {
+      azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project, azkabanProject, getPluginJsonPath(project));
     }
-
-    // When specifying this command line parameter, the task should fail if the file does not
-    // exist or is not completely filled out
-    if (interactive && AzkabanHelper.configureTask(azkProject, project)) {
-      String updatedPluginJson = new JsonBuilder(azkProject).toPrettyString();
-      new File(getPluginJsonPath(project)).write(updatedPluginJson);
-    }
-
-    return azkProject;
+    return azkabanProject;
   }
+
 }
