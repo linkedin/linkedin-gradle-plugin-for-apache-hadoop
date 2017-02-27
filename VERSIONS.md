@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.13
+
+* Improvement of visual presentation of generated flows in Azkaban - Add ability to group job nodes in a subflow 
+
 0.11.12
 
 * Expand on the list of file types automatically excluded from the sources zip to exclude archive types
