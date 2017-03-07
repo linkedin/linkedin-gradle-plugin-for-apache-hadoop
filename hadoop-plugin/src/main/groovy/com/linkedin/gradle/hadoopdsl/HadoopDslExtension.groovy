@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.test.TestExtension;
 import org.gradle.api.Project;
 
 /**
@@ -36,6 +37,8 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
   String buildDirectory;
   boolean cleanFirst;
   String oozieDirectory;
+  List<TestExtension> tests;
+
 
   /**
    * Base constructor for the HadoopDslExtension
@@ -44,6 +47,18 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
    */
   HadoopDslExtension(Project project) {
     this(project, null);
+    this.tests = new ArrayList<TestExtension>();
+  }
+
+  /**
+   * Constructor for the HadoopDslExtension
+   * @param project The Gradle project
+   * @param parentScope The parent scope
+   * @param scopeName The name of the scope
+   */
+  HadoopDslExtension(Project project, NamedScope parentScope, String scopeName) {
+    super(project, parentScope, scopeName);
+    this.tests = new ArrayList<TestExtension>();
   }
 
   /**
@@ -57,6 +72,8 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
     this.buildDirectory = null;
     this.cleanFirst = true;
     this.oozieDirectory = null;
+    this.tests = new ArrayList<TestExtension>();
+
 
     // Bind the name hadoop in the parent scope so that we can do fully-qualified name lookups of
     // objects bound in the hadoop block.
@@ -113,5 +130,32 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
     else {
       this.oozieDirectory = new File("${project.projectDir}", buildDir).getPath();
     }
+  }
+
+  /**
+   * Dsl extension to add tests for the workflow
+   *
+   * @param name The name of the test
+   * @param configure Test configuration
+   * @return The Test object
+   */
+  @HadoopDslMethod
+  TestExtension test(String name, @DelegatesTo(TestExtension) Closure configure) {
+    return configureTest(factory.makeTest(name, project, scope), configure);
+  }
+
+  /**
+   * Helper method to configure a Test in the DSL. Can be called by subclasses to configure custom
+   * Test subclass types.
+   *
+   * @param test The test to configure
+   * @param configure The configuration closure
+   * @return The input test, which is now configured
+   */
+  protected TestExtension configureTest(TestExtension test, Closure configure) {
+    scope.bind(test.name, test);
+    project.configure(test, configure);
+    this.tests.add(test);
+    return test;
   }
 }
