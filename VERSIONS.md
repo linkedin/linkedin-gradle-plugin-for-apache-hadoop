@@ -19,6 +19,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.11.14
 
+* LIHADOOP-25519 ligradle tasks to test the flow on Azkaban
 * LIHADOOP-25518: Prototype deploy tests for the workflows
 
 0.11.13

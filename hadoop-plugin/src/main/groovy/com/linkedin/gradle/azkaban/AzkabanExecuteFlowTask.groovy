@@ -74,7 +74,7 @@ class AzkabanExecuteFlowTask extends DefaultTask {
     List<String> inputFlows;
     try {
       if (AzkabanPlugin.interactive) {
-        printFlowsWithIndices(flows);
+        AzkabanHelper.printFlowsWithIndices(flows);
         Set<String> indexSet = getFlowIndicesInput();
         inputFlows = new ArrayList<String>()
         indexSet.size().times {
@@ -95,7 +95,7 @@ class AzkabanExecuteFlowTask extends DefaultTask {
     }
 
     List<String> responseList = AzkabanClient.batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
-    printFlowExecutionResponses(responseList);
+    AzkabanHelper.printFlowExecutionResponses(responseList);
 
   }
 
@@ -115,34 +115,5 @@ class AzkabanExecuteFlowTask extends DefaultTask {
     return indexSet;
   }
 
-  /**
-   * Prints the list of flows with Indices.
-   *
-   * @param flows List of flows in the Azkaban Project.
-   */
-  void printFlowsWithIndices(List<String> flows) {
-    logger.lifecycle("-----    -----\nINDEX    FLOWS\n-----    -----");
-    flows.eachWithIndex { String flow, index ->
-      logger.lifecycle(" ${index}       ${flow}");
-    }
-    logger.lifecycle("---------------------------");
-  }
 
-  /**
-   * Prints each of the responses of flows submitted for execution.
-   *
-   * @param responseList List of Http Responses from batch of Flow Executions
-   */
-  void printFlowExecutionResponses(List<String> responseList) {
-    for (String execResponse : responseList) {
-      JSONObject execResponseObj = new JSONObject(execResponse);
-      if (execResponseObj.has("error") && execResponseObj.has("flow")) {
-        logger.error("Could not execute flow : ${execResponseObj.get("flow")}");
-      } else if(execResponseObj.has("message")) {
-        logger.lifecycle("${execResponseObj.get("flow")} : ${execResponseObj.get("message")}");
-      } else {
-        logger.error("Could not execute flow(s) ${execResponseObj}");
-      }
-    }
-  }
 }

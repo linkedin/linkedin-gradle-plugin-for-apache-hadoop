@@ -560,4 +560,35 @@ class AzkabanHelper {
     return azkProject;
   }
 
+  /**
+   * Prints the list of flows with Indices.
+   *
+   * @param flows List of flows in the Azkaban Project.
+   */
+  static void printFlowsWithIndices(List<String> flows) {
+    logger.lifecycle("-----    -----\nINDEX    FLOWS\n-----    -----");
+    flows.eachWithIndex { String flow, index ->
+      logger.lifecycle(" ${index}       ${flow}");
+    }
+    logger.lifecycle("---------------------------");
+  }
+
+  /**
+   * Prints each of the responses of flows submitted for execution.
+   *
+   * @param responseList List of Http Responses from batch of Flow Executions
+   */
+  static void printFlowExecutionResponses(List<String> responseList) {
+    for (String execResponse : responseList) {
+      JSONObject execResponseObj = new JSONObject(execResponse);
+      if (execResponseObj.has("error") && execResponseObj.has("flow")) {
+        logger.error("Could not execute flow : ${execResponseObj.get("flow")}");
+      } else if(execResponseObj.has("message")) {
+        logger.lifecycle("${execResponseObj.get("flow")} : ${execResponseObj.get("message")}");
+      } else {
+        logger.error("Could not execute flow(s) ${execResponseObj}");
+      }
+    }
+  }
+
 }
