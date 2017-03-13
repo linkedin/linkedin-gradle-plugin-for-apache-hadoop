@@ -18,9 +18,11 @@ package com.linkedin.gradle.test;
 
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanHelper;
 import com.linkedin.gradle.azkaban.AzkabanProject;
 import com.linkedin.gradle.azkaban.AzkabanUploadTask;
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
 import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
@@ -32,6 +34,7 @@ import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.bundling.Zip;
+import org.json.JSONObject;
 
 
 /**
@@ -58,10 +61,14 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     createBuildFlowsForTestingTask(project);
     createZipForTestingTask(project);
     createTestDeployTask(project);
+    createRunTestTask(project);
+    createGetTestStatusTask(project);
+    createHadoopTestTask(project);
   }
 
   /**
    * Add the plugin to testExtension
+   *
    * @param project The Gradle project
    */
   void addTestExtension(Project project) {
@@ -70,6 +77,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
   /**
    * Prints the tests, utility function for debugging
+   *
    * @param project The Gradle project
    * @return the task created
    */
@@ -94,8 +102,11 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     }
   }
 
+
+
   /**
    * This task creates the flows for testing. It will substitute the parameters overriden in the tests block inside the hadoop construct
+   *
    * @param project The hadoop project
    * @return Return the created task
    */
@@ -106,10 +117,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
       doLast {
 
-        if (!project.hasProperty("testname")) {
-          logger.error("You must specify the name of the test using -Ptestname=name");
-          throw new RuntimeException("Test not found");
-        }
+        validateTestnameProperty(project);
 
         TestPlugin plugin = project.extensions.testPlugin;
         if (plugin == null) {
@@ -182,13 +190,14 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     return project.tasks.create("buildZipForTesting") {
       dependsOn project.tasks["buildHadoopZips"]
       dependsOn project.tasks["buildFlowsForTesting"]
-      project.tasks["buildFlowsForTesting"].shouldRunAfter project.tasks["buildAzkabanFlows"]
-      project.tasks["buildHadoopZips"].shouldRunAfter project.tasks["buildFlowsForTesting"]
+      project.tasks["buildFlowsForTesting"].mustRunAfter project.tasks["buildAzkabanFlows"]
+      project.tasks["buildHadoopZips"].mustRunAfter project.tasks["buildFlowsForTesting"]
     }
   }
 
   /**
    * Creates the testDeploy task. This task will automatically build and upload the zip to the test machines
+   *
    * @param project The Gradle project
    * @return The created task
    */
@@ -200,17 +209,17 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
       doFirst {
 
-        if (!project.hasProperty("testname")) {
-          logger.error("You must specify the name of the test using -Ptestname=name");
-          throw new RuntimeException("Test not found");
-        }
+        validateTestnameProperty(project);
 
         if (project.hasProperty("skipInteractive")) {
           logger.lifecycle("Skipping interactive mode");
           interactive = false;
         }
 
-        azkProject = readAzkabanProject(project);
+        azkProject = getTestProjectName(project, interactive);
+
+        String message = "The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be deployed to ${azkProject.azkabanProjName}"
+        prettyPrintMessage(message);
 
         String zipTaskName = azkProject.azkabanZipTask;
         if (!zipTaskName) {
@@ -234,6 +243,144 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
+   * Creates the runTest task. This will run all the workflows defined in the test specified by testname.
+   * If a flow is specified -Pflow=flowname, then only flow with name flowname will be run.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createRunTestTask(Project project) {
+    return project.task("runTest") { task ->
+      description = "Runs the test provided by -Ptestname=name, Alternatively a flow can be specified with the test using -Pflow=flowname"
+      group = "Hadoop Plugin";
+
+      doFirst {
+        validateTestnameProperty(project);
+
+        def azkProject = getTestProjectName(project, false);
+
+        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be run in ${azkProject.azkabanProjName}";
+        prettyPrintMessage(message);
+
+        executeAzkabanFlow(project, AzkabanHelper.readSession(), azkProject);
+      }
+    }
+  }
+
+  /**
+   * Executes the flows on Azkaban.
+   *
+   * @param project The Gradle project
+   * @param sessionId The sessionId for the project
+   * @param azkProject The Azkaban Project
+   */
+  void executeAzkabanFlow(Project project, String sessionId, AzkabanProject azkProject) {
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
+    List<String> flows = getFlowsOrThrowError(project, sessionId, azkProject);
+    List<String> inputFlows;
+    if (project.getProperties().get("flow") == null) {
+      inputFlows = flows;
+    } else {
+      inputFlows = project.getProperties().get("flow").toString().split(",+");
+      for (String flowArg : inputFlows) {
+        if (!flows.contains(flowArg)) {
+          logger.error("ERROR: The flow name ${flowArg} doesn't exist");
+          throw new RuntimeException("The flow name ${flowArg} doesn't exist!");
+        }
+      }
+    }
+    List<String> responseList = AzkabanClient.
+        batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
+    AzkabanHelper.printFlowExecutionResponses(responseList);
+  }
+
+  /**
+   * Returns a list of all flows in project azkProject.azkabanProjName
+   *
+   * @param project The Gradle project
+   * @param sessionId The session id for the Azkaban session
+   * @param azkProject The Azkaban Project
+   * @return List of all flows in project azkProject.azkabanProjName. Returns an empty list if no flows are defined in the current project
+   */
+  List<String> getFlowsOrThrowError(Project project, String sessionId, AzkabanProject azkProject) {
+    //Fetch flows of the project
+    String fetchFlowsResponse = AzkabanClient.
+        fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
+
+    if (fetchFlowsResponse.toLowerCase().contains("error")) {
+      // Check if session has expired. If so, re-login.
+      if (fetchFlowsResponse.toLowerCase().contains("session")) {
+        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        return getFlowsOrThrowError(project, AzkabanHelper.resumeOrGetSession(null, azkProject), azkProject);
+      } else {
+        // If response contains other than session error
+        logger.error(
+            "Fetching flows from ${azkProject.azkabanUrl} failed. Reason: ${new JSONObject(fetchFlowsResponse).get("error")}");
+        throw new RuntimeException(
+            "Error fetching flows from ${azkProject.azkabanUrl}. Reason ${new JSONObject(fetchFlowsResponse).get("error")}");
+      }
+    }
+
+    List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
+
+    if (flows.isEmpty()) {
+      logger.lifecycle("No flows defined in current project");
+    }
+
+    return flows;
+  }
+
+  /**
+   * Creates the getTestStatus task which gets the status of the flows in the project
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createGetTestStatusTask(Project project) {
+    return project.task("getTestStatus", type: AzkabanFlowStatusTask) { task ->
+      description = "Gets the status of the test specified by -Ptestname=testname. Alternatively a flowname can be specified using -Pflow=flowname";
+      group = "Hadoop Plugin";
+
+      doFirst {
+        validateTestnameProperty(project);
+
+        azkProject = getTestProjectName(project, false);
+
+        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test status will be fetched from ${azkProject.azkabanProjName}";
+        prettyPrintMessage(message);
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Displaying Job level Status");
+          interactive = false;
+        } else {
+          project.getProperties().
+              put("flow", getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject).join(","));
+          logger.lifecycle("Displaying flow level Status");
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates the hadoopTest task. This task depends on testDeploy, runTest and getTestStatus tasks. This is a single task to deploy
+   * run and get status of the test.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createHadoopTestTask(Project project) {
+    return project.task("hadoopTest") { task ->
+      description = "Runs the test specified by -Ptestname=test";
+      group = "Hadoop Plugin";
+      dependsOn project.tasks["testDeploy"]
+      dependsOn project.tasks["runTest"]
+      dependsOn project.tasks["getTestStatus"]
+      project.tasks["getTestStatus"].mustRunAfter project.tasks["runTest"]
+      project.tasks["runTest"].mustRunAfter project.tasks["testDeploy"]
+    }
+  }
+
+  /**
    * Helper method to determine the location of the plugin json file. This helper method will make
    * it easy for subclasses to get (or customize) the file location.
    *
@@ -246,6 +393,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
   /**
    * Creates a default AzkabanProject
+   *
    * @param project The Gradle project
    * @return The default AzkabanProject
    */
@@ -254,11 +402,35 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
+   * Utility method to pretty print the message
+   *
+   * @param message The message to print
+   */
+  void prettyPrintMessage(String message) {
+    logger.lifecycle("${"-" * (message.length() + 8)}\n\n\t${message}\n\n${"-" * (message.length() + 8)}");
+  }
+
+  /**
+   * Checks for testname property. If it is not presents, throws an exception.
+   *
+   * @param project The Gradle project
+   */
+  void validateTestnameProperty(Project project) {
+    if (!project.hasProperty("testname")) {
+      String errorMessage = "ERROR: You must specify the name of the test using -Ptestname=test"
+      logger.error(errorMessage);
+      throw new GradleException(
+          "${"-" * (errorMessage.length() + 8)}\n\n\t${errorMessage}\n\n${"-" * (errorMessage.length() + 8)}");
+    }
+  }
+
+  /**
    * Reads the AzkabanProject from the .azkabanPlugin.json and the interactive console
+   *
    * @param project The Gradle project
    * @return The azkaban project
    */
-  AzkabanProject readAzkabanProject(Project project) {
+  AzkabanProject readAzkabanProject(Project project, boolean interactive) {
     AzkabanProject azkabanProject = AzkabanHelper.
         readAzkabanProjectFromJson(project, getPluginJsonPath(project));
     if (azkabanProject == null) {
@@ -266,13 +438,26 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
           readAzkabanProjectFromInteractiveConsole(project, makeDefaultAzkabanProject(project),
               getPluginJsonPath(project));
     } else if (interactive) {
-      azkabanProject.azkabanProjName = azkabanProject.azkabanProjName + "-" + project.testname
+      azkabanProject.azkabanProjName = azkabanProject.azkabanProjName;
       azkabanProject = AzkabanHelper.
           readAzkabanProjectFromInteractiveConsole(project, azkabanProject, getPluginJsonPath(project));
     } else {
-      azkabanProject.azkabanProjName = azkabanProject.azkabanProjName + "-" + project.testname
+      azkabanProject.azkabanProjName = azkabanProject.azkabanProjName;
     }
 
     return azkabanProject;
+  }
+
+  /**
+   * Modifies the name of the project according to the test.
+   *
+   * @param project The Gradle project
+   * @param interactive enable interactive input
+   * @return The modified Azkaban project
+   */
+  AzkabanProject getTestProjectName(Project project, boolean interactive) {
+    AzkabanProject azkProject = readAzkabanProject(project, interactive)
+    azkProject.azkabanProjName = azkProject.azkabanProjName + "_" + project.getProperties().get("testname");
+    return azkProject;
   }
 }

@@ -40,6 +40,7 @@ The following were contributed by Jonathan Hung. Thanks, Jonathan!
 * `TOOLS-67569 Block Hadoop Client Teams from checking in Hadoop Jars in their MP`
 
 The following were contributed by Anant Nag. Thanks, Anant!
+* `LIHADOOP-25519 ligradle tasks to test the flow on Azkaban`
 * `LIHADOOP-25518 Prototype deploy tests for the workflows`
 * `LIHADOOP-23255: Add azkaban jvm properties to the jobConf for bangbang`
 * `LIHADOOP-18923: Integrate bangbang with li-hadoop-plugin`
