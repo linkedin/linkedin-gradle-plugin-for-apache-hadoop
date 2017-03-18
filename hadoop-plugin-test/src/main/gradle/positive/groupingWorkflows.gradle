@@ -56,4 +56,57 @@ hadoop {
     noOpJob('job2') {
     }
   }
+
+  workflow('multiGroupingFlow') {
+    groupJobs false
+
+    workflow('multiGroupingSubFlow1') {
+      groupJobs true
+
+      noOpJob('subJob1') {
+      }
+
+      targets 'subJob1'
+    }
+
+    noOpJob('job1') {
+      depends 'multiGroupingSubFlow1'
+    }
+
+    workflow('multiGroupingSubFlow2') {
+      groupJobs true
+
+      noOpJob('subJob1') {
+      }
+
+      flowDepends 'job1', 'multiGroupingSubFlow1'
+      targets 'subJob1'
+    }
+
+    targets 'multiGroupingSubFlow2'
+  }
+
+  workflow('innerGroupingFlow') {
+
+    workflow('innerGroupingSubFlow') {
+      groupJobs true
+
+      noOpJob('subJob1') {
+      }
+
+      workflow('extraInnerGroupingSubFlow') {
+        groupJobs true
+
+        noOpJob('subJob1') {
+        }
+
+        targets 'subJob1'
+        flowDepends 'subJob1'
+      }
+
+      targets 'extraInnerGroupingSubFlow'
+    }
+
+    targets 'innerGroupingSubFlow'
+  }
 }

@@ -63,6 +63,15 @@ class TeradataToHdfsJob extends Job {
     hadoopProperties = new LinkedHashMap<String, Object>();
   }
 
+  /**
+   * Builds the job properties that go into the generated job file.
+   * <p>
+   * Subclasses can override this method to add their own properties, and are recommended to
+   * additionally call this base class method to add the jobProperties correctly.
+   *
+   * @param parentScope The parent scope in which to lookup the base properties
+   * @return The job properties map that holds all the properties that will go into the built job file
+   */
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     Map<String, String> allProperties = super.buildProperties(parentScope);

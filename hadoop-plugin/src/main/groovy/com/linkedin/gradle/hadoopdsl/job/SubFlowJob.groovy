@@ -17,15 +17,15 @@ package com.linkedin.gradle.hadoopdsl.job;
 
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 
-
 /**
- * SubFlowJob is a job that groups all its children jobs into a parent node in Azkaban.
+ * SubFlowJob is a job that groups the jobs in a child workflow into a single node in the Azkaban
+ * web user interface.
  */
 class SubFlowJob extends StartJob {
   /**
-   * Root of a jobs' graph that defines the group
+   * The launch job of the subflow to group.
    */
-  String targetJobName;
+  LaunchJob launchJob;
 
   /**
    * Constructor for a SubFlowJob.
@@ -38,27 +38,7 @@ class SubFlowJob extends StartJob {
   }
 
   /**
-   * Method to construct the file name to use for the job file. In Azkaban, all job files must have
-   * unique names.
-   * <p>
-   * For a SubFlowJob, the file name is simply the cleaned fully-qualified workflow name.
-   *
-   * @param parentScope The parent scope in which the job is bound
-   * @return The name to use when generating the job file
-   */
-  @Override
-  String buildFileName(NamedScope parentScope) {
-    // The file name for a launch job is just the cleaned up fully-qualified workflow name.
-    return cleanFileName(parentScope.getQualifiedName());
-  }
-
-  void targets(String jobName) {
-    targetJobName = jobName;
-  }
-
-  /**
-   * Builds the job properties that go into the generated job file, except for the dependencies
-   * property, which is built by the other overload of the buildProperties method.
+   * Builds the job properties that go into the generated job file.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jobProperties correctly.
@@ -69,8 +49,9 @@ class SubFlowJob extends StartJob {
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     Map<String, String> allProperties = super.buildProperties(parentScope);
-    // flow.name defines a root of jobs' dependency graph that will be used to group them
-    allProperties['flow.name'] = buildFileName(parentScope, targetJobName);
+
+    // Set flow.name to the file name of the launch job used to group the subflow
+    allProperties['flow.name'] = launchJob.buildFileName(parentScope);
 
     return allProperties;
   }
@@ -92,7 +73,16 @@ class SubFlowJob extends StartJob {
    * @return The cloned job
    */
   SubFlowJob clone(SubFlowJob cloneJob) {
+    cloneJob.launchJob = launchJob;
     return ((SubFlowJob)super.clone(cloneJob));
   }
 
+  /**
+   * Sets the launch job of the subflow that will be grouped.
+   *
+   * @param launchJob The launch job of the subflow that will be grouped
+   */
+  void declareJobToGroup(LaunchJob jobToGroup) {
+    launchJob = jobToGroup;
+  }
 }

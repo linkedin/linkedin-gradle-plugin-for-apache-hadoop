@@ -13,11 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+package com.linkedin.gradle.test;
 
-package com.linkedin.gradle.test
-
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
+
 import org.gradle.api.Project;
 
 /**
@@ -39,5 +39,4 @@ class TestExtension extends HadoopDslExtension {
     super(project, parentScope, name);
     this.name = name;
   }
-
 }

@@ -15,10 +15,11 @@
  */
 package com.linkedin.gradle.hadoopdsl.job;
 
-import com.linkedin.gradle.hadoopdsl.BasePropertySet
+import com.linkedin.gradle.hadoopdsl.BasePropertySet;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.PropertySet;
+import com.linkedin.gradle.hadoopdsl.Workflow;
 
 /**
  * Base class for all Hadoop DSL job types.
@@ -73,8 +74,46 @@ class Job {
   }
 
   /**
-   * Method to construct the file name to use for the job file. In Azkaban, all job files must have
-   * unique names.
+   * Helper method to construct the job file name to use in the dependencies property when
+   * declaring a dependency for this job.
+   *
+   * @param targetName The target job name or child workflow name declared as a dependency of this job
+   * @param parentScope The parent scope in which the job (and its dependency) is bound
+   * @return The name of the job file to use in the dependencies property for this job
+   */
+  String buildDependencyFileName(String targetName, NamedScope parentScope) {
+    Object dependency = parentScope.thisLevel.get(targetName);
+
+    // In the Hadoop DSL we have the invariant that dependencies must name objects bound in scope
+    // at the same level as the object declaring the dependency. However, if you are programming
+    // against the API you could previously get around this invariant and we would simply emit your
+    // named dependency. For backwards compatibility, preserve this behavior.
+    if (dependency == null) {
+      return buildFileName(parentScope, targetName);
+    }
+
+    // Otherwise if you name a dependency on a job or a child workflow, generate the correct .job
+    // file name for that dependency.
+    if (dependency instanceof Job) {
+      return ((Job)dependency).buildFileName(parentScope);
+    } else if (dependency instanceof Workflow) {
+      Workflow dependencyFlow = (Workflow)dependency;
+
+      if (dependencyFlow.isGrouping) {
+        return dependencyFlow.subFlowJob.buildFileName(dependencyFlow.scope);
+      } else {
+        return dependencyFlow.launchJob.buildFileName(dependencyFlow.scope);
+      }
+    }
+
+    // For backwards compatibility, if for some reason they used the API to name a dependency on
+    // something else, just emit the dependency the same way we used to do it before.
+    return buildFileName(parentScope, targetName);
+  }
+
+  /**
+   * Helper method to construct the file name to use for the job file. In Azkaban, all job files
+   * must have unique names.
    * <p>
    * See the other overload for this method for information about how the job file name is formed.
    *
@@ -103,8 +142,7 @@ class Job {
   }
 
   /**
-   * Builds the job properties that go into the generated job file, except for the dependencies
-   * property, which is built by the other overload of the buildProperties method.
+   * Builds the job properties that go into the generated job file.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jobProperties correctly.
@@ -126,7 +164,7 @@ class Job {
     }
 
     if (dependencyNames.size() > 0) {
-      allProperties["dependencies"] = dependencyNames.collect { String targetName -> return buildFileName(parentScope, targetName) }.join(",");
+      allProperties["dependencies"] = dependencyNames.collect { String targetName -> buildDependencyFileName(targetName, parentScope) }.join(",");
     }
 
     return allProperties;

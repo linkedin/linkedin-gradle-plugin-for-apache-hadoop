@@ -15,8 +15,8 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.azkaban.client.AzkabanClient
-import com.linkedin.gradle.azkaban.client.AzkabanStatus
+import com.linkedin.gradle.azkaban.client.AzkabanClient;
+import com.linkedin.gradle.azkaban.client.AzkabanStatus;
 import com.linkedin.gradle.util.AzkabanClientUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;

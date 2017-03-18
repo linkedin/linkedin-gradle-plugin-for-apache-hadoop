@@ -32,11 +32,12 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
-import com.linkedin.gradle.hadoopdsl.job.StartJob
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
+import com.linkedin.gradle.hadoopdsl.job.StartJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.test.TestExtension;
+
 import org.gradle.api.Project;
 
 /**
@@ -323,7 +324,7 @@ class HadoopDslFactory {
   }
 
   /**
-   * Factory method to build a Test
+   * Factory method to build a Test.
    *
    * @param name The name of the test
    * @param project The Gradle project

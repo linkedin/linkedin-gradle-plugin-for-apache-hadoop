@@ -43,8 +43,7 @@ class StartJob extends NoOpJob {
   }
 
   /**
-   * Builds the job properties that go into the generated job file, except for the dependencies
-   * property, which is built by the other overload of the buildProperties method.
+   * Builds the job properties that go into the generated job file.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jobProperties correctly.
@@ -60,7 +59,7 @@ class StartJob extends NoOpJob {
     // workflow. To accomplish this, refer to the dependencies using the parent workflow's scope
     // when we build the fully-qualified dependency names.
     if (flowDependencyNames.size() > 0) {
-      allProperties["dependencies"] = flowDependencyNames.collect { String targetName -> return buildFileName(parentScope.nextLevel, targetName) }.join(",");
+      allProperties["dependencies"] = flowDependencyNames.collect { String targetName -> buildDependencyFileName(targetName, parentScope.nextLevel) }.join(",");
     }
 
     return allProperties;

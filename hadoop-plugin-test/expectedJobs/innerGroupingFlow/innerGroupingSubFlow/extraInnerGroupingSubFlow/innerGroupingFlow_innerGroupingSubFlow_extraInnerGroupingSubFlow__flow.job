@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=flow
+dependencies=innerGroupingFlow_innerGroupingSubFlow_subJob1
+flow.name=innerGroupingFlow_innerGroupingSubFlow_extraInnerGroupingSubFlow

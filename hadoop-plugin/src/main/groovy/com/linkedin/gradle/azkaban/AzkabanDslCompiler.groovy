@@ -16,7 +16,7 @@
 package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
@@ -150,7 +150,6 @@ class AzkabanDslCompiler extends BaseCompiler {
     // Build the list of jobs and subflows to build for the workflow
     workflow.buildWorkflowTargets(subflow);
 
-    // Visit each job to build in the workflow
     workflow.jobsToBuild.each { Job job ->
       visitJobToBuild(job);
     }
@@ -206,7 +205,7 @@ class AzkabanDslCompiler extends BaseCompiler {
    * Builds a job that has been found on a transitive walk starting from the jobs the workflow
    * targets. These are the jobs that should actually be built by the compiler.
    *
-   * @param The job to build
+   * @param job The job to build
    */
   void visitJobToBuild(Job job) {
     Map<String, String> allProperties = job.buildProperties(this.parentScope);

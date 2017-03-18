@@ -46,8 +46,7 @@ class CommandJob extends Job {
   }
 
   /**
-   * Builds the job properties that go into the generated job file, except for the dependencies
-   * property, which is built by the other overload of the buildProperties method.
+   * Builds the job properties that go into the generated job file.
    * <p>
    * Subclasses can override this method to add their own properties, and are recommended to
    * additionally call this base class method to add the jobProperties correctly.
