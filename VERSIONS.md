@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.15
+
+* Incrementing version to 0.11.15 for LinkedIn internal builds
+
 0.11.14
 
 * LIHADOOP-25519 ligradle tasks to test the flow on Azkaban
