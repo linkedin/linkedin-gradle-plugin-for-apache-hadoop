@@ -346,6 +346,14 @@ hadoop {
       depends 'job18'
     }
 
-    targets 'job19'
+    pinotBuildAndPushJob('job20') {
+      usesTableName 'internalTesting' // Required
+      usesInputPath '/user/input' // Required
+      usesPushLocation 'host:port' // Required
+
+      depends 'job19'
+    }
+
+    targets 'job20'
   }
 }

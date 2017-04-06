@@ -28,6 +28,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
@@ -386,6 +387,16 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   PigJob pigJob(String name, @DelegatesTo(PigJob) Closure configure);
+
+  /** 
+   * DSL pinotBuildAndPushJob method. Creates a PinotBuildAndPushJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  PinotBuildAndPushJob pinotBuildAndPushJob(String name, @DelegatesTo(PinotBuildAndPushJob) Closure configure);
 
   /**
    * DSL sparkJob method. Creates a SparkJob in scope with the given name and configuration.

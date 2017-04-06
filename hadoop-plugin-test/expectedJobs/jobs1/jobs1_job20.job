@@ -1,0 +1,6 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=PinotBuildAndPushJob
+dependencies=jobs1_job19
+path.to.input=/user/input
+push.location=host:port
+segment.table.name=internalTesting
