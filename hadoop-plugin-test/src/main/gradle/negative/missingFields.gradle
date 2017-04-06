@@ -99,6 +99,10 @@ hadoop {
       depends 'job16'
     }
 
-    targets 'job17'
+    pinotBuildAndPushJob('job18') {
+      depends 'job17'
+    }
+    targets 'job18'
   }
+
 }

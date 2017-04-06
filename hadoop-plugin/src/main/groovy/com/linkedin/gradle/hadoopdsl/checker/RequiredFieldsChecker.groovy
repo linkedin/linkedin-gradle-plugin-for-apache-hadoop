@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
@@ -146,6 +147,14 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(PigJob job) {
     if (job.script == null || job.script.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: PigJob ${job.name} must set script");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(PinotBuildAndPushJob job) {
+    if (job.tableName == null || job.inputPath == null || job.pushLocation == null) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: PinotBuildAndPushJob ${job.name} must set tableName, inputPath, and pushLocation");
       foundError = true;
     }
   }

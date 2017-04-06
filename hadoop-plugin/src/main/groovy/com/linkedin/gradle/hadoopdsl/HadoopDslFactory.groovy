@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob
@@ -185,6 +186,16 @@ class HadoopDslFactory {
    */
   PigJob makePigJob(String name) {
     return new PigJob(name);
+  }
+
+  /**
+   * Factory method to build a PinotBuildAndPushJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  PinotBuildAndPushJob makePinotBuildAndPushJob(String name) {
+    return new PinotBuildAndPushJob(name);
   }
 
   /**

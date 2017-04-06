@@ -41,6 +41,7 @@ RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdb
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUserId
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcEncryptedCredential
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcCryptoKeyPath
+RequiredFieldsChecker ERROR: PinotBuildAndPushJob job18 must set tableName, inputPath, and pushLocation
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
 :hadoop-plugin-test:test_missingFields FAILED
 

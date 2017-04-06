@@ -103,3 +103,6 @@ The following were contributed by Ivan Heda. Thanks, Ivan!
 
 The following were contributed by Alexander Ivaniuk:
 * Add possibility to group jobs into subflows in Azkaban UI
+
+The following were contributed by Jennifer Dai:
+* Add ability for Hadoop DSL to understand the PinotBuildAndPushJob job type.
