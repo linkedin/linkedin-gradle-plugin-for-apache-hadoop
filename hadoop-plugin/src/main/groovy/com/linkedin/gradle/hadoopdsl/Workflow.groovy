@@ -16,10 +16,10 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.job.Job;
-import com.linkedin.gradle.hadoopdsl.job.LaunchJob
-import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
-import com.linkedin.gradle.hadoopdsl.job.StartJob
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
+import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
+import com.linkedin.gradle.hadoopdsl.job.StartJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+
 import org.gradle.api.Project;
 
 /**
@@ -76,8 +76,14 @@ class Workflow extends BaseNamedScopeContainer {
   // workflow depends.
   Set<String> parentDependencies;
 
-  // indicates if all children nodes of this workflow will be grouped into one parent 'subflow' node
+  // Indicates if all children nodes of this workflow will be grouped into one parent 'subflow' node
   boolean isGrouping;
+
+  // The launch job for the workflow
+  LaunchJob launchJob;
+
+  // The SubFlowJob for the workflow if this is a grouping subflow
+  SubFlowJob subFlowJob;
 
   /**
    * Base constructor for a Workflow.
@@ -99,10 +105,13 @@ class Workflow extends BaseNamedScopeContainer {
   Workflow(String name, Project project, NamedScope parentScope) {
     super(project, parentScope, name);
     this.flowsToBuild = null;
+    this.isGrouping = false;
     this.jobsToBuild = null;
     this.launchDependencies = new LinkedHashSet<String>();
+    this.launchJob = null;
     this.name = name;
     this.parentDependencies = new LinkedHashSet<String>();
+    this.subFlowJob = null;
   }
 
   /**
@@ -134,28 +143,14 @@ class Workflow extends BaseNamedScopeContainer {
     }
 
     // First, build the launch job for the workflow and it to the list of jobs.
-    // Use a noop job in case of a grouping workflow since LaunchJob assumes workflow's name by default, which leads
-    // to name conflicts.
-    NoOpJob launchJob = isGrouping ? factory.makeNoOpJob(name) : factory.makeLaunchJob(name);
+    launchJob = factory.makeLaunchJob(name);
     launchJob.dependencyNames.addAll(launchDependencies);
     scope.bind(launchJob.name, launchJob);
     jobs.add(launchJob);
 
-    SubFlowJob subFlowJob = null;
-    if (isGrouping) {
-      subFlowJob = factory.makeSubFlowJob(name + "__flow");
-      scope.bind(subFlowJob.name, subFlowJob);
-      jobs.add(subFlowJob);
-      subFlowJob.targets(launchJob.name);
-
-      jobsToBuild.add(subFlowJob);
-    }
-
     if (subflow) {
       // If this is a subflow, build a placeholder startJob at the root of the subflow.
       StartJob startJob = factory.makeStartJob("_start");
-
-      (subFlowJob != null ? subFlowJob : startJob).flowDependencyNames.addAll(parentDependencies);
 
       // Now, make the actual root jobs for the subflow depend on the startJob.
       findRootJobs().each { Job job ->
@@ -164,7 +159,7 @@ class Workflow extends BaseNamedScopeContainer {
 
       // If this workflow is a subflow, look at each of its subflows. If they do not declare any
       // parent dependencies, add a parent dependency on the start job so that all target paths in
-      // this subflow end up connected to the start job. We must do this before we recursively
+      // each subflow end up connected to the start job. We must do this before we recursively
       // build the subflows.
       workflows.each { Workflow flow ->
         if (flow.parentDependencies.size() == 0) {
@@ -175,6 +170,20 @@ class Workflow extends BaseNamedScopeContainer {
       // Then add the startJob to the jobs so it will get built.
       scope.bind(startJob.name, startJob);
       jobs.add(startJob);
+
+      // If this subflow is grouped, add a subFlowJob that groups the launchJob for the subflow and
+      // connect the subflow dependencies to the subFlowJob.
+      if (isGrouping) {
+        subFlowJob = factory.makeSubFlowJob("_flow");
+        subFlowJob.declareJobToGroup(launchJob);
+        subFlowJob.flowDependencyNames.addAll(parentDependencies);
+        scope.bind(subFlowJob.name, subFlowJob);
+        jobs.add(subFlowJob);
+        jobsToBuild.add(subFlowJob);
+      } else {
+        // Otherwise connect the subflow dependencies to the startJob
+        startJob.flowDependencyNames.addAll(parentDependencies);
+      }
     }
 
     Map<String, Workflow> flowMap = buildFlowMap();
@@ -326,16 +335,6 @@ class Workflow extends BaseNamedScopeContainer {
   }
 
   /**
-   * DSL method that sets whether all children nodes should be grouped into one parent node
-   * @param value
-   */
-
-  @HadoopDslMethod
-  void groupJobs(boolean value) {
-    isGrouping = value;
-  }
-
-  /**
    * DSL method for a subflow that declares the targets in the parent workflow upon which this
    * workflow depends.
    *
@@ -362,6 +361,16 @@ class Workflow extends BaseNamedScopeContainer {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];
     flowDepends(clear, targetNames);
+  }
+
+  /**
+   * DSL method that sets whether or not the child nodes should be grouped into one parent node.
+   *
+   * @param groupChildren Whether or not the child nodes should be grouped into one parent node
+   */
+  @HadoopDslMethod
+  void groupJobs(boolean groupChildren) {
+    isGrouping = groupChildren;
   }
 
   /**

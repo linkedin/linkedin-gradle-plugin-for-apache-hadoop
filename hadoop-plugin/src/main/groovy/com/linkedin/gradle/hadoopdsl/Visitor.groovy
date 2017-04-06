@@ -30,7 +30,7 @@ import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
-import com.linkedin.gradle.hadoopdsl.job.SqlJob
+import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 

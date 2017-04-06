@@ -23,11 +23,11 @@ The **LinkedIn Gradle Plugin for Apache Hadoop** (which we shall refer to as sim
 applications.
 
 In particular, the Plugin will help you easily work with Hadoop applications like Apache Pig and
-build workflows for Hadoop workflow schedulers like Azkaban and Apache Oozie.
+build workflows for Hadoop workflow schedulers such as Azkaban.
 
 The Plugin includes the **LinkedIn Gradle DSL for Apache Hadoop** (which we shall refer to as simply
 the "Hadoop DSL" for brevity), a language for specifying jobs and workflows for Hadoop workflow
-schedulers like Azkaban and Apache Oozie.
+schedulers such as Azkaban.
 
 #### Hadoop Plugin User Guide
 
@@ -64,8 +64,7 @@ consider using the Hadoop Plugin and the Hadoop DSL.
 #### Apache Oozie Status
 
 Although we started on a Hadoop DSL compiler for Oozie, we did not complete it, and it is currently
-not in a usable form. We are not currently working on it, although it is possible we might go back
-and finish it in the future.
+not in a usable form. We are not currently working on it and it is unlikely to be completed.
 
 #### Recent News
 

@@ -13,9 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.test;
-
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
@@ -27,6 +25,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -34,13 +33,12 @@ import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.bundling.Zip;
+
 import org.json.JSONObject;
 
-
 /**
- * TestPlugin is used to test the workflows by override certain parameters such as data.
- * It provides a way to automatically deploy the generated
- * artifacts to the azkaban webserver and run it.
+ * TestPlugin is used to test the workflows by overriding certain parameters such as data. It
+ * provides a way to automatically deploy the generated artifacts to Azkaban and run them.
  **/
 public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   private static testDirectory = null;
@@ -48,7 +46,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   static boolean interactive = true;
 
   /**
-   * Base constructor for the TestPlugin class
+   * Base constructor for the TestPlugin class.
    **/
   TestPlugin() {
     super();
@@ -76,10 +74,10 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Prints the tests, utility function for debugging
+   * Prints the tests, utility function for debugging.
    *
    * @param project The Gradle project
-   * @return the task created
+   * @return The created task
    */
   Task createPrintWorkflowTask(Project project) {
     return project.tasks.create("printTests") {
@@ -102,10 +100,9 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     }
   }
 
-
-
   /**
-   * This task creates the flows for testing. It will substitute the parameters overriden in the tests block inside the hadoop construct
+   * This task creates the flows for testing. It will substitute the parameters overriden in the
+   * tests block inside the hadoop construct.
    *
    * @param project The hadoop project
    * @return Return the created task
@@ -116,13 +113,11 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doLast {
-
         validateTestnameProperty(project);
 
         TestPlugin plugin = project.extensions.testPlugin;
         if (plugin == null) {
-          throw new GradleException(
-              "The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
+          throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
         }
 
         String testName;

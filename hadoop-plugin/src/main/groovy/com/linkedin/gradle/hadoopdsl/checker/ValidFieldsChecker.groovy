@@ -2,6 +2,7 @@ package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
+
 import org.gradle.api.Project;
 
 /**

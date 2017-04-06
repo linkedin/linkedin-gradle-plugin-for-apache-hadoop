@@ -101,8 +101,9 @@ The following were contributed by Pratik Satish. Thanks, Pratik!
 The following were contributed by Ivan Heda. Thanks, Ivan!
 * `Added possibility to have Azkaban password in configuration JSON.`
 
-The following were contributed by Alexander Ivaniuk:
-* Add possibility to group jobs into subflows in Azkaban UI
+The following were contributed by Alexander Ivaniuk. Thanks, Alexander!
+* `Add possibility to group jobs into subflows in Azkaban UI`
 
-The following were contributed by Jennifer Dai:
-* Add ability for Hadoop DSL to understand the PinotBuildAndPushJob job type.
+The following were contributed by Jennifer Dai. Thanks, Jennifer!
+* `Add ability for Hadoop DSL to understand the PinotBuildAndPushJob job type`
+

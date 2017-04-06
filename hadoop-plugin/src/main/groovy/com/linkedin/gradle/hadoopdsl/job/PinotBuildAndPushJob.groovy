@@ -16,11 +16,11 @@
 package com.linkedin.gradle.hadoopdsl.job;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
- * Job class for type=PinotBuildandPushJob jobs. This job class is aimed at launching a job to generate segments and
- * push data to Pinot. Open source code is at github.com/linkedin/pinot.
+ * Job class for type=PinotBuildandPushJob jobs. This job class is aimed at launching a job to
+ * generate segments and push data to Pinot. The open source code is at:
+ * https://github.com/linkedin/pinot.
  * <p>
  * In the example below, the values are NOT necessarily default values; they are simply meant to
  * illustrate the DSL. Please check that these values are appropriate for your application. In the
@@ -35,9 +35,9 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  */
 class PinotBuildAndPushJob extends HadoopJavaJob {
   // Required
-  String tableName;
   String inputPath;
   String pushLocation;
+  String tableName;
 
   /**
    * Constructor for PinotBuildPushJob.
@@ -47,21 +47,6 @@ class PinotBuildAndPushJob extends HadoopJavaJob {
   PinotBuildAndPushJob(String jobName) {
     super(jobName);
     setJobProperty("type", "PinotBuildAndPushJob");
-  }
-
-  /**
-   * Builds the job properties that go into the generated job file, except for the dependencies
-   * property, which is built by the other overload of the buildProperties method.
-   * <p>
-   * Subclasses can override this method to add their own properties, and are recommended to
-   * additionally call this base class method to add the jobProperties correctly.
-   *
-   * @param parentScope The parent scope in which to lookup the base properties
-   * @return The job properties map that holds all the properties that will go into the built job file
-   */
-  Map<String, String> buildProperties(NamedScope parentScope) {
-    Map<String, String> allProperties = super.buildProperties(parentScope);
-    return allProperties;
   }
 
   /**
@@ -81,27 +66,16 @@ class PinotBuildAndPushJob extends HadoopJavaJob {
    * @return The cloned job
    */
   PinotBuildAndPushJob clone(PinotBuildAndPushJob cloneJob) {
-    cloneJob.tableName = tableName;
     cloneJob.inputPath = inputPath;
     cloneJob.pushLocation = pushLocation;
+    cloneJob.tableName = tableName;
     return ((PinotBuildAndPushJob)super.clone(cloneJob));
-  }
-
-  /**
-   * DSL usesTableName method causes segment.table.name=value to be set in the job file.
-   *
-   * @param tableName the table that data is pushed to
-   */
-  @HadoopDslMethod
-  void usesTableName(String tableName) {
-    this.tableName = tableName;
-    setJobProperty("segment.table.name", tableName);
   }
 
   /**
    * DSL usesInputPath method causes path.to.input=value to be set in the job file.
    *
-   * @param inputPath the path where the input files are stored at
+   * @param inputPath The path where the input files are stored
    */
   @HadoopDslMethod
   void usesInputPath(String inputPath) {
@@ -112,11 +86,22 @@ class PinotBuildAndPushJob extends HadoopJavaJob {
   /**
    * DSL usesPushLocation method causes push.location=value to be set in the job file.
    *
-   * @param pushLocation the location files are pushed to, eg: host:port
+   * @param pushLocation The location files are pushed to, eg: host:port
    */
   @HadoopDslMethod
   void usesPushLocation(String pushLocation) {
     this.pushLocation = pushLocation;
     setJobProperty("push.location", pushLocation);
+  }
+
+  /**
+   * DSL usesTableName method causes segment.table.name=value to be set in the job file.
+   *
+   * @param tableName The table to which the data is pushed to
+   */
+  @HadoopDslMethod
+  void usesTableName(String tableName) {
+    this.tableName = tableName;
+    setJobProperty("segment.table.name", tableName);
   }
 }

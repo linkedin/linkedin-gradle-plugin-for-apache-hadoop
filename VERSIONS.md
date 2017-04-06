@@ -19,6 +19,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.11.16
 
+* Minor updates to naming scheme for grouping jobs into subflows in the Azkaban UI
 * Add PinotBuildAndPushJob job type support
 
 0.11.15

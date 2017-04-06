@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=flow
+dependencies=nonGroupingFlow_job1
+flow.name=nonGroupingFlow_groupingSubFlow2

@@ -13,12 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.spark
+package com.linkedin.gradle.spark;
 
-import org.gradle.api.Project
+import org.gradle.api.Project;
 
 class SparkExtension {
-
   Project project;
 
   // Properties that can be set by the user
