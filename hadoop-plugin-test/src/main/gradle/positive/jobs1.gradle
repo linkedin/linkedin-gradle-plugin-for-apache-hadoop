@@ -350,7 +350,6 @@ hadoop {
       usesTableName 'internalTesting' // Required
       usesInputPath '/user/input' // Required
       usesPushLocation 'host:port' // Required
-
       depends 'job19'
     }
 

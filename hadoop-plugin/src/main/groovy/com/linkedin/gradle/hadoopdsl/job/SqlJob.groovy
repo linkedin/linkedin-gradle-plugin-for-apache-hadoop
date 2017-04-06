@@ -20,17 +20,17 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 /**
  * Job class for type=sql jobs.
  * <p>
- * These are currently internal job type at LinkedIn.
- * This is the job type to execute one or more SQL statements.
+ * This is currently an internal job type at LinkedIn. This job type executes one or more SQL
+ * statements.
  * <p>
  * In the DSL, a SQL job type can be specified with:
  * <pre>
  *   sqlJob('jobName') {
- *     jdbcDriverClass com.teradata.jdbc.TeraDriver //Required
- *     jdbcUrl 'jdbc:teradata://foo.com/DBS_PORT=1025,CHARSET=UTF8,TMODE=TERA' //Required
- *     jdbcUserId 'foo'           //Required
- *     jdbcEncryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'  //Required
- *     jdbcCryptoKeyPath '/hdfs/path/to/cryptokey/file'         //Required
+ *     jdbcDriverClass com.teradata.jdbc.TeraDriver                            // Required
+ *     jdbcUrl 'jdbc:teradata://foo.com/DBS_PORT=1025,CHARSET=UTF8,TMODE=TERA' // Required
+ *     jdbcUserId 'foo'                                                        // Required
+ *     jdbcEncryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'         // Required
+ *     jdbcCryptoKeyPath '/hdfs/path/to/cryptokey/file'                        // Required
  *     set properties: [
  *       'user.to.proxy' : 'testUser'
  *       'jdbc.sql.1' : 'DELETE test_table_publish ALL;',

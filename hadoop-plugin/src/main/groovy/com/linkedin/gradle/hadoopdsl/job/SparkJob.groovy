@@ -29,14 +29,12 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     uses 'com.linkedin.azkaban.spark.HelloSpark'  // Required
  *     executes './lib/azkaban-spark-job.jar'        // Required
  *     appParams params                              // Application parameters
- *     enableFlags flags                             // flags to pass
- *
- *     jars 'jar1,jar2,jar3'                         // comma separated list of jars
+ *     enableFlags flags                             // Flags to pass
+ *     jars 'jar1,jar2,jar3'                         // Comma-separated list of jars
  *     numExecutors 120
  *     executorMemory '2g'
  *     driverMemory '2g'
  *     executorCores 1
- *
  *     set sparkConfs: [
  *       'key1' : 'val1',
  *       'key2' : 'val2'

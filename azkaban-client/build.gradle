@@ -1,12 +1,12 @@
 plugins {
-  id 'com.jfrog.bintray' version '1.6'
+  id 'com.jfrog.bintray' version '1.7.3'
   id 'eclipse'
   id 'groovy'
   id 'idea'
   id 'maven-publish'
 }
 
-// The group will be overriden in LinkedIn builds
+// The group will be overridden in LinkedIn builds
 group=rootProject.group
 
 repositories {

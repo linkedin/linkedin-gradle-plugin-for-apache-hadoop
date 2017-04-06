@@ -15,9 +15,6 @@
  */
 package com.linkedin.gradle.oozie;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
-
 import groovy.json.JsonBuilder;
 import groovy.json.JsonSlurper;
 
@@ -28,7 +25,7 @@ import org.gradle.api.Task;
 import org.gradle.api.tasks.bundling.Zip;
 
 /**
- * OoziePlugin implements features for Apache Oozie, including building the Hadoop DSL for Oozie.
+ * OoziePlugin implements features for Apache Oozie.
  */
 class OoziePlugin implements Plugin<Project> {
   /**
@@ -44,44 +41,9 @@ class OoziePlugin implements Plugin<Project> {
       return;
     }
 
-    createBuildFlowsTask(project);
     createOozieCommandTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
-  }
-
-  /**
-   * Creates the task to build the Hadoop DSL for Oozie.
-   *
-   * @param project The Gradle project
-   * @returns The created task
-   */
-  Task createBuildFlowsTask(Project project) {
-    return project.tasks.create("buildOozieFlows") {
-      description = "Builds the Hadoop DSL for Apache Oozie. Have your build task depend on this task.";
-      group = "Hadoop Plugin";
-
-      doLast {
-        HadoopDslPlugin plugin = project.extensions.hadoopDslPlugin;
-        if (plugin == null) {
-          throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildOozieFlows task when the plugin is disabled.");
-        }
-
-        // Run the static checker on the DSL
-        HadoopDslChecker checker = makeChecker(project);
-        checker.check(plugin);
-
-        if (checker.failedCheck()) {
-          throw new GradleException("Hadoop DSL static checker FAILED");
-        }
-        else {
-          logger.lifecycle("Hadoop DSL static checker PASSED");
-        }
-
-        OozieDslCompiler compiler = makeCompiler(project);
-        compiler.compile(plugin);
-      }
-    }
   }
 
   /**
@@ -112,7 +74,7 @@ class OoziePlugin implements Plugin<Project> {
       group = "Hadoop Plugin";
 
       doFirst {
-        oozieProject = readOozieProject(project);
+        OozieProject oozieProject = readOozieProject(project);
         String zipTaskName = oozieProject.oozieZipTask;
         if (!zipTaskName) {
           throw new GradleException("\nPlease set the property 'oozieZipTask' in the .ooziePlugin.json file");
@@ -144,7 +106,7 @@ class OoziePlugin implements Plugin<Project> {
       doLast {
         def ooziePluginFilePath = "${project.getProjectDir()}/.ooziePlugin.json";
         if (!new File(ooziePluginFilePath).exists()) {
-          OozieProject oozieProject = makeDefaultOozieProject();
+          OozieProject oozieProject = makeDefaultOozieProject(project);
           String oozieData = new JsonBuilder(oozieProject).toPrettyString();
           new File(ooziePluginFilePath).write(oozieData);
         }
@@ -184,28 +146,6 @@ class OoziePlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to build the OozieDSLChecker class for Apache oozie. Sublcasses can override
-   * this method to provide their own checker.
-   *
-   * @param project The Gradle project
-   * @return The OozieDSLChecker
-   */
-  OozieDSLChecker makeChecker(Project project) {
-    return new OozieDSLChecker(project);
-  }
-
-  /**
-   * Factory method to build the Hadoop DSL compiler for Apache Oozie. Subclasses can override this
-   * method to provide their own compiler.
-   *
-   * @param project The Gradle project
-   * @return The OozieDslCompiler
-   */
-  OozieDslCompiler makeCompiler(Project project) {
-    return new OozieDslCompiler(project);
-  }
-
-  /**
    * Factory method to build a default OozieProject for use with the writePluginJson method. Can be
    * overridden by subclasses.
    *
@@ -213,7 +153,7 @@ class OoziePlugin implements Plugin<Project> {
    * @return The OozieProject object
    */
   OozieProject makeDefaultOozieProject(Project project) {
-    return makeOozieProject();
+    return makeOozieProject(project);
   }
 
   /**

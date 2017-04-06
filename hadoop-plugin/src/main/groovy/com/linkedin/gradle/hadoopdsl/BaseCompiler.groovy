@@ -84,7 +84,7 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     String buildDirectory = getBuildDirectory(hadoop);
 
     if (buildDirectory == null || buildDirectory.isEmpty()) {
-      throw new IOException("You must set the build directory to use the Hadoop DSL. For Azkaban, use hadoop { buildPath \"path\" }. For Oozie, use hadoop { ooziePath \"path\" }.");
+      throw new IOException("You must set the build directory to use the Hadoop DSL. For Azkaban, use hadoop { buildPath \"path\" }.");
     }
 
     this.parentDirectory = buildDirectory;

@@ -27,9 +27,9 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * DSL, a PinotBuildandPush can be specified with:
  * <pre>
  *   pinotBuildAndPushJob('jobName') {
- *     usesTableName 'internalTesting'
- *     usesInputPath '/user/input'
- *     usesPushLocation 'host:port'
+ *     usesTableName 'internalTesting'  // Required
+ *     usesInputPath '/user/input'      // Required
+ *     usesPushLocation 'host:port'     // Required
  *   }
  * </pre>
  */
