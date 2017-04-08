@@ -121,8 +121,8 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
    * @return The Test object
    */
   @HadoopDslMethod
-  TestExtension test(String name, @DelegatesTo(TestExtension) Closure configure) {
-    return configureTest(factory.makeTest(name, project, scope), configure);
+  TestExtension hadoopTest(String name, @DelegatesTo(TestExtension) Closure configure) {
+    return configureHadoopTest(factory.makeTest(name, project, scope), configure);
   }
 
   /**
@@ -133,7 +133,7 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
    * @param configure The configuration closure
    * @return The input test, which is now configured
    */
-  protected TestExtension configureTest(TestExtension test, Closure configure) {
+  protected TestExtension configureHadoopTest(TestExtension test, Closure configure) {
     scope.bind(test.name, test);
     project.configure(test, configure);
     this.tests.add(test);
