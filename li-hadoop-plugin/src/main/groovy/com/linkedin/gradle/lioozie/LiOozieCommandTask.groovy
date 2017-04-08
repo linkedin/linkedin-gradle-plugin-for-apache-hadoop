@@ -21,9 +21,10 @@ import com.linkedin.gradle.oozie.OozieService;
 
 class LiOozieCommandTask extends OozieCommandTask {
   /**
-   * Make OozieService object with kerberos authentication
-   * @param url Url of the oozie system
-   * @return OozieService object with kerberos authentication
+   * Make OozieService object with Kerberos authentication.
+   *
+   * @param url URL of the Oozie system
+   * @return OozieService Object with Kerberos authentication
    */
   @Override
   OozieService makeOozieService(String url) {

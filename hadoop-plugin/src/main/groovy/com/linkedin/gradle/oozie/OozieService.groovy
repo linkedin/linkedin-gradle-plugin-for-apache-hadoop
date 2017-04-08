@@ -26,7 +26,8 @@ import org.apache.oozie.client.WorkflowJob.Status;
 import org.gradle.api.Project;
 
 /**
- * OozieService class provides different methods to submit, run, start, suspend, resume, kill and get status of oozie job.
+ * OozieService class provides different methods to submit, run, start, suspend, resume, kill and
+ * get the status of Oozie job.
  */
 class OozieService {
 

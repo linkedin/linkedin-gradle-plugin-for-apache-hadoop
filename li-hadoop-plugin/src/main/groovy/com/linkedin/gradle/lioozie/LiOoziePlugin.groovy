@@ -16,7 +16,6 @@
 package com.linkedin.gradle.lioozie;
 
 import com.linkedin.gradle.oozie.OozieCommandTask;
-import com.linkedin.gradle.oozie.OozieDslCompiler;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.oozie.OozieProject;
 import com.linkedin.gradle.oozie.OozieUploadTask;
@@ -49,18 +48,6 @@ class LiOoziePlugin extends OoziePlugin {
   }
 
   /**
-   * Factory method to build the Hadoop DSL compiler for Apache Oozie. Subclasses can override this
-   * method to provide their own compiler.
-   *
-   * @param project The Gradle project
-   * @return The OozieDslCompiler
-   */
-  @Override
-  OozieDslCompiler makeCompiler(Project project) {
-    return new LiOozieDslCompiler(project);
-  }
-
-  /**
    * Factory method to build a default OozieProject for use with the writePluginJson method. Can be
    * overridden by subclasses.
    * <p>
@@ -71,7 +58,7 @@ class LiOoziePlugin extends OoziePlugin {
    */
   @Override
   OozieProject makeDefaultOozieProject(Project project) {
-    OozieProject oozieProject = makeOozieProject();
+    OozieProject oozieProject = makeOozieProject(project);
     oozieProject.clusterURI = "webhdfs://ltx1-holdemnn01.grid.linkedin.com:50070";
     oozieProject.oozieURI = "http://ltx1-holdemoz01.grid.linkedin.com:11000/oozie/";
     oozieProject.oozieZipTask = "";

@@ -22,8 +22,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 
 /**
- * The OozieCommandTask is used to run oozie commands such as run, submit, start, resume, kill and
- * status.
+ * Task used to run Oozie commands such as run, submit, start, resume, kill and status.
  */
 class OozieCommandTask extends DefaultTask {
   OozieService oozieService;

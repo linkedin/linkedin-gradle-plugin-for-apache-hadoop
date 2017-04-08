@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.17
+
+* Remove unfinished Oozie Hadoop DSL elements to simplify the long-term maintenance overhead
+
 0.11.16
 
 * Minor updates to naming scheme for grouping jobs into subflows in the Azkaban UI
