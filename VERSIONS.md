@@ -20,6 +20,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 0.11.17
 
 * Remove unfinished Oozie Hadoop DSL elements to simplify the long-term maintenance overhead
+* Rename conflicting Azkaban test extension and task names to not collide
 
 0.11.16
 

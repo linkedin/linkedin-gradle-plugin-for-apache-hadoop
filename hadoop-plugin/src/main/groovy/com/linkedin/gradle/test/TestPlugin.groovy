@@ -40,9 +40,9 @@ import org.json.JSONObject;
  * TestPlugin is used to test the workflows by overriding certain parameters such as data. It
  * provides a way to automatically deploy the generated artifacts to Azkaban and run them.
  **/
-public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
-  private static testDirectory = null;
+class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   private final static Logger logger = Logging.getLogger(TestPlugin);
+  private static testDirectory = null;
   static boolean interactive = true;
 
   /**
@@ -53,7 +53,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   @Override
-  public void apply(Project project) {
+  void apply(Project project) {
     addTestExtension(project);
     createPrintWorkflowTask(project);
     createBuildFlowsForTestingTask(project);
@@ -65,12 +65,12 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Add the plugin to testExtension
+   * Adds the plugin as a Gradle project extension.
    *
    * @param project The Gradle project
    */
   void addTestExtension(Project project) {
-    project.extensions.add("testPlugin", this);
+    project.extensions.add("testHadoopPlugin", this);
   }
 
   /**
@@ -80,8 +80,8 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createPrintWorkflowTask(Project project) {
-    return project.tasks.create("printTests") {
-      description = "Prints all the tests added to the project";
+    return project.tasks.create("printHadoopTests") {
+      description = "Prints all the Hadoop tests added to the project";
       group = "Hadoop Plugin";
 
       doLast {
@@ -101,7 +101,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * This task creates the flows for testing. It will substitute the parameters overriden in the
+   * This task creates the flows for testing. It will substitute the parameters overridden in the
    * tests block inside the hadoop construct.
    *
    * @param project The hadoop project
@@ -115,7 +115,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       doLast {
         validateTestnameProperty(project);
 
-        TestPlugin plugin = project.extensions.testPlugin;
+        TestPlugin plugin = project.extensions.testHadoopPlugin;
         if (plugin == null) {
           throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
         }
@@ -127,6 +127,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
         testName = project.testname;
         HadoopDslExtension testExtension = project.extensions.getByName("hadoop");
         buildDir = testExtension.buildDirectory;
+
         testExtension.tests.each {
           if (it.name.equals(testName)) {
             plugin.extension = it;
@@ -140,7 +141,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
           throw new RuntimeException("Specified test ${testName} is not found");
         }
 
-        // delete the DSL build directory
+        // Delete the DSL build directory
         def deleted = new File(buildDir).deleteDir();
 
         File testDirFile = new File(new File(buildDir, "tests").getAbsolutePath(), testName);
@@ -176,9 +177,11 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * This task will take all the job files along with the hadoopZip extension and create a separate zip for testing of the project. Technically we
-   * want to retain the original zip but for each test a new zip has to be generated.
-   * @param project The hadoop project
+   * This task will take all the job files along with the hadoopZip extension and create a separate
+   * zip for testing of the project. Technically we want to retain the original zip but for each
+   * test a new zip has to be generated.
+   *
+   * @param project The Hadoop project
    * @return Return the created task
    */
   Task createZipForTestingTask(Project project) {
@@ -191,7 +194,8 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the testDeploy task. This task will automatically build and upload the zip to the test machines
+   * Creates the testDeploy task. This task will automatically build and upload the zip to the test
+   * machines.
    *
    * @param project The Gradle project
    * @return The created task
@@ -203,7 +207,6 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       dependsOn project.tasks["buildZipForTesting"]
 
       doFirst {
-
         validateTestnameProperty(project);
 
         if (project.hasProperty("skipInteractive")) {
@@ -212,7 +215,6 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
         }
 
         azkProject = getTestProjectName(project, interactive);
-
         String message = "The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be deployed to ${azkProject.azkabanProjName}"
         prettyPrintMessage(message);
 
@@ -238,8 +240,9 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the runTest task. This will run all the workflows defined in the test specified by testname.
-   * If a flow is specified -Pflow=flowname, then only flow with name flowname will be run.
+   * Creates the runTest task. This will run all the workflows defined in the test specified by
+   * testname. If a flow is specified -Pflow=flowname, then only flow with name flowname will be
+   * run.
    *
    * @param project The Gradle project
    * @return The created task
@@ -290,15 +293,15 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Returns a list of all flows in project azkProject.azkabanProjName
+   * Returns a list of all flows in project azkProject.azkabanProjName.
    *
    * @param project The Gradle project
    * @param sessionId The session id for the Azkaban session
    * @param azkProject The Azkaban Project
-   * @return List of all flows in project azkProject.azkabanProjName. Returns an empty list if no flows are defined in the current project
+   * @return List of all flows in project azkProject.azkabanProjName. Returns an empty list if no flows are defined in the current project.
    */
   List<String> getFlowsOrThrowError(Project project, String sessionId, AzkabanProject azkProject) {
-    //Fetch flows of the project
+    // Fetch flows of the project
     String fetchFlowsResponse = AzkabanClient.
         fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
@@ -326,7 +329,7 @@ public class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the getTestStatus task which gets the status of the flows in the project
+   * Creates the getTestStatus task which gets the status of the flows in the project.
    *
    * @param project The Gradle project
    * @return The created task
