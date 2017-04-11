@@ -107,3 +107,6 @@ The following were contributed by Alexander Ivaniuk. Thanks, Alexander!
 The following were contributed by Jennifer Dai. Thanks, Jennifer!
 * `Add ability for Hadoop DSL to understand the PinotBuildAndPushJob job type`
 
+The following were contributed by Jianling Zhong. Thanks, Jianling!
+* `Add supports for a "required parameters" check`
+
