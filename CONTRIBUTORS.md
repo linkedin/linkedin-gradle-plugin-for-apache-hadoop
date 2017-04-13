@@ -99,6 +99,7 @@ The following were contributed by Pratik Satish. Thanks, Pratik!
 * `LIHADOOP-21429 Add HadoopValidatorPlugin with PigValidatorPlugin in its stack`
 
 The following were contributed by Ivan Heda. Thanks, Ivan!
+* `Removed automatic include of runtime dependencies into libPath in ZipTask.`
 * `Added possibility to have Azkaban password in configuration JSON.`
 
 The following were contributed by Alexander Ivaniuk. Thanks, Alexander!

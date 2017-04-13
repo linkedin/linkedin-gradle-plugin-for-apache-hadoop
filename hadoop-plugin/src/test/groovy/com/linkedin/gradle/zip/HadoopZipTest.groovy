@@ -105,13 +105,18 @@ class HadoopZipTest {
   }
 
   /**
-   * Basic test that just adds jars from the hadoopRuntime configuration.
+   * Basic test that just manually adds jars from the hadoopRuntime configuration.
    */
   @Test
   void testHadoopConfiguration() {
     plugin.apply(project);
 
     hadoopRuntime.getDependencies().add(project.getDependencies().create(project.fileTree("AzRoot/custom-lib")));
+
+    project.extensions.hadoopZip.base({
+      from(hadoopRuntime) { into "lib"; }
+    })
+
     project.extensions.hadoopZip.main({});
 
     Set<String> expected = new HashSet<String>();
