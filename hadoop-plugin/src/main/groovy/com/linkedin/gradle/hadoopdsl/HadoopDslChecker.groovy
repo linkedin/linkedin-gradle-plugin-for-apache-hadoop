@@ -17,7 +17,8 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.checker.JobDependencyChecker;
 import com.linkedin.gradle.hadoopdsl.checker.PropertySetChecker;
-import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker
+import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker;
+import com.linkedin.gradle.hadoopdsl.checker.RequiredParametersChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidFieldsChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidNameChecker;
 import com.linkedin.gradle.hadoopdsl.checker.WorkflowJobChecker;
@@ -58,6 +59,7 @@ class HadoopDslChecker extends BaseStaticChecker {
     List<StaticChecker> checks = new ArrayList<StaticChecker>();
     checks.add(makeValidNameChecker());
     checks.add(makeRequiredFieldsChecker());
+    checks.add(makeRequiredParametersChecker());
     checks.add(makeWorkflowJobChecker());
     checks.add(makeJobDependencyChecker());
     checks.add(makePropertySetChecker());
@@ -109,6 +111,16 @@ class HadoopDslChecker extends BaseStaticChecker {
    */
   RequiredFieldsChecker makeRequiredFieldsChecker() {
     return new RequiredFieldsChecker(project);
+  }
+
+  /**
+   * Factory method to build the RequiredParametersChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The RequiredParametersChecker check
+   */
+  RequiredParametersChecker makeRequiredParametersChecker() {
+    return new RequiredParametersChecker(project);
   }
 
   /**

@@ -48,6 +48,7 @@ class Job {
   Map<String, Object> jobProperties;
   Map<String, String> reading;
   Map<String, String> writing;
+  Set<String> requiredParameters;
 
   /**
    * Base constructor for a Job.
@@ -60,6 +61,7 @@ class Job {
     name = jobName;
     reading = new LinkedHashMap<String, String>();
     writing = new LinkedHashMap<String, String>();
+    requiredParameters = new LinkedHashSet<String>();
   }
 
   /**
@@ -202,6 +204,7 @@ class Job {
     cloneJob.jobProperties.putAll(jobProperties);
     cloneJob.reading.putAll(reading);
     cloneJob.writing.putAll(writing);
+    cloneJob.requiredParameters.addAll(requiredParameters);
     return cloneJob;
   }
 
@@ -329,6 +332,23 @@ class Job {
     }
   }
 
+  /**
+   * DSL method to specify required parameters for a job.
+   * Certain parameters must be set explicitly in oder for the job to run correctly in production.
+   * Specifying those parameters here provides a clear and explicit expectation for the users of the job.
+   * For example, specifying "required parameters" in a job template,
+   * and then enforcing the setting of those parameters in a job cloned from this template.
+   * This helps avoid production errors in an early stage, such as those caused by default parameters.
+   *
+   * @param args Args whose key 'parameters' has a list of value specifying the required parameters
+   */
+  @HadoopDslMethod
+  void required(Map args) {
+    List<String> parameters = args.parameters;
+    for (String entry : parameters) {
+      requiredParameters.add(entry);
+    }
+  }
   /**
    * Sets the given job property. Setting a job property causes a line of the form key=val to be
    * written to the job file.
