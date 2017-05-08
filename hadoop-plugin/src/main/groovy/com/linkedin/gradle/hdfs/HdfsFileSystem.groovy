@@ -56,6 +56,7 @@ class HdfsFileSystem {
   HdfsFileSystem(Project project) {
     project.logger.info("Initialized HdfsFileSystem with authentication: simple");
     this.conf = new Configuration();
+    conf.addDefaultResource("hadoop_core-site.xml");
     this.krb5Conf = null;
     this.project = project;
     project.logger.debug("Initialized conf with " + conf.toString());
@@ -70,6 +71,7 @@ class HdfsFileSystem {
   HdfsFileSystem(Project project, File krb5Conf) {
     project.logger.info("Initialized HdfsFileSystem with authentication: Kerberos")
     this.conf = new Configuration();
+    conf.addDefaultResource("hadoop_core-site.xml");
     this.krb5Conf = krb5Conf;
     this.project = project;
     project.logger.debug("Initialized conf with " + conf.toString());
