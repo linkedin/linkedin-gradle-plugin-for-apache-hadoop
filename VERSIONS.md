@@ -20,6 +20,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 0.11.20
 
 * Minor cosmetic changes to the project setup
+* Copy resource files from external directory
 
 0.11.19
 

@@ -81,12 +81,12 @@ class LiHadoopZipExtension extends HadoopZipExtension {
   /**
    * <pre>
    *   hadoopZip {
-   *     zip("holdem") {
+   *     zip("gridA") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("war") {
+   *     zip("gridB") {
    *       from ("src/") {
    *         into "src"
    *       }
