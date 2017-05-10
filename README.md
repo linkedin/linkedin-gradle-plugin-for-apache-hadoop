@@ -30,19 +30,17 @@ the "Hadoop DSL" for brevity), a language for specifying jobs and workflows for 
 
 #### Hadoop Plugin User Guide
 
-The Hadoop Plugin User Guide is available at [User Guide]
-(https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide).
+The Hadoop Plugin User Guide is available at [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide).
 
 #### Hadoop DSL Language Reference
 
-The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference]
-(https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference).
+The Hadoop DSL Language Reference is available at [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference).
 
 #### Getting the Hadoop Plugin
 
-The Hadoop Plugin is now published at [plugins.gradle.org]
-(https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin). Click on the link for
-a short snippet to add to your `build.gradle` file to start using the Hadoop Plugin.
+The Hadoop Plugin is now published at [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin).
+Click on the link for a short snippet to add to your `build.gradle` file to start using the Hadoop
+Plugin.
 
 #### Can I Benefit from the Hadoop Plugin and Hadoop DSL?
 

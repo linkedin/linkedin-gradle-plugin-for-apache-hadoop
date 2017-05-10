@@ -1,8 +1,8 @@
 plugins {
+  id 'groovy'
   id 'com.gradle.plugin-publish' version '0.9.7'
   id 'com.jfrog.bintray' version '1.7.3'
   id 'eclipse'
-  id 'groovy'
   id 'idea'
   id 'maven-publish'
 }
@@ -49,20 +49,21 @@ dependencies {
   runtime 'org.mortbay.jetty:jetty-util:6.1.25'
 }
 
-task sourceJar(type: Jar) {
-  description = 'An archive of the source code for the Hadoop Gradle Plugin'
-  classifier = 'sources'
-  from sourceSets.main.groovy
-}
-
 task groovydocJar(type: Jar, dependsOn: groovydoc) {
   description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin'
   classifier = 'groovydoc'
   from groovydoc.destinationDir
 }
 
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for the Hadoop Gradle Plugin'
+  classifier = 'sources'
+  from sourceSets.main.groovy
+}
+
 artifacts {
-  archives groovydocJar, sourceJar
+  archives groovydocJar
+  archives sourceJar
 }
 
 // Configuration for uploading to plugins.gradle.org
@@ -85,8 +86,8 @@ publishing {
   publications {
     hadoopPluginPublication(MavenPublication) {
       from components.java
-      artifact sourceJar
       artifact groovydocJar
+      artifact sourceJar
       groupId rootProject.group
       artifactId project.name
       version project.version

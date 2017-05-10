@@ -1,10 +1,10 @@
 plugins {
- id 'eclipse'
- id 'groovy'
- id 'idea'
+  id 'groovy'
+  id 'eclipse'
+  id 'idea'
 }
 
-// The group will be overriden in LinkedIn builds
+// The group will be overridden in LinkedIn builds
 group=rootProject.group
 
 configurations {
