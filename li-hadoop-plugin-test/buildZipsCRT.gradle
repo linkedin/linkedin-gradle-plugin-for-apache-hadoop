@@ -21,36 +21,36 @@ hadoopZip {
 
 buildHadoopZips {
   doFirst {
-    Set<String> expected = new HashSet<String>();
-    expected.add(".crt");
+    Set<String> expected = new HashSet<String>()
+    expected.add(".crt")
 
-    def zipTask = project.tasks.findByName("CRTHadoopZip");
-    Set<String> actual = new HashSet<String>();
+    def zipTask = project.tasks.findByName("CRTHadoopZip")
+    Set<String> actual = new HashSet<String>()
 
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
-      actual.add(file.name);
+      actual.add(file.name)
     }
 
     if (!expected.equals(actual)) {
-      throw new GradleException("Zip artifact from CRTHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
+      throw new GradleException("Zip artifact from CRTHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}")
     }
   }
   doLast {
-    Set<String> expected = new HashSet<String>();
-    expected.add("build.gradle");
-    expected.add("buildMetadata.json");
-    expected.add("buildZipsCRT.gradle");
+    Set<String> expected = new HashSet<String>()
+    expected.add("build.gradle")
+    expected.add("buildMetadata.json")
+    expected.add("buildZipsCRT.gradle")
     expected.add("li-hadoop-plugin-test-${project.version}-sources.zip")
 
-    def zipTask = project.tasks.findByName("azkabanHadoopZip");
-    Set<String> actual = new HashSet<String>();
+    def zipTask = project.tasks.findByName("azkabanHadoopZip")
+    Set<String> actual = new HashSet<String>()
 
     project.zipTree(((Zip)zipTask).archivePath).getFiles().each { file ->
-      actual.add(file.name);
+      actual.add(file.name)
     }
 
     if (!expected.equals(actual)) {
-      throw new GradleException("Zip artifact from azkabanHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}");
+      throw new GradleException("Zip artifact from azkabanHadoopZip task expected to contain: ${expected.sort()}, but actually contained: ${actual.sort()}")
     }
   }
 }

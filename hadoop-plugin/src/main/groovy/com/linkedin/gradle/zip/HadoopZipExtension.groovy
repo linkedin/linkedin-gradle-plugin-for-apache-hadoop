@@ -63,16 +63,16 @@ class HadoopZipExtension {
    * <pre>
    *   hadoopZip {
    *     base {
-   *       from("common resources") {  // add the files common to all the zips.
+   *       from("common_resources") {  // add the files common to all the zips.
    *         into "common"
    *       }
    *     }
-   *     zip("holdem") {
+   *     zip("gridA") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("war") {
+   *     zip("gridB") {
    *       from ("azkaban/") {
    *         into "."
    *       }
@@ -113,12 +113,12 @@ class HadoopZipExtension {
   /**
    * <pre>
    *   hadoopZip {
-   *     zip("holdem") {
+   *     zip("gridA") {
    *       from ("src/") {
    *         into "src"
    *       }
    *     }
-   *     zip("war") {
+   *     zip("gridB") {
    *       from ("src/") {
    *         into "src"
    *       }

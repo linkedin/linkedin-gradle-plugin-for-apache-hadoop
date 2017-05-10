@@ -1,10 +1,10 @@
 plugins {
- id 'eclipse'
- id 'groovy'
- id 'idea'
+  id 'groovy'
+  id 'eclipse'
+  id 'idea'
 }
 
-// The group will be overriden in LinkedIn builds
+// The group will be overridden in LinkedIn builds
 group=rootProject.group
 
 configurations {
@@ -47,4 +47,15 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
 
 artifacts {
   archives groovydocJar, sourceJar
+}
+
+// In LinkedIn internal builds, we pull in some company-specific resource files into this project.
+boolean isLinkedInBuild = project.hasProperty('overrideBuildEnvironment')
+
+if (isLinkedInBuild) {
+  task copyLinkedInResources(type: Copy) {
+    from "${rootProject.projectDir}/../resources"
+    into "${project.projectDir}/src/main/resources"
+  }
+  compileGroovy.dependsOn copyLinkedInResources
 }

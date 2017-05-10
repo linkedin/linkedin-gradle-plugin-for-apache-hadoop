@@ -16,15 +16,15 @@ the License.
 
 ### Author
 
-The LinkedIn Gradle Plugin for Apache Hadoop was designed and created by Alex Bain. The design of
+The LinkedIn Gradle Plugin for Apache Hadoop was created and designed by Alex Bain. The design of
 the LinkedIn Gradle DSL for Apache Hadoop was influenced by
-[azkaban-rb](https://github.com/matthayes/azkaban-rb) from Matthew Hayes and by input from Will
+[azkaban-rb](https://github.com/matthayes/azkaban-rb) from Matthew Hayes and with input from Will
 Vaughan.
 
 ### Contributors
 
 The following were contributed by Jun "Tony" Zhou. Thanks, Tony!
-* `Added python Spark support for runSparkJob task.`
+* `Added Python Spark support for runSparkJob task.`
 * `Added support for submitting python Spark applications with Spark job type. Corresponsing tests are added.`
 * `Added application running mode check in Spark plugin. Spark job now run on YARN cluster unless explicitly specified otherwise.`
 
