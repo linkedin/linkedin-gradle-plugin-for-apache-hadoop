@@ -104,7 +104,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
   }
 
   /**
-   * Uploads the zip file to Azkaban.
+   * Gets the status of the flows
    *
    * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
    */
@@ -147,13 +147,13 @@ class AzkabanFlowStatusTask extends DefaultTask {
   /**
    * Prints the Job Status of the latest flow executions.
    *
-   * @param flowSet The list of flows for which status should be fetched
+   * @param flows The list of flows for which status should be fetched
    * @param responseList The response list from Azkaban
    */
-  void jobStatus(List<String> flowSet, List<String> responseList) {
+  void jobStatus(List<String> flows, List<String> responseList) {
 
 
-    flowSet.each { flow ->
+    flows.each { flow ->
       for(int j=0; j<responseList.size(); j++) {
         String jobResponse = responseList.get(j);
         JSONObject jobsObject = new JSONObject(jobResponse);

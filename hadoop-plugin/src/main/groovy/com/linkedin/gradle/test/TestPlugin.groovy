@@ -64,9 +64,9 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     createTestDeployTask(project);
     createRunTestTask(project);
     createGetTestStatusTask(project);
-    createHadoopTestTask(project);
     createRunAssertionsTask(project);
     createGetAssertionStatusTask(project);
+    createHadoopTestTask(project);
   }
 
   /**
@@ -284,13 +284,15 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     return project.task("runAssertions") { task ->
       description = "Runs the assertions for the test provided by -Ptestname=name, Alternatively a flow can be specified with the test using -Pflow=flowname"
       group = "Hadoop Plugin";
+      dependsOn project.tasks["runTest"]
+      dependsOn project.tasks["getTestStatus"]
 
       doFirst {
         validateTestnameProperty(project);
 
         def azkProject = getTestProjectName(project, false);
 
-        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be run in ${azkProject.azkabanProjName}";
+        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your assertions will be run in ${azkProject.azkabanProjName}";
         prettyPrintMessage(message);
         List<String> testWorkflows = getAssertionWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession(), azkProject), azkProject);
         executeAzkabanFlow(project, AzkabanHelper.readSession(), testWorkflows, azkProject);
@@ -447,7 +449,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createGetTestStatusTask(Project project) {
-    return project.task("getTestStatus", type: AzkabanFlowStatusTask) { task ->
+    return project.task("getTestStatus", type: AzkabanBlockedFlowStatusTask) { task ->
       description = "Gets the status of the test specified by -Ptestname=testname. Alternatively a flowname can be specified using -Pflow=flowname";
       group = "Hadoop Plugin";
 
@@ -521,8 +523,12 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       dependsOn project.tasks["testDeploy"]
       dependsOn project.tasks["runTest"]
       dependsOn project.tasks["getTestStatus"]
+      dependsOn project.tasks["runAssertions"]
+      dependsOn project.tasks["getAssertionStatus"]
       project.tasks["getTestStatus"].mustRunAfter project.tasks["runTest"]
       project.tasks["runTest"].mustRunAfter project.tasks["testDeploy"]
+      project.tasks["getAssertionStatus"].mustRunAfter project.tasks["runAssertions"]
+      project.tasks["runAssertions"].mustRunAfter project.tasks["getTestStatus"]
     }
   }
 

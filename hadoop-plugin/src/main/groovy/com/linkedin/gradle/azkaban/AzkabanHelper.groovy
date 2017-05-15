@@ -593,4 +593,22 @@ class AzkabanHelper {
     }
   }
 
+  /**
+   * Prints a spinning loader
+   * @param times The number of times spin should occur
+   * @param delay The delay in each spin
+   */
+  static void printSpinningLoader(long times, long delay) {
+    List<String> phases = ["|", "/", "-", "\\"];
+    times.times
+        {
+          for (String phase : phases)
+          {
+            System.out.flush();
+            System.out.print(String.format("\b"+phase));
+            Thread.sleep((long)(delay/phases.size()));
+          }
+        }
+  }
+
 }
