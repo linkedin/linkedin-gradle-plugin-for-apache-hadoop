@@ -15,18 +15,21 @@
  */
 package com.linkedin.gradle.test;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
+import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.Workflow;
 import org.gradle.api.Project;
+
 
 /**
  * Test extension for testing the hadoop block.
  *
- * The TestExtension is similar to the HadoopDslExtension with a name.
- */
+ * The TestExtension is similar to the HadoopDslExtension with a name.*/
 class TestExtension extends HadoopDslExtension {
   String name;
+  List<String> assertionWorkflows;
 
   /**
    * Constructor for the TestExtension
@@ -38,5 +41,35 @@ class TestExtension extends HadoopDslExtension {
   TestExtension(String name, Project project, NamedScope parentScope) {
     super(project, parentScope, name);
     this.name = name;
+    this.assertionWorkflows = new ArrayList<String>();
   }
+
+  /**
+   * DSL workflow method. Creates a Workflow in scope with the given name and configuration.
+   *
+   * @param name The workflow name
+   * @param configure The configuration closure
+   * @return The new workflow
+   */
+  AssertExtension addAssertion(String name, @DelegatesTo(AssertExtension) Closure configure) {
+    String assertionName = "ASSERT-${name}";
+    this.assertionWorkflows.add(assertionName);
+    return configureWorkflow(factory.makeAssertion(assertionName, project, scope), configure);
+  }
+
+  /**
+   * Helper method to configure a Workflow in the DSL. Can be called by subclasses to configure
+   * custom Workflow subclass types.
+   *
+   * @param  assertionExtension The workflow to configure
+   * @param configure The configuration closure
+   * @return The input workflow, which is now configured
+   */
+  protected AssertExtension configureWorkflow(AssertExtension  assertionExtension, Closure configure) {
+    scope.bind( assertionExtension.name,  assertionExtension);
+    project.configure( assertionExtension, configure);
+    workflows.add( assertionExtension);
+    return assertionExtension;
+  }
+
 }
