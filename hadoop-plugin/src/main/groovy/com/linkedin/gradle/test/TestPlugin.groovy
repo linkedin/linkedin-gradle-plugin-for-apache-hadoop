@@ -75,7 +75,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @param project The Gradle project
    */
   void addTestExtension(Project project) {
-    project.extensions.add("testHadoopPlugin", this);
+    project.extensions.add("workflowTestSuite", this);
   }
 
   /**
@@ -85,7 +85,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createPrintWorkflowTask(Project project) {
-    return project.tasks.create("printHadoopTests") {
+    return project.tasks.create("printAzkabanTests") {
       description = "Prints all the Hadoop tests added to the project";
       group = "Hadoop Plugin";
 
@@ -120,7 +120,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       doLast {
         validateTestnameProperty(project);
 
-        TestPlugin plugin = project.extensions.testHadoopPlugin;
+        TestPlugin plugin = project.extensions.workflowTestSuite;
         if (plugin == null) {
           throw new GradleException(
               "The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
@@ -510,14 +510,14 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the hadoopTest task. This task depends on testDeploy, runTest and getTestStatus tasks. This is a single task to deploy
+   * Creates the workflowTestSuite task. This task depends on testDeploy, runTest and getTestStatus tasks. This is a single task to deploy
    * run and get status of the test.
    *
    * @param project The Gradle project
    * @return The created task
    */
   Task createHadoopTestTask(Project project) {
-    return project.task("hadoopTest") { task ->
+    return project.task("azkabanTest") { task ->
       description = "Runs the test specified by -Ptestname=test";
       group = "Hadoop Plugin";
       dependsOn project.tasks["testDeploy"]
