@@ -9,4 +9,5 @@
 .settings
 bin
 build
+li-hadoop-plugin/src/main/resources
 ligradle

@@ -19,6 +19,7 @@ import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.azkaban.AzkabanProject;
+import com.linkedin.gradle.lihadoop.LiHadoopProperties;
 
 import org.gradle.api.Project;
 
@@ -27,7 +28,8 @@ import org.gradle.api.Project;
  */
 class LiAzkabanPlugin extends AzkabanPlugin {
 
-  private static final String MESSAGE_URL = "https://gitli.corp.linkedin.com/hadoop-dev/azkaban-linkedin-files/raw/li-hadoop-plugin_message.txt";
+  private static final String AZKABAN_URL = LiHadoopProperties.get(LiHadoopProperties.AZKABAN_URL)
+  private static final String MESSAGE_URL = LiHadoopProperties.get(LiHadoopProperties.MESSAGE_URL)
 
   /**
    * Factory method to return the AzkabanFlowStatusTask class. Subclasses can override this method to
@@ -51,9 +53,9 @@ class LiAzkabanPlugin extends AzkabanPlugin {
    */
   @Override
   AzkabanProject makeDefaultAzkabanProject(Project project) {
-    AzkabanProject azkabanProject = makeAzkabanProject();
+    AzkabanProject azkabanProject = makeAzkabanProject(project);
     azkabanProject.azkabanProjName = "";
-    azkabanProject.azkabanUrl = "https://ltx1-holdemaz01.grid.linkedin.com:8443";
+    azkabanProject.azkabanUrl = AZKABAN_URL;
     azkabanProject.azkabanUserName = System.getProperty("user.name");
     azkabanProject.azkabanValidatorAutoFix = "true";
     azkabanProject.azkabanZipTask = "";

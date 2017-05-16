@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lipig;
 
+import com.linkedin.gradle.lihadoop.LiHadoopProperties;
 import com.linkedin.gradle.pig.PigExtension;
 
 import org.gradle.api.Project;
@@ -24,6 +25,11 @@ import org.gradle.api.Project;
  * default property values necessary to run the Pig Plugin on our development Hadoop cluster.
  */
 class LiPigExtension extends PigExtension {
+
+  private static final String HLD_GATEWAY_HOME = LiHadoopProperties.get(LiHadoopProperties.HLD_GATEWAY_HOME)
+  private static final String HLD_GATEWAY_NODE = LiHadoopProperties.get(LiHadoopProperties.HLD_GATEWAY_NODE)
+  private static final String REMOTE_PIG_COMMAND = LiHadoopProperties.get(LiHadoopProperties.REMOTE_PIG_COMMAND)
+
   /**
    * Constructor for the LiPigExtension.
    *
@@ -41,9 +47,9 @@ class LiPigExtension extends PigExtension {
     }
 
     this.pigCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
-    this.pigCommand = "/export/apps/pig/linkedin-pig-h2-0.11.1.li69-1/bin/pig";
-    this.remoteHostName = "ltx1-holdemgw01.grid.linkedin.com";
-    this.remoteCacheDir = "/export/home/${System.getProperty('user.name')}/.hadoopPlugin";
+    this.pigCommand = REMOTE_PIG_COMMAND;
+    this.remoteHostName = HLD_GATEWAY_NODE;
+    this.remoteCacheDir = "${HLD_GATEWAY_HOME}/${System.getProperty('user.name')}/.hadoopPlugin";
     this.remoteSshOpts = "-q -K";
   }
 }

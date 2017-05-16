@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lispark;
 
+import com.linkedin.gradle.lihadoop.LiHadoopProperties;
 import com.linkedin.gradle.spark.SparkExtension;
 
 import org.gradle.api.Project;
@@ -24,6 +25,11 @@ import org.gradle.api.Project;
  * default property values necessary to run the Spark Plugin on our development Hadoop cluster.
  */
 class LiSparkExtension extends SparkExtension {
+
+  private static final String HLD_GATEWAY_HOME = LiHadoopProperties.get(LiHadoopProperties.HLD_GATEWAY_HOME)
+  private static final String HLD_GATEWAY_NODE = LiHadoopProperties.get(LiHadoopProperties.HLD_GATEWAY_NODE)
+  private static final String REMOTE_SPARK_COMMAND = LiHadoopProperties.get(LiHadoopProperties.REMOTE_SPARK_COMMAND)
+
   /**
    * Constructor for the LiSparkExtension.
    *
@@ -32,9 +38,9 @@ class LiSparkExtension extends SparkExtension {
   LiSparkExtension(Project project) {
     super(project);
     this.sparkCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
-    this.sparkCommand = "/export/apps/spark/latest/bin/spark-submit";
-    this.remoteHostName = "ltx1-holdemgw01.grid.linkedin.com";
-    this.remoteCacheDir = "/export/home/${System.getProperty('user.name')}/.hadoopPlugin";
+    this.sparkCommand = REMOTE_SPARK_COMMAND;
+    this.remoteHostName = HLD_GATEWAY_NODE;
+    this.remoteCacheDir = "${HLD_GATEWAY_HOME}/${System.getProperty('user.name')}/.hadoopPlugin";
     this.remoteSshOpts = "-q -K";
   }
 }

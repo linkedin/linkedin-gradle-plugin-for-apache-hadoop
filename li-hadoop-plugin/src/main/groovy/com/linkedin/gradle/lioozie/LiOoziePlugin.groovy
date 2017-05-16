@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.lioozie;
 
+import com.linkedin.gradle.lihadoop.LiHadoopProperties;
 import com.linkedin.gradle.oozie.OozieCommandTask;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.oozie.OozieProject;
@@ -26,6 +27,10 @@ import org.gradle.api.Project;
  * Linkedin specific customizations to the OoziePlugin.
  */
 class LiOoziePlugin extends OoziePlugin {
+
+  private static final String HLD_NAME_NODE_WEBHDFS = LiHadoopProperties.get(LiHadoopProperties.HLD_NAME_NODE_WEBHDFS)
+  private static final String OOZIE_URI = LiHadoopProperties.get(LiHadoopProperties.OOZIE_URI)
+
   /**
    * Factory method to return the OozieUploadTask class. Subclasses can override this method to
    * return their own OozieUploadTask class.
@@ -59,8 +64,8 @@ class LiOoziePlugin extends OoziePlugin {
   @Override
   OozieProject makeDefaultOozieProject(Project project) {
     OozieProject oozieProject = makeOozieProject(project);
-    oozieProject.clusterURI = "webhdfs://ltx1-holdemnn01.grid.linkedin.com:50070";
-    oozieProject.oozieURI = "http://ltx1-holdemoz01.grid.linkedin.com:11000/oozie/";
+    oozieProject.clusterURI = HLD_NAME_NODE_WEBHDFS;
+    oozieProject.oozieURI = OOZIE_URI;
     oozieProject.oozieZipTask = "";
     oozieProject.projectName = "";
     oozieProject.uploadPath = "/user/${System.getProperty('user.name')}";

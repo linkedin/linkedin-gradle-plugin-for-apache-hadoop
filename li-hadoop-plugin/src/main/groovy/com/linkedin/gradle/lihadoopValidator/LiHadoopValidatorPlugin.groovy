@@ -18,12 +18,16 @@ package com.linkedin.gradle.lihadoopValidator;
 import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
 import com.linkedin.gradle.hadoopValidator.PigValidator.PigValidatorPlugin;
 import com.linkedin.gradle.hadoopValidator.ValidatorConstants;
+import com.linkedin.gradle.lihadoop.LiHadoopProperties;
 import com.linkedin.gradle.lihadoopValidator.liPigValidator.LiPigValidatorPlugin;
 
 /**
  * LinkedIn-specific customizations to the Hadoop Validator Plugin.
  */
 class LiHadoopValidatorPlugin extends HadoopValidatorPlugin {
+
+  private static final String ARTIFACTORY_REPO = LiHadoopProperties.get(LiHadoopProperties.ARTIFACTORY_REPO)
+  private static final String HLD_NAME_NODE_HDFS = LiHadoopProperties.get(LiHadoopProperties.HLD_NAME_NODE_HDFS)
 
   /**
    * Factory method to return the LiPigValidatorPlugin class. Subclasses can override this method to return
@@ -43,7 +47,7 @@ class LiHadoopValidatorPlugin extends HadoopValidatorPlugin {
    */
   @Override
   void setValidatorProperties(Properties properties) {
-    properties.setProperty(ValidatorConstants.NAME_NODE, "hdfs://ltx1-holdemnn01.grid.linkedin.com:9000");
-    properties.setProperty(ValidatorConstants.REPOSITORY_URL, "http://artifactory.corp.linkedin.com:8081/artifactory/ext-libraries");
+    properties.setProperty(ValidatorConstants.NAME_NODE, HLD_NAME_NODE_HDFS)
+    properties.setProperty(ValidatorConstants.REPOSITORY_URL, ARTIFACTORY_REPO)
   }
 }

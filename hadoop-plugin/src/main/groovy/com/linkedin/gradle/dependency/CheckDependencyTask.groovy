@@ -202,7 +202,7 @@ class CheckDependencyTask extends DefaultTask {
     String jsonTextToParse = null;
 
     if (Thread.currentThread().getContextClassLoader().getResource(dependencyPatternFile) != null) {
-      jsonTextToParse = Thread.currentThread().getContextClassLoader().getResource(getDependencyPatternFile(project)).text;
+      jsonTextToParse = Thread.currentThread().getContextClassLoader().getResource(dependencyPatternFile).text;
     } else if (new File(dependencyPatternFile).exists()) {
       jsonTextToParse = new File(dependencyPatternFile).text;
     } else {
