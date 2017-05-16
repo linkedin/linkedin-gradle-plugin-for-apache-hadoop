@@ -18,13 +18,14 @@ package com.linkedin.gradle.azkaban;
 
 
 import com.linkedin.gradle.azkaban.client.AzkabanClient;
+import com.linkedin.gradle.util.IOUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 import org.json.JSONObject;
 
 
 /**
- * AzkabanBlockedFlowStatusTask fetches the status of the flows when they are completed.
+ * This class provides the functionality to fetch the status of the flows when they are completed.
  * */
 class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
 
@@ -62,14 +63,13 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   }
 
 /**
- * getBlockedAzkabanFlowStatus waits for the flow to finish. It polls
+ * This method waits for the flow to finish. It polls
  * the Azkabban server and outputs the flows that finished immediately.
  * At the end of the function, it outputs the summary of all the flows that
  * have finished
  * @param sessionId The session id for the Azkaban session
  */
   void getBlockedAzkabanFlowStatus(String sessionId) {
-
     // list of all the flows defined in the project
     List<String> flows = getSortedFlows(sessionId);
 
@@ -133,7 +133,7 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
       }
 
       if (!flowsYetToFinish.empty) {
-        AzkabanHelper.printSpinningLoader(40,500);
+        IOUtils.printSpinningLoader(40,500);
         Thread.sleep(POLLING_WAIT_TIME);
       }
     }
@@ -157,7 +157,7 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   }
 
   /**
-   * The filterCompletedFlows method filters out the flows that have finished and returns them
+   * This method filters out the flows that have finished and returns them
    * @param responseList The reponseList from Azkaban
    * @return The list of flows that have completed
    */
@@ -187,6 +187,5 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
     }
     return filteredJobResponse;
   }
-
 
 }

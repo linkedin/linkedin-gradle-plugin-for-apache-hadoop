@@ -16,10 +16,8 @@
 package com.linkedin.gradle.test;
 
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
-import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.Workflow;
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
+import com.linkedin.gradle.hadoopdsl.NamedScope
 import org.gradle.api.Project;
 
 
@@ -51,7 +49,7 @@ class TestExtension extends HadoopDslExtension {
    * @param configure The configuration closure
    * @return The new workflow
    */
-  AssertExtension addAssertion(String name, @DelegatesTo(AssertExtension) Closure configure) {
+  AssertionWorkflowExtension assertionWorkflow(String name, @DelegatesTo(AssertionWorkflowExtension) Closure configure) {
     String assertionName = "ASSERT-${name}";
     this.assertionWorkflows.add(assertionName);
     return configureWorkflow(factory.makeAssertion(assertionName, project, scope), configure);
@@ -65,7 +63,7 @@ class TestExtension extends HadoopDslExtension {
    * @param configure The configuration closure
    * @return The input workflow, which is now configured
    */
-  protected AssertExtension configureWorkflow(AssertExtension  assertionExtension, Closure configure) {
+  protected AssertionWorkflowExtension configureWorkflow(AssertionWorkflowExtension  assertionExtension, Closure configure) {
     scope.bind( assertionExtension.name,  assertionExtension);
     project.configure( assertionExtension, configure);
     workflows.add( assertionExtension);

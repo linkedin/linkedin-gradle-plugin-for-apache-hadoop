@@ -16,7 +16,7 @@
 
 package com.linkedin.gradle.test;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
+
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Workflow;
@@ -24,19 +24,19 @@ import org.gradle.api.Project;
 
 
 /**
- * The AssertExtension allows users to add assertions in their workflow tests
+ * The AssertionWorkflowExtension allows users to add assertions in their workflow tests
  */
-class AssertExtension extends Workflow {
+class AssertionWorkflowExtension extends Workflow {
 
   List<String> asserts;
 
   /**
-   * Base constructor for a AssertExtension
+   * Base constructor for a AssertionWorkflowExtension
    *
    * @param name The assertion name
    * @param project The Gradle project
    */
-  AssertExtension(String name, Project project) {
+  AssertionWorkflowExtension(String name, Project project) {
     this(name, project, null);
   }
 
@@ -47,7 +47,7 @@ class AssertExtension extends Workflow {
    * @param project The Gradle project
    * @param parentScope The parent scope
    */
-  AssertExtension(String name, Project project, NamedScope parentScope) {
+  AssertionWorkflowExtension(String name, Project project, NamedScope parentScope) {
     super(name,project, parentScope);
     asserts = new ArrayList<String>();
   }

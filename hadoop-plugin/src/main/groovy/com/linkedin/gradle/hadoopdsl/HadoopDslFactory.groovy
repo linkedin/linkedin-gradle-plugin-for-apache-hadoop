@@ -36,7 +36,7 @@ import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
-import com.linkedin.gradle.test.AssertExtension;
+import com.linkedin.gradle.test.AssertionWorkflowExtension;
 import com.linkedin.gradle.test.TestExtension;
 
 import org.gradle.api.Project;
@@ -332,8 +332,8 @@ class HadoopDslFactory {
    * @param parentScope The parent scope
    * @return The AssertionExtension
    */
-  AssertExtension makeAssertion(String name, Project project, NamedScope parentScope) {
-    return new AssertExtension(name, project, parentScope);
+  AssertionWorkflowExtension makeAssertion(String name, Project project, NamedScope parentScope) {
+    return new AssertionWorkflowExtension(name, project, parentScope);
   }
   /**
    * Factory method to build a Test.
