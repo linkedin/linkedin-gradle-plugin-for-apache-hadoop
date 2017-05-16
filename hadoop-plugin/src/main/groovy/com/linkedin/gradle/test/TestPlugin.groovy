@@ -15,8 +15,10 @@
  */
 package com.linkedin.gradle.test;
 
+
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
+import com.linkedin.gradle.azkaban.AzkabanBlockedFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanHelper;
 import com.linkedin.gradle.azkaban.AzkabanProject;
 import com.linkedin.gradle.azkaban.AzkabanUploadTask;
@@ -35,6 +37,7 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.bundling.Zip;
 
 import org.json.JSONObject;
+
 
 /**
  * TestPlugin is used to test the workflows by overriding certain parameters such as data. It
@@ -61,6 +64,8 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     createTestDeployTask(project);
     createRunTestTask(project);
     createGetTestStatusTask(project);
+    createRunAssertionsTask(project);
+    createGetAssertionStatusTask(project);
     createHadoopTestTask(project);
   }
 
@@ -70,7 +75,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @param project The Gradle project
    */
   void addTestExtension(Project project) {
-    project.extensions.add("testHadoopPlugin", this);
+    project.extensions.add("workflowTestSuite", this);
   }
 
   /**
@@ -80,7 +85,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createPrintWorkflowTask(Project project) {
-    return project.tasks.create("printHadoopTests") {
+    return project.tasks.create("printAzkabanTests") {
       description = "Prints all the Hadoop tests added to the project";
       group = "Hadoop Plugin";
 
@@ -115,9 +120,10 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
       doLast {
         validateTestnameProperty(project);
 
-        TestPlugin plugin = project.extensions.testHadoopPlugin;
+        TestPlugin plugin = project.extensions.workflowTestSuite;
         if (plugin == null) {
-          throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
+          throw new GradleException(
+              "The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
         }
 
         String testName;
@@ -259,9 +265,127 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
         String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be run in ${azkProject.azkabanProjName}";
         prettyPrintMessage(message);
-
-        executeAzkabanFlow(project, AzkabanHelper.readSession(), azkProject);
+        List<String> testWorkflows = getTestWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession(), azkProject), azkProject);
+        executeAzkabanFlow(project, AzkabanHelper.readSession(), testWorkflows, azkProject);
       }
+    }
+  }
+
+
+  /**
+   * Creates the runTest task. This will run all the workflows defined in the test specified by
+   * testname. If a flow is specified -Pflow=flowname, then only flow with name flowname will be
+   * run.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createRunAssertionsTask(Project project) {
+    return project.task("runAssertions") { task ->
+      description = "Runs the assertions for the test provided by -Ptestname=name, Alternatively a flow can be specified with the test using -Pflow=flowname"
+      group = "Hadoop Plugin";
+      dependsOn project.tasks["runTest"]
+      dependsOn project.tasks["getTestStatus"]
+
+      doFirst {
+        validateTestnameProperty(project);
+
+        def azkProject = getTestProjectName(project, false);
+
+        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your assertions will be run in ${azkProject.azkabanProjName}";
+        prettyPrintMessage(message);
+        List<String> testWorkflows = getAssertionWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession(), azkProject), azkProject);
+        executeAzkabanFlow(project, AzkabanHelper.readSession(), testWorkflows, azkProject);
+      }
+    }
+  }
+
+  /**
+   * The getWorkflowsFromFlowProperty returns the list of flows from the 'flow' property. It throws
+   * and error if the workflow mentioned in flow property is not defined
+   * @param project The Gradle project
+   * @param flows The defined flows
+   * @return The list of flows
+   */
+  List<String> getWorkflowsFromFlowProperty(Project project, List<String> flows) {
+    List<String> inputFlows = project.getProperties().get("flow").toString().split(",+");
+    for (String flowArg : inputFlows) {
+      if (!flows.contains(flowArg)) {
+        logger.error("ERROR: The flow name ${flowArg} doesn't exist");
+        throw new RuntimeException("The flow name ${flowArg} doesn't exist!");
+      }
+    }
+    return inputFlows;
+  }
+
+
+  /**
+   * The getTestWorkflows method returns the list of test workflows defined in the test
+   * @param project The Gradle project
+   * @param sessionId The session id of Azkaban session
+   * @param azkProject The azkaban project
+   * @return THe list of test workflows
+   */
+  List<String> getTestWorkflows(Project project, String sessionId, AzkabanProject azkProject) {
+    List<String> flows = getFlowsOrThrowError(project, sessionId, azkProject);
+    List<String> inputFlows;
+    if (project.getProperties().get("flow") == null) {
+      inputFlows = filterTestFlows(flows, project);
+    } else {
+      inputFlows = getWorkflowsFromFlowProperty(project, flows);
+    }
+    return inputFlows;
+  }
+
+  /**
+   * The getAssertionWorkflows method returns the list of the assertion workflows defined in the test
+   * @param project The Gradle project
+   * @param sessionId The session id of the Azkaban session
+   * @param azkProject The azkaban project
+   * @return The list of assertion workflows
+   */
+  List<String> getAssertionWorkflows(Project project, String sessionId, AzkabanProject azkProject) {
+    List<String> flows = getFlowsOrThrowError(project, sessionId, azkProject);
+    List<String> inputFlows;
+    if (project.getProperties().get("flow") == null) {
+      inputFlows = filterAssertionFlows(flows, project);
+    } else {
+      inputFlows = getWorkflowsFromFlowProperty(project, flows);
+    }
+    return inputFlows;
+  }
+
+  /**
+   * filterAssertionFlows gives the list of all the assertion flows that are defined in the test block
+   * @param flows The list of all the flows
+   * @param project The Gradle project
+   * @return The list of all the assertion flows that are defined in the tewst block
+   */
+  List<String> filterAssertionFlows(List<String> flows, Project project) {
+    HadoopDslExtension testExtension = project.extensions.getByName("hadoop");
+    TestExtension test = testExtension.tests.find {
+      it.name.equals(project.getProperties().get("testname"));
+    }
+
+    return flows.findAll {
+      test.assertionWorkflows.contains(it.substring(it.indexOf("_")+1));
+    }
+  }
+
+  /**
+   * filterTestFlows gives the list of test flows that are defined in the test block
+   * @param flows List of all the flows that are defined in the test block
+   * @param project The Gradle project
+   * @return List of all the test flows that are defined in the test block
+   */
+  List<String> filterTestFlows(List<String> flows, Project project) {
+    HadoopDslExtension testExtension = project.extensions.getByName("hadoop");
+    TestExtension test = testExtension.tests.find {
+      it.name.equals(project.getProperties().get("testname"));
+    }
+
+    return flows.findAll {
+      !test.assertionWorkflows.contains(it.substring(it.indexOf("_")+1));
     }
   }
 
@@ -272,25 +396,15 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @param sessionId The sessionId for the project
    * @param azkProject The Azkaban Project
    */
-  void executeAzkabanFlow(Project project, String sessionId, AzkabanProject azkProject) {
+  void executeAzkabanFlow(Project project, String sessionId, List<String> inputFlows, AzkabanProject azkProject) {
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
-    List<String> flows = getFlowsOrThrowError(project, sessionId, azkProject);
-    List<String> inputFlows;
-    if (project.getProperties().get("flow") == null) {
-      inputFlows = flows;
-    } else {
-      inputFlows = project.getProperties().get("flow").toString().split(",+");
-      for (String flowArg : inputFlows) {
-        if (!flows.contains(flowArg)) {
-          logger.error("ERROR: The flow name ${flowArg} doesn't exist");
-          throw new RuntimeException("The flow name ${flowArg} doesn't exist!");
-        }
-      }
-    }
+
     List<String> responseList = AzkabanClient.
         batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
     AzkabanHelper.printFlowExecutionResponses(responseList);
   }
+
+
 
   /**
    * Returns a list of all flows in project azkProject.azkabanProjName.
@@ -335,7 +449,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
    * @return The created task
    */
   Task createGetTestStatusTask(Project project) {
-    return project.task("getTestStatus", type: AzkabanFlowStatusTask) { task ->
+    return project.task("getTestStatus", type: AzkabanBlockedFlowStatusTask) { task ->
       description = "Gets the status of the test specified by -Ptestname=testname. Alternatively a flowname can be specified using -Pflow=flowname";
       group = "Hadoop Plugin";
 
@@ -343,6 +457,8 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
         validateTestnameProperty(project);
 
         azkProject = getTestProjectName(project, false);
+        List<String> testflows = filterTestFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject), project);
+        flowsToExecute = testflows;
 
         String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test status will be fetched from ${azkProject.azkabanProjName}";
         prettyPrintMessage(message);
@@ -351,8 +467,6 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
           logger.lifecycle("Displaying Job level Status");
           interactive = false;
         } else {
-          project.getProperties().
-              put("flow", getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject).join(","));
           logger.lifecycle("Displaying flow level Status");
         }
       }
@@ -360,21 +474,61 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
   }
 
   /**
-   * Creates the hadoopTest task. This task depends on testDeploy, runTest and getTestStatus tasks. This is a single task to deploy
+   * Creates the getTestStatus task which gets the status of the flows in the project.
+   *
+   * @param project The Gradle project
+   * @return The created task
+   */
+  Task createGetAssertionStatusTask(Project project) {
+    return project.task("getAssertionStatus", type: AzkabanBlockedFlowStatusTask) { task ->
+      description = "Gets the status of the test specified by -Ptestname=testname. Alternatively a flowname can be specified using -Pflow=flowname";
+      group = "Hadoop Plugin";
+
+      doFirst {
+        validateTestnameProperty(project);
+
+        azkProject = getTestProjectName(project, false);
+        List<String> testflows = filterAssertionFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject), project);
+        flowsToExecute = testflows;
+
+        if(flowsToExecute.empty) {
+          logger.error("No assertions defined in the workflow");
+          return;
+        }
+
+        String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test status will be fetched from ${azkProject.azkabanProjName}";
+        prettyPrintMessage(message);
+
+        if (project.hasProperty("flow")) {
+          logger.lifecycle("Displaying Job level Status");
+          interactive = false;
+        } else {
+          logger.lifecycle("Displaying flow level Status");
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates the workflowTestSuite task. This task depends on testDeploy, runTest and getTestStatus tasks. This is a single task to deploy
    * run and get status of the test.
    *
    * @param project The Gradle project
    * @return The created task
    */
   Task createHadoopTestTask(Project project) {
-    return project.task("hadoopTest") { task ->
+    return project.task("azkabanTest") { task ->
       description = "Runs the test specified by -Ptestname=test";
       group = "Hadoop Plugin";
       dependsOn project.tasks["testDeploy"]
       dependsOn project.tasks["runTest"]
       dependsOn project.tasks["getTestStatus"]
+      dependsOn project.tasks["runAssertions"]
+      dependsOn project.tasks["getAssertionStatus"]
       project.tasks["getTestStatus"].mustRunAfter project.tasks["runTest"]
       project.tasks["runTest"].mustRunAfter project.tasks["testDeploy"]
+      project.tasks["getAssertionStatus"].mustRunAfter project.tasks["runAssertions"]
+      project.tasks["runAssertions"].mustRunAfter project.tasks["getTestStatus"]
     }
   }
 

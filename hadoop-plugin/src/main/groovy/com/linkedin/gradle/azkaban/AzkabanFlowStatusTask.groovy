@@ -31,6 +31,7 @@ import org.json.JSONObject;
 class AzkabanFlowStatusTask extends DefaultTask {
 
   AzkabanProject azkProject;
+  List<String> flowsToExecute;
 
   /**
    * The Gradle task action for getting flowStatus from Azkaban.
@@ -44,22 +45,20 @@ class AzkabanFlowStatusTask extends DefaultTask {
   }
 
   /**
-   * Uploads the zip file to Azkaban.
-   *
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * getSortedFlows returns the list of flows defined in the project
+   * @param sessionId The session Id of the session
+   * @return The list of all the flows defined in the project
    */
-  void getAzkabanFlowStatus(String sessionId) {
-
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
-
+  List<String> getSortedFlows(String sessionId) {
     //Fetch flows of the project
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
       // Check if session has expired. If so, re-login.
       if (fetchFlowsResponse.toLowerCase().contains("session")) {
         logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
-        getAzkabanFlowStatus(null);
+        return getSortedFlows(null);
       } else {
         // If response contains other than session error
         logger.error("Fetching flows from " + azkProject.azkabanUrl + " failed. Reason: " + new JSONObject(fetchFlowsResponse).get("error"));
@@ -72,6 +71,17 @@ class AzkabanFlowStatusTask extends DefaultTask {
       logger.lifecycle("No flows defined in current project");
       return;
     }
+
+    return flows;
+  }
+
+  /**
+   * This function returns the most recent execution ids of the flows
+   * @param sessionId The session id of the session
+   * @param flows The list of flows defined in the project
+   * @return The list of most recent execution ids of the flow
+   */
+  List<String> getRecentFlowExecutionIds(String sessionId, List<String> flows) {
 
     //Pool HTTP Get requests for getting most recent ExecID for each flow
     List<String> responseList = AzkabanClient.batchFetchLatestExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, flows, sessionId);
@@ -90,8 +100,26 @@ class AzkabanFlowStatusTask extends DefaultTask {
         }
       }
     }
+    return execIds;
+  }
+
+  /**
+   * Gets the status of the flows
+   *
+   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   */
+  void getAzkabanFlowStatus(String sessionId) {
+
+    // list of all the flows defined in the project
+    List<String> flows = getSortedFlows(sessionId);
+
+    // list of all the recent execution ids of the flows defined in the project
+    List<String> execIds = getRecentFlowExecutionIds(sessionId, flows);
+
+    List<String> responseList = new ArrayList<String>();
 
     if (!execIds.isEmpty()) {
+
       //Pool HTTP Get requests for getting exec Job statuses
       responseList = AzkabanClient.batchFetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
 
@@ -103,7 +131,11 @@ class AzkabanFlowStatusTask extends DefaultTask {
           Collections.sort(sortedFlowSet);
           jobStatus(sortedFlowSet, responseList);
         }
+      } else if(flowsToExecute!=null && !flowsToExecute.isEmpty()) {
+        // flowsToExecute is defined by the task
+        flowStatus(flowsToExecute, responseList);
       } else {
+        // flowsToExecute is not defined by the task and flow property is not defined. Fetch all flows
         flowStatus(flows, responseList);
       }
 
@@ -115,11 +147,13 @@ class AzkabanFlowStatusTask extends DefaultTask {
   /**
    * Prints the Job Status of the latest flow executions.
    *
-   * @param flowSet
-   * @param responseList
+   * @param flows The list of flows for which status should be fetched
+   * @param responseList The response list from Azkaban
    */
-  void jobStatus(List<String> flowSet, List<String> responseList) {
-    flowSet.each { flow ->
+  void jobStatus(List<String> flows, List<String> responseList) {
+
+
+    flows.each { flow ->
       for(int j=0; j<responseList.size(); j++) {
         String jobResponse = responseList.get(j);
         JSONObject jobsObject = new JSONObject(jobResponse);
@@ -171,8 +205,8 @@ class AzkabanFlowStatusTask extends DefaultTask {
   /**
    * Prints the status of the latest execution of each flow in the project.
    *
-   * @param flows
-   * @param responseList
+   * @param flows The list of flows for which status should be fetched
+   * @param responseList The reponse list from Azkaban
    */
   void flowStatus(List<String> flows, List<String> responseList) {
     //Print the status
@@ -181,6 +215,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
     AzkabanHelper.printFlowStats("Flow Name", "Latest Exec ID", "Status", AzkabanStatus.getStatusLabels());
     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------");
 
+    boolean hasAnyExecutions = false;
     flows.each { flow ->
       for(int j=0; j<responseList.size(); j++) {
         String jobResponse = responseList.get(j);
@@ -203,13 +238,15 @@ class AzkabanFlowStatusTask extends DefaultTask {
             }
           }
           AzkabanHelper.printFlowStats(flow, execid, status, azkStatus.getStatusValues());
+          hasAnyExecutions = true;
           break;
         }
 
-        if ( j == responseList.size() - 1 ) {
-          AzkabanHelper.printFlowStats(flow, "NONE", "-", AzkabanStatus.getStatusLabels());
-        }
+
       }
+    }
+    if (!hasAnyExecutions) {
+      AzkabanHelper.printFlowStats(flow, "NONE", "-", AzkabanStatus.getStatusLabels());
     }
     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------");
   }

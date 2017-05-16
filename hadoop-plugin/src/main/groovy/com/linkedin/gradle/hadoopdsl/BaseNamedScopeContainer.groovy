@@ -792,7 +792,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
-   * DSL pinotBuildPushJob method. Creates a pinotBuildPushJob in scope with the given name                                                                                                        
+   * DSL pinotBuildPushJob method. Creates a pinotBuildPushJob in scope with the given name
    * and configuration.
    *
    * @param name The job name
