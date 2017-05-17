@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.11.23
+
+* Updates to use external resource files
+
 0.11.22
 
 * LIHADOOP-28747 Hadoop plugin's test plugin should have functionality to add assertions on tests.

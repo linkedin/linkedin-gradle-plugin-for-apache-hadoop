@@ -252,12 +252,12 @@ class AzkabanFlowStatusTask extends DefaultTask {
   }
 
   /**
-   * Builds Dr. Elephant URL
+   * Builds the URL to Dr. Elephant for a given flow.
    *
-   * @param execUrl
-   * @return DrElephantUrl
+   * @param execUrl The flow execution URL
+   * @return The URL to Dr. Elephant for the given flow
    */
-  public String getDrElephantURL(String execUrl) {
+  String getDrElephantURL(String execUrl) {
     final String DR_ELEPHANT_URL = null;
     if (DR_ELEPHANT_URL != null) {
       return DR_ELEPHANT_URL + "/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();

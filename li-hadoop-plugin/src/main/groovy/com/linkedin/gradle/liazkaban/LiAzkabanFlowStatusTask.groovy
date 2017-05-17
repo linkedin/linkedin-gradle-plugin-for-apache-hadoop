@@ -13,37 +13,46 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.liazkaban;
+package com.linkedin.gradle.liazkaban
 
-import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
+import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask
+import com.linkedin.gradle.lihadoop.LiHadoopProperties
 
 class LiAzkabanFlowStatusTask extends AzkabanFlowStatusTask {
 
+  private static final String DR_ELEPHANT_HLD_URL = LiHadoopProperties.get(LiHadoopProperties.DR_ELEPHANT_HLD_URL)
+  private static final String DR_ELEPHANT_PKE_URL = LiHadoopProperties.get(LiHadoopProperties.DR_ELEPHANT_PKE_URL)
+  private static final String DR_ELEPHANT_SPD_URL = LiHadoopProperties.get(LiHadoopProperties.DR_ELEPHANT_SPD_URL)
+  private static final String DR_ELEPHANT_TRK_URL = LiHadoopProperties.get(LiHadoopProperties.DR_ELEPHANT_TRK_URL)
+  private static final String DR_ELEPHANT_WAR_URL = LiHadoopProperties.get(LiHadoopProperties.DR_ELEPHANT_WAR_URL)
+  private static final String HLD_GRID_NAME = LiHadoopProperties.get(LiHadoopProperties.HLD_GRID_NAME)
+  private static final String PKE_GRID_NAME = LiHadoopProperties.get(LiHadoopProperties.PKE_GRID_NAME)
+  private static final String SPD_GRID_NAME = LiHadoopProperties.get(LiHadoopProperties.SPD_GRID_NAME)
+  private static final String TRK_GRID_NAME = LiHadoopProperties.get(LiHadoopProperties.TRK_GRID_NAME)
+  private static final String WAR_GRID_NAME = LiHadoopProperties.get(LiHadoopProperties.WAR_GRID_NAME)
+
   /**
-   * Configuring to print Dr. Elephant URL
+   * Builds the URL to Dr. Elephant for a given flow.
    *
-   * @param execUrl Execution URL of the flow.
-   * @return DrElephantUrl
+   * @param execUrl The flow execution URL
+   * @return The URL to Dr. Elephant for the given flow
    */
   @Override
   String getDrElephantURL(String execUrl) {
-    final String DR_ELEPHANT_HOLDEM_URL = "http://ltx1-holdemdre01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
-    final String DR_ELEPHANT_WAR_URL = "http://lva1-wardre01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
-    final String DR_ELEPHANT_TAROCK_URL = "http://lva1-tarockaz01.grid.linkedin.com:8080/search?referrer=hadoopplugin&flow-exec-id=";
-    final String DR_ELEPHANT_SPADES_URL = "http://lva1-spadesaz01.grid.linkedin.com:8080/search?referrer=hadoopplugin&flow-exec-id=";
-    final String DR_ELEPHANT_POKEMON_URL = "http://lva1-pokemonaz01.grid.linkedin.com:8080/new#/workflow?referrer=hadoopplugin&workflowid=";
+    String drUrl = null
 
-    if (execUrl.contains("holdem")) {
-      return DR_ELEPHANT_HOLDEM_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
-    } else if (execUrl.contains("war")) {
-      return DR_ELEPHANT_WAR_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
-    } else if (execUrl.contains("tarock")) {
-      return DR_ELEPHANT_TAROCK_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
-    } else if (execUrl.contains("spades")) {
-      return DR_ELEPHANT_SPADES_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
-    } else if (execUrl.contains("pokemon")) {
-      return DR_ELEPHANT_POKEMON_URL + URLEncoder.encode(execUrl, "UTF-8").toString();
+    if (execUrl.contains(HLD_GRID_NAME)) {
+      drUrl = DR_ELEPHANT_HLD_URL
+    } else if (execUrl.contains(PKE_GRID_NAME)) {
+      drUrl = DR_ELEPHANT_PKE_URL
+    } else if (execUrl.contains(SPD_GRID_NAME)) {
+      drUrl = DR_ELEPHANT_SPD_URL
+    } else if (execUrl.contains(TRK_GRID_NAME)) {
+      drUrl = DR_ELEPHANT_TRK_URL
+    } else if (execUrl.contains(WAR_GRID_NAME)) {
+      drUrl = DR_ELEPHANT_WAR_URL
     }
-    return null;
+
+    return (drUrl == null) ? null : drUrl + URLEncoder.encode(execUrl, "UTF-8").toString()
   }
 }
