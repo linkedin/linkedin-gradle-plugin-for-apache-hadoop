@@ -229,6 +229,8 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param target The object to set as the closure delegate before evaluating the closure
    */
   void evalHadoopClosure(String closureName, String definitionSetName, Object target) {
+    // Save the previous definition set name and then change to the new definition set
+    String oldDefinitionSetName = currentDefinitionSetName;
     setDefinitionSet(definitionSetName);
 
     if (!namedHadoopClosures.containsKey(closureName)) {
@@ -240,6 +242,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     // The "magic" in this method is that the "this" pointer of the closure is altered to the
     // target object, cause it to resolve Hadoop DSL methods correctly, starting from the target.
     project.configure(target, g);
+
+    // After evaluating the closure, restore the original definition set
+    setDefinitionSet(oldDefinitionSetName);
   }
 
   /**
