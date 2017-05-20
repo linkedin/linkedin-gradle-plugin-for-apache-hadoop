@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.12.0
+
+* Add initial Hadoop Plugin example project
+
 0.11.25
 
 * Downgrade from com.jfrog.bintray plugin 1.7.3 to 1.7 since the latest version is not working for me
