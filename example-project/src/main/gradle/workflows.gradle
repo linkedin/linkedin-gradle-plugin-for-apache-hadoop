@@ -1,0 +1,95 @@
+// Use a Hadoop DSL definition set to declare any values that might be overridden for each user
+definitionSet defs: [
+    hdfsHomeDir: "/user/yourUserName",
+    notifyEmail: "yourUserName@yourEmailDomain.com",
+    userToProxy: "yourAzkabanProxyUserName"
+]
+
+// Override any properties in the above definition set in your own profile script
+applyProfile from: "${project.projectDir}/src/main/profiles/${System.properties['user.name']}.gradle"
+
+// Location of your home directory on HDFS and the location on HDFS to copy the text file
+def hdfsHomeDir = lookupDef('hdfsHomeDir')
+def projectPath = "${hdfsHomeDir}/example-project"
+
+// Hadoop DSL workflow for our various word count jobs. This workflow will be compiled into Azkaban
+// .job and .properties files.
+hadoop {
+  buildPath "azkaban"  // Declare the output folder for the compiled Azkaban files
+  cleanPath true       // Automatically clean up the output folder before each new build
+
+  // Declare an Azkaban .properties file that sets some Azkaban properties for your jobs
+  propertyFile('common') {
+    set properties: [
+      'failure.emails': lookupDef('notifyEmail'),
+      'user.to.proxy': lookupDef('userToProxy')
+    ]
+  }
+
+  // Declare an Azkaban workflow for our word count jobs
+  workflow('wordCountFlow') {
+
+    // First, add a hadoopShell job that copies the text file from the exploded Azkaban zip to HDFS
+    hadoopShellJob('uploadResourceFilesJob') {
+      usesCommands([
+          // You must invoke Hadoop DSL methods that take Groovy lists using explicit parens
+          "hadoop fs -mkdir -p ${projectPath}",
+          "hadoop fs -copyFromLocal -f ./text ${projectPath}"
+      ])
+    }
+
+    // Implementation of word count with a Java map-reduce job
+    hadoopJavaJob('wordCountMapReduceJob') {
+      uses 'com.linkedin.hadoop.example.WordCountJob'
+      jvmClasspath './lib/*'  // Tell Azkaban to look for the job class in the lib folder in the exploded zip
+      reads files: [
+          'input.path': "${projectPath}/text"
+      ]
+      writes files: [
+          'output.path': "${projectPath}/word-count-map-reduce"
+      ]
+      set confProperties: [
+          // Causes Hadoop to use a separate classloader for the jars we upload. Usually you want
+          // to set this to true to cause Hadoop to use the jars included in the Azkaban zip.
+          'mapreduce.job.classloader': true
+      ]
+      set properties: [
+          'force.output.overwrite': true
+      ]
+      depends 'uploadResourceFilesJob'
+    }
+
+    // Implementation of word count with an Apache Pig job
+    pigJob('wordCountPigJob') {
+      uses 'pig/WordCount.pig'
+      reads files: [
+          'inputPath': "${projectPath}/text"
+      ]
+      writes files: [
+          'outputPath': "${projectPath}/word-count-apache-pig"
+      ]
+      depends 'uploadResourceFilesJob'
+    }
+
+    // Implementation of word count with an Apache Hive job
+    hiveJob('wordCountHiveJob') {
+      uses 'hive/WordCount.q'
+      writes files: [
+          'outputPath': "${projectPath}/word-count-apache-hive"
+      ]
+      depends 'uploadResourceFilesJob'
+    }
+
+    // Since it's hard to make the tokenization the same across all the jobs, we'll compare the
+    // counts for a specific keyword (that is always split the same way)
+    def keywordToCheck = "Government"
+
+    // At the end, add a hadoopShell job that compares the results of the word count jobs
+    hadoopShellJob('checkResultsJob') {
+      uses "bash ./bash/checkResults.sh ${projectPath} ${keywordToCheck}"
+      depends 'wordCountMapReduceJob', 'wordCountPigJob', 'wordCountHiveJob'
+    }
+
+    targets 'checkResultsJob'
+  }
+}

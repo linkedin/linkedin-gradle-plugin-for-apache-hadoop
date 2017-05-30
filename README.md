@@ -58,6 +58,12 @@ without you having to manually download your code and dependencies there first.
 If you are using Gradle and you feel that you might benefit from any of the above features,
 consider using the Hadoop Plugin and the Hadoop DSL.
 
+#### Example Project
+
+We have added an [Example Project](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/example-project)
+that uses the Hadoop Plugin and DSL to build an example Azkaban workflow consisting of Apache Pig,
+Apache Hive and Java Map-Reduce jobs.
+
 #### Apache Oozie Status
 
 The Hadoop Plugin includes Gradle tasks for Apache Oozie, including the ability to upload versioned
@@ -71,6 +77,7 @@ not in a usable form. We are not currently working on it and it is unlikely to b
 
 #### Recent News
 
+  * `May 2017` We have added an [Example Project](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/example-project) that uses the Hadoop Plugin and DSL to build an example Azkaban workflow
   * `April 2016` We have made a refresh of the [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide) and [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference) Wiki pages
   * `January 2016` The Hadoop Plugin is now published on [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin)
   * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
@@ -83,6 +90,7 @@ not in a usable form. We are not currently working on it and it is unlikely to b
 The project structure is setup as follows:
 
   * `azkaban-client`: Code to work with Azkaban via the Azkaban REST API
+  * `example-project`: Example project that uses the Hadoop Plugin and DSL to build an example Azkaban workflow
   * `hadoop-plugin`: Code for the various plugins that comprise the Hadoop Plugin
   * `hadoop-plugin-test`: Test cases for the Hadoop Plugin
   * `li-hadoop-plugin`: LinkedIn-specific extensions to the Hadoop Plugin

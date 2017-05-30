@@ -1,0 +1,113 @@
+// Example setup using the Gradle plugins mechanism to load the Hadoop Plugin from the portal at
+// https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin.
+plugins {
+  id 'java'
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.11.24'
+  id 'eclipse'
+  id 'idea'
+}
+
+repositories {
+  jcenter()
+}
+
+// In this example project, we'll assume that you are building a Hadoop workflow that runs in
+// Azkaban and that your workflow consists of jobs written for Apache Hive, Apache Pig and also
+// and Apache Hadoop Java job.
+
+// Apply the Hadoop DSL file. You could write Hadoop DSL right here in the project build.gradle,
+// but usually most people write their Hadoop DSL in a separate file (or multiple files).
+apply from: 'src/main/gradle/workflows.gradle'
+
+dependencies {
+  // Dependencies for Hadoop Java jobs
+  compile 'org.apache.hadoop:hadoop-common:2.6.1'
+  compile 'org.apache.hadoop:hadoop-mapreduce-client-core:2.6.1'
+
+  // Dependencies to use TestNG for unit tests
+  testCompile 'org.testng:testng:6.8.8'
+
+  // Dependencies for Hadoop mini-cluster based unit tests
+  testCompile 'org.apache.hadoop:hadoop-common:2.6.1:tests'
+  testCompile 'org.apache.hadoop:hadoop-hdfs:2.6.1:tests'
+  testCompile 'org.apache.hadoop:hadoop-mapreduce-client-common:2.6.1'
+  testCompile 'org.apache.hadoop:hadoop-mapreduce-client-hs:2.6.1'
+  testCompile 'org.apache.hadoop:hadoop-mapreduce-client-jobclient:2.6.1'
+  testCompile 'org.apache.hadoop:hadoop-mapreduce-client-jobclient:2.6.1:tests'
+  testCompile 'org.apache.hadoop:hadoop-yarn-server-tests:2.6.1:tests'
+}
+
+// Use TestNG for unit tests
+test {
+  useTestNG()
+}
+
+// Declare that build depends on the Hadoop zips, which depends on compiling the Hadoop DSL. Adding
+// this is what triggers the compilation of the Hadoop DSL as a part of your build.
+startHadoopZips.dependsOn buildAzkabanFlows
+build.dependsOn buildHadoopZips
+
+// Now declare the hadoopZip block to easily build zip artifacts that can be uploaded to Azkaban.
+hadoopZip {
+  libPath = "lib"  // Causes the dependencies to be placed in the "lib" folder inside each zip
+
+  // Use `base` to declare files common to all the zips you want to declare (as you might have
+  // different zips for different Hadoop clusters or Azkaban instances, for whatever reason). If
+  // you just need a single zip, there's no point in using `base` and you can skip it.
+  base {
+    from("src/main/bash") {
+      into "bash"   // Bash scripts will be in the "bash" subdirectory in the zip
+    }
+    from("src/main/hive") {
+      into "hive"  // Hive scripts will be in the "hive" subdirectory in the zip
+    }
+    from("src/main/pig") {
+      into "pig"   // Pig scripts will be in the "pig" subdirectory in the zip
+    }
+    // Your workflows.gradle file specifies that the compiled Hadoop DSL files will be placed in
+    // the "azkaban" folder. Add them to your zips using closure syntax, since the compiled files
+    // haven't been generated yet.
+    from { fileTree("azkaban").files }
+   }
+
+  // Note that dependencies the hadoopRuntime dependency configuration (which inherits from the
+  // runtime configuration) are automatically included in all zips (including the project jar).
+
+  // Now declare each of your zips, giving them unique names. In this (completely contrived) case
+  // we will run the word count jobs on different text files for our dev and prod clusters.
+  zip("azkabanDev") {
+    from("resources/dev") {
+      into "text"
+    }
+  }
+
+  zip("azkabanProd") {
+    from("resources/prod") {
+      into "text"
+    }
+  }
+}
+
+// Adding the following exclusion rules will cause the matching dependencies to be excluded from
+// your Hadoop zips. Since the jars for these dependencies are almost always pre-installed on your
+// Hadoop cluster, you should add these exclusions for all your Hadoop Plugin projects. These rules
+// will reduce the size of your Azkaban zips and lessen the chance of uploading a dependency that
+// is incompatible with the jars already installed on your Hadoop cluster.
+configurations.hadoopRuntime {
+  exclude group: 'org.apache.hadoop'
+  exclude group: 'org.apache.hive'
+  exclude group: 'org.apache.pig'
+  exclude group: 'org.apache.spark'
+}
+
+// Set the Java language level for Java subprojects
+subprojects {
+  plugins.withType(JavaPlugin) {
+    sourceCompatibility = 1.8
+  }
+}
+
+// Task to generate the Gradle wrapper
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.13'
+}

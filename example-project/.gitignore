@@ -1,0 +1,21 @@
+# Standard ignore rules for Eclipse IntelliJ IDEA and Sublime
+*.iml
+*.ipr
+*.iws
+*.sublime-*
+*.swp
+.classpath
+.gradle
+.idea
+.project
+.settings
+bin
+build
+ligradle
+target
+test-logs
+
+# Recommended ignore rules for files generated or used by the Hadoop Plugin
+.azkabanPlugin.json
+.hadoopValidatorProperties
+azkaban
