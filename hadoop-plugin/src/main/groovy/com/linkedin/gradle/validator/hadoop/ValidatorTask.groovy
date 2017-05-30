@@ -13,10 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator.PigValidator;
+package com.linkedin.gradle.validator.hadoop
 
-
-import com.linkedin.gradle.hadoopValidator.ValidatorTask;
-
-public interface PigValidator extends ValidatorTask {
+interface ValidatorTask {
+  /**
+   * Subclasses must implement this function which performs a particular check as a language
+   * validator.
+   */
+  void validate()
 }

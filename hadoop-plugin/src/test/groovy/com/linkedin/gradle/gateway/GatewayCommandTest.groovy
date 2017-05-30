@@ -18,7 +18,6 @@ package com.linkedin.gradle.gateway;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

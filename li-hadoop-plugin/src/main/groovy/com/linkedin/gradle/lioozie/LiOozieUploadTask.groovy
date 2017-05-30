@@ -13,11 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lioozie;
+package com.linkedin.gradle.lioozie
 
-import com.linkedin.gradle.hdfs.HdfsFileSystem;
-import com.linkedin.gradle.liutil.LiKerberosUtil;
-import com.linkedin.gradle.oozie.OozieUploadTask;
+import com.linkedin.gradle.hdfs.HdfsFileSystem
+import com.linkedin.gradle.lihdfs.LiHdfsFileSystem
+import com.linkedin.gradle.liutil.LiKerberosUtil
+import com.linkedin.gradle.oozie.OozieUploadTask
 
 /**
  * Linkedin specific customizations to the OozieUploadTask.
@@ -31,6 +32,6 @@ class LiOozieUploadTask extends OozieUploadTask {
    */
   @Override
   HdfsFileSystem makeHdfsFileSystem() {
-    return new HdfsFileSystem(project, LiKerberosUtil.getKrb5File(project));
+    return new LiHdfsFileSystem(project, LiKerberosUtil.getKrb5File(project))
   }
 }

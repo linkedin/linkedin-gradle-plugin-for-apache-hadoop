@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator.PigValidator;
+package com.linkedin.gradle.validator.pig
 
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.job.PigJob;
+import com.linkedin.gradle.hadoopdsl.NamedScope
+import com.linkedin.gradle.hadoopdsl.job.PigJob
 
-import org.apache.pig.Main;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
-import org.gradle.api.tasks.TaskAction;
+import org.apache.pig.Main
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.tasks.TaskAction
 
 /**
- * PigSyntaxValidator is the class that provides the Task for validation of syntax mentioned in the Apache Pig Scripts
- * in the project.
+ * The PigSyntaxValidator class provides a task for validating the syntax of Apache Pig Scripts.
  */
 class PigSyntaxValidator extends DefaultTask implements PigValidator {
 
@@ -58,11 +58,10 @@ class PigSyntaxValidator extends DefaultTask implements PigValidator {
   Properties properties;
 
   /**
-   * Validates the syntax the Apache Pig Scripts in the project. This is the Task Action Function
+   * Task that validates the syntax the Apache Pig Scripts in the project.
    */
   @TaskAction
   void validate() {
-
     ArrayList<String> _args = new ArrayList<String>();
     File script;
 

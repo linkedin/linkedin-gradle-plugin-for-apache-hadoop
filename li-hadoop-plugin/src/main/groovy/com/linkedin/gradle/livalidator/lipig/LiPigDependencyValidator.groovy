@@ -13,17 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopValidator.liPigValidator;
+package com.linkedin.gradle.livalidator.lipig
 
-import com.linkedin.gradle.hadoopValidator.PigValidator.PigDataValidator;
-import com.linkedin.gradle.lihadoopValidator.LiHdfsFileSystem;
+import com.linkedin.gradle.lihdfs.LiHdfsFileSystem
+import com.linkedin.gradle.validator.pig.PigDependencyValidator
 
-class LiPigDataValidator extends PigDataValidator {
+class LiPigDependencyValidator extends PigDependencyValidator {
   /**
-   * Initializes LiHdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
-   * Subclasses may override this method to provide their own LiHdfsFileSystem
+   * Initializes LiHdfsFilesystem for WebHdfsAccess in order to check validity of dependencies.
+   * Subclasses may override this method to provide their own LiHdfsFileSystem.
    *
-   * @param krb5 the kerberos configuration file to configure kerberos access
+   * @param krb5 The Kerberos configuration file to configure Kerberos access
    */
   @Override
   void initHdfsFileSystem(File krb5) {
@@ -31,7 +31,8 @@ class LiPigDataValidator extends PigDataValidator {
   }
 
   /**
-   * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   * Gives the resolved pathName. Organizations may use their own path formats which need to be
+   * resolved to standard pathnames.
    *
    * @param pathName The pathname to be resolved
    * @return pathName The resolved pathName

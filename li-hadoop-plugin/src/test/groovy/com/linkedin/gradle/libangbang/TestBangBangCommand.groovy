@@ -13,15 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.libangbang;
-
 
 import org.junit.Assert;
 import org.junit.Test;
 
 class TestBangBangCommand {
-
   @Test
   void testBangBangCommandString() {
     Map<String,String> bangbangConfs = new HashMap<String, String>();

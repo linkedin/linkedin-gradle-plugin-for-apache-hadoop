@@ -13,11 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator;
+package com.linkedin.gradle.validator.pig
 
-public interface ValidatorTask {
-  /**
-   * Sublclasses must implement this function which performs a particular check as a language validator
-   */
-  public void validate();
+import com.linkedin.gradle.validator.hadoop.ValidatorTask
+
+interface PigValidator extends ValidatorTask {
 }

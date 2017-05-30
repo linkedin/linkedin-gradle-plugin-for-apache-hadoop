@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator;
+package com.linkedin.gradle.validator.hadoop
 
 final class ValidatorConstants {
-  public static final String NAME_NODE = "NameNode";
-  public static final String REPOSITORY_URL = "repositoryURL";
+  public static final String NAME_NODE = "NameNode"
+  public static final String REPOSITORY_URL = "repositoryURL"
 }

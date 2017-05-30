@@ -13,36 +13,35 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopValidator.liPigValidator;
+package com.linkedin.gradle.livalidator.lipig
 
-import com.linkedin.gradle.hadoopValidator.PigValidator.PigDataValidator;
-import com.linkedin.gradle.hadoopValidator.PigValidator.PigDependencyValidator;
-import com.linkedin.gradle.hadoopValidator.PigValidator.PigValidatorPlugin;
+import com.linkedin.gradle.validator.pig.PigDataValidator
+import com.linkedin.gradle.validator.pig.PigDependencyValidator
+import com.linkedin.gradle.validator.pig.PigValidatorPlugin
 
 /**
  * LinkedIn-specific customizations to the Hadoop Validator Plugin.
  */
 class LiPigValidatorPlugin extends PigValidatorPlugin {
-
   /**
-   * Factory method to return the LiPigDataValidator Task class. Subclasses can override this method to return
-   * their own LiPigDataValidator Task class.
+   * Factory method to return the LiPigDataValidator Task class. Subclasses can override this
+   * method to return their own LiPigDataValidator Task class.
    *
    * @return Class that implements the PigDataValidator Task
    */
   @Override
   Class<? extends PigDataValidator> getDataValidatorClass() {
-    return LiPigDataValidator.class;
+    return LiPigDataValidator.class
   }
 
   /**
-   * Factory method to return the LiPigDependencyValidator Task class. Subclasses can override this method to return
-   * their own LiPigDependencyValidator Task class.
+   * Factory method to return the LiPigDependencyValidator Task class. Subclasses can override this
+   * method to return their own LiPigDependencyValidator Task class.
    *
    * @return Class that implements the LiPigDependencyValidator Task
    */
   @Override
   Class<? extends PigDependencyValidator> getDependencyValidatorClass() {
-    return LiPigDependencyValidator.class;
+    return LiPigDependencyValidator.class
   }
 }

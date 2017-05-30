@@ -77,7 +77,7 @@ not in a usable form. We are not currently working on it and it is unlikely to b
 
 #### Recent News
 
-  * `May 2017` We have added an [Example Project](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/tree/master/example-project) that uses the Hadoop Plugin and DSL to build an example Azkaban workflow
+  * `May 2017` We have added an [Example Project](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/tree/master/example-project) that uses the Hadoop Plugin and DSL
   * `April 2016` We have made a refresh of the [User Guide](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/User-Guide) and [Hadoop DSL Language Reference](https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Hadoop-DSL-Language-Reference) Wiki pages
   * `January 2016` The Hadoop Plugin is now published on [plugins.gradle.org](https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin)
   * `November 2015` Gradle version bumped to 2.7 and the Gradle daemon enabled - tests run much, much faster
