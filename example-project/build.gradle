@@ -11,6 +11,19 @@ repositories {
   jcenter()
 }
 
+// Set the Java language level for Java subprojects
+subprojects {
+  plugins.withType(JavaPlugin) {
+    sourceCompatibility = 1.8
+  }
+}
+
+// Task to generate the Gradle wrapper
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.13'
+}
+
+
 // In this example project, we'll assume that you are building a Hadoop workflow that runs in
 // Azkaban and that your workflow consists of jobs written for Apache Hive, Apache Pig and also
 // and Apache Hadoop Java job.
@@ -98,16 +111,4 @@ configurations.hadoopRuntime {
   exclude group: 'org.apache.hive'
   exclude group: 'org.apache.pig'
   exclude group: 'org.apache.spark'
-}
-
-// Set the Java language level for Java subprojects
-subprojects {
-  plugins.withType(JavaPlugin) {
-    sourceCompatibility = 1.8
-  }
-}
-
-// Task to generate the Gradle wrapper
-task wrapper(type: Wrapper) {
-  gradleVersion = '2.13'
 }
