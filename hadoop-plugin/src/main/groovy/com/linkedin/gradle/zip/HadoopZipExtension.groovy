@@ -13,14 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.zip;
+package com.linkedin.gradle.zip
 
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.file.CopySpec;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.tasks.bundling.Zip;
-
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
+import org.gradle.api.tasks.bundling.Zip
 /**
  * A hadoopZip makes it convenient for the user to make specific choices about how their content
  * goes inside the zip. In the hadoopZip, the user can specify files and folders which should go
@@ -160,14 +158,6 @@ class HadoopZipExtension {
       else {
         task.with(getZipCopySpec(zipName));
       }
-
-      // For Java projects, include the project jar into the libPath directory in the zip by default
-      project.getPlugins().withType(JavaPlugin) {
-        from(project.tasks.getByName("jar")) { into libPath; }
-      }
-
-      // Include hadoopRuntime dependencies into the libPath directory in the zip
-      from(project.configurations["hadoopRuntime"]) { into libPath; }
 
       // Include any additional paths added to the extension
       additionalPaths.each { String path -> from(path); }
