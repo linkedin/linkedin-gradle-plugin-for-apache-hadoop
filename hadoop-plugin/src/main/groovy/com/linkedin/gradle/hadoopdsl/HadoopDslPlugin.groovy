@@ -113,6 +113,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("pigJob", this.&pigJob);
     project.extensions.add("pinotBuildAndPushJob", this.&pinotBuildAndPushJob);
     project.extensions.add("sparkJob", this.&sparkJob);
+    project.extensions.add("tableauJob", this.&tableauJob);
     project.extensions.add("teradataToHdfsJob", this.&teradataToHdfsJob);
     project.extensions.add("voldemortBuildPushJob", this.&voldemortBuildPushJob);
   }

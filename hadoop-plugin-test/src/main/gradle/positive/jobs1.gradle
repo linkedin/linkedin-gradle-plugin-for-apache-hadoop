@@ -353,6 +353,11 @@ hadoop {
       depends 'job19'
     }
 
-    targets 'job20'
+    tableauJob('job21') {
+      usesWorkbookName 'workbookName' // Required
+      depends 'job20'
+    }
+
+    targets 'job21'
   }
 }

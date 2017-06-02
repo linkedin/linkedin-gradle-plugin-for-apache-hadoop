@@ -31,6 +31,7 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
+import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -429,6 +430,17 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   HdfsToTeradataJob hdfsToTeradataJob(String name, @DelegatesTo(HdfsToTeradataJob) Closure configure);
+
+  /**
+   * DSL tableauJob method. Creates a TableauJob in scope with the given name and
+   * configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  TableauJob tableauJob(String name, @DelegatesTo(TableauJob) Closure configure);
 
   /**
    * DSL teradataToHdfsJob method. Creates a TeradataToHdfsJob in scope with the given name and

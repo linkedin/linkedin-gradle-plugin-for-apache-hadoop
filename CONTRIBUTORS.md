@@ -112,3 +112,5 @@ The following were contributed by Jennifer Dai. Thanks, Jennifer!
 The following were contributed by Jianling Zhong. Thanks, Jianling!
 * `Add supports for a "required parameters" check`
 
+The following were contributed by Charlie Summers. Thanks, Charlie!
+* `Add ability for Hadoop DSL to understand the TableauJob job type`

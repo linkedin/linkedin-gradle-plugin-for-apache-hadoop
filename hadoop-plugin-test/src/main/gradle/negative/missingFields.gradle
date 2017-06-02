@@ -103,6 +103,10 @@ hadoop {
       depends 'job17'
     }
 
-    targets 'job18'
+    tableauJob('job19') {
+      depends 'job18'
+    }
+
+    targets 'job19'
   }
 }
