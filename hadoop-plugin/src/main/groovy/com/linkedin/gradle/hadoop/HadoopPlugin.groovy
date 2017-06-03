@@ -17,13 +17,13 @@ package com.linkedin.gradle.hadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.dependency.DependencyPlugin;
-import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
 import com.linkedin.gradle.scm.ScmPlugin;
 import com.linkedin.gradle.spark.SparkPlugin;
 import com.linkedin.gradle.test.TestPlugin;
+import com.linkedin.gradle.validator.hadoop.HadoopValidatorPlugin;
 import com.linkedin.gradle.zip.HadoopZipPlugin;
 
 import org.gradle.api.Plugin;
@@ -192,8 +192,8 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
-   * Factory method to return the HadoopValidatorPlugin class. Subclasses can override this method to return
-   * their own HadoopValidatorPlugin class.
+   * Factory method to return the HadoopValidatorPlugin class. Subclasses can override this method
+   * to return their own HadoopValidatorPlugin class.
    *
    * @return Class that implements the HadoopValidatorPlugin
    */

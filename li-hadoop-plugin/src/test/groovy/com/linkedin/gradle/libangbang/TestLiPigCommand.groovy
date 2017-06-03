@@ -13,9 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.libangbang;
-
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +21,8 @@ import org.junit.Test;
 
 class TestLiPigCommand {
 
-  Map<String,String> properties;
+  Map<String, String> properties;
+
   @Before
   void setup() {
     properties = new HashMap<String,String>();

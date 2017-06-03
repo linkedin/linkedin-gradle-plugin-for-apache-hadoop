@@ -311,7 +311,7 @@ class AzkabanPlugin implements Plugin<Project> {
    * @return The AzkabanProject object
    */
   AzkabanProject makeDefaultAzkabanProject(Project project) {
-    return makeAzkabanProject();
+    return makeAzkabanProject(project);
   }
 
   /**
@@ -337,5 +337,4 @@ class AzkabanPlugin implements Plugin<Project> {
     }
     return azkabanProject;
   }
-
 }

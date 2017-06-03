@@ -24,6 +24,8 @@ version bump, so you will see a few skipped version numbers in the list below.
 0.12.0
 
 * Add initial Hadoop Plugin example project
+* Fix broken links to example-project subproject in README.md
+* Refactor namespaces for Hadoop Validator code to be more consistent and switch to jcenter
 
 0.11.25
 

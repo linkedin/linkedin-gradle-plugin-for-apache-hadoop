@@ -13,25 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator;
+package com.linkedin.gradle.validator.hadoop
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.Task
 
-public interface ValidatorPlugin extends Plugin<Project> {
+interface ValidatorPlugin extends Plugin<Project> {
   /**
-   * Sublasses must define this function to create and return a Syntax checker
+   * Subclasses must define this function to create and return a DataValidator instance.
    */
-  Task createSyntaxChecker();
-
-  /**
-   * Sublasses must define this function to create and return a Data Validator
-   */
-  Task createDataValidator();
+  Task createDataValidator()
 
   /**
-   * Sublasses must define this function to create and return a Dependency checker
+   * Subclasses must define this function to create and return a DependencyValidator instance.
    */
-  Task createDependencyValidator();
+  Task createDependencyValidator()
+
+  /**
+   * Subclasses must define this function to create and return a SyntaxChecker instance.
+   */
+  Task createSyntaxChecker()
 }

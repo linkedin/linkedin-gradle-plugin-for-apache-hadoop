@@ -13,22 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator.PigValidator;
+package com.linkedin.gradle.validator.pig
 
-import com.linkedin.gradle.hadoopValidator.HadoopValidatorUtil;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.job.PigJob;
-import com.linkedin.gradle.hdfs.HdfsFileSystem;
+import com.linkedin.gradle.hadoopdsl.NamedScope
+import com.linkedin.gradle.hadoopdsl.job.PigJob
+import com.linkedin.gradle.hdfs.HdfsFileSystem
+import com.linkedin.gradle.validator.hadoop.HadoopValidatorUtil
 
-import org.apache.hadoop.fs.Path;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
+import java.util.regex.Matcher
 
-import java.util.regex.Matcher;
+import org.apache.hadoop.fs.Path
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
 
 /**
- * PigDataValidator is the class that provides the Task for validation of datafiles mentioned in the Apache Pig Scripts
- * in the project.
+ * The PigDataValidator class provides a task for validation of data files mentioned in the Apache
+ * Pig Scripts in the project.
  */
 class PigDataValidator extends DefaultTask implements PigValidator {
   Map<PigJob, NamedScope> jobMap;
@@ -38,10 +39,10 @@ class PigDataValidator extends DefaultTask implements PigValidator {
   def fileSystem;
 
   /**
-   * Extracts all data filenames mentioned in the Pig script file
+   * Extracts all data file names mentioned in the given Pig script.
    *
    * @param file The Pig script which is to be validated
-   * @return data The List of data filenames in the script file
+   * @return The List of data file names in the script file
    */
   static List<Tuple> extractData(File file) {
     ArrayList<Tuple> data = new ArrayList<Tuple>();
@@ -88,8 +89,7 @@ class PigDataValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Validates the data files mentioned in the Apache Pig Scripts
-   * in the project. This is the Task Action Function
+   * Task that validates the data files mentioned in the Apache Pig Scripts in the project.
    */
   @TaskAction
   void validate() {
@@ -120,9 +120,7 @@ class PigDataValidator extends DefaultTask implements PigValidator {
     String clusterURIString = HadoopValidatorUtil.getNameNodeAddress(properties,"${project.projectDir}");
 
     clusterURIString = "web" + clusterURIString.replaceFirst(/\:[0-9]+/, ":50070");
-
     clusterURI = URI.create(clusterURIString);
-
 
     fileSystem.initialize(clusterURI);
     jobMap.each { PigJob pigJob, NamedScope parentScope ->
@@ -160,18 +158,19 @@ class PigDataValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   * Gives the resolved path name. Organizations may use their own path formats which need to be
+   * resolved to standard path names.
    *
-   * @param pathName The pathname to be resolved
-   * @return pathName The resolved pathName
+   * @param pathName The path name to be resolved
+   * @return The resolved path name
    */
   String getPath(String pathName) {
     return pathName;
   }
 
   /**
-   * Getter for all incorrect paths found across all pig scripts generated.
-   * Can be used to report all the errors together in one place.
+   * Getter for all incorrect paths found across all pig scripts generated. Can be used to report
+   * all the errors together in one place.
    *
    * @return List of incorrect paths, with associated error messages, containing script file name.
    */
@@ -181,9 +180,9 @@ class PigDataValidator extends DefaultTask implements PigValidator {
 
   /**
    * Initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies.
-   * Subclasses may override this method to provide their own HdfsFileSystem
+   * Subclasses may override this method to provide their own HdfsFileSystem.
    *
-   * @param krb5 the kerberos configuration file to configure kerberos access
+   * @param krb5 The Kerberos configuration file to configure Kerberos access
    */
   void initHdfsFileSystem(File krb5) {
     fileSystem = new HdfsFileSystem(project, krb5);

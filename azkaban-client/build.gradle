@@ -6,24 +6,38 @@ plugins {
   id 'maven-publish'
 }
 
+repositories {
+  jcenter()
+}
+
 // The group will be overridden in LinkedIn builds
 group=rootProject.group
-
-repositories {
-  mavenCentral()
-}
 
 dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'joda-time:joda-time:2.9.4'
   compile 'org.apache.httpcomponents:httpclient:4.5.2'
   compile 'org.apache.httpcomponents:httpcore:4.4.5'
   compile 'org.apache.httpcomponents:httpmime:4.5.2'
   compile 'org.json:json:20090211'
+}
 
-  testCompile 'junit:junit:4.11'
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin azkaban-client project'
+  classifier = 'groovydoc'
+  from groovydoc.destinationDir
+}
+
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for the Hadoop Gradle Plugin azkaban-client project'
+  classifier = 'sources'
+  from sourceSets.main.groovy
+}
+
+artifacts {
+  archives groovydocJar
+  archives sourceJar
 }
 
 // Maven publishing setup necessary for linking Bintray to JCenter
@@ -31,6 +45,8 @@ publishing {
   publications {
     azkabanClientPublication(MavenPublication) {
       from components.java
+      artifact groovydocJar
+      artifact sourceJar
       groupId rootProject.group
       artifactId project.name
       version project.version

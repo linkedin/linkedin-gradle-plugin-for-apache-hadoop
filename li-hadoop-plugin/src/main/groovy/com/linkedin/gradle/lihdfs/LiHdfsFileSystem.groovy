@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopValidator;
+package com.linkedin.gradle.lihdfs;
 
 import com.linkedin.gradle.hdfs.HdfsFileSystem;
 
@@ -38,7 +38,6 @@ class LiHdfsFileSystem extends HdfsFileSystem {
   }
 
   String getLatestPath(String inputPath) {
-
     assert (inputPath != null && !inputPath.isEmpty()): "The path to resolve is empty";
     def split = convertToSlashes(inputPath).split(LATEST);
     def retval = split[0];

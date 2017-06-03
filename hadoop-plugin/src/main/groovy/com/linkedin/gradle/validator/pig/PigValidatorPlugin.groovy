@@ -13,89 +13,89 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator.PigValidator;
+package com.linkedin.gradle.validator.pig
 
-import com.linkedin.gradle.hadoopValidator.ValidatorPlugin;
-import com.linkedin.gradle.hadoopdsl.job.PigJob;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.pig.PigTaskHelper;
-import com.linkedin.gradle.zip.HadoopZipExtension;
+import com.linkedin.gradle.hadoopdsl.NamedScope
+import com.linkedin.gradle.hadoopdsl.job.PigJob
+import com.linkedin.gradle.pig.PigTaskHelper
+import com.linkedin.gradle.validator.hadoop.ValidatorPlugin
+import com.linkedin.gradle.zip.HadoopZipExtension
 
-import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.file.CopySpec;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.file.copy.CopySpecInternal;
+import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileTree
+import org.gradle.api.internal.file.copy.CopySpecInternal
 
 /**
- * PigValidatorPlugin is the class that provides a Gradle Plugin which checks script files of Apache Pig,
- * for Syntax errors, Data access errors and dependency errors.
+ * The PigValidatorPlugin class provides a Gradle Plugin which checks Apache Pig script files for
+ * syntax errors, data access errors and dependency errors.
  */
 class PigValidatorPlugin implements ValidatorPlugin {
-  Project project;
-  Map<PigJob, NamedScope> jobScopeMap;
-  Properties properties;
-  String libPath;
+  Map<PigJob, NamedScope> jobScopeMap
+  String libPath
+  Project project
+  Properties properties
 
   /**
-   * Applies the Pig Validator Plugin, which provides task for checking syntax,data access dependencies and other jar dependencies.
+   * Applies the Pig Validator Plugin.
    *
    * @param project The Gradle project
    */
   @Override
   void apply(Project project) {
+    this.project = project
 
-    this.project = project;
-    createSyntaxChecker();
-    createDataValidator();
-    createDependencyValidator();
+    createSyntaxChecker()
+    createDataValidator()
+    createDependencyValidator()
 
     project.tasks.create(name: "pigValidate", group: "Hadoop Plugin",
         description: "Applies Syntax checking, data validation, dependency validation for pig scripts")
         .dependsOn(project.getTasks().getByName('pigSyntaxValidate'))
         .dependsOn(project.getTasks().getByName('pigDataExists'))
-        .dependsOn(project.getTasks().getByName('pigDependencyExists'));
+        .dependsOn(project.getTasks().getByName('pigDependencyExists'))
 
-    project.getTasks().getByName('pigDataExists').dependsOn('pigSyntaxValidate');
-    project.getTasks().getByName('pigDependencyExists').dependsOn('pigSyntaxValidate');
+    project.getTasks().getByName('pigDataExists').dependsOn('pigSyntaxValidate')
+    project.getTasks().getByName('pigDependencyExists').dependsOn('pigSyntaxValidate')
   }
 
   /**
-   * Creates and returns syntax checker task named 'pigSyntax'
+   * Creates and returns the SyntaxChecker task named 'pigSyntax'.
    */
   Task createSyntaxChecker() {
     return createValidator("pigSyntaxValidate", \
      "checks syntax for all configured pig job scripts in the project", \
      getSyntaxValidatorClass()).doFirst {
-      jobScopeMap = PigTaskHelper.findConfiguredPigJobs(project);
+      jobScopeMap = PigTaskHelper.findConfiguredPigJobs(project)
       if (jobScopeMap.isEmpty()) {
         throw new GradleException(
-            "The project ${project.name} does not have any Pig jobs configured with the Hadoop DSL.");
+            "The project ${project.name} does not have any Pig jobs configured with the Hadoop DSL.")
       }
-      checkJobScopeMap();
-      jobMap = jobScopeMap;
+      checkJobScopeMap()
+      jobMap = jobScopeMap
     }
   }
 
   /**
-   * Creates and returns data validator task named 'pigData'
+   * Creates and returns the DataValidator task named 'pigData'.
    */
   Task createDataValidator() {
     return createValidator("pigDataExists", \
      "checks for existence of files loaded by all configured pig job scripts in the project", \
      getDataValidatorClass()) << {
       if (error) {
-        project.logger.error("Data validator found following errors:");
+        project.logger.error("Data validator found following errors:")
         err_paths.each { tuple ->
           if (tuple.size() == 3) {
             project.logger.error("path ${tuple[1]} in file ${tuple[0]} at line<${tuple[2]}> does not exist")
           } else {
             project.logger.error("path ${tuple[1]} in file ${tuple[0]} at line<${tuple[2]}> ${tuple[3]}")
-          };
+          }
         }
-        throw new GradleException("Data Validator found errors");
+        throw new GradleException("Data Validator found errors")
       }
     }
   }
@@ -191,18 +191,8 @@ class PigValidatorPlugin implements ValidatorPlugin {
   }
 
   /**
-   * Factory method to return the PigSyntaxValidator Task class. Subclasses can override this method to return
-   * their own PigSyntaxValidator Task class.
-   *
-   * @return Class that implements the PigSyntaxValidator
-   */
-  Class<? extends PigSyntaxValidator> getSyntaxValidatorClass() {
-    return PigSyntaxValidator.class;
-  }
-
-  /**
-   * Factory method to return the PigDataValidator Task class. Subclasses can override this method to return
-   * their own PigDataValidator Task class.
+   * Factory method to return the PigDataValidator Task class. Subclasses can override this method
+   * to return their own PigDataValidator Task class.
    *
    * @return Class that implements the PigDataValidator Task
    */
@@ -211,12 +201,22 @@ class PigValidatorPlugin implements ValidatorPlugin {
   }
 
   /**
-   * Factory method to return the PigDependencyValidator Task class. Subclasses can override this method to return
-   * their own PigDependencyValidator Task class.
+   * Factory method to return the PigDependencyValidator Task class. Subclasses can override this
+   * method to return their own PigDependencyValidator Task class.
    *
    * @return Class that implements the PigDependencyValidator Task
    */
   Class<? extends PigDependencyValidator> getDependencyValidatorClass() {
     return PigDependencyValidator.class;
+  }
+
+  /**
+   * Factory method to return the PigSyntaxValidator Task class. Subclasses can override this
+   * method to return their own PigSyntaxValidator Task class.
+   *
+   * @return Class that implements the PigSyntaxValidator
+   */
+  Class<? extends PigSyntaxValidator> getSyntaxValidatorClass() {
+    return PigSyntaxValidator.class;
   }
 }

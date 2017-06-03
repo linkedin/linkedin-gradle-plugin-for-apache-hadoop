@@ -8,7 +8,7 @@ plugins {
 }
 
 repositories {
-  mavenCentral()
+  jcenter()
 }
 
 // The group will be overridden in LinkedIn builds
@@ -33,7 +33,7 @@ dependencies {
   compile localGroovy()
 
   compile project(":azkaban-client")
-  compile 'javax.xml.bind:jaxb-api:2.2.7'
+
   compile 'org.antlr:antlr-runtime:3.5.2'
   compile('org.apache.hadoop:hadoop-auth:2.3.0') { transitive = false }
   compile('org.apache.hadoop:hadoop-common:2.3.0') { transitive = false }

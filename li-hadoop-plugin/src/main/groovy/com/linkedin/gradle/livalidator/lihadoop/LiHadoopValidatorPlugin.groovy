@@ -13,13 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.lihadoopValidator;
+package com.linkedin.gradle.livalidator.lihadoop
 
-import com.linkedin.gradle.hadoopValidator.HadoopValidatorPlugin;
-import com.linkedin.gradle.hadoopValidator.PigValidator.PigValidatorPlugin;
-import com.linkedin.gradle.hadoopValidator.ValidatorConstants;
-import com.linkedin.gradle.lihadoop.LiHadoopProperties;
-import com.linkedin.gradle.lihadoopValidator.liPigValidator.LiPigValidatorPlugin;
+import com.linkedin.gradle.lihadoop.LiHadoopProperties
+import com.linkedin.gradle.livalidator.lipig.LiPigValidatorPlugin
+import com.linkedin.gradle.validator.hadoop.HadoopValidatorPlugin
+import com.linkedin.gradle.validator.hadoop.ValidatorConstants
+import com.linkedin.gradle.validator.pig.PigValidatorPlugin
 
 /**
  * LinkedIn-specific customizations to the Hadoop Validator Plugin.
@@ -30,14 +30,14 @@ class LiHadoopValidatorPlugin extends HadoopValidatorPlugin {
   private static final String HLD_NAME_NODE_HDFS = LiHadoopProperties.get(LiHadoopProperties.HLD_NAME_NODE_HDFS)
 
   /**
-   * Factory method to return the LiPigValidatorPlugin class. Subclasses can override this method to return
-   * their own LiPigValidatorPlugin class.
+   * Factory method to return the LiPigValidatorPlugin class. Subclasses can override this method
+   * to return their own LiPigValidatorPlugin class.
    *
    * @return Class that implements the LiPigValidatorPlugin
    */
   @Override
   Class<? extends PigValidatorPlugin> getPigValidatorPlugin() {
-    return LiPigValidatorPlugin.class;
+    return LiPigValidatorPlugin.class
   }
 
   /**

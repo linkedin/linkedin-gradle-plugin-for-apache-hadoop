@@ -13,25 +13,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopValidator.PigValidator;
+package com.linkedin.gradle.validator.pig
 
-import com.linkedin.gradle.hadoopValidator.HadoopValidatorUtil;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
-import com.linkedin.gradle.hadoopdsl.job.PigJob;
-import com.linkedin.gradle.hdfs.HdfsFileSystem;
+import com.linkedin.gradle.hadoopdsl.NamedScope
+import com.linkedin.gradle.hadoopdsl.job.PigJob
+import com.linkedin.gradle.hdfs.HdfsFileSystem
+import com.linkedin.gradle.validator.hadoop.HadoopValidatorUtil
 
-import org.apache.hadoop.fs.Path;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
-import org.gradle.api.tasks.TaskAction;
+import java.nio.file.Paths
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-import java.nio.file.Paths;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.hadoop.fs.Path
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.tasks.TaskAction
 
 /**
- * PigDependencyValidator is the class that provides the Task for validation of dependencies mentioned in the Apache Pig Scripts
- * in the project.
+ * The PigDependencyValidator class provides a task for validation of dependencies mentioned in the
+ * Apache Pig Scripts in the project.
  */
 class PigDependencyValidator extends DefaultTask implements PigValidator {
 
@@ -46,8 +47,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   String libpath;
 
   /**
-   * Validates the dependencies mentioned in the Apache Pig Scripts
-   * in the project. This is the Task Action Function
+   * Task that validates the dependencies mentioned in the Apache Pig Scripts in the project.
    */
   @TaskAction
   void validate() {
@@ -182,10 +182,10 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Extracts all dependencies mentioned in the Pig script file
+   * Extracts all the dependencies mentioned in the given Pig script.
    *
    * @param file The Pig script which is to be validated
-   * @return udfs The List of dependencies in the script file
+   * @return The List of dependencies in the script file
    */
   static List<Dependency> extractDependencies(File file) {
     ArrayList<Dependency> udfs = new ArrayList<Dependency>();
@@ -251,10 +251,10 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Utility function for unquoting a string if it is quoted
+   * Utility function for unquoting a string if it is quoted.
    *
    * @param s The string to be unquoted
-   * @return s the unquoted string
+   * @return The unquoted string
    */
   static String unquote(String s) {
     if (s != null && ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("\'") && s.endsWith("\'")))) {
@@ -264,12 +264,12 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Checks the response from the artifact location url in the ivy repository supplied
+   * Checks the response from the artifact location URL in the Ivy repository supplied.
    *
-   * @param urlString The url of the artifact location in the repository
-   * @param lineno the line no of the dependency in the pig script file where it is mentioned
-   * @throws MalformedURLException if the url is malformed.
-   * @throws IOException if response code is not 200, i.e if the response is not OK
+   * @param urlString The URL of the artifact location in the repository
+   * @param lineno The line no of the dependency in the Pig script file where it is mentioned
+   * @throws MalformedURLException If the URL is malformed.
+   * @throws IOException If response code is not 200, i.e. if the response is not OK
    */
   static void checkResponse(String urlString, int lineno)
       throws MalformedURLException, IOException {
@@ -284,10 +284,11 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Gives the resolved pathName. Organizations may use their own path formats which need to be resolved to standard pathnames
+   * Gives the resolved path name. Organizations may use their own path formats which need to be
+   * resolved to standard path names.
    *
-   * @param pathName The pathname to be resolved
-   * @return pathName The resolved pathName
+   * @param pathName The path name to be resolved
+   * @return The resolved path name
    */
   String getPath(String pathName) {
     return pathName;
@@ -304,10 +305,10 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
   }
 
   /**
-   * Initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies
-   * Subclasses may override this method to provide their own HdfsFileSystem
+   * Initializes HdfsFilesystem for WebHdfsAccess in order to check validity of dependencies.
+   * Subclasses may override this method to provide their own HdfsFileSystem.
    *
-   * @param krb5 the kerberos configuration file to configure kerberos access
+   * @param krb5 The Kerberos configuration file to configure Kerberos access
    */
   void initHdfsFileSystem(File krb5) {
     fileSystem = new HdfsFileSystem(project, krb5);
@@ -315,7 +316,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
 }
 
 /**
- * Objects of this class are made for each of the dependencies mentioned in pig scripts
+ * Objects of this class are made for each of the dependencies mentioned in Pig scripts.
  */
 class Dependency {
 
@@ -364,9 +365,9 @@ class Dependency {
   }
 
   /**
-   * Returns the string information corresponding to the input PathType
+   * Returns the string information corresponding to the input path type.
    *
-   * @return string info about the pathtype
+   * @return Info about the path type
    */
   String getTypePath() {
     switch (pathType) {
