@@ -32,6 +32,7 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
+import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
@@ -221,6 +222,14 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     foundError |= validateNotEmpty(job, "targetTable", job.targetTable);
     foundError |= validateTeradataCredential(job, job.credentialName, job.encryptedCredential, job.cryptoKeyFilePath)
     validateSource(job);
+  }
+
+  @Override
+  void visitJob(TableauJob job) {
+    if (job.workbookName == null) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: TableauJob ${job.name} must set workbookName");
+      foundError = true;
+    }
   }
 
   @Override

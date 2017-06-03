@@ -34,6 +34,7 @@ import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.test.AssertionWorkflowExtension;
@@ -240,7 +241,17 @@ class HadoopDslFactory {
   }
 
   /**
-   * Factory method to build a TeradataTpHdfsJob
+   * Factory method to build a TableauJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  TableauJob makeTableauJob(String name) {
+    return new TableauJob(name);
+  }
+
+  /**
+   * Factory method to build a TeradataToHdfsJob
    *
    * @param name The job name
    * @return The job

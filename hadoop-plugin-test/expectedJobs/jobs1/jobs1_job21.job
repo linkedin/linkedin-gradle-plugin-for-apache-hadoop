@@ -1,0 +1,4 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=tableau
+dependencies=jobs1_job20
+workbook.name=workbookName
