@@ -269,6 +269,7 @@ class Workflow extends BaseNamedScopeContainer {
    * @return The cloned workflow
    */
   protected Workflow clone(Workflow workflow) {
+    workflow.isGrouping = isGrouping;
     workflow.launchDependencies.addAll(launchDependencies);
     workflow.parentDependencies.addAll(parentDependencies);
     return ((Workflow)super.clone(workflow));

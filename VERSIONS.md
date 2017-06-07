@@ -20,6 +20,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 0.12.1
 
 * Add TableauJob job type support
+* Fix issue with missing isGrouping property on cloned workflows
 
 0.12.0
 

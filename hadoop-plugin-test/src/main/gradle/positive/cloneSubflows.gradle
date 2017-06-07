@@ -25,6 +25,8 @@ workflow('flow1') {
 }
 
 workflow('flow2') {
+  groupJobs true
+
   job('job2') {
   }
 
