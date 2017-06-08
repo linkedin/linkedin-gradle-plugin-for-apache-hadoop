@@ -26,16 +26,16 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * In the DSL, a HdfsToEspressoJob can be specified with:
  * <pre>
  *   hdfsToEspressoJob('jobName') {
- *     qps 1000                        //Required
- *     sourceHdfsPath '/job/data/src'  //Required
- *     espressoEndpoint 'www.foo.bar'  //Required
- *     espressoDatabaseName 'Account'  //Required
- *     espressoTableName 'Person'      //Required
- *     espressoContentType 'JSON/TEXT' //Required
- *     espressoKey 'id'                //Required
- *     espressoSubkeys 'sub_id,name'   //Optional
- *     espressoOperation 'put'         //Required
- *     errorHdfsPath '/job/data/err'   //Required
+ *     qps 1000                        // Required
+ *     sourceHdfsPath '/job/data/src'  // Required
+ *     espressoEndpoint 'www.foo.bar'  // Required
+ *     espressoDatabaseName 'Account'  // Required
+ *     espressoTableName 'Person'      // Required
+ *     espressoContentType 'JSON/TEXT' // Required
+ *     espressoKey 'id'                // Required
+ *     espressoSubkeys 'sub_id,name'   // Optional
+ *     espressoOperation 'put'         // Required
+ *     errorHdfsPath '/job/data/err'   // Required
  *     set properties: [
  *       'force.error.overwrite' : true,
  *       'propertyName1' : 'propertyValue1',

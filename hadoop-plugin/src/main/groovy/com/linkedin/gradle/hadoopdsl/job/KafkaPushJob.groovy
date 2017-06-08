@@ -31,12 +31,12 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *   kafkaPushJob('jobName') {
  *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
  *     usesTopic 'kafkatestpush'                                       // Required
- *     usesNameNode 'hdfs://theNameNode.linkedin.com:9000'             // Required
+ *     usesNameNode 'hdfs://theNameNode.linkedin.com:9000'             // Optional (Required in versions 0.5.3 through 0.5.14)
  *     usesBatchNumBytes 1000000                                       // Optional
  *     usesDisableSchemaRegistration true                              // Optional
  *     usesKafkaUrl 'theKafkaNode.linkedin.com:10251'                  // Optional
  *     usesSchemaRegistryUrl 'http://theKafkaNode.linkedin.com:10252/schemaRegistry/schemas'  // Optional
- *     usesDisableAuditing true                                        // Optional
+ *     usesDisableAuditing true                                        // (Since version 0.4.5) Optional
  *   }
  * </pre>
  */

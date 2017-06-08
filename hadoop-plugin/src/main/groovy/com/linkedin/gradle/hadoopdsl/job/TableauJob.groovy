@@ -16,7 +16,6 @@
 package com.linkedin.gradle.hadoopdsl.job;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
 
 /**
  * Job class for type=tableau jobs. This job class is aimed at launching a job that
@@ -27,7 +26,7 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  * DSL, a TableauJob can be specified with:
  * <pre>
  *   tableauJob('jobName') {
- *     usesWorkbookName 'workbookName'
+ *     usesWorkbookName 'workbookName'  // Required
  *   }
  * </pre>
  */

@@ -334,13 +334,13 @@ class Job {
 
   /**
    * DSL method to specify required parameters for a job.
-   * Certain parameters must be set explicitly in oder for the job to run correctly in production.
-   * Specifying those parameters here provides a clear and explicit expectation for the users of the job.
-   * For example, specifying "required parameters" in a job template,
-   * and then enforcing the setting of those parameters in a job cloned from this template.
-   * This helps avoid production errors in an early stage, such as those caused by default parameters.
+   * <p>
+   * Certain parameters must be set explicitly in order for the job to run correctly in production.
+   * Specifying those parameters here provides a clear and explicit expectation for the users of
+   * the job. This helps avoid production errors in an early stage, such as those caused by default
+   * parameters.
    *
-   * @param args Args whose key 'parameters' has a list of value specifying the required parameters
+   * @param args Args whose key 'parameters' has a list of values specifying the required parameters
    */
   @HadoopDslMethod
   void required(Map args) {
