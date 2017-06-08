@@ -55,7 +55,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.11.18
 
-* Add supports for a `required parameters` check
+* Add support for a `required parameters` check
 
 0.11.17
 
@@ -128,7 +128,7 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.11.1
 
-* LIHADOOP-24274 Checks for empty fields in .azkabanplugin.json
+* LIHADOOP-24274 Checks for empty fields in .azkabanPlugin.json
 
 0.11.0
 

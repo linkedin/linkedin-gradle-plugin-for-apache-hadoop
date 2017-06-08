@@ -27,25 +27,23 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
  * In the DSL, a HdfsToTeradataJob can be specified with:
  * <pre>
  *   hdfsToTeradataJob('jobName') {
- *     hostName 'dw.foo.com'  // Required
- *     userId 'scott' //Required
- *     credentialName 'com.linkedin.teradata.scott' //*Required
- *     encryptedCredential '' //*Required
- *     cryptoKeyFilePath '/hdfs/file/path' //*Required
- *     sourceHiveDatabase 'hive_database_name' //**Required
- *     sourceHiveTable 'hive_table_name' //**Required
- *     sourceHdfsPath '/job/data/src' //**Required
- *     avroSchemaPath '/job/data/src/avro.avsc' //**Required
- *     avroSchemaInline '{"type":"record","namespace":"com.example","name":"FullName","fields":[{"name":"first","type":"string"},{"name":"last","type":"string"}]}' //**Required
- *     targetTable 'teradatatable' //Required
- *
+ *     hostName 'dw.foo.com'                        // Required
+ *     userId 'scott'                               // Required
+ *     credentialName 'com.linkedin.teradata.scott' // Required
+ *     cryptoKeyFilePath '/hdfs/file/path'          // Required
+ *     encryptedCredential ''                       // Required
+ *     sourceHdfsPath '/job/data/src'               // Required**
+ *     sourceHiveDatabase 'hive_database_name'      // Required**
+ *     sourceHiveTable 'hive_table_name'            // Required**
+ *     targetTable 'teradatatable'                  // Required
+ *     avroSchemaInline '{"type":"record","namespace":"com.example","name":"FullName","fields":[{"name":"first","type":"string"},{"name":"last","type":"string"}]}' // Required**
+ *     avroSchemaPath '/job/data/src/avro.avsc'     // Required**
  *     set hadoopProperties: [
  *       'hadoopPropertyName1' : 'hadoopPropertyValue1',
  *       'hadoopPropertyName2' : 'hadoopPropertyValue2'
  *     ]
  *   }
- *
- *   **Required: To use Hive as a source, both sourceHiveDatabase and sourceHiveTable need to be defined.
+ *   Required**: To use Hive as a source, both sourceHiveDatabase and sourceHiveTable need to be defined.
  *               To use Avro file as a source, sourceHdfsPath and either avroSchemaPath or avroSchemaInline needs to be defined.
  * </pre>
  */
@@ -128,6 +126,7 @@ class HdfsToTeradataJob extends Job {
 
   /**
    * Setting table name. Also, setting jobtype as hive.
+   *
    * @param sourceHiveTable
    */
   @HadoopDslMethod
