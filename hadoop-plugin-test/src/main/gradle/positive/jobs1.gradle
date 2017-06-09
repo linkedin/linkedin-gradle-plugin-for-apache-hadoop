@@ -358,16 +358,6 @@ hadoop {
       depends 'job20'
     }
 
-    hdfsWaitJob('job22') {
-      jvmClasspath './lib/*'
-      directoryPath 'foo'      // Required
-      directoryFreshness '10D' // Required
-      timeoutAfter '20M 1H'    // Required
-      sleepTime '2M 3S'
-      failOnTimeout true       // Required
-      depends 'job21'
-    }
-
-    targets 'job22'
+    targets 'job21'
   }
 }

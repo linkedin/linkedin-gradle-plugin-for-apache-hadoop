@@ -21,7 +21,6 @@ import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
-import com.linkedin.gradle.hadoopdsl.job.HdfsWaitJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -216,11 +215,6 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(SqlJob job) {
-    visitJob((Job)job);
-  }
-
-  @Override
-  void visitJob(HdfsWaitJob job) {
     visitJob((Job)job);
   }
 }
