@@ -29,7 +29,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.bundling.Zip;
 
-
 /**
  * AzkabanPlugin implements features for Azkaban, including building the Hadoop DSL for Azkaban.
  */
@@ -99,7 +98,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createCancelFlowTask(Project project) {
     return project.task("azkabanCancelFlow", type: AzkabanCancelFlowTask) { task ->
       description = "Kills a running flows in Azkaban";
-      group = "Hadoop's Azkaban Plugin";
+      group = "Hadoop Plugin - Azkaban";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -125,7 +124,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createCreateProjectTask(Project project) {
     return project.task("azkabanCreateProject", type: AzkabanCreateProjectTask) { task ->
       description = "Creates a new Project in Azkaban";
-      group = "Hadoop's Azkaban Plugin";
+      group = "Hadoop Plugin - Azkaban";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -142,7 +141,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createExecuteFlowTask(Project project) {
     return project.task("azkabanExecuteFlow", type: AzkabanExecuteFlowTask) { task ->
       description = "Executes flows in Azkaban";
-      group = "Hadoop's Azkaban Plugin";
+      group = "Hadoop Plugin - Azkaban";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -171,7 +170,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createFlowStatusTask(Project project) {
     return project.task("azkabanFlowStatus", type: getAzkabanFlowStatusTaskClass()) { task ->
       description = "Gets the status of all the flows in Azkaban";
-      group = "Hadoop's Azkaban Plugin";
+      group = "Hadoop Plugin - Azkaban";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -253,7 +252,7 @@ class AzkabanPlugin implements Plugin<Project> {
       doLast {
         String pluginJsonPath = getPluginJsonPath(project);
         if (!new File(pluginJsonPath).exists()) {
-          AzkabanProject azkabanProject = makeDefaultAzkabanProject();
+          AzkabanProject azkabanProject = makeDefaultAzkabanProject(project);
           String pluginJson = new JsonBuilder(azkabanProject).toPrettyString();
           new File(pluginJsonPath).write(pluginJson);
         }
