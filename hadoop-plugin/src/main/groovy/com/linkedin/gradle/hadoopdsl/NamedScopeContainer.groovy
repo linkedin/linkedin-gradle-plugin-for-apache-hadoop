@@ -21,6 +21,7 @@ import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsWaitJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -483,4 +484,14 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   SqlJob sqlJob(String name, @DelegatesTo(SqlJob) Closure configure);
+
+  /**
+   * DSL hdfsWaitJob method. Creates an HdfsWaitJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+   @HadoopDslMethod
+   HdfsWaitJob hdfsWaitJob(String name, @DelegatesTo(HdfsWaitJob) Closure configure);
 }

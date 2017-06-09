@@ -21,6 +21,7 @@ import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsWaitJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -68,4 +69,5 @@ interface Visitor {
   void visitJob(HdfsToEspressoJob job);
   void visitJob(GobblinJob job);
   void visitJob(SqlJob job);
+  void visitJob(HdfsWaitJob job);
 }

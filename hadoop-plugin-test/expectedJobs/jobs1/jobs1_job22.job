@@ -1,0 +1,10 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hadoopJava
+dependencies=jobs1_job21
+classpath=./lib/*
+forceJobToFail=true
+freshness=10D
+job.class=com.linkedin.hadoop.jobs.HdfsWaitJob
+pathToDirectory=foo
+sleepInterval=2M 3S
+timeout=20M 1H

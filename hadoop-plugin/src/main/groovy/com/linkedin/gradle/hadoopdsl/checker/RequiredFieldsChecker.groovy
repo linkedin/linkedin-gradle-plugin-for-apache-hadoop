@@ -22,6 +22,7 @@ import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsWaitJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -278,6 +279,19 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     foundError |= validateNotEmpty(job, "jdbcUserId", job.jdbcUserId);
     foundError |= validateNotEmpty(job, "jdbcEncryptedCredential", job.jdbcEncryptedCredential);
     foundError |= validateNotEmpty(job, "jdbcCryptoKeyPath", job.jdbcCryptoKeyPath);
+  }
+
+  @Override
+  void visitJob(HdfsWaitJob job) {
+    boolean emptyDirPath = job.dirPath == null || job.dirPath.isEmpty();
+    boolean emptyFreshness = job.freshness == null || job.freshness.isEmpty();
+    boolean emptyTimeout = job.timeout == null || job.timeout.isEmpty();
+    boolean emptyForceJobToFail = job.forceJobToFail == null;
+    
+    if (emptyDirPath || emptyFreshness || emptyTimeout || emptyForceJobToFail) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: HdfsWaitJob ${job.name} must set dirPath, freshness, timeout, and forceJobToFail");
+      foundError = true;
+    }
   }
 
   /**

@@ -107,6 +107,10 @@ hadoop {
       depends 'job18'
     }
 
-    targets 'job19'
+    hdfsWaitJob('job20') {
+      depends 'job19'
+    }
+
+    targets 'job20'
   }
 }
