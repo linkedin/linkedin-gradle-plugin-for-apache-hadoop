@@ -592,6 +592,4 @@ class AzkabanHelper {
       }
     }
   }
-
-
 }
