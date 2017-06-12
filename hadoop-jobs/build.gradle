@@ -14,7 +14,6 @@
  * the License.
  */
 plugins {
-  id 'java'
   id 'groovy'
 }
 
@@ -24,7 +23,7 @@ sourceCompatibility = 1.8
 group = rootProject.group
 
 repositories {
-  mavenCentral()
+  jcenter()
 }
 
 dependencies {
@@ -32,10 +31,10 @@ dependencies {
   compile 'org.apache.hadoop:hadoop-common:2.6.1'
   compile 'org.apache.hadoop:hadoop-mapreduce-client-core:2.6.1'
 
-  testCompile 'org.testng:testng:6.4'
   testCompile 'org.apache.hadoop:hadoop-common:2.6.1:tests'
   testCompile 'org.apache.hadoop:hadoop-hdfs:2.6.1:tests'
   testCompile 'org.apache.hadoop:hadoop-mapreduce-client-hs:2.6.1'
+  testCompile 'org.testng:testng:6.4'
 }
 
 test {

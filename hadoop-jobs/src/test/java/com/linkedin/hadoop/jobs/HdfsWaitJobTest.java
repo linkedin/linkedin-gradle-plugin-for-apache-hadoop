@@ -71,19 +71,19 @@ public class HdfsWaitJobTest {
     _conf.set("mapreduce.framework.name", "local");
  
     _log.info("*** Starting Mini DFS Cluster");
-    _dfsCluster = new MiniDFSCluster(_conf, _dataNodes, true, null);
+    _dfsCluster = new MiniDFSCluster.Builder(_conf).numDataNodes(_dataNodes).build();
     _dfsFileSystem = _dfsCluster.getFileSystem();
     _dfsFileSystem.mkdirs(new Path("/testJob/test"));
   }
 
   /**
-   * Unit testing for HdfsWaitJob.java. Tests methods parseTime and checkDirectory
-   * to see if they return the expected values.
+   * Unit testing for HdfsWaitJob.java. Tests method checkDirectory to see if
+   * it returns the expected values.
    *
-   * @throws Exception If there is a problem executing the HdfsWaitJob methods
+   * @throws Exception If there is a problem executing the HdfsWaitJob method
    */
   @Test
-  public void testHdfsWaitJob() throws Exception {
+  public void testCheckDirectory() throws Exception {
     HdfsWaitJob job = new HdfsWaitJob("job1", null);
     job.setConf(_conf);
 
@@ -96,6 +96,17 @@ public class HdfsWaitJobTest {
     Assert.assertFalse(job.checkDirectory("/testJob", 1));
     Assert.assertFalse(job.checkDirectory("/testJob", 0));
     Assert.assertFalse(job.checkDirectory("/testJob/test", Long.MAX_VALUE));
+  }
+
+  /**
+   * Unit testing for HdfsWaitJob.java. Tests method parseTime to see if
+   * it returns the expected values.
+   *
+   * @throws Exception If there is a problem executing the HdfsWaitJob method
+   */
+  @Test
+  public void testParseTime() throws Exception {
+    HdfsWaitJob job = new HdfsWaitJob("job1", null);
 
     Assert.assertEquals(job.parseTime("4D"), 345600000);
     Assert.assertEquals(job.parseTime("3M 2S"), 182000);

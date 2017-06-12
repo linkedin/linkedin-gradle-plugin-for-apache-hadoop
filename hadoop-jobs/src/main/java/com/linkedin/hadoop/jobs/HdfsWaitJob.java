@@ -16,6 +16,7 @@
 package com.linkedin.hadoop.jobs;
 
 import java.io.IOException;
+import java.lang.NullPointerException;
 import java.lang.NumberFormatException;
 import java.util.concurrent.TimeUnit;
 import java.util.Properties;
@@ -29,10 +30,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
 /**
- * A java file that is passed arguments from an hdfsWaitJob with type=hadoopJava.
+ * Hadoop Java job that is passed arguments from an hdfsWaitJob with type=hadoopJava.
  * This job will quit after it runs longer than the limit set by timeout, and will
  * either succeed or fail depending on the value of failOnTimeout passed in
- * from the gradle file. Before timeout, if we can find a folder in the directory
+ * from the Gradle file. Before timeout, if we can find a folder in the directory
  * specified by dirPath that is fresh enough, we cause the job to succeed.
  */
 public class HdfsWaitJob extends Configured {
@@ -67,22 +68,23 @@ public class HdfsWaitJob extends Configured {
     String dirPath = _properties.getProperty("pathToDirectory");
     long freshness = parseTime(_properties.getProperty("freshness"));
     long timeout = parseTime(_properties.getProperty("timeout"));
-    long sleepTime = parseTime(_properties.getProperty("sleepInterval", "1M"));
     long endTime = System.currentTimeMillis() + timeout;
+    long sleepTime = parseTime(_properties.getProperty("sleepInterval", "1M"));
     boolean failOnTimeout = Boolean.valueOf(_properties.getProperty("forceJobToFail"));
     boolean folderFound = false;
 
-    while (System.currentTimeMillis() < endTime) {
+    while (System.currentTimeMillis() < endTime && !folderFound) {
       folderFound = checkDirectory(dirPath, freshness);
-      if (folderFound) break;
-      Thread.sleep(sleepTime);
+      if (!folderFound) {
+        Thread.sleep(sleepTime);
+      }
     }
 
     if (!folderFound) {
       log.info("WARNING: There were no folders in " + dirPath + " that were fresh enough.");
       log.info("RESULT: Job timing out with parameter failOnTimeout = " + failOnTimeout);
       if (failOnTimeout) {
-        throw new Exception();
+        throw new Exception("Forcing job to fail after timeout. failOnTimeout = " + failOnTimeout);
       }
     }
   }
@@ -102,8 +104,9 @@ public class HdfsWaitJob extends Configured {
     String[] strArray = prop.split("\\s+");
 
     for (int i = 0; i < strArray.length; i++) {
-      long time = Long.valueOf(strArray[i].substring(0, strArray[i].length() - 1));
-      char unit = strArray[i].charAt(strArray[i].length() - 1);
+      String str = strArray[i];
+      long time = Long.valueOf(str.substring(0, str.length() - 1));
+      char unit = str.charAt(str.length() - 1);
 
       if (unit == 'S') {
         totalTime += TimeUnit.SECONDS.toMillis(time);
@@ -114,8 +117,9 @@ public class HdfsWaitJob extends Configured {
       } else if (unit == 'D') {
         totalTime += TimeUnit.DAYS.toMillis(time);
       } else {
-        log.info("ERROR: Invalid input for -> " + prop + ". JOB TERMINATED.");
-        throw new NumberFormatException();
+        String errMessage = "ERROR: Invalid time specification: " + prop + " does not have units in seconds (S), minutes (M), hours (H), or days (D).";
+        log.info(errMessage);
+        throw new NumberFormatException(errMessage);
       }
     }
     return totalTime;
@@ -130,13 +134,21 @@ public class HdfsWaitJob extends Configured {
    * @throws IOException
    * @return A boolean value corresponding to whether a fresh folder was found
    */
-  public boolean checkDirectory(String dirPath, long freshness) throws IOException {
+  public boolean checkDirectory(String dirPath, long freshness) throws IOException, NullPointerException {
     FileSystem fileSys = FileSystem.get(getConf());
-    FileStatus[] status = (fileSys == null) ? null : fileSys.listStatus(new Path(dirPath));
+
+    if (fileSys == null) {
+      String errMessage = "ERROR: The file system trying to be accessed does not exist. JOB TERMINATED.";
+      log.info(errMessage);
+      throw new NullPointerException(errMessage);
+    }
+
+    FileStatus[] status = fileSys.listStatus(new Path(dirPath));
 
     if (status == null) {
-      log.info("ERROR: dirPath -> " + dirPath + " is empty or does not exist. JOB TERMINATED.");
-      throw new IOException();
+      String errMessage = "ERROR: dirPath -> " + dirPath + " is empty or does not exist. JOB TERMINATED.";
+      log.info(errMessage);
+      throw new IOException(errMessage);
     }
 
     for (FileStatus file : status) {
