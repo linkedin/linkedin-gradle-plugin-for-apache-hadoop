@@ -45,53 +45,48 @@ class AzkabanFlowStatusTask extends DefaultTask {
   }
 
   /**
-   * getSortedFlows returns the list of flows defined in the project
-   * @param sessionId The session Id of the session
+   * Returns the list of flows defined in the project.
+   *
+   * @param sessionId The session ID of the session
    * @return The list of all the flows defined in the project
    */
   List<String> getSortedFlows(String sessionId) {
-    //Fetch flows of the project
+    // Fetch the project flows
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
       // Check if session has expired. If so, re-login.
       if (fetchFlowsResponse.toLowerCase().contains("session")) {
-        logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
+        logger.lifecycle("Previous Azkaban session expired. Please re-login.");
         return getSortedFlows(null);
-      } else {
-        // If response contains other than session error
-        logger.error("Fetching flows from " + azkProject.azkabanUrl + " failed. Reason: " + new JSONObject(fetchFlowsResponse).get("error"));
       }
-      return;
+
+      // If response contains other than session error
+      String msg = "Fetching flows from " + azkProject.azkabanUrl + " failed. Reason: " + new JSONObject(fetchFlowsResponse).get("error");
+      throw new GradleException(msg);
     }
 
-    List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
-    if (flows.isEmpty()) {
-      logger.lifecycle("No flows defined in current project");
-      return;
-    }
-
-    return flows;
+    return AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
   }
 
   /**
-   * This function returns the most recent execution ids of the flows
-   * @param sessionId The session id of the session
+   * This function returns the most recent execution ID for each flow.
+   *
+   * @param sessionId The session ID of the session
    * @param flows The list of flows defined in the project
-   * @return The list of most recent execution ids of the flow
+   * @return The list of most recent execution ID for each flow
    */
   List<String> getRecentFlowExecutionIds(String sessionId, List<String> flows) {
-
-    //Pool HTTP Get requests for getting most recent ExecID for each flow
+    // Pool HTTP GET requests for getting most recent ExecID for each flow
     List<String> responseList = AzkabanClient.batchFetchLatestExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, flows, sessionId);
-
     List<String> execIds = new ArrayList<String>();
+
     for (String execResponse : responseList) {
       JSONObject execIDResponse = new JSONObject(execResponse);
+
       if (execIDResponse.has("error")) {
         logger.error("Could not get flow due to " + execIDResponse.get("error").toString());
-        return;
       } else if (execIDResponse.has("executions")) {
         JSONArray lastExecArray = execIDResponse.getJSONArray("executions");
         if (lastExecArray != null && !lastExecArray.isNull(0)) {
@@ -104,62 +99,65 @@ class AzkabanFlowStatusTask extends DefaultTask {
   }
 
   /**
-   * Gets the status of the flows
+   * Gets the status of the flows.
    *
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param sessionId The Azkaban session ID. If this is null, an attempt will be made to login to Azkaban.
    */
   void getAzkabanFlowStatus(String sessionId) {
-
-    // list of all the flows defined in the project
+    // List of all the flows defined in the project
     List<String> flows = getSortedFlows(sessionId);
 
-    // list of all the recent execution ids of the flows defined in the project
+    // Check if there are no flows in the project
+    if (flows.isEmpty()) {
+      logger.lifecycle("No flows defined in current project");
+      return;
+    }
+
+    // The user may have had to re-login to Azkaban, so re-read the session ID
+    sessionId = AzkabanHelper.readSession()
+
+    // List of all the recent execution ID's of the flows defined in the project
     List<String> execIds = getRecentFlowExecutionIds(sessionId, flows);
 
-    List<String> responseList = new ArrayList<String>();
+    // Check if there are no previous executions for the flows in the project
+    if (execIds.isEmpty()) {
+      logger.lifecycle("Project ${azkProject.azkabanProjName} has no previously executed flows.");
+      return;
+    }
 
-    if (!execIds.isEmpty()) {
+    // Pool HTTP GET requests for getting exec Job statuses
+    List<String> responseList = AzkabanClient.batchFetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
 
-      //Pool HTTP Get requests for getting exec Job statuses
-      responseList = AzkabanClient.batchFetchFlowExecution(azkProject.azkabanUrl, execIds, sessionId);
-
-      if (project.hasProperty("flow")) {
-        if (project.getProperties().get("flow").toString().isEmpty()) {
-          jobStatus(flows, responseList);
-        } else {
-          List<String> sortedFlowSet = new ArrayList(new HashSet<String>(Arrays.asList(project.getProperties().get("flow").toString().split(",+"))));
-          Collections.sort(sortedFlowSet);
-          jobStatus(sortedFlowSet, responseList);
-        }
-      } else if(flowsToExecute!=null && !flowsToExecute.isEmpty()) {
-        // flowsToExecute is defined by the task
-        flowStatus(flowsToExecute, responseList);
+    if (project.hasProperty("flow")) {
+      if (project.getProperties().get("flow").toString().isEmpty()) {
+        jobStatus(flows, responseList);
       } else {
-        // flowsToExecute is not defined by the task and flow property is not defined. Fetch all flows
-        flowStatus(flows, responseList);
+        List<String> sortedFlowSet = new ArrayList(new HashSet<String>(Arrays.asList(project.getProperties().get("flow").toString().split(",+"))));
+        Collections.sort(sortedFlowSet);
+        jobStatus(sortedFlowSet, responseList);
       }
-
+    } else if (flowsToExecute != null && !flowsToExecute.isEmpty()) {
+      // flowsToExecute is defined by the task
+      flowStatus(flowsToExecute, responseList);
     } else {
-      logger.lifecycle("Project ${azkProject.azkabanProjName} has no flow previously executed.");
+      // flowsToExecute is not defined by the task and flow property is not defined. Fetch all flows
+      flowStatus(flows, responseList);
     }
   }
 
   /**
-   * Prints the Job Status of the latest flow executions.
+   * Prints the job status of the latest flow executions.
    *
    * @param flows The list of flows for which status should be fetched
    * @param responseList The response list from Azkaban
    */
   void jobStatus(List<String> flows, List<String> responseList) {
-
-
     flows.each { flow ->
-      for(int j=0; j<responseList.size(); j++) {
+      for (int j = 0; j < responseList.size(); j++) {
         String jobResponse = responseList.get(j);
         JSONObject jobsObject = new JSONObject(jobResponse);
 
-        if(flow.equals(jobsObject.get("flow"))) {
-
+        if (flow.equals(jobsObject.get("flow"))) {
           String execid = jobsObject.get("execid").toString();
           String flowStatus = jobsObject.get("status").toString();
           String flowSubmitTime = AzkabanClientUtil.epochToDate(jobsObject.get("submitTime").toString());
@@ -168,7 +166,6 @@ class AzkabanFlowStatusTask extends DefaultTask {
           String flowElapsedTime = AzkabanClientUtil.getElapsedTime(jobsObject.get("startTime").toString(), jobsObject.get("endTime").toString());
 
           System.out.println("\nFlow: ${flow} | Exec Id: ${execid} | Status: ${flowStatus} | Submitted: ${flowSubmitTime} | Started: ${flowStartTime} | Ended : ${flowEndTime} | Elapsed: ${flowElapsedTime}");
-
           System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
           AzkabanHelper.printJobStats("JOB NAME", "JOB TYPE", "JOB STATUS", "JOB START TIME", "JOB END TIME", "ELAPSED");
           System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
@@ -176,7 +173,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
           if (jobsObject.has("nodes")) {
             JSONArray jobArray = jobsObject.getJSONArray("nodes");
             if (jobArray != null) {
-              for(int i=0; i<jobArray.length(); i++) {
+              for (int i = 0; i < jobArray.length(); i++) {
                 JSONObject job = new JSONObject(jobArray.get(i).toString());
                 String jobName = job.get("id").toString();
                 String jobStatus = job.get("status").toString();
@@ -193,7 +190,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
           break;
         }
 
-        if ( j == responseList.size()-1) {
+        if (j == responseList.size() - 1) {
           System.out.println("\nFlow: ${flow}\n---------------------------------------------------------------------------------------------------------------------------------------------");
           System.out.print("\tNo execution yet.\n");
           System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
@@ -206,48 +203,48 @@ class AzkabanFlowStatusTask extends DefaultTask {
    * Prints the status of the latest execution of each flow in the project.
    *
    * @param flows The list of flows for which status should be fetched
-   * @param responseList The reponse list from Azkaban
+   * @param responseList The response list from Azkaban
    */
   void flowStatus(List<String> flows, List<String> responseList) {
-    //Print the status
-
+    // Print the flow status
     System.out.println("\nJob Statistics for individual flow\n------------------------------------------------------------------------------------------------------------------------------------------------");
     AzkabanHelper.printFlowStats("Flow Name", "Latest Exec ID", "Status", AzkabanStatus.getStatusLabels());
     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------");
 
-    boolean hasAnyExecutions = false;
     flows.each { flow ->
-      for(int j=0; j<responseList.size(); j++) {
+      boolean hasAnyExecutions = false;
+
+      for (int j = 0; j < responseList.size(); j++) {
         String jobResponse = responseList.get(j);
         JSONObject jobsObject = new JSONObject(jobResponse);
 
-        if(flow.equals(jobsObject.get("flow"))) {
+        if (flow.equals(jobsObject.get("flow"))) {
           String execid = jobsObject.get("execid");
           String status = jobsObject.get("status");
-
           AzkabanStatus azkStatus = new AzkabanStatus();
 
           if (jobsObject.has("nodes")) {
             JSONArray jobArray = jobsObject.getJSONArray("nodes");
             if (jobArray != null) {
-              for(int i=0; i<jobArray.length(); i++) {
+              for (int i = 0; i < jobArray.length(); i++) {
                 JSONObject job = new JSONObject(jobArray.get(i).toString());
                 String jobStatus = job.get("status").toString();
                 azkStatus.increment(jobStatus);
               }
             }
           }
+
           AzkabanHelper.printFlowStats(flow, execid, status, azkStatus.getStatusValues());
           hasAnyExecutions = true;
           break;
         }
+      }
 
-
+      if (!hasAnyExecutions) {
+        AzkabanHelper.printFlowStats(flow, "NONE", "-", AzkabanStatus.getStatusLabels());
       }
     }
-    if (!hasAnyExecutions) {
-      AzkabanHelper.printFlowStats(flow, "NONE", "-", AzkabanStatus.getStatusLabels());
-    }
+
     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------");
   }
 
@@ -258,11 +255,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
    * @return The URL to Dr. Elephant for the given flow
    */
   String getDrElephantURL(String execUrl) {
-    final String DR_ELEPHANT_URL = null;
-    if (DR_ELEPHANT_URL != null) {
-      return DR_ELEPHANT_URL + "/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
-    }
-    return null;
+    return "/search?flow-exec-id=" + URLEncoder.encode(execUrl, "UTF-8").toString();
   }
 
   /**
@@ -270,12 +263,13 @@ class AzkabanFlowStatusTask extends DefaultTask {
    *
    * @param execId Execution Id of the flow
    */
-   void printUrls(String execId) {
-     String execUrl = azkProject.azkabanUrl + "/executor?execid=${execId}";
-     logger.lifecycle("Execution URL: ${execUrl}");
-     String DrElephantUrl = getDrElephantURL(execUrl);
-     if (DrElephantUrl != null) {
-       logger.lifecycle("Dr.Elephant URL: ${DrElephantUrl}");
-     }
-   }
+  void printUrls(String execId) {
+    String execUrl = azkProject.azkabanUrl + "/executor?execid=${execId}";
+    logger.lifecycle("Execution URL: ${execUrl}");
+
+    String DrElephantUrl = getDrElephantURL(execUrl);
+    if (DrElephantUrl != null) {
+      logger.lifecycle("Dr. Elephant URL: ${DrElephantUrl}");
+    }
+  }
 }
