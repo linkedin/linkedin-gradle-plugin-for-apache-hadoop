@@ -21,6 +21,7 @@ import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToEspressoJob;
 import com.linkedin.gradle.hadoopdsl.job.HdfsToTeradataJob;
+import com.linkedin.gradle.hadoopdsl.job.HdfsWaitJob;
 import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
@@ -288,6 +289,16 @@ class HadoopDslFactory {
    */
   SqlJob makeSqlJob(String name) {
     return new SqlJob(name);
+  }
+
+  /**
+   * Factory method to build an HdfsWaitJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  HdfsWaitJob makeHdfsWaitJob(String name) {
+    return new HdfsWaitJob(name);
   }
 
   /**
