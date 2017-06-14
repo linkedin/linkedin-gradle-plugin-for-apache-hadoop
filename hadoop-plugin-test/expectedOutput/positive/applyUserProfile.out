@@ -1,0 +1,8 @@
+:hadoop-plugin-test:test_applyUserProfile
+Running test for the file positive/applyUserProfile.gradle
+Could not find the Hadoop DSL profile file /Users/abain/github/linkedin/linkedin-gradle-plugin-for-apache-hadoop/hadoop-plugin-test/src/main/profiles/doesntExistFile.gradle. Ignoring this file.
+Could not find the Hadoop DSL profile file doesntExistPath/testProfile.gradle. Ignoring this file.
+Hadoop DSL static checker PASSED
+
+BUILD SUCCESSFUL
+

@@ -69,8 +69,10 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     this.extension = factory.makeExtension(project, scope);
     project.extensions.add("hadoop", extension);
 
-    // Expose the DSL global and applyProfile methods, which are only implemented by the HadoopDslPlugin class.
+    // Expose the DSL global, applyProfile and applyUserProfile methods, which are only implemented
+    // by the HadoopDslPlugin class.
     project.extensions.add("applyProfile", this.&applyProfile);
+    project.extensions.add("applyUserProfile", this.&applyUserProfile);
     project.extensions.add("global", this.&global);
 
     // Expose the DSL methods for using Hadoop definition sets.
@@ -139,6 +141,44 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
       project.apply(['from' : file.getAbsolutePath()]);
       return true;
     }
+
+    println("Could not find the Hadoop DSL profile file ${file}. Ignoring this file.");
+    return false;
+  }
+
+  /**
+   * DSL applyUserProfile method. Helper method to apply an external Gradle script for the current
+   * user, but only if it exists. The name of the script to apply and the path in which it lives
+   * can be overridden on the command line.
+   *
+   * @param args Args whose optional key 'profileName' specifies the name of the Gradle script to
+   *             apply and whose key 'profilePath' specifies the path in which this script lives
+   * @return True if the external Gradle script exists and was applied; otherwise False
+   */
+  @HadoopDslMethod
+  boolean applyUserProfile(Map args) {
+    String profileName = System.properties['user.name'];             // Default to current user name
+    String profilePath = "${project.projectDir}/src/main/profiles";  // The default path
+
+    // Enable the user to override the profile to apply in the DSL or on the command line
+    profileName = args.containsKey("profileName") ? args.profileName : profileName;
+    profileName = project.hasProperty("profileName") ? project.profileName : profileName;
+
+    // Enable the user to override the profile path in the DSL or on the command line
+    profilePath = args.containsKey("profilePath") ? args.profilePath : profilePath;
+    profilePath = project.hasProperty("profilePath") ? project.profilePath : profilePath;
+
+    // Form the path of the Gradle file to apply
+    String fileName = profileName.endsWith(".gradle") ? profileName : "${profileName}.gradle";
+    String filePath = new File(profilePath, fileName);
+    File profileFile = new File(filePath);
+
+    if (profileFile.exists()) {
+      project.apply(['from' : profileFile.getAbsolutePath()]);
+      return true;
+    }
+
+    println("Could not find the Hadoop DSL profile file ${profileFile}. Ignoring this file.");
     return false;
   }
 

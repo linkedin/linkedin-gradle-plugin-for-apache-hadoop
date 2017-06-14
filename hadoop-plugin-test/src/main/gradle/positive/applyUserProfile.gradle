@@ -1,0 +1,41 @@
+buildscript {
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+definitionSet defs: [
+  var1: "val1",
+  var2: "val2"
+]
+
+definitionSet name: "context1", defs: [
+  var3: 3,
+  var4: true,
+  var5: "val5"
+]
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+}
+
+// Test the Hadoop DSL applyUserProfile functions in which we'll override the definition sets declared.
+applyUserProfile profileName: "testProfile", profilePath: "src/main/profiles"
+
+assert(lookupDef("var1") == "val1")
+assert(lookupDef("var2") == "val2_updated")
+
+setDefinitionSet("context1")
+assert(lookupDef("var3") == 3)
+assert(lookupDef("var4") == true)
+assert(lookupDef("var5") == "val5_updated")
+assert(lookupDef("var6") == "val6")
+
+def applyResult = applyUserProfile([profileName: "doesntExistFile"])
+assert(applyResult == false)
+
+applyResult = applyUserProfile([profileName: "testProfile", profilePath: "doesntExistPath"])
+assert(applyResult == false)

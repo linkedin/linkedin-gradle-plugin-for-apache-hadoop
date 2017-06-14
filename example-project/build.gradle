@@ -11,12 +11,8 @@ repositories {
   jcenter()
 }
 
-// Set the Java language level for Java subprojects
-subprojects {
-  plugins.withType(JavaPlugin) {
-    sourceCompatibility = 1.8
-  }
-}
+// Set the Java language level
+sourceCompatibility = 1.8
 
 // Task to generate the Gradle wrapper
 task wrapper(type: Wrapper) {
