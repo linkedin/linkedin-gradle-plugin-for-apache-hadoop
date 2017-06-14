@@ -195,7 +195,6 @@ class SparkPlugin implements Plugin<Project> {
     if (sparkExtension.remoteHostName) {
       String remoteHostName = sparkExtension.remoteHostName;
       String remoteCacheDir = sparkExtension.remoteCacheDir;
-      String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
       new File("${projectDir}/run_${scriptName}.sh").withWriter { out ->
         out.writeLine("#!/usr/bin/env bash");

@@ -135,7 +135,7 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
             }
           } else if (dep.pathType == Dependency.PathType.LOCAL_ABSOLUTE) {
             project.logger.warn(
-                "path $path at line<${dep.lineno}> includes keyword 'file:' which is used to denote absolute file path. It may not be the intended path");
+                "path $path at line<${dep.lineno}> includes keyword 'file:' which is used to denote absolute file path. It may not be the intended path.");
           } else if (dep.pathType == Dependency.PathType.LOCAL_RELATIVE) {
 
             String filename = Paths.get(path).getFileName().toString();
@@ -159,10 +159,10 @@ class PigDependencyValidator extends DefaultTask implements PigValidator {
             }
             if (_flag == 1) {
               project.logger.warn(
-                  "The dependency $path at line<${dep.lineno}> doesnot refer to a jar in libPath $libpath. It may not be the intended path");
+                  "The dependency $path at line<${dep.lineno}> does not refer to a jar in libPath $libpath. It may not be the intended path.");
             } else if (_flag == 0) {
               err_paths.add(new Tuple(script,
-                  "Dependency validator found invalid path $path at line<${dep.lineno}>. Such a file is not included in the zip"));
+                  "Dependency validator found invalid path $path at line<${dep.lineno}>. Such a file is not included in the zip."));
               error = true;
             }
             fileText = fileText.replaceAll(Pattern.quote(dep.reg_command), alt_reg_command);

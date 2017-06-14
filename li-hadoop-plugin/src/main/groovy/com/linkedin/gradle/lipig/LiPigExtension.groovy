@@ -38,14 +38,7 @@ class LiPigExtension extends PigExtension {
   LiPigExtension(Project project) {
     super(project);
 
-    // LinkedIn-specific properties to run on the gateway nodes
-    if (project.configurations.find { it.name == "azkabanRuntime" } != null) {
-      this.dependencyConf = "azkabanRuntime";
-    }
-    else if (project.configurations.find { it.name == "runtime" } != null) {
-      this.dependencyConf = "runtime";
-    }
-
+    // Automatically set LinkedIn-specific properties to run on the gateway nodes
     this.pigCacheDir = "${System.getProperty('user.home')}/.hadoopPlugin";
     this.pigCommand = REMOTE_PIG_COMMAND;
     this.remoteHostName = HLD_GATEWAY_NODE;

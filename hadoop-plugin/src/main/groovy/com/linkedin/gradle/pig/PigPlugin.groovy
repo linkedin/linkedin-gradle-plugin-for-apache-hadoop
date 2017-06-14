@@ -189,7 +189,7 @@ class PigPlugin implements Plugin<Project> {
   void addExecPigJobsTask() {
     project.tasks.create(name: "runPigJob", type: Exec) {
       dependsOn project.tasks["buildPigCache"]
-      description = "Runs a Pig job configured in the Hadoop DSL with gradle runPigJob -Pjob=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
+      description = "Runs a Pig job configured in the Hadoop DSL with gradle runPigJob -PjobName=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
       group = "Hadoop Plugin";
 
       doFirst {

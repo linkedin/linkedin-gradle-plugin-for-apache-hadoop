@@ -49,7 +49,7 @@ class OozieCommandTask extends DefaultTask {
 
     // Check if the user has specified the command to run
     if (!project.hasProperty(OOZIE_COMMAND)) {
-      throw new GradleException("The user must specify command as -Pcommand=commandName, commandName can be run, submit, suspend, resume, kill, start and status");
+      throw new GradleException("The user must specify command as -Pcommand=commandName. The commandName can be run, submit, suspend, resume, kill, start and status");
     }
 
     // Set oozieAppDataDir and oozieAppDataFile. We need them to write and get the job id of last execution.

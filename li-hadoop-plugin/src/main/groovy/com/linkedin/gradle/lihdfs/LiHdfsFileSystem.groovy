@@ -66,12 +66,13 @@ class LiHdfsFileSystem extends HdfsFileSystem {
       }
     }
 
-    def statuses = fs.listStatus(new Path(inputPath), filter).sort { a, b -> a.compareTo(b)
-    }
-    // if the directory is empty, then return the directory's path.
+    def statuses = fs.listStatus(new Path(inputPath), filter).sort { a, b -> a.compareTo(b) }
+
+    // If the directory is empty, then return the directory's path.
     if (statuses.size() == 0) {
       return inputPath;
     }
+
     String latestPath = inputPath + statuses[statuses.length - 1].getPath().getName();
     latestPath = latestPath.replaceAll("//", "/");
     return latestPath;

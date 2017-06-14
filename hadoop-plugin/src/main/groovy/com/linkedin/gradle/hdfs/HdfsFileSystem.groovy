@@ -42,7 +42,7 @@ class HdfsFileSystem {
   // FileSystem object to interact with HDFS
   protected FileSystem fs;
 
-  // Krb5.conf file
+  // The krb5.conf file
   protected File krb5Conf;
 
   // Reference to the Gradle project so we can access the logger
