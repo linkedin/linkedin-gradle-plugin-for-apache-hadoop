@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.12.5
+
+* Add Hadoop DSL applyUserProfile method
+
 0.12.4
 
 * Add ability for Hadoop DSL to understand the HdfsWait job type
