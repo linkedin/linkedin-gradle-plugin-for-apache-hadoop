@@ -46,6 +46,7 @@ dependencies {
   runtime 'com.sun.jersey:jersey-core:1.9'
   runtime 'javax.ws.rs:jsr311-api:1.1.1'
   runtime 'jline:jline:1.0'
+  runtime 'joda-time:joda-time:2.9.4'
   runtime 'org.mortbay.jetty:jetty-util:6.1.25'
 }
 

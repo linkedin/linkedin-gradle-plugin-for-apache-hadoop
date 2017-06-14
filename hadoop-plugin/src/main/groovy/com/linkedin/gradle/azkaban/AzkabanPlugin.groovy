@@ -176,7 +176,7 @@ class AzkabanPlugin implements Plugin<Project> {
         azkProject = readAzkabanProject(project, false);
 
         if (project.hasProperty("flow")) {
-          logger.lifecycle("Displaying Job level Status");
+          logger.lifecycle("Displaying job level status");
           interactive = false;
         }
       }
@@ -325,15 +325,16 @@ class AzkabanPlugin implements Plugin<Project> {
    * @return The created AzkabanProject
    */
   AzkabanProject readAzkabanProject(Project project, boolean interactive) {
-    AzkabanProject azkabanProject = AzkabanHelper.
-        readAzkabanProjectFromJson(project, getPluginJsonPath(project));
+    AzkabanProject azkabanProject = AzkabanHelper.readAzkabanProjectFromJson(project, getPluginJsonPath(project));
+
     if (azkabanProject == null) {
-      azkabanProject = AzkabanHelper.
-          readAzkabanProjectFromInteractiveConsole(project, makeDefaultAzkabanProject(project),
-              getPluginJsonPath(project));
+      azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project,
+          makeDefaultAzkabanProject(project), getPluginJsonPath(project));
     } else if (interactive) {
-      azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project, azkabanProject, getPluginJsonPath(project));
+      azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project, azkabanProject,
+          getPluginJsonPath(project));
     }
+
     return azkabanProject;
   }
 }

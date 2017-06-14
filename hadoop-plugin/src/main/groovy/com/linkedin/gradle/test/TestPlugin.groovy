@@ -404,8 +404,6 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
     AzkabanHelper.printFlowExecutionResponses(responseList);
   }
 
-
-
   /**
    * Returns a list of all flows in project azkProject.azkabanProjName.
    *

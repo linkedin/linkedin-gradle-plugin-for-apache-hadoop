@@ -52,7 +52,7 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_VAL_AUTO_FIX;
 import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_ZIP_TASK;
 
 /**
- * AzkabanHelper is a helper class for the Azkaban Tasks.
+ * AzkabanHelper is a helper class for the Azkaban tasks.
  */
 class AzkabanHelper {
 
@@ -64,7 +64,7 @@ class AzkabanHelper {
    * @param azkabanUrl The Azkaban server URL
    * @param userName The username
    * @param password The password
-   * @return The session id from the response
+   * @return The session ID from the response
    */
   static String azkabanLogin(String azkabanUrl, String userName, char[] password) {
     List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
@@ -132,11 +132,7 @@ class AzkabanHelper {
    * @return Whether or not to save the updated fields to the .azkabanPlugin.json file
    */
   static boolean configureTask(AzkabanProject azkProject, Project project) {
-    def console = System.console();
-    if (console == null) {
-      String msg = "\nCannot access the system console. Refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking";
-      throw new GradleException(msg);
-    }
+    def console = getSystemConsole()
 
     logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
     logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
@@ -196,10 +192,12 @@ class AzkabanHelper {
         }
 
         if (azkProject.azkabanPassword != null) {
-          input = consoleSecretInput(console, "New Azkaban password ${azkProject.azkabanPassword.isEmpty() ? '' : "[enter to accept current password]"}: ", false);
-          if (input != null && !input.isEmpty()) {
-            azkProject.azkabanPassword = input.toString();
+          char[] password = consoleSecretInput(console, "New Azkaban password ${azkProject.azkabanPassword.isEmpty() ? '' : "[enter to accept current password]"}: ", false);
+          if (password != null && !password.length > 0) {
+            azkProject.azkabanPassword = password.toString();
           }
+          // Clear the password array as soon as it is used
+          Arrays.fill(password, ' ' as char);
         }
 
         input = consoleInput(console, "Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
@@ -213,9 +211,9 @@ class AzkabanHelper {
   }
 
   /**
-   * Helper routine to get input from the system console.
+   * Helper routine to read input from the system console.
    *
-   * @param console Using existing console, thereby preventing NullPointerException
+   * @param console The system console instance
    * @param message Message to be printed for taking input
    * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
    * @return The trimmed input
@@ -231,7 +229,18 @@ class AzkabanHelper {
     return console.readLine().trim();
   }
 
-  static String  consoleSecretInput(Console console, String message, boolean shortDelay) {
+  /**
+   * Helper routine to read a secret password from the system console.
+   * <p>
+   * After calling this method, do Arrays.fill(password, ' ' as char) on the result to clear the
+   * returned array as soon as it is used.
+   *
+   * @param console The system console instance
+   * @param message Message to be printed for taking input
+   * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
+   * @return The secret password
+   */
+  static char[] consoleSecretInput(Console console, String message, boolean shortDelay) {
     // Give Gradle time to flush the logger to the screen and write its progress log line at the
     // bottom of the screen, so we can augment this line with a prompt for the input
     if (shortDelay) {
@@ -239,7 +248,7 @@ class AzkabanHelper {
     }
 
     console.format(message).flush();
-    return console.readPassword().toString();
+    return console.readPassword();
   }
 
   /**
@@ -271,6 +280,27 @@ class AzkabanHelper {
     }
 
     return flows;
+  }
+
+  /**
+   * Helper method to return the system console, or throw an exception with a helpful error message
+   * if it cannot be accessed.
+   *
+   * @return The system console
+   * @throws Exception if the system console cannot be accessed
+   */
+  static Console getSystemConsole() throws Exception {
+    def console = System.console()
+    if (console == null) {
+      String msg = """Cannot access the system console. Be sure to pass --no-daemon in your command. For more info,
+                     |refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking.
+                     |
+                     |At LinkedIn, you must pass --no-daemon and explicitly set the JAVA_HOME environment variable to
+                     |the Java version specified in your product-spec. Refer to the 'Password Masking' section of
+                     |http://go/HadoopPlugin for more info.""".stripMargin()
+      throw new Exception(msg)
+    }
+    return console
   }
 
   /**
@@ -358,9 +388,9 @@ class AzkabanHelper {
   }
 
   /**
-   * Reads the session id from session.file in the user's ~/.azkaban directory.
+   * Reads the Azkaban session ID from the session.properties file in the ~/.azkaban directory.
    *
-   * @return sessionId The saved session id
+   * @return The Azkaban session ID
    */
   static String readSession() {
     File file = new File(System.getProperty("user.home") + "/.azkaban/session.properties");
@@ -376,11 +406,11 @@ class AzkabanHelper {
   }
 
   /**
-   * Generates sessionId in case it is previously null by logging in to Azkaban.
+   * Generates an Azkaban session ID in case it is previously null by logging in to Azkaban.
    *
-   * @param sessionId Current Azkaban Session ID
+   * @param sessionId Current Azkaban session ID
    * @param azkProject The Gradle Project
-   * @return sessionId Updated Session ID
+   * @return The updated session ID
    */
   static String resumeOrGetSession(String sessionId, AzkabanProject azkProject) throws GradleException {
     // If no previous session is available, obtain a session id from server by sending login credentials.
@@ -391,17 +421,9 @@ class AzkabanHelper {
       logger.lifecycle("Azkaban Zip Task: ${azkProject.azkabanZipTask}");
       logger.lifecycle("Azkaban User Name: ${azkProject.azkabanUserName}");
 
-      if ( azkProject.azkabanPassword == null) {
-        def console = System.console();
-        if (console == null) {
-          String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-          throw new GradleException(msg);
-        }
-        // Give Gradle time to flush the logger to the screen and write its progress log line at the
-        // bottom of the screen, so we can augment this line with a prompt for the password
-        sleep(500);
-        console.format(" > Enter password: ").flush();
-        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, System.console().readPassword());
+      if (azkProject.azkabanPassword == null) {
+        def console = getSystemConsole();
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter password: ", true));
       } else {
         logger.lifecycle("Azkaban Password: *********");
         sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, azkProject.azkabanPassword.toCharArray());

@@ -44,13 +44,11 @@ class AzkabanExecuteFlowTask extends DefaultTask {
   /**
    * Executes flows in Azkaban.
    *
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param sessionId The Azkaban session ID. If this is null, an attempt will be made to login to Azkaban.
    */
-  String executeAzkabanFlow(String sessionId) {
-
+  void executeAzkabanFlow(String sessionId) {
+    // Fetch the project flows
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
-
-    //Fetch flows of the project
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
@@ -58,11 +56,12 @@ class AzkabanExecuteFlowTask extends DefaultTask {
       if (fetchFlowsResponse.toLowerCase().contains("session")) {
         logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
         executeAzkabanFlow(null);
-      } else {
-        // If response contains other than session error
-        logger.error("Fetching flows from ${azkProject.azkabanUrl} failed. Reason: ${new JSONObject(fetchFlowsResponse).get("error")}");
+        return;
       }
-      return;
+
+      // If response contains other than session error
+      String msg = "Fetching flows from ${azkProject.azkabanUrl} failed. Reason: ${new JSONObject(fetchFlowsResponse).get("error")}";
+      throw new GradleException(msg);
     }
 
     List<String> flows = AzkabanHelper.fetchSortedFlows(new JSONObject(fetchFlowsResponse));
@@ -82,7 +81,7 @@ class AzkabanExecuteFlowTask extends DefaultTask {
         }
       } else {
         inputFlows = project.getProperties().get("flow").toString().split(",+");
-        for(String flowArg : inputFlows) {
+        for (String flowArg : inputFlows) {
           if (!flows.contains(flowArg)) {
             logger.error("Enter correct flow name(s) and try again.");
             return;
@@ -96,24 +95,24 @@ class AzkabanExecuteFlowTask extends DefaultTask {
 
     List<String> responseList = AzkabanClient.batchFlowExecution(azkProject.azkabanUrl, azkProject.azkabanProjName, inputFlows, sessionId);
     AzkabanHelper.printFlowExecutionResponses(responseList);
-
   }
 
   /**
-   * Console Input for indices of flows.
+   * Console input for indices of flows.
    *
-   * @return indexSet Set of entered indices corresponding to flows
+   * @return Set of entered indices corresponding to flows
    */
   static Set<String> getFlowIndicesInput() {
-    def console = System.console();
+    def console = AzkabanHelper.getSystemConsole();
+
     String input = AzkabanHelper.consoleInput(console, " > Enter indices of flows to be executed > ", true);
     Set<String> indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
-    while(!input.trim().length() || indexSet.isEmpty()) {
+
+    while (!input.trim().length() || indexSet.isEmpty()) {
       input = AzkabanHelper.consoleInput(console, "> Enter correct indices of flows to be executed > ", true);
       indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
     }
+
     return indexSet;
   }
-
-
 }

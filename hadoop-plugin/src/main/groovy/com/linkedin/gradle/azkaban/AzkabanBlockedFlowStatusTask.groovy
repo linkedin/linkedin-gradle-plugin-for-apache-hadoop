@@ -13,16 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package com.linkedin.gradle.azkaban;
-
 
 import com.linkedin.gradle.azkaban.client.AzkabanClient;
 import com.linkedin.gradle.util.IOUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.tasks.TaskAction;
 import org.json.JSONObject;
-
 
 /**
  * This class provides the functionality to fetch the status of the flows when they are completed.
@@ -32,7 +29,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   private static final Long POLLING_WAIT_TIME = 20000; // default 20s
 
   /**
-   * The Gradle task action for getting flowStatus from Azkaban.*/
+   * The Gradle task action for getting flowStatus from Azkaban.
+   **/
   @TaskAction
   void status() {
     if (azkProject.azkabanUrl == null) {
@@ -42,7 +40,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   }
 
   /**
-   * This function returns the list of flows from which status should be fetched
+   * This function returns the list of flows from which status should be fetched.
+   *
    * @return The list of flows from which status should be fetched
    */
   List<String> getFlowsToFetchStatus() {
@@ -62,13 +61,13 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
     }
   }
 
-/**
- * This method waits for the flow to finish. It polls
- * the Azkabban server and outputs the flows that finished immediately.
- * At the end of the function, it outputs the summary of all the flows that
- * have finished
- * @param sessionId The session id for the Azkaban session
- */
+  /**
+   * This method waits for the flow to finish. It polls the Azkaban server and outputs the flows
+   * that finished immediately. At the end of the function, it outputs the summary of all the flows
+   * that have finished.
+   *
+   * @param sessionId The session ID for the Azkaban session
+   */
   void getBlockedAzkabanFlowStatus(String sessionId) {
     // list of all the flows defined in the project
     List<String> flows = getSortedFlows(sessionId);
@@ -99,8 +98,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
 
     Set<String> flowsYetToFinish = new HashSet<String>();
     flowsYetToFinish.addAll(flowsToFetchStatusFrom); // initially all flows are yet to finish
-
     int countOfFlowsFinished = 0;
+
     while (!flowsYetToFinish.empty && !execIds.isEmpty()) {
 
       if (!execIds.isEmpty()) {
@@ -157,7 +156,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   }
 
   /**
-   * This method filters out the flows that have finished and returns them
+   * This method filters out the flows that have finished and returns them.
+   *
    * @param responseList The reponseList from Azkaban
    * @return The list of flows that have completed
    */
@@ -166,7 +166,7 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
     for (int j = 0; j < responseList.size(); j++) {
       String jobResponse = responseList.get(j);
       JSONObject jobsObject = new JSONObject(jobResponse);
-      if (!jobsObject.get("status").equals("RUNNING") && !jobsObject.equals("READY")) {
+      if (!jobsObject.get("status").equals("RUNNING") && !jobsObject.get("status").equals("READY")) {
         filteredJobResponse.add(jobResponse);
       }
     }
@@ -174,7 +174,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
   }
 
   /**
-   * Given a list of Azkaban reponse json, extract the flow names and return it as a list
+   * Given a list of Azkaban response json, extract the flow names and return it as a list.
+   *
    * @param responseList The responseList from Azkaban
    * @return The list of names of the workflows defined in responseList
    */
@@ -183,9 +184,8 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
     for (int j = 0; j < responseList.size(); j++) {
       String jobResponse = responseList.get(j);
       JSONObject jobsObject = new JSONObject(jobResponse);
-      filteredJobResponse.add(jobsObject.get("flow"));
+      filteredJobResponse.add(jobsObject.get("flow").toString());
     }
     return filteredJobResponse;
   }
-
 }

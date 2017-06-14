@@ -23,14 +23,14 @@ import org.gradle.api.tasks.TaskAction;
 import org.json.JSONObject;
 
 /**
- * AzkabanCreateProjectTask creates a new project in Azkaban.
+ * AzkabanCreateProjectTask creates a new Azkaban project.
  */
 class AzkabanCreateProjectTask extends DefaultTask {
 
   AzkabanProject azkProject;
 
   /**
-   * The Gradle task action for creating project in Azkaban.
+   * The Gradle task action for creating an Azkaban project.
    */
   @TaskAction
   void create() {
@@ -41,22 +41,17 @@ class AzkabanCreateProjectTask extends DefaultTask {
   }
 
   /**
-   * Creates a project in Azkaban from project name in .azkabanPlugin.json file.
+   * Creates a project in Azkaban from the project name in the .azkabanPlugin.json file.
    *
-   * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
+   * @param sessionId The Azkaban session ID. If this is null, an attempt will be made to login to Azkaban.
    */
   void createAzkabanProject(String sessionId) {
     sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
 
-    def console = System.console();
-    if (console == null) {
-      String msg = "\nCannot access the system console. To use this task, explicitly set JAVA_HOME to the version specified in product-spec.json (at LinkedIn) and pass --no-daemon in your command.";
-      throw new GradleException(msg);
-    }
-
-    String input = AzkabanHelper.consoleInput(console, " > Enter Project description: ", false);
+    def console = AzkabanHelper.getSystemConsole();
+    String input = AzkabanHelper.consoleInput(console, " > Enter Azkaban project description: ", true);
     while (input.isEmpty()) {
-      input = AzkabanHelper.consoleInput(console, "Enter Non-Empty Project description: ", false);
+      input = AzkabanHelper.consoleInput(console, "Enter non-empty Azkaban project description: ", false);
     }
 
     String response = AzkabanClient.createProject(azkProject.azkabanUrl, azkProject.azkabanProjName, input, sessionId);
@@ -66,13 +61,14 @@ class AzkabanCreateProjectTask extends DefaultTask {
       if (response.toLowerCase().contains("login")) {
         logger.lifecycle("\nPrevious Azkaban session expired. Please re-login.");
         createAzkabanProject(null);
-      } else {
-        // If response contains other than login error
-        logger.error("Creating Project in ${azkProject.azkabanUrl} failed. Reason: " + new JSONObject(response).get("message"));
+        return;
       }
-      return;
+
+      // If response contains other than login error
+      String msg = "Creating Azkaban project in ${azkProject.azkabanUrl} failed. Reason: " + new JSONObject(response).get("message");
+      throw new GradleException(msg);
     }
 
-    logger.lifecycle("Successfully created project: ${azkProject.azkabanProjName} in Azkaban.");
+    logger.lifecycle("Successfully created Azkaban project: ${azkProject.azkabanProjName}");
   }
 }
