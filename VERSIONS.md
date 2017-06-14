@@ -19,7 +19,10 @@ version bump, so you will see a few skipped version numbers in the list below.
 
 0.12.4
 
+* Add ability for Hadoop DSL to understand the HdfsWait job type
+* Add subdirectory hadoop-jobs
 * Minor fixes to the Azkaban CLI tasks
+* Minor style and code fixes
 
 0.12.3
 

@@ -55,7 +55,7 @@ class OoziePlugin implements Plugin<Project> {
   Task createOozieCommandTask(Project project) {
     return project.tasks.create(name: "oozieCommand", type: getOozieCommandTaskClass()) { task ->
       description = "Runs the oozieCommand specified by -Pcommand=CommandName"
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Oozie";
       doFirst {
         oozieProject = readOozieProject(project);
       }
@@ -71,10 +71,10 @@ class OoziePlugin implements Plugin<Project> {
   Task createUploadTask(Project project) {
     return project.tasks.create(name: "oozieUpload", type: getOozieUploadTaskClass()) { task ->
       description = "Uploads the Oozie project folder to HDFS";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Oozie";
 
       doFirst {
-        OozieProject oozieProject = readOozieProject(project);
+        oozieProject = readOozieProject(project);
         String zipTaskName = oozieProject.oozieZipTask;
         if (!zipTaskName) {
           throw new GradleException("\nPlease set the property 'oozieZipTask' in the .ooziePlugin.json file");
@@ -101,7 +101,7 @@ class OoziePlugin implements Plugin<Project> {
   Task createWritePluginJsonTask(Project project) {
     return project.tasks.create("writeOoziePluginJson") {
       description = "Writes a default .ooziePlugin.json file in the project directory";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Oozie";
 
       doLast {
         def ooziePluginFilePath = "${project.getProjectDir()}/.ooziePlugin.json";

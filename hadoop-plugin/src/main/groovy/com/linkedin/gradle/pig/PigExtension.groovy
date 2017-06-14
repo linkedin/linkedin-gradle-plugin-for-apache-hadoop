@@ -27,7 +27,7 @@ class PigExtension {
   Project project;
 
   // Properties that can be set by the user
-  String dependencyConf;
+  String dependencyConf = "hadoopRuntime";
   String pigCacheDir = ".hadoopPlugin";
   String pigCommand = "pig";
   String pigOptions;

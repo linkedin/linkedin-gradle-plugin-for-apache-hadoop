@@ -98,7 +98,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createCancelFlowTask(Project project) {
     return project.task("azkabanCancelFlow", type: AzkabanCancelFlowTask) { task ->
       description = "Kills a running flows in Azkaban";
-      group = "Hadoop Plugin - Azkaban";
+      group = "Hadoop Plugin - Azkaban CLI";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -124,7 +124,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createCreateProjectTask(Project project) {
     return project.task("azkabanCreateProject", type: AzkabanCreateProjectTask) { task ->
       description = "Creates a new Project in Azkaban";
-      group = "Hadoop Plugin - Azkaban";
+      group = "Hadoop Plugin - Azkaban CLI";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -141,7 +141,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createExecuteFlowTask(Project project) {
     return project.task("azkabanExecuteFlow", type: AzkabanExecuteFlowTask) { task ->
       description = "Executes flows in Azkaban";
-      group = "Hadoop Plugin - Azkaban";
+      group = "Hadoop Plugin - Azkaban CLI";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -170,7 +170,7 @@ class AzkabanPlugin implements Plugin<Project> {
   Task createFlowStatusTask(Project project) {
     return project.task("azkabanFlowStatus", type: getAzkabanFlowStatusTaskClass()) { task ->
       description = "Gets the status of all the flows in Azkaban";
-      group = "Hadoop Plugin - Azkaban";
+      group = "Hadoop Plugin - Azkaban CLI";
 
       doFirst {
         azkProject = readAzkabanProject(project, false);
@@ -200,7 +200,7 @@ class AzkabanPlugin implements Plugin<Project> {
     return project.task("azkabanUpload", type: AzkabanUploadTask) { task ->
       description = "Uploads Hadoop zip archive to Azkaban. Use -PskipInteractive command line " +
           "parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Azkaban CLI";
 
       doFirst {
         // Enable users to skip the interactive mode

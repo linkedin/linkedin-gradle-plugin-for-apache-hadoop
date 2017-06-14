@@ -22,7 +22,7 @@ import org.gradle.api.Project;
  **/
 class LiKerberosUtil {
 
-  static final String OOZIE_KRB5_CONF = "oozie-krb5.conf";
+  static final String OOZIE_KRB5_CONF = "krb5.conf";
 
   /**
    * Gets a reference to the oozie-krb5.conf file.
