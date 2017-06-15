@@ -91,13 +91,15 @@ The project structure is setup as follows:
 
   * `azkaban-client`: Code to work with Azkaban via the Azkaban REST API
   * `example-project`: Example project that uses the Hadoop Plugin and DSL to build an example Azkaban workflow
+  * `hadoop-jobs`: Code for re-usable Hadoop jobs and implementations of Hadoop DSL job types 
   * `hadoop-plugin`: Code for the various plugins that comprise the Hadoop Plugin
   * `hadoop-plugin-test`: Test cases for the Hadoop Plugin
   * `li-hadoop-plugin`: LinkedIn-specific extensions to the Hadoop Plugin
   * `li-hadoop-plugin-test`: Test cases for the LinkedIn-specific extensions to the Hadoop Plugin
 
 Although the `li-hadoop-plugin` code is generally specific to LinkedIn, it is included in the
-project to show you how to use subclassing to extend the core functionality of the Hadoop Plugin.
+project to show you how to use subclassing to extend the core functionality of the Hadoop Plugin for your
+organization (and to make sure our open-source contributions don't break the LinkedIn customizations).
 
 #### Building and Running Test Cases
 
