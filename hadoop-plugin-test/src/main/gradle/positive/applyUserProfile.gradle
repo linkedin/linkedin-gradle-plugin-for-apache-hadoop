@@ -34,7 +34,7 @@ assert(lookupDef("var4") == true)
 assert(lookupDef("var5") == "val5_updated")
 assert(lookupDef("var6") == "val6")
 
-def applyResult = applyUserProfile([profileName: "doesntExistFile"])
+def applyResult = applyUserProfile([profileName: "doesntExistFile", profilePath: "src/main/profiles"])
 assert(applyResult == false)
 
 applyResult = applyUserProfile([profileName: "testProfile", profilePath: "doesntExistPath"])
