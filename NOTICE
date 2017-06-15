@@ -15,15 +15,21 @@ the License.
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/)
 
+This product includes the ANTLR parsing library,
+developed by JGuru.com (http://www.antlr.org and
+http://www.jguru.com).
+
 This product includes/uses Apache HttpComponents HttpClient
 (https://hc.apache.org/httpcomponents-client-ga/index.html),
 Copyright 2005-2015 The Apache Software Foundation
 
-This product includes/uses javax.ws.rs-api (http://jax-rs-spec.java.net),
-Copyright (c) Oracle Corporation and/or its affiliates
+This product includes/uses Apache HttpComponents HttpCore
+Copyright 2005-2015 The Apache Software Foundation
 
-This product includes/uses software developed for the JAXB Reference
-Implementation project (https://jaxb.dev.java.net/),
+This product includes/uses Apache HttpComponents HttpMime
+Copyright 2005-2015 The Apache Software Foundation
+
+This product includes/uses javax.ws.rs-api (http://jax-rs-spec.java.net),
 Copyright (c) Oracle Corporation and/or its affiliates
 
 This product includes/uses Jersey (https://jersey.java.net/),
@@ -32,8 +38,17 @@ Copyright (c) 2010-2014 Oracle Corporation and/or its affiliates
 This product includes/uses Jetty (http://jetty.mortbay.org/),
 Copyright (c) Mort Bay Consulting Pty. Ltd. (Australia)
 
+This product includes software developed at jline (http://jline.sourceforge.net/),
+Licensed under the BSD License
+
+This product includes/uses Joda (http://joda-time.sourceforge.net/),
+Copyright 2001-2006 Stephen Colebourne
+
 This product includes/uses json-simple (http://code.google.com/p/json-simple/),
 Copyright (c) Yidong Fang
+
+This product includes/uses Apache log4j
+Copyright 2007 The Apache Software Foundation
 
 This product includes/uses org.json (http://www.json.org/java/index.html),
 Copyright (c) 2002 JSON.org
