@@ -142,7 +142,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
       return true;
     }
 
-    println("Could not find the Hadoop DSL profile file ${file}. Ignoring this file.");
+    println("Could not find the Hadoop DSL profile file ${filePath}. Ignoring this file.");
     return false;
   }
 
@@ -170,15 +170,14 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
 
     // Form the path of the Gradle file to apply
     String fileName = profileName.endsWith(".gradle") ? profileName : "${profileName}.gradle";
-    String filePath = new File(profilePath, fileName);
-    File profileFile = new File(filePath);
+    File profileFile = new File(profilePath, fileName);
 
     if (profileFile.exists()) {
       project.apply(['from' : profileFile.getAbsolutePath()]);
       return true;
     }
 
-    println("Could not find the Hadoop DSL profile file ${profileFile}. Ignoring this file.");
+    println("Could not find the Hadoop DSL profile file ${fileName} in the path ${profilePath}. Ignoring this file.");
     return false;
   }
 
