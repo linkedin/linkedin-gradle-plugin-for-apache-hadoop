@@ -276,6 +276,7 @@ class HadoopPlugin implements Plugin<Project> {
     setupPigPluginTaskDependencies(project);
     setupScmPluginTaskDependencies(project);
     setupSparkPluginTaskDependencies(project);
+    setupTestPluginTaskDependencies(project);
   }
 
   /**
@@ -425,6 +426,20 @@ class HadoopPlugin implements Plugin<Project> {
 
     if (localDependencyTask != null && hadoopZips != null) {
       hadoopZips.dependsOn localDependencyTask;
+    }
+  }
+
+  /**
+   * Helper method to setup the dependencies between the buildFlowsForTesting task and the buildSourceZip
+   * task in the root project. Subclasses can override this method to customize their own task dependencies
+   * @param project
+   */
+  void setupTestPluginTaskDependencies(Project project) {
+    Task buildFlowsForTestingTask = project.tasks.findByName("buildFlowsForTesting");
+    Task buildSourceZipTask = project.getRootProject().tasks.findByName("buildSourceZip");
+
+    if(buildFlowsForTestingTask!=null && buildSourceZipTask!=null) {
+      buildFlowsForTestingTask.mustRunAfter buildSourceZipTask
     }
   }
 }
