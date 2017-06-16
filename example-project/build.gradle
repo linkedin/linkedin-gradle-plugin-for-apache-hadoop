@@ -4,7 +4,7 @@ plugins {
   id 'java'
   id 'eclipse'
   id 'idea'
-  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.12.6'
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.12.7'
 }
 
 repositories {
