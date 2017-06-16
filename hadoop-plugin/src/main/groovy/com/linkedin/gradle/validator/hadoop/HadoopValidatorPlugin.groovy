@@ -49,7 +49,7 @@ class HadoopValidatorPlugin implements Plugin<Project> {
     project.tasks.create("hadoopValidate") {
       dependsOn project.getTasks().getByName("pigValidate")
       description = "Applies several checks - Syntax checking, dependency validation, data validation"
-      group = "Hadoop Plugin"
+      group = "Hadoop Plugin - Hadoop Validator"
       System.setProperty("java.security.krb5.conf", "krb5.conf")
     }
   }

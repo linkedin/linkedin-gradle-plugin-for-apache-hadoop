@@ -2,9 +2,9 @@
 // https://plugins.gradle.org/plugin/com.linkedin.gradle.hadoop.HadoopPlugin.
 plugins {
   id 'java'
-  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.11.24'
   id 'eclipse'
   id 'idea'
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.12.6'
 }
 
 repositories {
@@ -18,7 +18,6 @@ sourceCompatibility = 1.8
 task wrapper(type: Wrapper) {
   gradleVersion = '2.13'
 }
-
 
 // In this example project, we'll assume that you are building a Hadoop workflow that runs in
 // Azkaban and that your workflow consists of jobs written for Apache Hive, Apache Pig and also
