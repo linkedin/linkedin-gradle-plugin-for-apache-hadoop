@@ -52,7 +52,7 @@ class PigValidatorPlugin implements ValidatorPlugin {
     createDataValidator()
     createDependencyValidator()
 
-    project.tasks.create(name: "pigValidate", group: "Hadoop Plugin",
+    project.tasks.create(name: "pigValidate", group: "Hadoop Plugin - Hadoop Validator",
         description: "Applies Syntax checking, data validation, dependency validation for pig scripts")
         .dependsOn(project.getTasks().getByName('pigSyntaxValidate'))
         .dependsOn(project.getTasks().getByName('pigDataExists'))
@@ -122,7 +122,7 @@ class PigValidatorPlugin implements ValidatorPlugin {
 
   private <T extends DefaultTask & PigValidator> Task createValidator(String name, String description,
       Class<T> validator) {
-    return this.project.tasks.create(name: name, group: "Hadoop Plugin", type: validator, description: description).
+    return this.project.tasks.create(name: name, group: "Hadoop Plugin - Hadoop Validator", type: validator, description: description).
         doFirst {
           jobMap = this.jobScopeMap;
           properties = this.properties;

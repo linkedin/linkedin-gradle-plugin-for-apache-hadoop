@@ -91,7 +91,7 @@ class PigPlugin implements Plugin<Project> {
   void addBuildCacheTask() {
     project.tasks.create(name: "buildPigCache", type: Sync) {
       description = "Build the cache directory to run Pig scripts by Gradle tasks. This task will be run automatically for you.";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Pig";
 
       if (pigExtension.dependencyConf != null) {
         from project.configurations[pigExtension.dependencyConf];
@@ -140,7 +140,7 @@ class PigPlugin implements Plugin<Project> {
         commandLine "sh", "${projectDir}/run_${taskName}.sh"
         dependsOn project.tasks["buildPigCache"]
         description = "Run the Pig script ${relaPath} with no Pig parameters or JVM properties";
-        group = "Hadoop Plugin";
+        group = "Hadoop Plugin - Apache Pig";
 
         doFirst {
           writePigExecScript(filePath, taskName, null, null, null);
@@ -156,7 +156,7 @@ class PigPlugin implements Plugin<Project> {
   void addShowPigJobsTask() {
     project.tasks.create("showPigJobs") {
       description = "Lists Pig jobs configured in the Hadoop DSL that can be run with the runPigJob task";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Pig";
 
       doLast {
         Map<PigJob, NamedScope> jobScopeMap = PigTaskHelper.findConfiguredPigJobs(project);
@@ -190,7 +190,7 @@ class PigPlugin implements Plugin<Project> {
     project.tasks.create(name: "runPigJob", type: Exec) {
       dependsOn project.tasks["buildPigCache"]
       description = "Runs a Pig job configured in the Hadoop DSL with gradle runPigJob -PjobName=<job name>. Uses the Pig parameters and JVM properties from the DSL.";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Pig";
 
       doFirst {
         if (!project.hasProperty("jobName")) {
@@ -251,7 +251,6 @@ class PigPlugin implements Plugin<Project> {
     if (pigExtension.remoteHostName) {
       String remoteHostName = pigExtension.remoteHostName;
       String remoteCacheDir = pigExtension.remoteCacheDir;
-      String remoteProjDir = "${remoteCacheDir}/${project.name}";
 
       new File("${projectDir}/run_${taskName}.sh").withWriter { out ->
         out.writeLine("#!/usr/bin/env bash");

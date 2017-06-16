@@ -87,7 +87,7 @@ class SparkPlugin implements Plugin<Project> {
   void addShowSparkJobsTask() {
     project.tasks.create("showSparkJobs") {
       description = "Lists Spark jobs configured in the Hadoop DSL that can be run with the runSparkJob task";
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Spark";
 
       doLast {
         Map<SparkJob, NamedScope> jobScopeMap = SparkTaskHelper.findConfiguredSparkJobs(project);
@@ -96,7 +96,7 @@ class SparkPlugin implements Plugin<Project> {
           return;
         }
 
-        logger.lifecycle("The following Spark jobs in the project ${project.name} are configured in the Hadoop DSL and can be run with gradle runSparkJob -PjobName=<job name>:");
+        logger.lifecycle("The following Spark jobs in the project ${project.name} are configured in the Hadoop DSL and can be run with gradle runSparkJob -PjobName=<job name> -PzipTaskName=<zip task name>");
 
         jobScopeMap.each { SparkJob job, NamedScope parentScope ->
           Map<String, String> allProperties = job.buildProperties(parentScope);
@@ -119,7 +119,7 @@ class SparkPlugin implements Plugin<Project> {
   void addExecSparkJobsTask() {
     project.tasks.create(name: "runSparkJob", type: Exec) {
       description = "Runs a Spark job configured in the Hadoop DSL with gradle runSparkJob -PjobName=<job name> -PzipTaskName=<zip task name>. Uses the Spark parameters and JVM properties from the DSL."
-      group = "Hadoop Plugin";
+      group = "Hadoop Plugin - Apache Spark";
 
       doFirst {
         if (!project.hasProperty("jobName")) {

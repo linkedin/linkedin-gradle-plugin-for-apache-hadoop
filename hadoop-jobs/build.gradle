@@ -1,20 +1,9 @@
-/*
- * Copyright 2015 LinkedIn Corp.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
 plugins {
-  id 'groovy'
+  id 'java'
+  id 'com.jfrog.bintray' version '1.7'
+  id 'eclipse'
+  id 'idea'
+  id 'maven-publish'
 }
 
 sourceCompatibility = 1.8
@@ -39,4 +28,51 @@ dependencies {
 
 test {
   useTestNG()
+}
+
+// Maven publishing setup necessary for linking Bintray to JCenter
+publishing {
+  publications {
+    hadoopJobsPublication(MavenPublication) {
+      from components.java
+      groupId rootProject.group
+      artifactId project.name
+      version project.version
+    }
+  }
+}
+
+// Make sure we don't accidentally publish a SNAPSHOT version
+bintrayUpload { task ->
+  doFirst {
+    if (version.endsWith("SNAPSHOT")) {
+      throw new GradleException("Cannot publish SNAPSHOT versions")
+    }
+  }
+}
+
+// Configuration for uploading to Bintray
+if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayApiKey')) {
+  bintray {
+    dryRun = false
+    user = project.bintrayUser
+    key = project.bintrayApiKey
+    publications = ['hadoopJobsPublication']
+
+    pkg {
+      desc = 'LinkedIn Gradle Plugin and DSL for the Apache Hadoop Ecosystem'
+      labels = ['azkaban', 'gradle', 'hadoop', 'hadoopdsl', 'linkedin']
+      licenses = ['Apache-2.0']
+      name = 'linkedin-gradle-plugin-for-apache-hadoop'
+      repo = 'maven'
+
+      issueTrackerUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/issues'
+      vcsUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+      websiteUrl = 'https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop'
+
+      version {
+        name = project.version
+      }
+    }
+  }
 }
