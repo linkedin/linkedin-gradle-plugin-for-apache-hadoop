@@ -161,11 +161,11 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     String profilePath = "${project.projectDir}/src/main/profiles";  // The default path
 
     // Enable the user to override the profile to apply in the DSL or on the command line
-    profileName = args.containsKey("profileName") ? args.profileName : profileName;
+    profileName = args && args.containsKey("profileName") ? args.profileName : profileName;
     profileName = project.hasProperty("profileName") ? project.profileName : profileName;
 
     // Enable the user to override the profile path in the DSL or on the command line
-    profilePath = args.containsKey("profilePath") ? args.profilePath : profilePath;
+    profilePath = args && args.containsKey("profilePath") ? args.profilePath : profilePath;
     profilePath = project.hasProperty("profilePath") ? project.profilePath : profilePath;
 
     // Form the path of the Gradle file to apply
