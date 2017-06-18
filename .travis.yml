@@ -11,3 +11,4 @@ install:
   - ./gradlew assemble
 script:
   - ./gradlew check
+  - cd ./example-project && ./gradlew check

@@ -5,8 +5,9 @@ definitionSet defs: [
     userToProxy: "yourAzkabanProxyUserName"
 ]
 
-// Override any properties in the above definition set in your own profile script
-applyProfile from: "${project.projectDir}/src/main/profiles/${System.properties['user.name']}.gradle"
+// Override any properties in the above definition set in your own profile script. By default, the
+// applyUserProfile method applies the script "src/main/profiles/<userName>.gradle", if it exists.
+applyUserProfile()
 
 // Location of your home directory on HDFS and the location on HDFS to copy the text file
 def hdfsHomeDir = lookupDef('hdfsHomeDir')
