@@ -23,7 +23,7 @@ hadoop {
 }
 
 // Test the Hadoop DSL applyUserProfile functions in which we'll override the definition sets declared.
-applyUserProfile profileName: "testProfile", profilePath: "src/main/profiles"
+applyUserProfile profileName: "testProfile", profilePath: "src/main/profiles", skipProfile: false
 
 assert(lookupDef("var1") == "val1")
 assert(lookupDef("var2") == "val2_updated")
@@ -37,5 +37,5 @@ assert(lookupDef("var6") == "val6")
 def applyResult = applyUserProfile([profileName: "doesntExistFile", profilePath: "src/main/profiles"])
 assert(applyResult == false)
 
-applyResult = applyUserProfile([profileName: "testProfile", profilePath: "doesntExistPath"])
+applyResult = applyUserProfile([profileName: "testProfile", profilePath: "doesntExistPath", skipProfile: "false"])
 assert(applyResult == false)
