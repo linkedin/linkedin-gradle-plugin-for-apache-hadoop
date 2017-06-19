@@ -152,13 +152,16 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * can be overridden on the command line.
    *
    * @param args Args whose optional key 'profileName' specifies the name of the Gradle script to
-   *             apply and whose key 'profilePath' specifies the path in which this script lives
+   *             apply; whose optional key 'profilePath' specifies the path in which this script
+   *             lives; and whose optional key 'skipProfile' specifies whether or not to skip
+   *             applying the Gradle script completely.
    * @return True if the external Gradle script exists and was applied; otherwise False
    */
   @HadoopDslMethod
   boolean applyUserProfile(Map args) {
     String profileName = System.properties['user.name'];             // Default to current user name
     String profilePath = "${project.projectDir}/src/main/profiles";  // The default path
+    boolean skipProfile = false;
 
     // Enable the user to override the profile to apply in the DSL or on the command line
     profileName = args && args.containsKey("profileName") ? args.profileName : profileName;
@@ -167,6 +170,16 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     // Enable the user to override the profile path in the DSL or on the command line
     profilePath = args && args.containsKey("profilePath") ? args.profilePath : profilePath;
     profilePath = project.hasProperty("profilePath") ? project.profilePath : profilePath;
+
+    // Enable the user to override whether or not to skip applying the profile in the DSL and on
+    // the command line
+    skipProfile = args && args.containsKey("skipProfile") ? args.skipProfile.toBoolean() : skipProfile;
+    skipProfile = project.hasProperty("skipProfile") ? project.skipProfile.toBoolean() : skipProfile;
+
+    // If the user specifies to skip applying the profile or the profile name is empty, stop here
+    if (skipProfile || !profileName) {
+      return false;
+    }
 
     // Form the path of the Gradle file to apply
     String fileName = profileName.endsWith(".gradle") ? profileName : "${profileName}.gradle";
