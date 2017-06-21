@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.12.14
+
+* Adding log messages to HdfsWaitJob
+
 0.12.13
 
 * Default lib path for Hadoop zips should be empty instead of "." which is treated as an actual folder name

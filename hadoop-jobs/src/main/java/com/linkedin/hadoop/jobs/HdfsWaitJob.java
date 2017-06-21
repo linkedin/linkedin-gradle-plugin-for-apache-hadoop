@@ -73,15 +73,19 @@ public class HdfsWaitJob extends Configured {
     boolean failOnTimeout = Boolean.valueOf(_properties.getProperty("forceJobToFail"));
     boolean folderFound = false;
 
+    log.info("STATUS: Job started. Checking the directory at " + dirPath + " for fresh folders with a sleep interval of " + _properties.getProperty("sleepInterval", "1M"));
+
     while (System.currentTimeMillis() < endTime && !folderFound) {
       folderFound = checkDirectory(dirPath, freshness);
       if (!folderFound) {
+        log.info("STATUS: No fresh folders found during latest polling. Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
+        log.info("REMINDER: Job will time out " + TimeUnit.MILLISECONDS.toMinutes(timeout) + " minutes after instantiation.");
         Thread.sleep(sleepTime);
       }
     }
 
     if (!folderFound) {
-      log.info("WARNING: There were no folders in " + dirPath + " that were fresh enough.");
+      log.info("WARNING: There were no folders found in " + dirPath + " that were fresh enough before reaching timeout.");
       log.info("RESULT: Job timing out with parameter failOnTimeout = " + failOnTimeout);
       if (failOnTimeout) {
         throw new Exception("Forcing job to fail after timeout. failOnTimeout = " + failOnTimeout);
