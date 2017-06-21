@@ -159,6 +159,17 @@ class HadoopPlugin implements Plugin<Project> {
       hadoopRuntime.extendsFrom(project.getConfigurations().getByName("runtime"));
     }
 
+    // Tell IntelliJ Idea about our custom dependency configuration. Note that the Java plugin is
+    // also required for getting non-empty scopes. This enables users to search for classes in the
+    // hadoopRuntime configuration with Ctrl+N <className>.
+    project.getPlugins().withType(IdeaPlugin) {
+      IdeaModule ideaModule = project.idea.module;
+
+      if (ideaModule.scopes.containsKey("RUNTIME") && ideaModule.scopes.RUNTIME.containsKey("plus")) {
+        ideaModule.scopes.RUNTIME.plus += [hadoopRuntime];
+      }
+    }
+
     return hadoopRuntime;
   }
 
