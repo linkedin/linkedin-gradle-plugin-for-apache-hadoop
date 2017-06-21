@@ -79,7 +79,7 @@ public class HdfsWaitJob extends Configured {
       folderFound = checkDirectory(dirPath, freshness);
       if (!folderFound) {
         log.info("STATUS: No fresh folders found during latest polling. Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
-        log.info("STATUS: There are " + TimeUnit.MILLISECONDS.toMinutes(sleepTime) + " minutes remaining before a forced timeout.");
+        log.info("REMINDER: Job will time out " + TimeUnit.MILLISECONDS.toMinutes(timeout) + " minutes after instantiation.");
         Thread.sleep(sleepTime);
       }
     }
