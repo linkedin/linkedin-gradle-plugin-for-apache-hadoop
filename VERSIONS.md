@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.12.12
+
+* Automatically add hadoopRuntime dependencies to the Intellij IDEA RUNTIME scope
+
 0.12.11
 
 * Fix for runPigPig task which does not include the project jar to close #128
