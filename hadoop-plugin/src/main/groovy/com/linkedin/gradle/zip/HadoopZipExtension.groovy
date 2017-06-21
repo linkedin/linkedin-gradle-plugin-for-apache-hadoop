@@ -29,7 +29,7 @@ import org.gradle.api.tasks.bundling.Zip;
  * The hadoopZip can be specified with:
  * <pre>
  *    hadoopZip {
- *      libPath = "."
+ *      libPath = "lib"
  *      main {
  *        from ("src/") {
  *          into "src"
@@ -53,7 +53,7 @@ class HadoopZipExtension {
   HadoopZipExtension(Project project) {
     this.project = project;
     additionalPaths = new ArrayList<String>();
-    libPath = ".";
+    libPath = "";
     zipMap = new HashMap<String, CopySpec>();
   }
 
