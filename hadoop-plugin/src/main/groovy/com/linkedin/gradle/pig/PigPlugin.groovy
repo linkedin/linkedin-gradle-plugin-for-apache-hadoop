@@ -21,7 +21,8 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.FileTree
+import org.gradle.api.file.FileTree;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.Sync;
 
@@ -93,6 +94,12 @@ class PigPlugin implements Plugin<Project> {
       description = "Build the cache directory to run Pig scripts by Gradle tasks. This task will be run automatically for you.";
       group = "Hadoop Plugin - Apache Pig";
 
+      // Include the project jar for Java projects
+      project.getPlugins().withType(JavaPlugin) {
+        from project.tasks.getByName("jar");
+      }
+
+      // Include all dependencies in the specified dependency configuration
       if (pigExtension.dependencyConf != null) {
         from project.configurations[pigExtension.dependencyConf];
       }
