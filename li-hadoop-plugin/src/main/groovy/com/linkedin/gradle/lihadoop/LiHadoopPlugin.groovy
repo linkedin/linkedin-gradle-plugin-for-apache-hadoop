@@ -56,9 +56,7 @@ class LiHadoopPlugin extends HadoopPlugin {
     // Specifically add the jars for the Hadoop DSL to the hadoopDsl configuration. The
     // configuration is not transitive, so only these jars will be added.
     String hadoopDslVersion = getJarVersion(HadoopPlugin.class, "hadoop-plugin");
-    String liHadoopDslVersion = getJarVersion(LiHadoopPlugin.class, "li-hadoop-plugin");
     project.getDependencies().add(hadoopDslConfiguration.name, "com.linkedin.li-hadoop-plugin:hadoop-plugin:$hadoopDslVersion")
-    project.getDependencies().add(hadoopDslConfiguration.name, "com.linkedin.li-hadoop-plugin:li-hadoop-plugin:$liHadoopDslVersion")
 
     // Return the configuration to the caller
     return hadoopDslConfiguration;
