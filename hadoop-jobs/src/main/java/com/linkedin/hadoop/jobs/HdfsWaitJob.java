@@ -16,8 +16,6 @@
 package com.linkedin.hadoop.jobs;
 
 import java.io.IOException;
-import java.lang.NullPointerException;
-import java.lang.NumberFormatException;
 import java.util.concurrent.TimeUnit;
 import java.util.Properties;
 
@@ -88,7 +86,7 @@ public class HdfsWaitJob extends Configured {
       log.info("WARNING: There were no folders found in " + dirPath + " that were fresh enough before reaching timeout.");
       log.info("RESULT: Job timing out with parameter failOnTimeout = " + failOnTimeout);
       if (failOnTimeout) {
-        throw new Exception("Forcing job to fail after timeout. failOnTimeout = " + failOnTimeout);
+        throw new Exception("Forcing job to fail after timeout since failOnTimeout = true");
       }
     }
   }
@@ -100,7 +98,7 @@ public class HdfsWaitJob extends Configured {
    * millisecond value is then returned.
    *
    * @param prop The string value of either freshness, timeout or sleepTime
-   * @throws NumberFormatException
+   * @throws NumberFormatException If the specification is invalid
    * @return The amount of milliseconds prop corresponds to as a long
    */
   public long parseTime(String prop) throws NumberFormatException {
@@ -135,7 +133,7 @@ public class HdfsWaitJob extends Configured {
    *
    * @param dirPath The path to the directory we are searching for fresh folders
    * @param freshness The timeframe in which the folder has to have been modified by
-   * @throws IOException
+   * @throws IOException If there is an HDFS exception
    * @return A boolean value corresponding to whether a fresh folder was found
    */
   public boolean checkDirectory(String dirPath, long freshness) throws IOException, NullPointerException {
@@ -156,7 +154,7 @@ public class HdfsWaitJob extends Configured {
     }
 
     for (FileStatus file : status) {
-      if (file.isDir()) {
+      if (file.isDirectory()) {
         long timeModified = file.getModificationTime();
         if ((System.currentTimeMillis() - timeModified) <= freshness) {
           String fileName = file.getPath().toString();

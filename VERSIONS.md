@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.12.15
+
+* Minor tweaks to HdfsWaitJob
+
 0.12.14
 
 * Adding log messages to HdfsWaitJob
