@@ -94,6 +94,49 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
+   * Clears the state of the BaseNamedScopeContainer. This method unbinds the named Hadoop DSL
+   * elements that have been added to this BaseNamedScopeContainer and removes them from its state.
+   * <p>
+   * Note that this method does not unbind any elements from scope that it itself does not manage.
+   * Derivative plugins such as the LinkedIn Photon Plugin manually manipulate the scope of the top
+   * level BaseNamedScopeContainer instances and fully clearing the scope breaks its functionality.
+   * <p>
+   * This method is intended to be used for writing Hadoop DSL utilities that need to copy, clear
+   * and restore the state of the Hadoop DSL. It is not intended for use by end users.
+   *
+   * @return The scope container (with its state cleared)
+   */
+  BaseNamedScopeContainer clear() {
+    for (Job job : jobs) {
+      scope.unbind(job.name);
+    }
+
+    for (Namespace namespace : namespaces) {
+      scope.unbind(namespace.name);
+    }
+
+    for (Properties props : properties) {
+      scope.unbind(props.name);
+    }
+
+    for (PropertySet propertySet : propertySets) {
+      scope.unbind(propertySet.name);
+    }
+
+    for (Workflow workflow : workflows) {
+      scope.unbind(workflow.name);
+    }
+
+    jobs.clear();
+    namespaces.clear();
+    properties.clear();
+    propertySets.clear();
+    workflows.clear();
+
+    return this;
+  }
+
+  /**
    * Clones the scope container given its new parent scope. DSL elements that extend
    * BaseNamedScopeContainer must provide an actual clone method implementation.
    *

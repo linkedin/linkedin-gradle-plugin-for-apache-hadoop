@@ -292,6 +292,19 @@ class NamedScope {
   String toString() {
     return "(NamedScope: levelName = ${levelName}, nextLevel.levelName = ${nextLevel?.levelName}, thisLevel = ${thisLevel.toString()})";
   }
+
+  /**
+   * Removes a bound element from scope at this level.
+   *
+   * @param name The name to unbind from scope
+   * @return The (now unbound) element
+   */
+  Object unbind(String name) {
+    if (!thisLevel.containsKey(name)) {
+      throw new Exception("An object with the name ${name} is not declared in the scope ${levelName}");
+    }
+    return thisLevel.remove(name);
+  }
 }
 
 /**

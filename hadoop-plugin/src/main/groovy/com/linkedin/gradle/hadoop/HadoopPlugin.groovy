@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.dependency.DependencyPlugin;
+import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;
@@ -304,6 +305,10 @@ class HadoopPlugin implements Plugin<Project> {
     if (azkabanUploadTask != null && buildHadoopZipsTask != null) {
       azkabanUploadTask.dependsOn(buildHadoopZipsTask);
     }
+
+    Task autoHadoopDslBuildTask = project.tasks.findByName("autoAzkabanFlows");
+    autoHadoopDslBuildTask.dslExtension = (HadoopDslExtension)project.extensions.findByName("hadoop")
+    autoHadoopDslBuildTask.dslPlugin = (HadoopDslPlugin)project.extensions.findByName("hadoopDslPlugin")
   }
 
   /**
@@ -441,15 +446,17 @@ class HadoopPlugin implements Plugin<Project> {
   }
 
   /**
-   * Helper method to setup the dependencies between the buildFlowsForTesting task and the buildSourceZip
-   * task in the root project. Subclasses can override this method to customize their own task dependencies
-   * @param project
+   * Helper method to setup the dependencies between the buildFlowsForTesting task and the
+   * buildSourceZip task in the root project. Subclasses can override this method to customize their
+   * own task dependencies.
+   *
+   * @param project The Gradle project
    */
   void setupTestPluginTaskDependencies(Project project) {
     Task buildFlowsForTestingTask = project.tasks.findByName("buildFlowsForTesting");
     Task buildSourceZipTask = project.getRootProject().tasks.findByName("buildSourceZip");
 
-    if(buildFlowsForTestingTask!=null && buildSourceZipTask!=null) {
+    if (buildFlowsForTestingTask != null && buildSourceZipTask != null) {
       buildFlowsForTestingTask.mustRunAfter buildSourceZipTask
     }
   }

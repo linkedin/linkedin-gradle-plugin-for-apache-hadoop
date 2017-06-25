@@ -195,6 +195,51 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   }
 
   /**
+   * Helper method to coordinate statically checking and building the Hadoop DSL.
+   *
+   * @param compiler The compiler implementation to use to build the Hadoop DSL
+   */
+  void buildHadoopDsl(HadoopDslCompiler compiler) {
+    // Frst, run the static checker on the DSL
+    HadoopDslChecker checker = factory.makeChecker(project);
+    checker.check(this);
+
+    if (checker.failedCheck()) {
+      throw new Exception("Hadoop DSL static checker FAILED");
+    }
+    else {
+      project.logger.lifecycle("Hadoop DSL static checker PASSED");
+    }
+
+    // If the static checker passes, build the Hadoop DSL
+    compiler.compile(this);
+  }
+
+  /**
+   * Clears the known state of the Hadoop DSL. All known Hadoop DSL elements bound in scope are
+   * cleared, as are all Hadoop DSL definition sets and Hadoop closures.
+   * <p>
+   * This method is intended to be used for writing Hadoop DSL utilities that need to copy, clear
+   * and restore the state of the Hadoop DSL. It is not intended for use by end users.
+   */
+  void clearHadoopDslState() {
+    // Clear the Hadoop DSL plugin scope container state
+    super.clear();
+
+    // Clear the hadoop { ... } block state
+    extension.clear();
+
+    // Clear the definition sets and restore the default definition set
+    currentDefinitionSetName = "default";
+    definitionSetMap.clear();
+    definitionSetMap.put(currentDefinitionSetName, new HashMap<String, Map<String, Object>>());
+
+    // Clear the declared hadoopClosures
+    hadoopClosures.clear();
+    namedHadoopClosures.clear();
+  }
+
+  /**
    * Clones the scope container given its new parent scope.
    *
    * @param parentScope The new parent scope

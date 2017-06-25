@@ -15,7 +15,9 @@
  */
 package com.linkedin.gradle.azkaban;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslAutoBuild;
 import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
+import com.linkedin.gradle.hadoopdsl.HadoopDslCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
@@ -45,6 +47,7 @@ class AzkabanPlugin implements Plugin<Project> {
    */
   @Override
   void apply(Project project) {
+    createAutoBuildFlowsTask(project);
     createBuildFlowsTask(project);
     createCancelFlowTask(project);
     createCreateProjectTask(project);
@@ -52,6 +55,20 @@ class AzkabanPlugin implements Plugin<Project> {
     createFlowStatusTask(project);
     createUploadTask(project);
     createWritePluginJsonTask(project);
+  }
+
+  /**
+   * Creates the task that builds the Hadoop DSL for Azkaban using the automatic Hadoop DSL setup.
+   *
+   * @param project The Gradle project
+   * @returns The created task
+   */
+  Task createAutoBuildFlowsTask(Project project) {
+    return project.task("autoAzkabanFlows", type: HadoopDslAutoBuild) { task ->
+      dslCompiler = makeCompiler(project);
+      description = "Automatically builds the Hadoop DSL for the definitions at ${task.definitions}"
+      group = "Hadoop Plugin - Hadoop DSL Auto";
+    }
   }
 
   /**
@@ -71,20 +88,8 @@ class AzkabanPlugin implements Plugin<Project> {
           throw new GradleException("The Hadoop DSL Plugin has been disabled. You cannot run the buildAzkabanFlows task when the plugin is disabled.");
         }
 
-        // Run the static checker on the DSL
-        HadoopDslFactory factory = project.extensions.hadoopDslFactory;
-        HadoopDslChecker checker = factory.makeChecker(project);
-        checker.check(plugin);
-
-        if (checker.failedCheck()) {
-          throw new GradleException("Hadoop DSL static checker FAILED");
-        }
-        else {
-          logger.lifecycle("Hadoop DSL static checker PASSED");
-        }
-
-        AzkabanDslCompiler compiler = makeCompiler(project);
-        compiler.compile(plugin);
+        HadoopDslCompiler compiler = makeCompiler(project);
+        plugin.buildHadoopDsl(compiler);
       }
     }
   }
@@ -296,9 +301,9 @@ class AzkabanPlugin implements Plugin<Project> {
    * method to provide their own compiler.
    *
    * @param project The Gradle project
-   * @return The AzkabanDslCompiler
+   * @return The HaodopDslCompiler
    */
-  AzkabanDslCompiler makeCompiler(Project project) {
+  HadoopDslCompiler makeCompiler(Project project) {
     return new AzkabanDslCompiler(project);
   }
 

@@ -114,7 +114,7 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
   }
 
   /**
-   * Dsl extension to add tests for the workflow.
+   * DSL extension to add tests for the workflow.
    *
    * @param name The name of the test
    * @param configure Test configuration
