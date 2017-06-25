@@ -41,6 +41,7 @@ import org.gradle.api.tasks.bundling.Zip;
 class HadoopZipExtension {
   Project project;
   List<String> additionalPaths;
+  AutomaticBuild automaticBuild;
   CopySpec baseCopySpec;
   String libPath;
   Map<String, CopySpec> zipMap;
@@ -53,8 +54,27 @@ class HadoopZipExtension {
   HadoopZipExtension(Project project) {
     this.project = project;
     additionalPaths = new ArrayList<String>();
+    automaticBuild = null;
     libPath = "";
-    zipMap = new HashMap<String, CopySpec>();
+    zipMap = new LinkedHashMap<String, CopySpec>();
+  }
+
+  /**
+   * Configures "automatic" mode for building your Hadoop zip artifacts.
+   *
+   * @param closure The configuration closure
+   * @return The AutomaticBuild extension
+   */
+  AutomaticBuild automatic(Closure closure) {
+    automaticBuild = new AutomaticBuild(project, this);
+    automaticBuild.automaticMode = true;
+
+    // Configure the automatic build properties according to the user specifications
+    project.configure(automaticBuild, closure);
+
+    // Automatically configure the build, including the Hadoop zip artifacts (unless the user
+    // disabled automatic mode)
+    return automaticBuild.automaticMode ? automaticBuild.setup() : automaticBuild;
   }
 
   /**
@@ -210,5 +230,52 @@ class HadoopZipExtension {
    */
   Map<String, CopySpec> getZipMap() {
     return zipMap;
+  }
+
+  /**
+   * Helper function to strip any whitespace-only lines from the given text.
+   *
+   * @param text The text from which to strip whitespace-only lines
+   * @return The text with any whitespace-only lines removed
+   */
+  static String stripWhitespaceLines(String text) {
+    List<String> nonEmptyLines = text.readLines().findAll { line ->
+      !line.matches("\\s+")
+    }
+    return nonEmptyLines.join("\n");
+  }
+
+  /**
+   * Returns a pretty-printed string describing the current state of the hadoopZip block.
+   *
+   * @return Pretty-printed string describing the current state of the hadoopZip block
+   */
+  String toPrettyString() {
+    String baseText = "";
+    String libText = "";
+    String zipText = "";
+
+    if (libPath != "") {
+      libText = "\t  lib='${libPath}'";
+    }
+
+    if (baseCopySpec != null) {
+      baseText = "\t  base { ... }";
+    }
+
+    if (zipMap.size() > 0) {
+      zipText = zipMap.collect { String zipName, CopySpec zipSpec ->
+        return "\t  zip($zipName) { ... }";
+      }.join('\n');
+    }
+
+    String hadoopZipText =
+        """\thadoopZip {
+          |${libText}
+          |${baseText}
+          |${zipText}
+          |\t}""".stripMargin();
+
+    return stripWhitespaceLines(hadoopZipText);
   }
 }
