@@ -1,39 +1,33 @@
 package com.linkedin.gradle.hadoopdsl
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.FileTree
-import org.gradle.api.tasks.TaskAction
 
 /**
+ * Gradle extension to configure Hadoop DSL auto builds. Hadoop DSL auto builds will examine a
+ * specified path for Hadoop DSL definition set files. For each file found, the auto build will
+ * apply the definition set file, the user's profile script (if desired), and the the user's
+ * Hadoop DSL workflow scripts and move the resulting Hadoop DSL state into a Hadoop DSL namespace
+ * with the definition set file name.
  * <p>
- * Task that sets up Hadoop DSL automatic builds. This task creates subtasks that rebuild the
- * Hadoop DSL for each definition set file found in a specified path. In each subtask, the
- * definition set file is applied, followed by the user profile and the user's workflow scripts.
- * The output build path for the compiled Hadoop DSL files is adjusted so that on each build, the
- * output will be written to a different subdirectory of the original build path.
- * <p>
- * This task can be specified with:
+ * This extension can be specified with:
  * <pre>
- *   autoAzkabanFlows {
- *     defaultBuildPath = "azkaban"  // Optional - defaults to "azkaban". Default location to build the Hadoop DSL if it is not already specified.
+ *   hadoopDslBuild {
  *     showSetup = false  // Optional - defaults to false. Displays information about the automatic setup.
  *     definitions = 'src/main/definitions'  // Optional - defaults to 'src/main/definitions'. Path to the Hadoop DSL definition sets.
  *     profiles = 'src/main/profiles'  // Optional - defaults to 'src/main/profiles'. Set to null or pass -PskipProfile=true to disable profiles. Path to the Hadoop DSL user profile scripts.
  *     workflows = 'src/main/gradle'  // Optional - defaults to 'src/main/gradle'. Path to the Hadoop DSL workflow scripts.
- *   }.addAutoBuildTasks()  // Invoke this method to add the sub-tasks that build the Hadoop DSL for each definition set
+ *   }.autoSetup()  // Invoke this method to configure the Hadoop DSL for each definition set file
  * </pre>
  */
-class HadoopDslAutoBuild extends DefaultTask {
-  HadoopDslCompiler dslCompiler    // Will be set by class that creates this task
-  HadoopDslExtension dslExtension  // Will be set in Hadoop Plugin setupTaskDependencies method
-  HadoopDslPlugin dslPlugin        // Will be set in Hadoop Plugin setupTaskDependencies method
+class HadoopDslAutoBuild {
+  HadoopDslExtension dslExtension
+  HadoopDslPlugin dslPlugin
+  Project project
 
   boolean alreadySetup = false
   boolean showSetup = false
 
-  String defaultBuildPath = "azkaban"
   String definitions = "src/main/definitions"
   String profiles = "src/main/profiles"
   String workflows = "src/main/gradle"
@@ -43,45 +37,37 @@ class HadoopDslAutoBuild extends DefaultTask {
   List<File> workflowFiles
 
   /**
-   * Constructor for the HadoopDslAutoBuild task.
+   * Constructor for the HadoopDslAutoBuild extension.
+   *
+   * @param dslExtension The HadoopDslExtension
+   * @param dslPlugin The HadoopDslPlugin
    */
-  HadoopDslAutoBuild() { }
-
-  /**
-   * Task action for the HadoopDslAutoBuild task.
-   */
-  @TaskAction
-  void autoBuild() {
-    if (!alreadySetup) {
-      throw new Exception("You must call `autoAzkabanFlows { ... }.addAutoBuildTasks()` before you can execute the task")
-    }
+  HadoopDslAutoBuild(HadoopDslExtension dslExtension, HadoopDslPlugin dslPlugin) {
+    this.dslExtension = dslExtension
+    this.dslPlugin = dslPlugin
+    this.project = dslPlugin.project
   }
 
   /**
-   * Uses the settings configured by the user to automatically setup the per-definition Hadoop DSL
-   * build tasks for the project.
+   * Configures the Hadoop DSL for each definition set file found in the definitions path.
    *
-   * @return The generated subtasks
+   * @return Reference to this HadoopDslAutoBuild instance
    */
-  List<Task> addAutoBuildTasks() {
+  HadoopDslAutoBuild autoSetup() {
     if (alreadySetup) {
-      throw new Exception("HadoopDslBuild addBuildTasks was called more than once")
+      throw new Exception("You cannot call `hadoopDslBuild { ... }.autoConfigure()` more than once")
     }
 
     alreadySetup = true
 
-    if (dslCompiler == null) {
-      throw new Exception("No Hadoop DSL compiler has been configured for the HadoopDslBuild class")
-    }
-
-    // Now add the auto build tasks
-    definitionSetFiles = getMatchingFiles(definitions, '**/*.gradle').sort()
-    profileFiles = getMatchingFiles(profiles, '**/*.gradle').sort()
-    workflowFiles = getMatchingFiles(workflows, '**/*.gradle').sort()
+    // Now read the Hadoop DSL files for the automatic build
+    definitionSetFiles = getMatchingFiles(definitions, '*.gradle').sort()
+    profileFiles = getMatchingFiles(profiles, '*.gradle').sort()
+    workflowFiles = getMatchingFiles(workflows, '*.gradle').sort()
 
     // If the user has enabled verbose mode, display information about the files we found
     if (showSetup) {
-      project.logger.lifecycle("\n[Hadoop DSL Auto] Setting up Hadoop DSL auto build tasks")
+      project.logger.lifecycle("\n[Hadoop DSL Auto] Setting up Hadoop DSL automatic build configuration")
 
       showFilesFound(definitionSetFiles,
           "\n[Hadoop DSL Auto] Found the following Hadoop DSL definition files:",
@@ -98,8 +84,11 @@ class HadoopDslAutoBuild extends DefaultTask {
 
     // For each definition set, we will apply the definition set, the user profile script, and all
     // of the user's workflow scripts.
-    Task previousTask = null
-    List<Task> subTasks = new ArrayList<Task>()
+    List<Namespace> savedNamespaces = new ArrayList<Namespace>()
+
+    // Before configuring the first definition set, clear the state of the Hadoop DSL so that every
+    // definition set will be applied from a clean state.
+    dslPlugin.clearHadoopDslState()
 
     for (File definitionSetFile : definitionSetFiles) {
       String definitionSetName = definitionSetFile.getName().replace(".gradle", "")
@@ -110,14 +99,34 @@ class HadoopDslAutoBuild extends DefaultTask {
         return filePath.replace("${project.projectDir}/", "")  // Relative path to the script
       }
 
-      previousTask = createAutoHadoopDslTask(definitionSetPath, workflowPaths, previousTask)
-      subTasks.add(previousTask)
+      // Save the state of the Hadoop DSL into a temporary namespace
+      savedNamespaces.add(autoSetupForDefinition(definitionSetPath, workflowPaths))
+
+      // Clear the state of the Hadoop DSL before processing the next set of definitions
+      dslPlugin.clearHadoopDslState()
     }
 
-    return subTasks
+    // Restore the state of the Hadoop DSL by cloning the saved namespaces into the Hadoop block.
+    // Mark the cloned namespace as hidden so that its name will not appear as part of the compiled
+    // Hadoop DSL file names.
+    for (Namespace savedNamespace : savedNamespaces) {
+      Namespace hiddenNamespace = savedNamespace.clone(dslExtension.scope)
+      hiddenNamespace.scope.hidden = true
+      dslExtension.configureNamespace(hiddenNamespace, null)
+    }
   }
 
-  Task createAutoHadoopDslTask(String definitionSetPath, List<String> workflowPaths, Task previousTask) {
+  /**
+   * Helper method to automatically configure the Hadoop DSL for a particular definition. This
+   * method applies the given definition set file, the user's profile (if desired), and the user's
+   * workflow scripts. Then it saves the state of the Hadoop DSL into a temporary element and clears
+   * the Hadoop DSL state for for the next definition.
+   *
+   * @param definitionSetPath Relative path to the definition set file
+   * @param workflowPaths Collection of relative paths to the user's worflow scripts
+   * @return Temporary namespace with the saved Hadoop DSL state
+   */
+  Namespace autoSetupForDefinition(String definitionSetPath, List<String> workflowPaths) {
     String definitionSetName = new File(definitionSetPath).getName().replace(".gradle", "")
 
     if (showSetup) {
@@ -129,47 +138,27 @@ class HadoopDslAutoBuild extends DefaultTask {
               |\t// Now apply the workflow files
               |${applyText}
               |""".stripMargin()
-       project.logger.lifecycle("\n[Hadoop DSL Auto] Generating the Hadoop DSL task 'autoAzkabanFlows_${definitionSetName}':")
+       project.logger.lifecycle("\n[Hadoop DSL Auto] Configuring Hadoop DSL for definition ${definitionSetName}':")
        project.logger.lifecycle(hadoopDslText)
     }
 
-    return project.tasks.create("autoAzkabanFlows_${definitionSetName}") { task ->
-      description = "Automatically builds the Hadoop DSL for the definitions at ${definitionSetPath}"
-      group = "Hadoop Plugin - Hadoop DSL Auto"
-      this.dependsOn task
+    // Apply the definitions
+    project.apply([from: definitionSetPath])
 
-      // These tasks must be executed in serial
-      if (previousTask != null) {
-        task.dependsOn previousTask
-      }
+    // Override the definitions with the user profile
+    dslPlugin.applyUserProfile([profilePath: profiles])
 
-      doLast {
-        // First, clear the state of the Hadoop DSL
-        dslPlugin.clearHadoopDslState()
+    // Apply the user's workflow scripts
+    for (String workflowPath : workflowPaths) {
+      project.apply([from: workflowPath])
+    }
 
-        // Apply the definitions
-        project.apply([from: definitionSetPath])
+    // Save the state of the Hadoop DSL into a temporary namespace
+    Namespace savedNamespace = dslPlugin.factory.makeNamespace(definitionSetName, dslPlugin.project, null)
+    dslExtension.clone(savedNamespace)
 
-        // Override the definitions with the user profile
-        dslPlugin.applyUserProfile([profilePath: profiles])
-
-        // Apply the user's workflow scripts
-        for (String workflowPath : workflowPaths) {
-          project.apply([from: workflowPath])
-        }
-
-        // If the user didn't set a default Hadoop DSL build directory, set one for them
-        if (dslExtension.buildDirectory == null) {
-          dslExtension.buildPath(defaultBuildPath)
-        }
-
-        // Change the user's build path to be specific to this set of definitions
-        dslExtension.buildPath(new File(dslExtension.buildDirectory, definitionSetName).getPath())
-
-        // Build the Hadoop DSL for this definition set
-        dslPlugin.buildHadoopDsl(dslCompiler)
-      }
-    } 
+    // Return the temporary namespace so that it can be restored later
+    return savedNamespace
   }
 
   /**

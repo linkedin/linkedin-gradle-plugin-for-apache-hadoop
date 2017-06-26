@@ -70,7 +70,19 @@ abstract class BasePropertySet {
    * @return The fully-qualified name for the BasePropertySet
    */
   String getQualifiedName(NamedScope parentScope) {
-    return (parentScope == null) ? name : "${parentScope.getQualifiedName()}.${name}";
+    return getQualifiedName(parentScope, false);
+  }
+
+  /**
+   * Returns the fully-qualified name for the BasePropertySet.
+   *
+   * @param parentScope The parent scope in which the BasePropertySet is bound
+   * @param skipHiddenScopes Whether or not to skip hidden scopes as part of the fully-qualified name
+   * @return The fully-qualified name for the BasePropertySet
+   */
+  String getQualifiedName(NamedScope parentScope, boolean skipHiddenScopes) {
+    String qualifiedScopeName = parentScope?.getQualifiedName(skipHiddenScopes) ?: ""
+    return (qualifiedScopeName == "") ? name : "${qualifiedScopeName}.${name}";
   }
 
   /**

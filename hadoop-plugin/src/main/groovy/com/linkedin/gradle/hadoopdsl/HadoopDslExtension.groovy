@@ -45,18 +45,6 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
    */
   HadoopDslExtension(Project project) {
     this(project, null);
-    this.tests = new ArrayList<TestExtension>();
-  }
-
-  /**
-   * Constructor for the HadoopDslExtension
-   * @param project The Gradle project
-   * @param parentScope The parent scope
-   * @param scopeName The name of the scope
-   */
-  HadoopDslExtension(Project project, NamedScope parentScope, String scopeName) {
-    super(project, parentScope, scopeName);
-    this.tests = new ArrayList<TestExtension>();
   }
 
   /**
@@ -74,6 +62,21 @@ class HadoopDslExtension extends BaseNamedScopeContainer {
     // Bind the name hadoop in the parent scope so that we can do fully-qualified name lookups of
     // objects bound in the hadoop block.
     parentScope.bind("hadoop", this);
+
+    // When generating file names for compiled files, skip adding "hadoop" to the file name
+    scope.hidden = true;
+  }
+
+  /**
+   * Constructor for the HadoopDslExtension.
+   *
+   * @param project The Gradle project
+   * @param parentScope The parent scope
+   * @param scopeName The name of the scope
+   */
+  HadoopDslExtension(Project project, NamedScope parentScope, String scopeName) {
+    super(project, parentScope, scopeName);
+    this.tests = new ArrayList<TestExtension>();
   }
 
   /**

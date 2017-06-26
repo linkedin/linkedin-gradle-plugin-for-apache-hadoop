@@ -64,7 +64,7 @@ class Properties extends BasePropertySet {
    * @return The name to use when generating the properties file
    */
   String buildFileName(NamedScope parentScope) {
-    return getQualifiedName(parentScope).replaceFirst("hadoop.", "").replace('.', '_');
+    return cleanFileName(getQualifiedName(parentScope, true));
   }
 
   /**
@@ -95,6 +95,16 @@ class Properties extends BasePropertySet {
     }
 
     return allProperties;
+  }
+
+  /**
+   * Helper routine to improve file name readability by replacing dots with underscores.
+   *
+   * @param fileName The file name to clean up
+   * @return The clean file name
+   */
+  String cleanFileName(String fileName) {
+    return fileName.replace('.', '_');
   }
 
   /**

@@ -23,6 +23,7 @@ import org.gradle.api.Project;
  */
 class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project> {
   HadoopDslExtension extension;
+  HadoopDslAutoBuild hadoopDslBuild;
 
   // Member variables for Hadoop definition sets
   String currentDefinitionSetName;
@@ -68,6 +69,10 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     // You must have the hadoopDslFactory extension set before you can make the HadoopDslExtension
     this.extension = factory.makeExtension(project, scope);
     project.extensions.add("hadoop", extension);
+
+    // You must have the HadoopDslExtension before you can make the hadoopDslBuild
+    this.hadoopDslBuild = makeHadoopDslBuild(extension);
+    project.extensions.add("hadoopDslBuild", hadoopDslBuild);
 
     // Expose the DSL global, applyProfile and applyUserProfile methods, which are only implemented
     // by the HadoopDslPlugin class.
@@ -469,6 +474,17 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    */
   protected HadoopDslFactory makeFactory() {
     return new HadoopDslFactory();
+  }
+
+  /**
+   * Factory method to return a HadoopDslAutoBuild instance. Can be overridden by subclasses that
+   * wish to provide their own instance.
+   *
+   * @param extension The HadoopDslExtension
+   * @return The HadoopDslAutoBuild instance
+   */
+  protected HadoopDslAutoBuild makeHadoopDslBuild(HadoopDslExtension extension) {
+    return new HadoopDslAutoBuild(extension, this);
   }
 
   /**
