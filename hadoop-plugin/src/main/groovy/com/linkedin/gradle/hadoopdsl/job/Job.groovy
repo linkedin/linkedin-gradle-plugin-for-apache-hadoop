@@ -140,7 +140,7 @@ class Job {
    * @return The name to use when generating the job file
    */
   String buildFileName(NamedScope parentScope, String jobName) {
-    return cleanFileName(getQualifiedName(parentScope, jobName));
+    return cleanFileName(getQualifiedName(parentScope, jobName, true));
   }
 
   /**
@@ -173,14 +173,13 @@ class Job {
   }
 
   /**
-   * Helper routine to improve job file name readability by dropping the hadoop prefix and
-   * replacing dots with underscores.
+   * Helper routine to improve job file name readability by replacing dots with underscores.
    *
    * @param fileName The file name to clean up
    * @return The clean file name
    */
   String cleanFileName(String fileName) {
-    return fileName.replaceFirst("hadoop.", "").replace('.', '_');
+    return fileName.replace('.', '_');
   }
 
   /**
@@ -273,7 +272,20 @@ class Job {
    * @return The fully-qualified name for the job
    */
   String getQualifiedName(NamedScope parentScope, String jobName) {
-    return (parentScope == null) ? name : "${parentScope.getQualifiedName()}.${jobName}";
+    return getQualifiedName(parentScope, jobName, false);
+  }
+
+  /**
+   * Helper method to get the fully-qualified name given a particular job name.
+   *
+   * @param jobName The job name for which to generate a fully-qualified name
+   * @param parentScope The parent scope in which the job is bound
+   * @param skipHiddenScopes Whether or not to skip hidden scopes as part of the fully-qualified name
+   * @return The fully-qualified name for the job
+   */
+  String getQualifiedName(NamedScope parentScope, String jobName, boolean skipHiddenScopes) {
+    String qualifiedScopeName = parentScope?.getQualifiedName(skipHiddenScopes) ?: ""
+    return (qualifiedScopeName == "") ? jobName : "${qualifiedScopeName}.${jobName}";
   }
 
   /**

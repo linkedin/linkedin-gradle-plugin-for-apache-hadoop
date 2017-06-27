@@ -305,10 +305,6 @@ class HadoopPlugin implements Plugin<Project> {
     if (azkabanUploadTask != null && buildHadoopZipsTask != null) {
       azkabanUploadTask.dependsOn(buildHadoopZipsTask);
     }
-
-    Task autoHadoopDslBuildTask = project.tasks.findByName("autoAzkabanFlows");
-    autoHadoopDslBuildTask.dslExtension = (HadoopDslExtension)project.extensions.findByName("hadoop")
-    autoHadoopDslBuildTask.dslPlugin = (HadoopDslPlugin)project.extensions.findByName("hadoopDslPlugin")
   }
 
   /**

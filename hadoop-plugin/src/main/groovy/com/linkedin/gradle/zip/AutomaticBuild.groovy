@@ -1,8 +1,6 @@
 package com.linkedin.gradle.zip
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslAutoBuild
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
 
 import org.gradle.api.Project
 
@@ -25,8 +23,7 @@ import org.gradle.api.Project
 class AutomaticBuild {
   Project project
 
-  HadoopDslExtension dslExtension
-  HadoopDslPlugin dslPlugin
+  HadoopDslAutoBuild hadoopDslBuild 
   HadoopZipExtension zipExtension
 
   boolean alreadySetup = false
@@ -44,8 +41,7 @@ class AutomaticBuild {
    */
   AutomaticBuild(Project project, HadoopZipExtension zipExtension) {
     this.project = project
-    this.dslExtension = (HadoopDslExtension)project.extensions.findByName("hadoop")
-    this.dslPlugin = (HadoopDslPlugin)project.extensions.findByName("hadoopDslPlugin")
+    this.hadoopDslBuild = (HadoopDslAutoBuild)project.extensions.findByName("hadoopDslBuild")
     this.zipExtension = zipExtension
   }
 
@@ -71,12 +67,12 @@ class AutomaticBuild {
     }
 
     // Setup the Hadoop Zip build task dependencies
-    project.tasks["startHadoopZips"].dependsOn("autoAzkabanFlows")
+    project.tasks["startHadoopZips"].dependsOn("buildAzkabanFlows")
     project.tasks["build"].dependsOn("buildHadoopZips")
 
     if (showSetup) {
       project.logger.lifecycle("\n[Hadoop Plugin Auto Build] Added task dependencies:")
-      project.logger.lifecycle("\tstartHadoopZips.dependsOn autoAzkabanFlows")
+      project.logger.lifecycle("\tstartHadoopZips.dependsOn buildAzkabanFlows")
       project.logger.lifecycle("\tbuild.dependsOn buildHadoopZips")
     }
 
@@ -87,22 +83,33 @@ class AutomaticBuild {
     zipExtension.libPath = "lib"
 
     if (showSetup) {
-      project.logger.lifecycle("\n" + "[Hadoop Plugin Auto Build] Setup hadoopZip block:")
-      project.logger.lifecycle(zipExtension.toPrettyString())
+      project.logger.lifecycle("\n" + "[Hadoop Plugin Auto Build] Set hadoopZip.libPath = 'lib' ")
     }
+
+    // Now setup the hadoopZip { ... } block
+    setupHadoopZipBlock()
 
     return this
   }
 
   /**
-   * Helper function to setup the Hadoop DSL auto build tasks for the project.
+   * Helper function to setup the Hadoop DSL auto build for the project.
    */
   void setupHadoopDslBuild() {
-    HadoopDslAutoBuild hadoopDslBuild = project.tasks["autoAzkabanFlows"]
     hadoopDslBuild.definitions = definitions
     hadoopDslBuild.profiles = profiles
     hadoopDslBuild.workflows = workflows
     hadoopDslBuild.showSetup = showSetup
-    hadoopDslBuild.addAutoBuildTasks()
+    hadoopDslBuild.autoSetup()
+  }
+
+  /**
+   * Helper function to setup the hadoopZip zip artifacts for the project based on the Hadoop DSL
+   * auto build configuration.
+   */
+  void setupHadoopZipBlock() {
+    // Once setupHadoopDslBuild() has been called, a number of helpful properties are set on the
+    // hadoopDslBuild object. Use these properties to automatically configure a zip artifact for
+    // each Hadoop DSL definition set (well, that's my idea).
   }
 }

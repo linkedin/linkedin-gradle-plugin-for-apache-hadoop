@@ -46,7 +46,7 @@ class LaunchJob extends NoOpJob {
   @Override
   String buildFileName(NamedScope parentScope) {
     // The file name for a launch job is just the cleaned up fully-qualified workflow name.
-    return cleanFileName(parentScope.getQualifiedName());
+    return cleanFileName(parentScope.getQualifiedName(true));
   }
 
   /**

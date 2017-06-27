@@ -24,6 +24,10 @@ class NamedScope {
   NamedScope nextLevel;
   Map<String, Object> thisLevel;
 
+  // Indicates that this scope should be skipped when generating the fully qualified name of an
+  // object bound in scope (which can be useful when building files name for compiled files)
+  boolean hidden;
+
   /**
    * Base constructor for NamedScope.
    *
@@ -69,6 +73,7 @@ class NamedScope {
   NamedScope clone() {
     NamedScope namedScope = new NamedScope(levelName, nextLevel);
     namedScope.thisLevel = new HashMap<String, Object>(thisLevel);
+    namedScope.hidden = hidden;
     return namedScope;
   }
 
@@ -97,7 +102,25 @@ class NamedScope {
    * @return The fully-qualified name for the scope (without an initial "." character).
    */
   String getQualifiedName() {
-    String nextLevelName = (nextLevel == null) ? "" : nextLevel.getQualifiedName();
+    return getQualifiedName(false);
+  }
+
+  /**
+   * Returns the fully-qualified name for this scope (without an initial "." character), skipping
+   * any hidden scopes (if specified).
+   *
+   * @param skipHiddenScopes Whethr or not to ignore the names of hidden scopes
+   * @return The fully-qualified name for the scope (without an initial "." character).
+   */
+  String getQualifiedName(boolean skipHiddenScopes) {
+    String nextLevelName = (nextLevel == null) ? "" : nextLevel.getQualifiedName(skipHiddenScopes);
+
+    // If this scope is "hidden", do not include it as part of the fully qualified name. This
+    // functionality is useful for generating shorter file names during Hadoop DSL auto builds.
+    if (hidden && skipHiddenScopes) {
+      return nextLevelName;
+    }
+
     return (nextLevelName.isEmpty()) ? levelName : "${nextLevelName}.${levelName}";
   }
 
