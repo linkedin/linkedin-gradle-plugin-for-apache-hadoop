@@ -29,7 +29,9 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * job to finish after that amount of time, sleepTime is the string that contains integer(s)
  * and time unit(s) you specify that causes the job to wait that amount of time between each
  * check for a fresh folder, which will default to a value of 1 minute if not specified by
- * the user, and failOnTimeout is the boolean value you specify that determines if the job
+ * the user, checkExactPath is the boolean value you specify that when true (defaults to
+ * false), the job will simply check for the existence of the dirPath, and if it exists the job
+ * will succeed, and failOnTimeout is the boolean value you specify that determines if the job
  * fails or succeeds on timeout. The time units that are supported when declaring the
  * 'directoryFreshness', 'timeoutAfter', and 'sleepTime' parameters are:
  *    Seconds: 'S'  ex. '49S' = 49 seconds,
@@ -51,6 +53,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     directoryFreshness '15H 4M 10S'    // Required
  *     timeoutAfter '1D 11S'              // Required
  *     sleepTime '2M 10S'
+ *     checkExactPath true
  *     failOnTimeout true                 // Required
  *     depends 'job1'
  *   }
@@ -61,6 +64,7 @@ class HdfsWaitJob extends HadoopJavaJob {
   String freshness;
   String sleepInterval;
   String timeout;
+  Boolean exactPath;
   Boolean forceJobToFail;
 
   /**
@@ -71,6 +75,19 @@ class HdfsWaitJob extends HadoopJavaJob {
   HdfsWaitJob(String jobName) {
     super(jobName);
     setJobProperty("job.class", "com.linkedin.hadoop.jobs.HdfsWaitJob");
+  }
+
+  /**
+   * DSL method checkExactPath specifies whether the job should be checking for just
+   * the existence of the dirPath in HDFS, or if it should behave like normal. This method
+   * causes the property exactPath=value to be added to the job.
+   *
+   * @param exactPath The boolean value of whether to only check for the existence of the dirPath
+   */
+  @HadoopDslMethod
+  void checkExactPath(Boolean exactPath) {
+    this.exactPath = exactPath;
+    setJobProperty("exactPath", exactPath);
   }
 
   /**

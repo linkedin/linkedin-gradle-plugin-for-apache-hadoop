@@ -2,6 +2,7 @@
 type=hadoopJava
 dependencies=jobs1_job21
 classpath=./lib/*
+exactPath=true
 forceJobToFail=true
 freshness=10D
 job.class=com.linkedin.hadoop.jobs.HdfsWaitJob

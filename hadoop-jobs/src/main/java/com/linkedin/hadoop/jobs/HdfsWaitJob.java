@@ -69,14 +69,15 @@ public class HdfsWaitJob extends Configured {
     long endTime = System.currentTimeMillis() + timeout;
     long sleepTime = parseTime(_properties.getProperty("sleepInterval", "1M"));
     boolean failOnTimeout = Boolean.valueOf(_properties.getProperty("forceJobToFail"));
+    boolean checkExactPath = Boolean.valueOf(_properties.getProperty("exactPath", "false"));
     boolean folderFound = false;
 
     log.info("STATUS: Job started. Checking the directory at " + dirPath + " for fresh folders with a sleep interval of " + _properties.getProperty("sleepInterval", "1M"));
 
     while (System.currentTimeMillis() < endTime && !folderFound) {
-      folderFound = checkDirectory(dirPath, freshness);
+      folderFound = checkDirectory(dirPath, freshness, checkExactPath);
       if (!folderFound) {
-        log.info("STATUS: No fresh folders found during latest polling. Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
+        log.info("STATUS: Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
         log.info("REMINDER: Job will time out " + TimeUnit.MILLISECONDS.toMinutes(timeout) + " minutes after instantiation.");
         Thread.sleep(sleepTime);
       }
@@ -129,20 +130,32 @@ public class HdfsWaitJob extends Configured {
 
   /**
    * Method checkDirectory loops through the folders pointed to by dirPath, and will
-   * cause the job to succeed if any of the folders are fresh enough.
+   * cause the job to succeed if any of the folders are fresh enough. However, if the
+   * parameter checkExactPath is true, this method only checks for the existence of
+   * dirPath in HDFS.
    *
    * @param dirPath The path to the directory we are searching for fresh folders
    * @param freshness The timeframe in which the folder has to have been modified by
+   * @param checkExactPath The boolean that decides if we only check for the existence of dirPath in HDFS
    * @throws IOException If there is an HDFS exception
    * @return A boolean value corresponding to whether a fresh folder was found
    */
-  public boolean checkDirectory(String dirPath, long freshness) throws IOException, NullPointerException {
+  public boolean checkDirectory(String dirPath, long freshness, boolean checkExactPath) throws IOException, NullPointerException {
     FileSystem fileSys = FileSystem.get(getConf());
 
     if (fileSys == null) {
       String errMessage = "ERROR: The file system trying to be accessed does not exist. JOB TERMINATED.";
       log.info(errMessage);
       throw new NullPointerException(errMessage);
+    }
+
+    if (checkExactPath) {
+      if (fileSys.exists(new Path(dirPath))) {
+        log.info("SUCCESS: The exact path: " + dirPath + " was found in HDFS. Program now quitting.");
+        return true;
+      }
+      log.info("STATUS: The exact path: " + dirPath + " was not found during latest polling.");
+      return false;
     }
 
     FileStatus[] status = fileSys.listStatus(new Path(dirPath));
@@ -164,6 +177,7 @@ public class HdfsWaitJob extends Configured {
         }
       }
     }
+    log.info("STATUS: No fresh folders found during latest polling.");
     return false;
   }
 }
