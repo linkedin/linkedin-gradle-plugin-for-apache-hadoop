@@ -1,6 +1,7 @@
 package com.linkedin.gradle.hadoopdsl
 
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
 
 /**
@@ -13,28 +14,47 @@ import org.gradle.api.file.FileTree
  * This extension can be specified with:
  * <pre>
  *   hadoopDslBuild {
- *     showSetup = false  // Optional - defaults to false. Displays information about the automatic setup.
+ *     showSetup = false                     // Optional - defaults to false. Displays information about the automatic setup.
+ *
  *     definitions = 'src/main/definitions'  // Optional - defaults to 'src/main/definitions'. Path to the Hadoop DSL definition sets.
- *     profiles = 'src/main/profiles'  // Optional - defaults to 'src/main/profiles'. Set to null or pass -PskipProfile=true to disable profiles. Path to the Hadoop DSL user profile scripts.
- *     workflows = 'src/main/gradle'  // Optional - defaults to 'src/main/gradle'. Path to the Hadoop DSL workflow scripts.
+ *     profiles = 'src/main/profiles'        // Optional - defaults to 'src/main/profiles'. Set to null or pass -PskipProfile=true to disable profiles. Path to the Hadoop DSL user profile scripts.
+ *     workflows = 'src/main/gradle'         // Optional - defaults to 'src/main/gradle'. Path to the Hadoop DSL workflow scripts.
+ *
+ *     // Properties to specify the definition and workflow files to apply (and the order in which
+ *     // to apply them). These properties override the definitions and workflow paths set above.
+ *     definitionFiles = files(['src/main/otherDefs/defs1.gradle', 'src/main/otherDefs/defs2.gradle']
+ *     workflowFiles = files(['src/main/otherFlows/flows1.gradle', 'src/main/otherFlows/defs2.gradle']
+ *
+ *     // Properties to customize the user profile to apply. These can also be customized with command line options.
+ *     profileName = 'ackermann'             // Optional - defaults to null (in which case your user name is used). Name of the user profile to apply. Pass -PprofileName=<name> on the command line to override.
+ *     skipProfile = false                   // Optional - defaults to false. Specifies whether or not to skip applying the user profile. Pass -PskipProfile=true on the command line to override.
  *   }.autoSetup()  // Invoke this method to configure the Hadoop DSL for each definition set file
  * </pre>
  */
 class HadoopDslAutoBuild {
+  boolean alreadySetup = false
   HadoopDslExtension dslExtension
   HadoopDslPlugin dslPlugin
   Project project
 
-  boolean alreadySetup = false
+  // Properties for users to specify whether or not to print information about the automatic build
   boolean showSetup = false
 
+  // Properties for users to specify the paths in which to find the definition files, the user
+  // profile files and the Hadoop DSL workflow files.
   String definitions = "src/main/definitions"
   String profiles = "src/main/profiles"
   String workflows = "src/main/gradle"
 
-  List<File> definitionSetFiles
-  List<File> profileFiles
-  List<File> workflowFiles
+  // Properties for users to manually specify the definition and workflow files to apply (and the
+  // order in which to apply them). If these properties are non-empty, they will override any files
+  // found in the definitions and workflows paths (specified above).
+  FileCollection definitionFiles
+  FileCollection workflowFiles
+
+  // Properties for users to manually specify the user profile to apply
+  String profileName = null
+  boolean skipProfile = false
 
   /**
    * Constructor for the HadoopDslAutoBuild extension.
@@ -55,49 +75,57 @@ class HadoopDslAutoBuild {
    */
   HadoopDslAutoBuild autoSetup() {
     if (alreadySetup) {
-      throw new Exception("You cannot call `hadoopDslBuild { ... }.autoConfigure()` more than once")
+      throw new Exception("You cannot call `hadoopDslBuild { ... }.autoSetup()` more than once")
     }
 
     alreadySetup = true
 
-    // Now read the Hadoop DSL files for the automatic build
-    definitionSetFiles = getMatchingFiles(definitions, '*.gradle').sort()
-    profileFiles = getMatchingFiles(profiles, '*.gradle').sort()
-    workflowFiles = getMatchingFiles(workflows, '*.gradle').sort()
+    // Now read the Hadoop DSL files for the automatic build. The user can override the definition
+    // and workflow files by setting the associated FileCollection properties directly.
+    List<File> definitionFilesList = definitionFiles?.toList() ?: getMatchingFiles(definitions, '*.gradle').sort()
+    List<File> profileFilesList = getMatchingFiles(profiles, '*.gradle').sort()
+    List<File> workflowFilesList = workflowFiles?.toList() ?: getMatchingFiles(workflows, '*.gradle').sort()
 
     // If the user has enabled verbose mode, display information about the files we found
     if (showSetup) {
       project.logger.lifecycle("\n[Hadoop DSL Auto] Setting up Hadoop DSL automatic build configuration")
 
-      showFilesFound(definitionSetFiles,
+      showFilesFound(definitionFilesList,
           "\n[Hadoop DSL Auto] Found the following Hadoop DSL definition files:",
           "\n[Hadoop DSL Auto] No Hadoop DSL definition files found in ${definitions}")
 
-      showFilesFound(profileFiles,
+      showFilesFound(profileFilesList,
           "\n[Hadoop DSL Auto] Found the following Hadoop DSL profile files:",
           "\n[Hadoop DSL Auto] No Hadoop DSL profile files found in ${profiles}")
 
-      showFilesFound(workflowFiles,
+      showFilesFound(workflowFilesList,
           "\n[Hadoop DSL Auto] Found the following Hadoop DSL workflow files:",
           "\n[Hadoop DSL Auto] No Hadoop DSL workflow files found in ${workflows}")
+    }
+
+    // Collect the relative paths to the workflow files
+    List<String> workflowPaths = workflowFilesList.collect { workflowFile ->
+      String filePath = workflowFile.getAbsolutePath()
+      return filePath.replace("${project.projectDir}/", "")
+    }
+
+    // Before configuring the first definition set, clear the state of the Hadoop DSL so that every
+    // definition set will be applied from a clean state.
+    dslPlugin.clearHadoopDslState()
+
+    // If we did not find any no definition set files, we will apply just the user profile and the
+    // workflow files directly (and not save it into a temporary namespace).
+    if (definitionFilesList.isEmpty()) {
+      autoSetupForWorkflows(workflowPaths)
+      return
     }
 
     // For each definition set, we will apply the definition set, the user profile script, and all
     // of the user's workflow scripts.
     List<Namespace> savedNamespaces = new ArrayList<Namespace>()
 
-    // Before configuring the first definition set, clear the state of the Hadoop DSL so that every
-    // definition set will be applied from a clean state.
-    dslPlugin.clearHadoopDslState()
-
-    for (File definitionSetFile : definitionSetFiles) {
-      String definitionSetName = definitionSetFile.getName().replace(".gradle", "")
-      String definitionSetPath = definitionSetFile.getAbsolutePath().replace("${project.projectDir}/", "")
-
-      List<String> workflowPaths = workflowFiles.collect { workflowFile ->
-        String filePath = workflowFile.getAbsolutePath()
-        return filePath.replace("${project.projectDir}/", "")  // Relative path to the script
-      }
+    for (File definitionFile : definitionFilesList) {
+      String definitionSetPath = definitionFile.getAbsolutePath().replace("${project.projectDir}/", "")
 
       // Save the state of the Hadoop DSL into a temporary namespace
       savedNamespaces.add(autoSetupForDefinition(definitionSetPath, workflowPaths))
@@ -119,26 +147,36 @@ class HadoopDslAutoBuild {
   /**
    * Helper method to automatically configure the Hadoop DSL for a particular definition. This
    * method applies the given definition set file, the user's profile (if desired), and the user's
-   * workflow scripts. Then it saves the state of the Hadoop DSL into a temporary element and clears
-   * the Hadoop DSL state for for the next definition.
+   * workflow scripts. Then it saves the state of the Hadoop DSL into a temporary element and
+   * clears the Hadoop DSL state for for the next definition.
    *
    * @param definitionSetPath Relative path to the definition set file
-   * @param workflowPaths Collection of relative paths to the user's worflow scripts
+   * @param workflowPaths Collection of relative paths to the user's workflow files
    * @return Temporary namespace with the saved Hadoop DSL state
    */
   Namespace autoSetupForDefinition(String definitionSetPath, List<String> workflowPaths) {
     String definitionSetName = new File(definitionSetPath).getName().replace(".gradle", "")
+    def profileArgs = [profilePath: profiles]
+
+    if (profileName != null) {
+      profileArgs += [profileName: profileName]
+    }
+
+    if (skipProfile) {
+      profileArgs += [skipProfile: true]
+    }
 
     if (showSetup) {
       String applyText = workflowPaths.collect { workflowPath -> "\tapply from: '${workflowPath}'" }.join("\n")
+      applyText = applyText ?: "\tNo workflow files found"
       String hadoopDslText =
             """\tapply from: '${definitionSetPath}'
-              |\tapplyUserProfile()
+              |\tapplyUserProfile ${profileArgs}
               |
               |\t// Now apply the workflow files
               |${applyText}
               |""".stripMargin()
-       project.logger.lifecycle("\n[Hadoop DSL Auto] Configuring Hadoop DSL for definition ${definitionSetName}':")
+       project.logger.lifecycle("\n[Hadoop DSL Auto] Configuring Hadoop DSL for definition ${definitionSetName}:")
        project.logger.lifecycle(hadoopDslText)
     }
 
@@ -146,7 +184,7 @@ class HadoopDslAutoBuild {
     project.apply([from: definitionSetPath])
 
     // Override the definitions with the user profile
-    dslPlugin.applyUserProfile([profilePath: profiles])
+    dslPlugin.applyUserProfile(profileArgs)
 
     // Apply the user's workflow scripts
     for (String workflowPath : workflowPaths) {
@@ -159,6 +197,46 @@ class HadoopDslAutoBuild {
 
     // Return the temporary namespace so that it can be restored later
     return savedNamespace
+  }
+
+  /**
+   * Helper method to automatically configure the Hadoop DSL workflow files when no definition
+   * files were found. This method applies the user's profile (if desired) and the user's workflow
+   * scripts only.
+   *
+   * @param workflowPaths Collection of relative paths to the user's workflow files
+   */
+  void autoSetupForWorkflows(List<String> workflowPaths) {
+    def profileArgs = [profilePath: profiles]
+
+    if (profileName != null) {
+      profileArgs += [profileName: profileName]
+    }
+
+    if (skipProfile) {
+      profileArgs += [skipProfile: true]
+    }
+
+    if (showSetup) {
+      String applyText = workflowPaths.collect { workflowPath -> "\tapply from: '${workflowPath}'" }.join("\n")
+      applyText = applyText ?: "\tNo workflow files found"
+      String hadoopDslText =
+          """\tapplyUserProfile ${profileArgs}
+            |
+            |\t// Now apply the workflow files
+            |${applyText}
+            |""".stripMargin()
+      project.logger.lifecycle("\n[Hadoop DSL Auto] No definition files found. Applying the user profile and workflow files only.")
+      project.logger.lifecycle(hadoopDslText)
+    }
+
+    // Override the definitions with the user profile
+    dslPlugin.applyUserProfile(profileArgs)
+
+    // Apply the user's workflow scripts
+    for (String workflowPath : workflowPaths) {
+      project.apply([from: workflowPath])
+    }
   }
 
   /**

@@ -17,7 +17,6 @@ package com.linkedin.gradle.hadoop;
 
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.dependency.DependencyPlugin;
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 import com.linkedin.gradle.oozie.OoziePlugin;
 import com.linkedin.gradle.pig.PigPlugin;

@@ -1,0 +1,10 @@
+// Use a Hadoop DSL definition set to declare any values that might be specific to each grid or
+// otherwise overridden for each user.
+//
+// In this example project we will assume that there are two Hadoop grids (dev and prod) and that
+// you might configure different values for the following definitions for each grid.
+definitionSet defs: [
+    hdfsHomeDir: "/user/yourUserName",
+    notifyEmail: "yourUserName@yourEmailDomain.com",
+    userToProxy: "yourAzkabanProxyUserName"
+]

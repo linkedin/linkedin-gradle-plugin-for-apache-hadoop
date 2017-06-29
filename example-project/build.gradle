@@ -4,7 +4,7 @@ plugins {
   id 'java'
   id 'eclipse'
   id 'idea'
-  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.12.10'
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin' version '0.13.1'
 }
 
 repositories {
@@ -23,9 +23,11 @@ task wrapper(type: Wrapper) {
 // Azkaban and that your workflow consists of jobs written for Apache Hive, Apache Pig and also
 // and Apache Hadoop Java job.
 
-// Apply the Hadoop DSL file. You could write Hadoop DSL right here in the project build.gradle,
-// but usually most people write their Hadoop DSL in a separate file (or multiple files).
-apply from: 'src/main/gradle/workflows.gradle'
+// Hadoop DSL Automatic Builds will configure the Hadoop DSL for each definitions file found in
+// "src/main/definitions". The Automatic Build will apply the definition file, apply your user
+// profile file from "src/main/profiles/<userName>.gradle" (if it exists) and then apply any
+// .gradle files in "src/main/gradle". See the Hadoop Plugin User Guide for more details.
+hadoopDslBuild.autoSetup()
 
 dependencies {
   // Dependencies for Hadoop Java jobs
@@ -72,10 +74,6 @@ hadoopZip {
     from("src/main/pig") {
       into "pig"   // Pig scripts will be in the "pig" subdirectory in the zip
     }
-    // Your workflows.gradle file specifies that the compiled Hadoop DSL files will be placed in
-    // the "azkaban" folder. Add them to your zips using closure syntax, since the compiled files
-    // haven't been generated yet.
-    from { fileTree("azkaban").files }
    }
 
   // Note that dependencies the hadoopRuntime dependency configuration (which inherits from the
@@ -87,12 +85,22 @@ hadoopZip {
     from("resources/dev") {
       into "text"
     }
+    // Your workflows.gradle file specifies that the compiled Hadoop DSL files will be placed in
+    // the "azkaban" folder. The Hadoop DSL Automatic Build will further place the compiled files
+    // into a subdirectory of this folder. Add the compiled files your lazily to your zips using
+    // closure syntax, since the compiled files haven't been generated yet.
+    from { fileTree("azkaban/dev").files }
   }
 
   zip("azkabanProd") {
     from("resources/prod") {
       into "text"
     }
+    // Your workflows.gradle file specifies that the compiled Hadoop DSL files will be placed in
+    // the "azkaban" folder. The Hadoop DSL Automatic Build will further place the compiled files
+    // into a subdirectory of this folder. Add the compiled files your lazily to your zips using
+    // closure syntax, since the compiled files haven't been generated yet.
+    from { fileTree("azkaban/prod").files }
   }
 }
 

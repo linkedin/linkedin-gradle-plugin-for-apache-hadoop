@@ -205,7 +205,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @param compiler The compiler implementation to use to build the Hadoop DSL
    */
   void buildHadoopDsl(HadoopDslCompiler compiler) {
-    // Frst, run the static checker on the DSL
+    // First, run the static checker on the DSL
     HadoopDslChecker checker = factory.makeChecker(project);
     checker.check(this);
 

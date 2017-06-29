@@ -1,14 +1,3 @@
-// Use a Hadoop DSL definition set to declare any values that might be overridden for each user
-definitionSet defs: [
-    hdfsHomeDir: "/user/yourUserName",
-    notifyEmail: "yourUserName@yourEmailDomain.com",
-    userToProxy: "yourAzkabanProxyUserName"
-]
-
-// Override any properties in the above definition set in your own profile script. By default, the
-// applyUserProfile method applies the script "src/main/profiles/<userName>.gradle", if it exists.
-applyUserProfile()
-
 // Location of your home directory on HDFS and the location on HDFS to copy the text file
 def hdfsHomeDir = lookupDef('hdfsHomeDir')
 def projectPath = "${hdfsHomeDir}/example-project"

@@ -17,6 +17,11 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.13.2
+
+* Adding optional parameter checkExactPath to hdfsWaitJob
+* Add user options to enable users to override the behavior of Hadoop DSL automatic builds
+
 0.13.1
 
 * Refactor Hadoop DSL automatic builds to use hidden state rather than subtasks
