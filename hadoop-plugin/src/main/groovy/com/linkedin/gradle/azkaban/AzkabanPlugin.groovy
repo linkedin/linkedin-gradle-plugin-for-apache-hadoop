@@ -15,9 +15,7 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.hadoopdsl.HadoopDslChecker;
 import com.linkedin.gradle.hadoopdsl.HadoopDslCompiler;
-import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
 
 import groovy.json.JsonBuilder;

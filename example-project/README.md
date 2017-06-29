@@ -36,11 +36,17 @@ or `./gradlew idea` and then importing the project into your IDE.
 
 Next, you need to customize the Hadoop DSL workflow for your own user name and
 email address. Edit the Hadoop DSL `definitionSet` that appears at the top of
-the file `src/main/gradle/workflows.gradle` and provide your own values.
+the file `src/main/definitions/dev.gradle` and provide your own values.
+
+Since this example assumes you have separate `dev` and `prod` Hadoop grids (and
+that you want to run slightly different versions of the workflow in each grid),
+you will notice that there is also a `prod.gradle` file in
+`src/main/definitions`. The Hadoop DSL Automatic Build process will configure
+the Hadoop DSL separately for both these files.
 
 Alternatively, you can add your own Hadoop DSL profile script at
-`src/main/profiles/<yourUserName>.gradle` and provide your own `defintionSet`
-values there. See the file `src/main/profiles/abain.gradle` for an example.
+`src/main/profiles/<yourUserName>.gradle` and provide your own `definitionSet`
+overrides there. See the file `src/main/profiles/abain.gradle` for an example.
 
 Now build the project by running `./gradlew build`. This will run the
 mini-cluster based unit tests, compile the Hadoop DSL, and build your Azkaban
