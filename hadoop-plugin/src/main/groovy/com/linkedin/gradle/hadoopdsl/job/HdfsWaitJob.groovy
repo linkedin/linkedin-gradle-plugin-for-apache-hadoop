@@ -111,6 +111,7 @@ class HdfsWaitJob extends HadoopJavaJob {
     cloneJob.freshness = freshness;
     cloneJob.sleepInterval = sleepInterval;
     cloneJob.timeout = timeout;
+    cloneJob.exactPath = exactPath;
     cloneJob.forceJobToFail = forceJobToFail;
     return ((HdfsWaitJob)super.clone(cloneJob));
   }
