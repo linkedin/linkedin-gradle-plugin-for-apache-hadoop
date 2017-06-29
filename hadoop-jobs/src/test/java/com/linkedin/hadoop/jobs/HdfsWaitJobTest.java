@@ -87,15 +87,18 @@ public class HdfsWaitJobTest {
     HdfsWaitJob job = new HdfsWaitJob("job1", null);
     job.setConf(_conf);
 
-    Assert.assertTrue(job.checkDirectory("/testJob", Long.MAX_VALUE));
-    Assert.assertTrue(job.checkDirectory("/testJob", 60000));
-    Assert.assertTrue(job.checkDirectory("/testJob", 5000));
-    Assert.assertTrue(job.checkDirectory("/testJob", 150000));
+    Assert.assertTrue(job.checkDirectory("/testJob", Long.MAX_VALUE, false));
+    Assert.assertTrue(job.checkDirectory("/testJob", 60000, false));
+    Assert.assertTrue(job.checkDirectory("/testJob", 5000, false));
+    Assert.assertTrue(job.checkDirectory("/testJob", 150000, false));
+    Assert.assertTrue(job.checkDirectory("/testJob", 0, true));
+    Assert.assertTrue(job.checkDirectory("/testJob/test", Long.MAX_VALUE, true));
 
-    Assert.assertFalse(job.checkDirectory("/testJob", 10));
-    Assert.assertFalse(job.checkDirectory("/testJob", 1));
-    Assert.assertFalse(job.checkDirectory("/testJob", 0));
-    Assert.assertFalse(job.checkDirectory("/testJob/test", Long.MAX_VALUE));
+    Assert.assertFalse(job.checkDirectory("/testJob", 10, false));
+    Assert.assertFalse(job.checkDirectory("/testJob", 1, false));
+    Assert.assertFalse(job.checkDirectory("/testJob", 0, false));
+    Assert.assertFalse(job.checkDirectory("/testJob/test", Long.MAX_VALUE, false));
+    Assert.assertFalse(job.checkDirectory("/testJob/test/doesNotExist", Long.MAX_VALUE, true));
   }
 
   /**
