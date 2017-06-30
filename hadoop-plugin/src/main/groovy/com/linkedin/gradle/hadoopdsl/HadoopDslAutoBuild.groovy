@@ -25,6 +25,10 @@ import org.gradle.api.file.FileTree
  *     definitionFiles = files(['src/main/otherDefs/defs1.gradle', 'src/main/otherDefs/defs2.gradle']
  *     workflowFiles = files(['src/main/otherFlows/flows1.gradle', 'src/main/otherFlows/defs2.gradle']
  *
+ *     // Property to specify what workflow files should be applied first before any other workflow
+ *     // files. Use this to apply helper scripts that should be applied before anything else.
+ *     workflowFilesFirst = files(['src/main/gradle/common.gradle']
+ *
  *     // Properties to customize the user profile to apply. These can also be customized with command line options.
  *     profileName = 'ackermann'             // Optional - defaults to null (in which case your user name is used). Name of the user profile to apply. Pass -PprofileName=<name> on the command line to override.
  *     skipProfile = false                   // Optional - defaults to false. Specifies whether or not to skip applying the user profile. Pass -PskipProfile=true on the command line to override.
@@ -51,6 +55,11 @@ class HadoopDslAutoBuild {
   // found in the definitions and workflows paths (specified above).
   FileCollection definitionFiles
   FileCollection workflowFiles
+
+  // Property for users to manually specify what workflow files should be applied first (and the
+  // order in which to apply them) before the other workflow files. Users can use this to apply
+  // helper scripts that should be applied before anything else.
+  FileCollection firstWorkflowFiles
 
   // Properties for users to manually specify the user profile to apply
   String profileName = null
@@ -85,6 +94,7 @@ class HadoopDslAutoBuild {
     List<File> definitionFilesList = definitionFiles?.toList() ?: getMatchingFiles(definitions, '*.gradle').sort()
     List<File> profileFilesList = getMatchingFiles(profiles, '*.gradle').sort()
     List<File> workflowFilesList = workflowFiles?.toList() ?: getMatchingFiles(workflows, '*.gradle').sort()
+    List<File> firstWorkflowFilesList = firstWorkflowFiles?.toList() ?: []
 
     // If the user has enabled verbose mode, display information about the files we found
     if (showSetup) {
@@ -101,13 +111,33 @@ class HadoopDslAutoBuild {
       showFilesFound(workflowFilesList,
           "\n[Hadoop DSL Auto] Found the following Hadoop DSL workflow files:",
           "\n[Hadoop DSL Auto] No Hadoop DSL workflow files found in ${workflows}")
+
+      showFilesFound(firstWorkflowFilesList,
+          "\n[Hadoop DSL Auto] Requested to apply the following workflow files first:",
+          "\n[Hadoop DSL Auto] Not requested to apply any workflow files first")
     }
 
-    // Collect the relative paths to the workflow files
-    List<String> workflowPaths = workflowFilesList.collect { workflowFile ->
-      String filePath = workflowFile.getAbsolutePath()
-      return filePath.replace("${project.projectDir}/", "")
-    }
+    // Collect the relative paths to the definition and workflow files
+    LinkedHashSet<String> definitionPathSet = new LinkedHashSet<>()
+    LinkedHashSet<String> workflowPathSet = new LinkedHashSet<>()
+
+    // Add the definition files
+    definitionPathSet.addAll(definitionFilesList.collect { definitionFile ->
+      return definitionFile.getAbsolutePath().replace("${project.projectDir}/", "")
+    })
+
+    // Add any workflows the user requested to apply first
+    workflowPathSet.addAll(firstWorkflowFilesList.collect { workflowFile ->
+      return workflowFile.getAbsolutePath().replace("${project.projectDir}/", "")
+    })
+
+    // Then add all the remaining workflow files
+    workflowPathSet.addAll(workflowFilesList.collect { workflowFile ->
+      return workflowFile.getAbsolutePath().replace("${project.projectDir}/", "")
+    })
+
+    List<String> definitionFilesToApply = definitionPathSet.toList()
+    List<String> workflowFilesToApply = workflowPathSet.toList()
 
     // Before configuring the first definition set, clear the state of the Hadoop DSL so that every
     // definition set will be applied from a clean state.
@@ -115,20 +145,18 @@ class HadoopDslAutoBuild {
 
     // If we did not find any no definition set files, we will apply just the user profile and the
     // workflow files directly (and not save it into a temporary namespace).
-    if (definitionFilesList.isEmpty()) {
-      autoSetupForWorkflows(workflowPaths)
-      return
+    if (definitionFilesToApply.isEmpty()) {
+      autoSetupForWorkflows(workflowFilesToApply)
+      return this
     }
 
     // For each definition set, we will apply the definition set, the user profile script, and all
     // of the user's workflow scripts.
     List<Namespace> savedNamespaces = new ArrayList<Namespace>()
 
-    for (File definitionFile : definitionFilesList) {
-      String definitionSetPath = definitionFile.getAbsolutePath().replace("${project.projectDir}/", "")
-
+    for (String definitionSetPath : definitionFilesToApply) {
       // Save the state of the Hadoop DSL into a temporary namespace
-      savedNamespaces.add(autoSetupForDefinition(definitionSetPath, workflowPaths))
+      savedNamespaces.add(autoSetupForDefinition(definitionSetPath, workflowFilesToApply))
 
       // Clear the state of the Hadoop DSL before processing the next set of definitions
       dslPlugin.clearHadoopDslState()
@@ -142,6 +170,8 @@ class HadoopDslAutoBuild {
       hiddenNamespace.scope.hidden = true
       dslExtension.configureNamespace(hiddenNamespace, null)
     }
+
+    return this
   }
 
   /**
