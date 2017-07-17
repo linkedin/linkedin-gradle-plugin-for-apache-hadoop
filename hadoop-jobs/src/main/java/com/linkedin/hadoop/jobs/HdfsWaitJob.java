@@ -16,6 +16,7 @@
 package com.linkedin.hadoop.jobs;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.Properties;
 
@@ -63,7 +64,7 @@ public class HdfsWaitJob extends Configured {
    * @throws Exception If there is an exception during the parameter setup
    */
   public void run() throws Exception {
-    String dirPath = _properties.getProperty("pathToDirectory");
+    String dirPath = parseFilePath(_properties.getProperty("pathToDirectory"));
     long freshness = parseTime(_properties.getProperty("freshness"));
     long timeout = parseTime(_properties.getProperty("timeout"));
     long endTime = System.currentTimeMillis() + timeout;
@@ -90,6 +91,28 @@ public class HdfsWaitJob extends Configured {
         throw new Exception("Forcing job to fail after timeout since failOnTimeout = true");
       }
     }
+  }
+
+  /**
+   * Method parseFilePath takes in the directoryPath parameter, and checks to see if
+   * the user wants to use a daily file path. If so, the YYYY-MM-DD format is added
+   * to the end of the file path.
+   *
+   * @param dirPath The directoryPath parameter passed in by the user
+   * @return the correctly formatted file path
+   */
+  public String parseFilePath(String dirPath) {
+    if (dirPath.contains("%Y/%m/%d") || dirPath.contains("%Y-%m-%d")) {
+      String date = new Date(System.currentTimeMillis()).toString();
+
+      if (dirPath.contains("%Y/%m/%d")) {
+        date = date.replace("-", "/");
+      }
+
+      dirPath = dirPath.substring(0, dirPath.length() - 8) + date;
+      _properties.setProperty("exactPath", "true");
+    }
+    return dirPath;
   }
 
   /**
