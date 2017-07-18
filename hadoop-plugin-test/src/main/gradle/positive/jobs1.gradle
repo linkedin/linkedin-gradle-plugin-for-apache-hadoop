@@ -365,6 +365,7 @@ hadoop {
       timeoutAfter '20M 1H'    // Required
       sleepTime '2M 3S'
       checkExactPath true
+      timezone 'America/Los_Angeles'
       failOnTimeout true       // Required
       depends 'job21'
     }

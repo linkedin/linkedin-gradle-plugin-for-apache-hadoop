@@ -27,6 +27,11 @@ import org.apache.hadoop.fs.Path;
 
 import org.apache.log4j.Logger;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 /**
  * Hadoop Java job that is passed arguments from an hdfsWaitJob with type=hadoopJava.
  * This job will quit after it runs longer than the limit set by timeout, and will
@@ -35,6 +40,9 @@ import org.apache.log4j.Logger;
  * specified by dirPath that is fresh enough, we cause the job to succeed.
  */
 public class HdfsWaitJob extends Configured {
+
+  public static final String DATEFORMAT = "%Y-%m-%d";
+  public static final String DEEPDATEFORMAT = "%Y/%m/%d";
 
   private static final Logger log = Logger.getLogger(HdfsWaitJob.class);
   private String _name;
@@ -63,7 +71,7 @@ public class HdfsWaitJob extends Configured {
    * @throws Exception If there is an exception during the parameter setup
    */
   public void run() throws Exception {
-    String dirPath = _properties.getProperty("pathToDirectory");
+    String dirPath = parseFilePath(_properties.getProperty("pathToDirectory"));
     long freshness = parseTime(_properties.getProperty("freshness"));
     long timeout = parseTime(_properties.getProperty("timeout"));
     long endTime = System.currentTimeMillis() + timeout;
@@ -90,6 +98,29 @@ public class HdfsWaitJob extends Configured {
         throw new Exception("Forcing job to fail after timeout since failOnTimeout = true");
       }
     }
+  }
+
+  /**
+   * Method parseFilePath takes in the directoryPath parameter, and checks to see if
+   * the user wants to use a daily file path. If so, the YYYY-MM-DD format is added
+   * to the end of the file path, corresponding with the user's desired timezone.
+   *
+   * @param dirPath The directoryPath parameter passed in by the user
+   * @return The correctly formatted file path
+   */
+  public String parseFilePath(String dirPath) {
+    if (dirPath.contains(DATEFORMAT) || dirPath.contains(DEEPDATEFORMAT)) {
+
+      DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+      DateTimeZone timezone = DateTimeZone.forID(_properties.getProperty("timezone", "America/Los_Angeles"));
+      String date = dtf.print(DateTime.now(timezone));
+
+      dirPath = dirPath.replace(DATEFORMAT, date);
+      dirPath = dirPath.replace(DEEPDATEFORMAT, date.replace("-", "/"));
+
+      _properties.setProperty("exactPath", "true");
+    }
+    return dirPath;
   }
 
   /**

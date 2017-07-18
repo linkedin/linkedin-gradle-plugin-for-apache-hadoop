@@ -31,7 +31,9 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * check for a fresh folder, which will default to a value of 1 minute if not specified by
  * the user, checkExactPath is the boolean value you specify that when true (defaults to
  * false), the job will simply check for the existence of the dirPath, and if it exists the job
- * will succeed, and failOnTimeout is the boolean value you specify that determines if the job
+ * will succeed, timezone, which defaults to America/Los_Angeles, is a string that represents the
+ * timezone of the dirPath if the user wants to find a file path that correlates to a date,
+ * and failOnTimeout is the boolean value you specify that determines if the job fails
  * fails or succeeds on timeout. The time units that are supported when declaring the
  * 'directoryFreshness', 'timeoutAfter', and 'sleepTime' parameters are:
  *    Seconds: 'S'  ex. '49S' = 49 seconds,
@@ -44,6 +46,15 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *    ex. '40H 22M' = 40 hours and 22 minutes,
  *    ex. '0D 89S' = 0 days and 89 seconds,
  *    ex. '26H 10D 37M' = 26 hours, 10 days and 37 minutes
+ * For parameter 'directoryPath', you are able to append these two things to the 
+ * end of the file path:
+ *    "%Y-%m-%d" or "%Y/%m/%d"
+ *    ex. directoryPath 'foo/blah/%Y-%m-%d' will construct a file path of the form:
+ *        'foo/blah/YYYY-MM-DD'
+ *    ex. directoryPath 'foo/blah/%Y/%m/%d' will construct a file path of the form:
+ *        'foo/blah/YYYY/MM/DD'
+ *    The date put into the file path depends on the specified 'timezone'. All available
+ *    timezones can be seen at http://joda-time.sourceforge.net/timezones.html.
  * <p>
  * In the DSL, an HdfsWaitJob can be specified with:
  * <pre>
@@ -54,6 +65,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     timeoutAfter '1D 11S'              // Required
  *     sleepTime '2M 10S'
  *     checkExactPath true
+ *     timezone 'America/Los_Angeles'
  *     failOnTimeout true                 // Required
  *     depends 'job1'
  *   }
@@ -64,6 +76,7 @@ class HdfsWaitJob extends HadoopJavaJob {
   String freshness;
   String sleepInterval;
   String timeout;
+  String timezone;
   Boolean exactPath;
   Boolean forceJobToFail;
 
@@ -111,6 +124,7 @@ class HdfsWaitJob extends HadoopJavaJob {
     cloneJob.freshness = freshness;
     cloneJob.sleepInterval = sleepInterval;
     cloneJob.timeout = timeout;
+    cloneJob.timezone = timezone;
     cloneJob.exactPath = exactPath;
     cloneJob.forceJobToFail = forceJobToFail;
     return ((HdfsWaitJob)super.clone(cloneJob));
@@ -175,5 +189,17 @@ class HdfsWaitJob extends HadoopJavaJob {
   void timeoutAfter(String timeout) {
     this.timeout = timeout;
     setJobProperty("timeout", timeout);
+  }
+
+  /**
+   * DSL method timezone specifies the timezone in which we should construct
+   * the file path. This method causes the property timezone=value to be added to the job.
+   *
+   * @param timezone The timezone for constructing the file path
+   */
+  @HadoopDslMethod
+  void timezone(String timezone) {
+    this.timezone = timezone;
+    setJobProperty("timezone", timezone);
   }
 }

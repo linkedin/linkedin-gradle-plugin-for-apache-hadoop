@@ -9,3 +9,4 @@ job.class=com.linkedin.hadoop.jobs.HdfsWaitJob
 pathToDirectory=foo
 sleepInterval=2M 3S
 timeout=20M 1H
+timezone=America/Los_Angeles
