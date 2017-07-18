@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.13.4
+
+* Adding timezone parameter and ability for directoryPath to build paths based on date for hdfsWaitJobs
+
 0.13.3
 
 * Add Hadoop DSL automatic builds properties to apply particular workflow and definition files first

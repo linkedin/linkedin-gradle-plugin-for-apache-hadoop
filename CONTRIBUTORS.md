@@ -119,3 +119,4 @@ The following were contributed by Charlie Summers. Thanks, Charlie!
 The following were contributed by Nicholas Cowan. Thanks, Nick!
 * `Add ability for Hadoop DSL to understand the HdfsWait job type`
 * `Add subdirectory hadoop-jobs`
+* `Adding timezone parameter and ability for directoryPath to build paths based on date for hdfsWaitJobs`
