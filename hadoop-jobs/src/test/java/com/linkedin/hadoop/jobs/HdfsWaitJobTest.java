@@ -15,12 +15,19 @@
  */
 package com.linkedin.hadoop.jobs;
 
+import java.util.Properties;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 
 import org.apache.log4j.Logger;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -99,6 +106,29 @@ public class HdfsWaitJobTest {
     Assert.assertFalse(job.checkDirectory("/testJob", 0, false));
     Assert.assertFalse(job.checkDirectory("/testJob/test", Long.MAX_VALUE, false));
     Assert.assertFalse(job.checkDirectory("/testJob/test/doesNotExist", Long.MAX_VALUE, true));
+  }
+
+  /**
+   * Unit testing for hdfsWaitJob.java Test method parseFilePath to see if
+   * it returns the expected values.
+   *
+   * @throws Exception If there is a problem executing the hdfsWaitJob method
+   */
+  @Test
+  public void testParseFilePath() throws Exception {
+    HdfsWaitJob job = new HdfsWaitJob("job1", new Properties());
+
+    DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
+    DateTimeZone timezone = DateTimeZone.forID("America/Los_Angeles");
+    String date = dtf.print(DateTime.now(timezone));
+
+    String datePath = "/foo/bar/" + date;
+    String deeperDatePath = "/foo/bar/" + date.replace("-", "/");
+    String regularPath = "/foo/bar";
+
+    Assert.assertEquals(job.parseFilePath("/foo/bar/%Y-%m-%d"), datePath);
+    Assert.assertEquals(job.parseFilePath("/foo/bar/%Y/%m/%d"), deeperDatePath);
+    Assert.assertEquals(job.parseFilePath("/foo/bar"), regularPath);
   }
 
   /**
