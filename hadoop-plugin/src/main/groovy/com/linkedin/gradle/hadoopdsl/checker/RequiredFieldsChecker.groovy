@@ -35,6 +35,7 @@ import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 import org.gradle.api.Project;
@@ -188,6 +189,20 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   }
 
   @Override
+  void visitJob(VenicePushJob job) {
+    boolean emptyAvroKeyField = job.avroKeyField == null || job.avroKeyField.isEmpty();
+    boolean emptyAvroValueField = job.avroValueField == null || job.avroValueField.isEmpty();
+    boolean emptyClusterName = job.clusterName == null || job.clusterName.isEmpty();
+    boolean emptyInputPath = job.inputPath == null || job.inputPath.isEmpty();
+    boolean emptyVeniceStoreName = job.veniceStoreName == null || job.veniceStoreName.isEmpty();
+
+    if (emptyAvroKeyField || emptyAvroValueField || emptyClusterName || emptyInputPath || emptyVeniceStoreName) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: VenicePushJob ${job.name} must set avroKeyField, avroValueField, clusterName, inputPath, veniceStoreName");
+      foundError = true;
+    }
+  }
+
+  @Override
   void visitJob(VoldemortBuildPushJob job) {
     boolean emptyStoreName = job.storeName == null || job.storeName.isEmpty();
     boolean emptyClustName = job.clusterName == null || job.clusterName.isEmpty();
@@ -287,7 +302,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     boolean emptyFreshness = job.freshness == null || job.freshness.isEmpty();
     boolean emptyTimeout = job.timeout == null || job.timeout.isEmpty();
     boolean emptyForceJobToFail = job.forceJobToFail == null;
-    
+
     if (emptyDirPath || emptyFreshness || emptyTimeout || emptyForceJobToFail) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: HdfsWaitJob ${job.name} must set dirPath, freshness, timeout, and forceJobToFail");
       foundError = true;

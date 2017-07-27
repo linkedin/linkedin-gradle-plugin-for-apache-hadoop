@@ -44,6 +44,7 @@ RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdb
 RequiredFieldsChecker ERROR: PinotBuildAndPushJob job18 must set tableName, inputPath, and pushLocation
 RequiredFieldsChecker ERROR: TableauJob job19 must set workbookName
 RequiredFieldsChecker ERROR: HdfsWaitJob job20 must set dirPath, freshness, timeout, and forceJobToFail
+RequiredFieldsChecker ERROR: VenicePushJob job23 must set avroKeyField, avroValueField, clusterName, inputPath, veniceStoreName
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
 :hadoop-plugin-test:test_missingFields FAILED
 

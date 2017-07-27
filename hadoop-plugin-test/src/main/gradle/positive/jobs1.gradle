@@ -370,6 +370,14 @@ hadoop {
       depends 'job21'
     }
 
-    targets 'job22'
+    venicePushJob('job23') {
+      usesAvroKeyField 'key'
+      usesAvroValueField 'value'
+      usesClusterName '${venice.cluster.0}'
+      usesInputPath '/user/voldtest/h2v_test/1k'
+      usesVeniceStoreName 'venice_h2v_test_1k'
+      depends 'job22'
+    }
+    targets 'job23'
   }
 }

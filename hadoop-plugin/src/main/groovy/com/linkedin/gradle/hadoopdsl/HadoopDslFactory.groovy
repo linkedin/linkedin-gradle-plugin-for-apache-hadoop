@@ -37,6 +37,7 @@ import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.test.AssertionWorkflowExtension;
 import com.linkedin.gradle.test.TestExtension;
@@ -219,6 +220,16 @@ class HadoopDslFactory {
    */
   StartJob makeStartJob(String name) {
     return new StartJob(name);
+  }
+
+  /**
+   * Factory method to build a VenicePushJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  VenicePushJob makeVenicePushJob(String name) {
+    return new VenicePushJob(name);
   }
 
   /**
