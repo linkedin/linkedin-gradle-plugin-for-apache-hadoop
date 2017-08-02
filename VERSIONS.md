@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.13.5
+
+* Adding VenicePushJob job type support
+
 0.13.4
 
 * Adding timezone parameter and ability for directoryPath to build paths based on date for hdfsWaitJobs

@@ -34,6 +34,7 @@ import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 /**
@@ -390,7 +391,7 @@ interface NamedScopeContainer {
   @HadoopDslMethod
   PigJob pigJob(String name, @DelegatesTo(PigJob) Closure configure);
 
-  /** 
+  /**
    * DSL pinotBuildAndPushJob method. Creates a PinotBuildAndPushJob in scope with the given name and configuration.
    *
    * @param name The job name
@@ -494,4 +495,14 @@ interface NamedScopeContainer {
    */
    @HadoopDslMethod
    HdfsWaitJob hdfsWaitJob(String name, @DelegatesTo(HdfsWaitJob) Closure configure);
+
+  /**
+   * DSL venicePushJob method. Creates a VenicePushJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  VenicePushJob venicePushJob(String name, @DelegatesTo(VenicePushJob) Closure configure);
 }

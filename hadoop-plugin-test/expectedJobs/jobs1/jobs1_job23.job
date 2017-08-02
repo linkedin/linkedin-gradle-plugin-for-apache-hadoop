@@ -1,0 +1,8 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=VenicePushJob
+dependencies=jobs1_job22
+avro.key.field=key
+avro.value.field=value
+cluster.name=${venice.cluster.0}
+input.path=/user/voldtest/h2v_test/1k
+venice.store.name=venice_h2v_test_1k

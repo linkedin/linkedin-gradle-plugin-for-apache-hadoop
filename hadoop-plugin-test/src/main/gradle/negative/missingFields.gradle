@@ -111,6 +111,9 @@ hadoop {
       depends 'job19'
     }
 
-    targets 'job20'
+    venicePushJob('job23') {
+      depends 'job20'
+    }
+    targets 'job23'
   }
 }

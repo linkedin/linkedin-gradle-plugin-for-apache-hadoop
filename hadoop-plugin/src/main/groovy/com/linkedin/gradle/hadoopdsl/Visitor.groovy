@@ -34,6 +34,7 @@ import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 
 /**
@@ -52,8 +53,12 @@ interface Visitor {
   void visitWorkflow(Workflow workflow);
   void visitJob(Job job);
   void visitJob(CommandJob job);
+  void visitJob(GobblinJob job);
   void visitJob(HadoopJavaJob job);
   void visitJob(HadoopShellJob job);
+  void visitJob(HdfsToEspressoJob job);
+  void visitJob(HdfsToTeradataJob job);
+  void visitJob(HdfsWaitJob job);
   void visitJob(HiveJob job);
   void visitJob(JavaJob job);
   void visitJob(JavaProcessJob job);
@@ -62,12 +67,9 @@ interface Visitor {
   void visitJob(PigJob job);
   void visitJob(PinotBuildAndPushJob job);
   void visitJob(SparkJob job);
-  void visitJob(VoldemortBuildPushJob job);
-  void visitJob(HdfsToTeradataJob job);
+  void visitJob(SqlJob job);
   void visitJob(TableauJob job);
   void visitJob(TeradataToHdfsJob job);
-  void visitJob(HdfsToEspressoJob job);
-  void visitJob(GobblinJob job);
-  void visitJob(SqlJob job);
-  void visitJob(HdfsWaitJob job);
+  void visitJob(VenicePushJob job);
+  void visitJob(VoldemortBuildPushJob job);
 }
