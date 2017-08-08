@@ -242,7 +242,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(TableauJob job) {
-    if (job.workbookName == null) {
+    if (job.workbookName == null || job.workbookName.isEmpty()) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: TableauJob ${job.name} must set workbookName");
       foundError = true;
     }

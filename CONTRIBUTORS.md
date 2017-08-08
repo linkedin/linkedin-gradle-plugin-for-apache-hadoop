@@ -115,6 +115,7 @@ The following were contributed by Jianling Zhong. Thanks, Jianling!
 
 The following were contributed by Charlie Summers. Thanks, Charlie!
 * `Add ability for Hadoop DSL to understand the TableauJob job type`
+* `Adding additional condition for TableauJob creation`
 
 The following were contributed by Nicholas Cowan. Thanks, Nick!
 * `Add ability for Hadoop DSL to understand the HdfsWait job type`
