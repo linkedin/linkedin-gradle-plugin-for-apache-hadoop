@@ -35,6 +35,7 @@ dependencies {
   compile project(":azkaban-client")
 
   compile 'org.antlr:antlr-runtime:3.5.2'
+  compile 'org.yaml:snakeyaml:1.18'
   compile('org.apache.hadoop:hadoop-auth:2.3.0') { transitive = false }
   compile('org.apache.hadoop:hadoop-common:2.3.0') { transitive = false }
   compile('org.apache.hadoop:hadoop-hdfs:2.3.0') { transitive = false }
