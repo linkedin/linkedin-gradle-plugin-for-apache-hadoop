@@ -84,6 +84,7 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-26107 Parameters to override the setting in .azkabanPlugin.json`
 * `LIHADOOP-16252 Prevent core-site.xml from polluting IDE's classpath`
 * `LIHADOOP-25566 Update Dr.Elephant URL link in azkabanFlowStatus task`
 * `LIHADOOP-25637 Check for trailing slash in AzkabanUrl when running azkabanUpload task`

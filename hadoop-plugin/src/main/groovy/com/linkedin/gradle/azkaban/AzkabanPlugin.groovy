@@ -307,17 +307,22 @@ class AzkabanPlugin implements Plugin<Project> {
   }
 
   /**
-   * Reads the AzkabanProject from the .azkabanPlugin.json file or the interactive console
+   * Reads the AzkabanProject from the .azkabanPlugin.json file and overrides the values if users
+   * passes project properties.
+   *
    * @param project The Gradle project
+   * @param interactive Interactively asks users for project properties
    * @return The created AzkabanProject
    */
   AzkabanProject readAzkabanProject(Project project, boolean interactive) {
     AzkabanProject azkabanProject = AzkabanHelper.readAzkabanProjectFromJson(project, getPluginJsonPath(project));
-
+    // If .azkabanPlugin.json doesn't exist, create a default Azkaban Project
     if (azkabanProject == null) {
-      azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project,
-          makeDefaultAzkabanProject(project), getPluginJsonPath(project));
-    } else if (interactive) {
+      azkabanProject = makeDefaultAzkabanProject(project)
+    }
+    AzkabanHelper.overrideProjectProperties(project, azkabanProject);
+
+    if (interactive) {
       azkabanProject = AzkabanHelper.readAzkabanProjectFromInteractiveConsole(project, azkabanProject,
           getPluginJsonPath(project));
     }
