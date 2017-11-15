@@ -1,10 +1,6 @@
 buildscript {
-  repositories {
-    jcenter()
-  }
   dependencies {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
-    classpath 'org.yaml:snakeyaml:1.18'
   }
 }
 

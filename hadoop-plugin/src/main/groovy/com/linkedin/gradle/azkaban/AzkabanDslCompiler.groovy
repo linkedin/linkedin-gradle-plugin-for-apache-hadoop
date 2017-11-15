@@ -15,7 +15,6 @@
  */
 package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.azkaban.yaml.YamlCompiler;
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
@@ -150,11 +149,6 @@ class AzkabanDslCompiler extends BaseCompiler {
 
     // Build the list of jobs and subflows to build for the workflow
     workflow.buildWorkflowTargets(subflow);
-
-    if (!subflow) {
-      YamlCompiler yamlCompiler = new YamlCompiler(workflow, this.parentScope);
-      yamlCompiler.outputYaml(this.parentDirectory, workflow.name, this.project.name);
-    }
 
     workflow.jobsToBuild.each { Job job ->
       visitJobToBuild(job);
