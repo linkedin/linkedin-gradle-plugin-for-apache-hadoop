@@ -283,6 +283,28 @@ class AzkabanHelper {
   }
 
   /**
+   * Overrides the azkProject properties with properties passed from the Gradle project
+   * Used for overriding Azkaban Project's properties through -Pprop=value
+   *
+   * @param project The Gradle project
+   * @param azkProject The Azkaban project
+   */
+  static void overrideProjectProperties(Project project, AzkabanProject azkProject) {
+    if (project.hasProperty('azkabanProjName')) {
+      azkProject.azkabanProjName = project.property('azkabanProjName')
+    }
+    if (project.hasProperty('azkabanUrl')) {
+      azkProject.azkabanUrl = project.property('azkabanUrl')
+    }
+    if (project.hasProperty('azkabanUserName')) {
+      azkProject.azkabanUserName = project.property('azkabanUserName')
+    }
+    if (project.hasProperty('azkabanZipTask')) {
+      azkProject.azkabanZipTask = project.property('azkabanZipTask')
+    }
+  }
+
+  /**
    * Helper method to return the system console, or throw an exception with a helpful error message
    * if it cannot be accessed.
    *
@@ -548,10 +570,7 @@ class AzkabanHelper {
     AzkabanProject azkProject = new AzkabanProject();
 
     if (pluginJson != null) {
-      // If the file exists, the task should use this information, but give the user the chance
-      // to confirm or change the values read from the file. If the user changes this information,
-      // ask them if they want to save the changes (to the .azkabanPlugin.json file).
-      azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME];
+      azkProject.azkabanProjName = pluginJson[AZK_PROJ_NAME]
       azkProject.azkabanUrl = pluginJson[AZK_URL];
       azkProject.azkabanUserName = pluginJson[AZK_USER_NAME];
       azkProject.azkabanValidatorAutoFix = pluginJson[AZK_VAL_AUTO_FIX];
