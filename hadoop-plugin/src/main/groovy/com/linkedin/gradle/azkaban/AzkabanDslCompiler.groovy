@@ -13,9 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban
+package com.linkedin.gradle.azkaban;
 
-import com.linkedin.gradle.azkaban.yaml.YamlWorkflow;
+import com.linkedin.gradle.azkaban.yaml.YamlCompiler;
 import com.linkedin.gradle.hadoopdsl.BaseCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
@@ -23,9 +23,8 @@ import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml;
-import org.gradle.api.Project
+
+import org.gradle.api.Project;
 
 /**
  * Hadoop DSL compiler for Azkaban.
@@ -153,14 +152,8 @@ class AzkabanDslCompiler extends BaseCompiler {
     workflow.buildWorkflowTargets(subflow);
 
     if (!subflow) {
-      DumperOptions options = new DumperOptions();
-      options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-      Yaml yaml = new Yaml(options);
-      YamlWorkflow yamlWorkflow = new YamlWorkflow(workflow, this.parentScope, false);
-//      File ymlOutputFile = new File(this.parentDirectory, "${workflow.name}.flow");
-//      FileWriter ymlWriter = new FileWriter(ymlOutputFile);
-//      yaml.dump(yamlWorkflow.yamlize(), ymlWriter);
-      println yaml.dump(yamlWorkflow.yamlize());
+      YamlCompiler yamlCompiler = new YamlCompiler(workflow, this.parentScope);
+      yamlCompiler.outputYaml(this.parentDirectory, workflow.name, this.project.name);
     }
 
     workflow.jobsToBuild.each { Job job ->

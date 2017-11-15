@@ -1,9 +1,24 @@
-package com.linkedin.gradle.azkaban.yaml
+package com.linkedin.gradle.azkaban.yaml;
 
 /**
- * Small class used to represent a project in flow.yaml file for Azkaban Flow 2.0
- *
- * TODO reallocf make Yaml Project
+ * Representation of a project in flow.project file for Azkaban Flow 2.0
  */
 class YamlProject {
+  Double azkabanFlowVersion;
+
+  /**
+   * Constructor for YamlProject
+   */
+  YamlProject() {
+    azkabanFlowVersion = 2.0;
+  }
+
+  /**
+   * @return String Map detailing exactly what should be printed in Yaml
+   */
+  Map yamlize() {
+    Map result = [:];
+    result.put("Azkaban-Flow-Version", azkabanFlowVersion);
+    return result;
+  }
 }
