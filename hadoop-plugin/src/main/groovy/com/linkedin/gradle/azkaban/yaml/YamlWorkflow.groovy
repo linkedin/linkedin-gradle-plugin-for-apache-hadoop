@@ -11,6 +11,60 @@ import com.linkedin.gradle.hadoopdsl.job.StartJob;
  * Representation of a workflow in .flow file for Azkaban Flow 2.0
  *
  * TODO reallocf sort list of nodes into linearization of flow DAG
+ *
+ * Example .flow file:
+ *
+ * ---
+ * config:
+ *   user.to.proxy: azktest
+ *   param.hadoopOutData: /tmp/wordcounthadoopout
+ *   param.inData: /tmp/wordcountpigin
+ *   param.outData: /tmp/wordcountpigout
+ *
+ * nodes:
+ * - name: pigWordCount1
+ *   type: pig
+ *   config:
+ *     pig.script: src/main/pig/wordCountText.pig
+ * - name: hadoopWC1
+ *   type: hadoopJava
+ *   dependsOn:
+ *   - pigWordCount1
+ *   config:
+ *     classpath: ./*
+ *     force.output.overwrite: true
+ *     input.path: ${param.inData}
+ *     job.class: com.linkedin.wordcount.WordCount
+ *     main.args: ${param.inData} ${param.hadoopOutData}
+ *     output.path: ${param.hadoopOutData}
+ * - name: hive1
+ *   type: hive
+ *   config:
+ *     hive.script: src/main/hive/showdb.q
+ * - name: NoOpTest1
+ *   type: noop
+ * - name: hive2
+ *   type: hive
+ *   dependsOn:
+ *   - hive1
+ *   config:
+ *     hive.script: src/main/hive/showTables.sql
+ * - name: java1
+ *   type: javaprocess
+ *   config:
+ *     Xms: 96M
+ *     java.class: com.linkedin.foo.HelloJavaProcessJob
+ * - name: jobCommand1
+ *   type: command
+ *   config:
+ *     command: echo "hello world from job_command_1"
+ * - name: jobCommand2
+ *   type: command
+ *   dependsOn:
+ *   - jobCommand1
+ *   config:
+ *     command: echo "hello world from job_command_2"
+ * ---
  */
 class YamlWorkflow {
   String name;
