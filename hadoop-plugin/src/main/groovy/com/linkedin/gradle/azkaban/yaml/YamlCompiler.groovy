@@ -39,7 +39,7 @@ class YamlCompiler {
    * @param parentDirectory The directory where the Yaml Workflow will be written to
    * @param workflowName The name of the workflow being output
    */
-  void outputYaml(String parentDirectory, String workflowName, String projectName) {
+  void dumpYaml(String parentDirectory, String workflowName, String projectName) {
     def initYamlFile = { fileName ->
       return new FileWriter(new File(parentDirectory, fileName));
     };

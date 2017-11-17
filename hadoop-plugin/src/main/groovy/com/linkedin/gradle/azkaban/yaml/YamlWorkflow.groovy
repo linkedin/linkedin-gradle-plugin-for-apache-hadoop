@@ -90,10 +90,10 @@ class YamlWorkflow {
       if (job.class == LaunchJob.class || job.class == StartJob.class) {
         result.each { node ->
           if (node["dependsOn"]) {
-            node["dependsOn"].remove(job.name)
+            node["dependsOn"].remove(job.name);
             // Remove dependsOn key/val pair from node if dependsOn is now empty
             if (!node["dependsOn"]) {
-              node.remove("dependsOn")
+              node.remove("dependsOn");
             }
           }
         }
