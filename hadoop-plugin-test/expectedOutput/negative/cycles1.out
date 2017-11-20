@@ -2,6 +2,3 @@
 Running test for the file negative/cycles1.gradle
 JobDependencyChecker ERROR: workflow cycles1 has a dependency cycle: job1->job2->job1. The workflow dependencies must form a directed, acyclic graph.
 :hadoop-plugin-test:test_cycles1 FAILED
-
-BUILD FAILED
-

@@ -31,6 +31,8 @@ dependencies {
 
   compile project(":hadoop-plugin")
   provided project(":hadoop-plugin")
+
+  testCompile 'junit:junit:4.12'
 }
 
 task sourceJar(type: Jar) {

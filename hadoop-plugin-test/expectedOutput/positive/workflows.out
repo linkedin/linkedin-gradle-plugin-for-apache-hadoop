@@ -4,5 +4,3 @@ WorkflowJobChecker WARNING: Workflow workflowsWorkflow4 does not declare any tar
 WorkflowJobChecker WARNING: Workflow workflowsWorkflow4 contains the job job1 that is not targeted by the workflow and is not a transitive dependency of the workflow targets. This job will not be built.
 Hadoop DSL static checker PASSED
 
-BUILD SUCCESSFUL
-

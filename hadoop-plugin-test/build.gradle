@@ -60,7 +60,10 @@ def cleanBuildOutput(String buildOutput) {
     "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
     "Download (.*)\n",
     "cache artifact-at-repository.bin (.*)\n",
-    "cache artifact-at-url.bin (.*)\n"
+    "cache artifact-at-url.bin (.*)\n",
+    "Starting a Gradle Daemon, (.*), use --status for details\n",
+    "BUILD SUCCESSFUL in (.*)\n",
+    "[0-9] actionable task: [0-9] executed\n"
   ] as String[]
 
   for (String lineToRemove : linesToRemove) {

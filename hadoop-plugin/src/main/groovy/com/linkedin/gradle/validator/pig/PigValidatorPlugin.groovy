@@ -85,7 +85,7 @@ class PigValidatorPlugin implements ValidatorPlugin {
   Task createDataValidator() {
     return createValidator("pigDataExists", \
      "checks for existence of files loaded by all configured pig job scripts in the project", \
-     getDataValidatorClass()) << {
+     getDataValidatorClass()).doLast {
       if (error) {
         project.logger.error("Data validator found following errors:")
         err_paths.each { tuple ->
@@ -110,7 +110,7 @@ class PigValidatorPlugin implements ValidatorPlugin {
       createListZipFiles();
       zipContents = createListZipFiles();
       libpath = libPath;
-    } << {
+    }.doLast {
       if (error) {
         project.logger.error("Dependency validator found following errors:");
         err_paths.each { tuple -> project.logger.error("In file ${tuple[0]}, ${tuple[1]}");

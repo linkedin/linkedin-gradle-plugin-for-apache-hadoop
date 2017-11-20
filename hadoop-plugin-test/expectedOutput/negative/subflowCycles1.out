@@ -17,6 +17,3 @@ JobDependencyChecker ERROR: workflow subflowCycles2 has a dependency cycle: subf
 JobDependencyChecker ERROR: workflow subflowCycles3 has a dependency cycle: job1->flow1->job2->flow2->job1. The workflow dependencies must form a directed, acyclic graph.
 JobDependencyChecker ERROR: workflow flow1 has a dependency cycle: job1->flow2->job1. The workflow dependencies must form a directed, acyclic graph.
 :hadoop-plugin-test:test_subflowCycles1 FAILED
-
-BUILD FAILED
-

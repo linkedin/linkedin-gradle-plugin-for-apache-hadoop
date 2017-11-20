@@ -11,6 +11,3 @@ WorkflowJobChecker WARNING: Workflow flow1 does not declare any targets. Use the
 WorkflowJobChecker WARNING: Workflow flow1 does not contain any jobs or subflows. No job files will be built for this workflow.
 WorkflowJobChecker WARNING: Workflow subflowChecks4 contains the subflow flow1 that is not targeted by the workflow and is not a transitive dependency of the workflow targets. This subflow will not be built.
 :hadoop-plugin-test:test_subflowChecks1 FAILED
-
-BUILD FAILED
-

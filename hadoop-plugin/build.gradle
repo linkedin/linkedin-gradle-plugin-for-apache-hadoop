@@ -48,6 +48,8 @@ dependencies {
   runtime 'jline:jline:1.0'
   runtime 'joda-time:joda-time:2.9.4'
   runtime 'org.mortbay.jetty:jetty-util:6.1.25'
+
+  testCompile 'junit:junit:4.12'
 }
 
 task groovydocJar(type: Jar, dependsOn: groovydoc) {
