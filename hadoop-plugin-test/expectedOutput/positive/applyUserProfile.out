@@ -4,5 +4,3 @@ Could not find the Hadoop DSL profile file doesntExistFile.gradle in the path sr
 Could not find the Hadoop DSL profile file testProfile.gradle in the path doesntExistPath. Ignoring this file.
 Hadoop DSL static checker PASSED
 
-BUILD SUCCESSFUL
-

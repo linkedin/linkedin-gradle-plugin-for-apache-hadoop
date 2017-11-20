@@ -8,6 +8,3 @@ PropertySetChecker ERROR: propertySet3 declares baseProperties propertyFile1 tha
 PropertySetChecker ERROR: properties propertyFile1 declares baseProperties propertySet0 that is not bound in scope
 PropertySetChecker ERROR: properties propertyFile2 declares baseProperties propertyFile1 that refers to an object that is not a PropertySet
 :hadoop-plugin-test:test_propertySetChecks FAILED
-
-BUILD FAILED
-

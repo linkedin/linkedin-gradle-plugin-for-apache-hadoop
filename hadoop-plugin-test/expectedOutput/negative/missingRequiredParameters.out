@@ -3,6 +3,3 @@ Running test for the file negative/missingRequiredParameters.gradle
 RequiredParametersChecker ERROR: Job missingRequiredParametersWorkflow1/job2 requires parameter b, but it is not set.
 RequiredParametersChecker ERROR: Job missingRequiredParametersWorkflow1/job2 requires parameter c, but it is not set.
 :hadoop-plugin-test:test_missingRequiredParameters FAILED
-
-BUILD FAILED
-

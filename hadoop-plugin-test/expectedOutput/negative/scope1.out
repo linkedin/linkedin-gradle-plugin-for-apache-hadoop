@@ -1,6 +1,3 @@
 :hadoop-plugin-test:test_scope1
 Running test for the file negative/scope1.gradle
 :hadoop-plugin-test:test_scope1 FAILED
-
-BUILD FAILED
-

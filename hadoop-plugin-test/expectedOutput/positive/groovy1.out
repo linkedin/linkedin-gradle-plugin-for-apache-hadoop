@@ -4,5 +4,3 @@ RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. I
 RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
 Hadoop DSL static checker PASSED
 
-BUILD SUCCESSFUL
-

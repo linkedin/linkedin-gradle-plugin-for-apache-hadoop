@@ -105,8 +105,8 @@ class HadoopPluginTest {
   @Test
   void testClusterProvidedIDESupport() {
     HadoopPlugin hadoopPlugin = new HadoopPlugin();
-    EclipsePlugin eclipsePlugin = new EclipsePlugin();
-    IdeaPlugin ideaPlugin = new IdeaPlugin();
+    EclipsePlugin eclipsePlugin = new EclipsePlugin(null, null);
+    IdeaPlugin ideaPlugin = new IdeaPlugin(null, null);
 
     Project projectWithoutJavaPlugin = ProjectBuilder.builder().build();
     projectWithoutJavaPlugin.apply plugin: hadoopPlugin.class
