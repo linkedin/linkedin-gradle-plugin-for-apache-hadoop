@@ -99,9 +99,6 @@ class YamlWorkflow {
    */
   private static Map buildConfig(Workflow workflow, NamedScope parentScope, boolean subflow) {
     Map<String, String> result = [:];
-    workflow.properties.each { Properties prop ->
-      result << prop.buildProperties(parentScope);
-    }
     // For the root workflow, add all global properties
     if (!subflow) {
       NamedScope oldParentScope = (NamedScope) parentScope.properties["nextLevel"];
@@ -112,6 +109,11 @@ class YamlWorkflow {
           result << ((Properties) val).buildProperties(oldParentScope)
         }
       }
+    }
+    // Build all workflow properties after root properties so if same property is defined
+    // then the workflow property is selected
+    workflow.properties.each { Properties prop ->
+      result << prop.buildProperties(parentScope);
     }
     return result;
   }
@@ -146,7 +148,7 @@ class YamlWorkflow {
           if (node["dependsOn"]) {
             node["dependsOn"].remove(job.name);
             // Remove dependsOn key/val pair from node if dependsOn is now empty
-            if (!node["dependsOn"]) {
+            if (node["dependsOn"].isEmpty()) {
               node.remove("dependsOn");
             }
           }

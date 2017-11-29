@@ -40,11 +40,13 @@ class YamlCompiler {
    * @param workflowName The name of the workflow being output
    */
   void dumpYaml(String parentDirectory, String workflowName, String projectName) {
-    def initYamlFile = { fileName ->
-      return new FileWriter(new File(parentDirectory, fileName));
+    def initAndDumpYamlFile = { yamlObject, fileName ->
+      FileWriter fileWriter = new FileWriter(new File(parentDirectory, fileName));
+      yaml.dump(yamlObject.yamlize(), fileWriter);
+      fileWriter.close()
     };
-    yaml.dump(yamlWorkflow.yamlize(), initYamlFile("${workflowName}.flow"));
-    yaml.dump(yamlProject.yamlize(), initYamlFile("${projectName}.project"));
+    initAndDumpYamlFile(yamlWorkflow, "${workflowName}.flow");
+    initAndDumpYamlFile(yamlProject, "${projectName}.project");
   }
 
 }

@@ -4,13 +4,12 @@ package com.linkedin.gradle.azkaban.yaml;
  * Representation of a project in flow.project file for Azkaban Flow 2.0
  */
 class YamlProject {
-  Double azkabanFlowVersion;
+  final Double azkabanFlowVersion = 2.0;
 
   /**
    * Constructor for YamlProject
    */
   YamlProject() {
-    azkabanFlowVersion = 2.0;
   }
 
   /**

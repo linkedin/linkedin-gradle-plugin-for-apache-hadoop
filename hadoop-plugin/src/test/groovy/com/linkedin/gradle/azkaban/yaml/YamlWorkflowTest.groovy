@@ -116,6 +116,23 @@ class YamlWorkflowTest {
   }
 
   @Test
+  public void TestWorkflowPropertyOverGlobalProperty() {
+    Properties globalProps = new Properties("globalProperties");
+    globalProps.setJobProperty("sharedProp", "wrongVal");
+    when(mockRootNamedScope.thisLevel).thenReturn(["globalProps": globalProps]);
+    Properties workflowProps = new Properties("workflowProperties");
+    workflowProps.setJobProperty("sharedProp", "correctVal");
+    when(mockWorkflow.properties).thenReturn([workflowProps]);
+
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    assertEquals(false, yamlizedWorkflow.containsKey("name"));
+    assertEquals(false, yamlizedWorkflow.containsKey("type"));
+    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
+    assertEquals(["sharedProp": "correctVal"], yamlizedWorkflow["config"]);
+    assertEquals(false, yamlizedWorkflow.containsKey("nodes"));
+  }
+
+  @Test
   public void TestRemoveLaunchAndStartJobs() {
     StartJob startJob = new StartJob("startJob");
     LaunchJob launchJob = new LaunchJob("launchJob");
