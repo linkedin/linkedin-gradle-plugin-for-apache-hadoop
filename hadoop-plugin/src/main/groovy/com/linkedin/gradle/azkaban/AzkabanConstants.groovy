@@ -22,4 +22,5 @@ final class AzkabanConstants {
   static final String AZK_VAL_AUTO_FIX = "azkabanValidatorAutoFix";
   static final String AZK_ZIP_TASK = "azkabanZipTask";
   static final String AZK_PASSWORD = "azkabanPassword";
+  static final double AZK_FLOW_VERSION = 2.0;
 }

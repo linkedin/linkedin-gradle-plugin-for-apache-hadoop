@@ -80,12 +80,12 @@ class YamlWorkflow {
    * @param parentScope The parent scope of the workflow
    * @param subflow Boolean regarding whether or not the workflow is a subflow
    */
-  YamlWorkflow(Workflow workflow, NamedScope parentScope, boolean subflow) {
+  YamlWorkflow(Workflow workflow, NamedScope parentScope, boolean isSubflow) {
     // Include name/type in yaml only if the workflow is a subflow
-    name = subflow ? workflow.name : null;
-    type = subflow ? "flow" : null;
+    name = isSubflow ? workflow.name : null;
+    type = isSubflow ? "flow" : null;
     dependsOn = workflow.parentDependencies.toList();
-    config = buildConfig(workflow, parentScope, subflow);
+    config = buildConfig(workflow, parentScope, isSubflow);
     nodes = buildNodes(workflow, parentScope);
   }
 
@@ -97,10 +97,10 @@ class YamlWorkflow {
    * @param subflow Boolean regarding whether or not the workflow is a subflow
    * @return result The map of all properties associated with the workflow
    */
-  private static Map buildConfig(Workflow workflow, NamedScope parentScope, boolean subflow) {
+  private static Map buildConfig(Workflow workflow, NamedScope parentScope, boolean isSubflow) {
     Map<String, String> result = [:];
     // For the root workflow, add all global properties
-    if (!subflow) {
+    if (!isSubflow) {
       NamedScope oldParentScope = (NamedScope) parentScope.properties["nextLevel"];
       oldParentScope.properties["thisLevel"].each { key, val ->
         // thisLevel contains properties as well as workflows,
