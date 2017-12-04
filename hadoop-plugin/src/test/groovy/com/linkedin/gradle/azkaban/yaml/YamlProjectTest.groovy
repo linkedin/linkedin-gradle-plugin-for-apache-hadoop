@@ -10,6 +10,8 @@ class YamlProjectTest {
   public void TestYamlProject() {
     Map yamlizedProject = new YamlProject().yamlize();
 
-    assertEquals(AZK_FLOW_VERSION, (float) yamlizedProject["Azkaban-Flow-Version"], 0);
+    // The third argument - 0 - refers to the possible difference between two doubles.
+    // There should be no difference between AZK_FLOW_VERSION and the yamlProject flow version.
+    assertEquals(AZK_FLOW_VERSION, (double) yamlizedProject["Azkaban-Flow-Version"], 0);
   }
 }
