@@ -4,7 +4,8 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,8 +22,8 @@ class YamlJobTest {
     Map yamlizedJob = new YamlJob(mockJob, mockNamedScope).yamlize();
     assertEquals("test", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
-    assertEquals(false, yamlizedJob.containsKey("dependsOn"));
-    assertEquals(false, yamlizedJob.containsKey("config"));
+    assertFalse(yamlizedJob.containsKey("dependsOn"));
+    assertFalse(yamlizedJob.containsKey("config"));
   }
 
   @Test

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,11 +48,11 @@ class YamlWorkflowTest {
   @Test
   public void TestSimpleYamlWorkflow() {
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
-    assertEquals(false, yamlizedWorkflow.containsKey("name"));
-    assertEquals(false, yamlizedWorkflow.containsKey("type"));
-    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
-    assertEquals(false, yamlizedWorkflow.containsKey("config"));
-    assertEquals(false, yamlizedWorkflow.containsKey("nodes"));
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
+    assertFalse(yamlizedWorkflow.containsKey("config"));
+    assertFalse(yamlizedWorkflow.containsKey("nodes"));
   }
 
   @Test
@@ -64,9 +65,9 @@ class YamlWorkflowTest {
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
-    assertEquals(false, yamlizedWorkflow.containsKey("name"));
-    assertEquals(false, yamlizedWorkflow.containsKey("type"));
-    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     assertEquals(["configKey1": "configVal1", "configKey2": "configVal2"], yamlizedWorkflow["config"]);
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();
@@ -74,13 +75,13 @@ class YamlWorkflowTest {
     assertEquals("subflowTest", yamlizedSubflow["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals(["testFlow"], yamlizedSubflow["dependsOn"]);
-    assertEquals(false, yamlizedSubflow.containsKey("config"));
-    assertEquals(false, yamlizedSubflow.containsKey("nodes"));
+    assertFalse(yamlizedSubflow.containsKey("config"));
+    assertFalse(yamlizedSubflow.containsKey("nodes"));
     Map yamlizedJob = (Map) sortedNodes[1];
     assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
-    assertEquals(false, yamlizedJob.containsKey("dependsOn"));
-    assertEquals(false, yamlizedJob.containsKey("config"));
+    assertFalse(yamlizedJob.containsKey("dependsOn"));
+    assertFalse(yamlizedJob.containsKey("config"));
   }
 
   @Test
@@ -89,8 +90,8 @@ class YamlWorkflowTest {
     assertEquals("subflowTest", yamlizedSubflow["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
-    assertEquals(false, yamlizedSubflow.containsKey("config"));
-    assertEquals(false, yamlizedSubflow.containsKey("nodes"));
+    assertFalse(yamlizedSubflow.containsKey("config"));
+    assertFalse(yamlizedSubflow.containsKey("nodes"));
   }
 
   @Test
@@ -102,17 +103,17 @@ class YamlWorkflowTest {
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
-    assertEquals(false, yamlizedWorkflow.containsKey("name"));
-    assertEquals(false, yamlizedWorkflow.containsKey("type"));
-    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     assertEquals(["globalProp1": "val1", "globalProp2": "val2"], yamlizedWorkflow["config"]);
 
     Map yamlizedSubflow = (Map) ((List) yamlizedWorkflow["nodes"])[0];
     assertEquals("subflowTest", yamlizedSubflow ["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
-    assertEquals(false, yamlizedSubflow.containsKey("config"));
-    assertEquals(false, yamlizedSubflow.containsKey("nodes"));
+    assertFalse(yamlizedSubflow.containsKey("config"));
+    assertFalse(yamlizedSubflow.containsKey("nodes"));
   }
 
   @Test
@@ -125,11 +126,11 @@ class YamlWorkflowTest {
     when(mockWorkflow.properties).thenReturn([workflowProps]);
 
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
-    assertEquals(false, yamlizedWorkflow.containsKey("name"));
-    assertEquals(false, yamlizedWorkflow.containsKey("type"));
-    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     assertEquals(["sharedProp": "correctVal"], yamlizedWorkflow["config"]);
-    assertEquals(false, yamlizedWorkflow.containsKey("nodes"));
+    assertFalse(yamlizedWorkflow.containsKey("nodes"));
   }
 
   @Test
@@ -146,10 +147,10 @@ class YamlWorkflowTest {
     when(mockWorkflow.jobsToBuild).thenReturn([startJob, launchJob, mockJobTwo, mockJob]);
 
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
-    assertEquals(false, yamlizedWorkflow.containsKey("name"));
-    assertEquals(false, yamlizedWorkflow.containsKey("type"));
-    assertEquals(false, yamlizedWorkflow.containsKey("dependsOn"));
-    assertEquals(false, yamlizedWorkflow.containsKey("config"));
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
+    assertFalse(yamlizedWorkflow.containsKey("config"));
     assertEquals(2, ((List) yamlizedWorkflow["nodes"]).size());
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort().reverse();
@@ -157,11 +158,11 @@ class YamlWorkflowTest {
     assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertEquals([mockJobTwo.name], yamlizedJob["dependsOn"]);
-    assertEquals(false, yamlizedJob.containsKey("config"));
+    assertFalse(yamlizedJob.containsKey("config"));
     Map yamlizedJobTwo = (Map) sortedNodes[1];
     assertEquals("testJobTwo", yamlizedJobTwo["name"]);
     assertEquals("testJobtype", yamlizedJobTwo["type"]);
-    assertEquals(false, yamlizedJobTwo.containsKey("dependsOn"));
-    assertEquals(false, yamlizedJobTwo.containsKey("config"));
+    assertFalse(yamlizedJobTwo.containsKey("dependsOn"));
+    assertFalse(yamlizedJobTwo.containsKey("config"));
   }
 }
