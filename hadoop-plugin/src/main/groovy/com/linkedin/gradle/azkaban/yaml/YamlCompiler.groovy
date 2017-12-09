@@ -12,11 +12,12 @@ import org.yaml.snakeyaml.Yaml;
 
 /**
  * Turns the internal representations of workflows, jobs, and properties into their
- * corresponding Yaml counterparts then creates and fills the <workflow-name>.flow and
+ * corresponding Yaml counterparts then creates and fills the <workflow-name>.flow(s) and
  * <project-name>.project yaml files.
  *
  * The usage of Yaml compilation vs .job/.properties compilation is user-controlled within their
  * workflows.gradle file (or equivalent). The default is .job/.properties for now.
+ * TODO reallocf change default to .flow/.project in the future
  */
 class YamlCompiler extends BaseCompiler {
   Yaml yamlDumper;
@@ -60,7 +61,22 @@ class YamlCompiler extends BaseCompiler {
   }
 
   /**
-   * Helper method for DSL elements that subclass BaseNamedScopeContainer.
+   * Create and customize a Yaml object.
+   * DumperOptions.FlowStyle.BLOCK indents the yaml in the expected, most readable way.
+   *
+   * @return new properly setup Yaml object
+   */
+  private static Yaml setupYamlObject() {
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    return new Yaml(options);
+  }
+
+  /**
+   * Instead of visiting properties, jobs, and propertySets as done in BaseNamedScopeContainer,
+   * only visit workflows and namespaces.
+   *
+   * Also visit the YamlProject for the YamlCompiler.
    *
    * @param container The DSL element subclassing BaseNamedScopeContainer
    */
@@ -71,6 +87,9 @@ class YamlCompiler extends BaseCompiler {
 
     // Set the new parent scope
     this.parentScope = container.scope;
+
+    // Visit this single YamlProject
+    visitProject();
 
     // Visit each workflow
     container.workflows.each { Workflow workflow ->
@@ -87,6 +106,19 @@ class YamlCompiler extends BaseCompiler {
   }
 
   /**
+   * Dumps the YamlProject for this YamlCompiler.
+   */
+  void visitProject() {
+    File out = new File(this.parentDirectory, "${this.yamlProject.name}.project");
+    FileWriter fileWriter = new FileWriter(out);
+    this.yamlDumper.dump(this.yamlProject.yamlize(), fileWriter);
+
+    // Set to read-only to remind people that they should not be editing auto-generated yaml files.
+    out.setWritable(false);
+    fileWriter.close()
+  }
+
+  /**
    * Construct YamlCompiler from Workflow.
    * Expects that buildFlowTargets method has already been executed.
    *
@@ -96,34 +128,10 @@ class YamlCompiler extends BaseCompiler {
   @Override
   void visitWorkflow(Workflow workflow) {
     YamlWorkflow yamlWorkflow = new YamlWorkflow(workflow);
-    YamlProject yamlProject = new YamlProject();
-    // todo reallocf rethink dumpYamlFile params
-    dumpYamlFile(yamlWorkflow, this.parentDirectory, "${workflow.name}.flow");
-    dumpYamlFile(yamlProject, this.parentDirectory, "${project.name}.project");
-  }
 
-  /**
-   * Create and customize a Yaml object.
-   * DumperOptions.FlowStyle.BLOCK indents the yaml in the expected, most readable way.
-   *
-   * @return new properly setup Yaml object
-   */
-  private static Yaml setupYamlObject() {
-    DumperOptions options = new DumperOptions();
-    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    return new Yaml(options);
-  }
-
-  /**
-   * Write the YamlWorkflow and YamlProject yaml files into the proper directory.
-   *
-   * @param parentDirectory The directory where the Yaml Workflow will be written to
-   * @param workflowName The name of the workflow being output
-   */
-  private void dumpYamlFile(YamlObject yamlObject, String parentDirectory, String fileName) {
-    File out = new File(parentDirectory, fileName);
+    File out = new File(this.parentDirectory, "${workflow.name}.flow");
     FileWriter fileWriter = new FileWriter(out);
-    this.yamlDumper.dump(yamlObject.yamlize(), fileWriter);
+    this.yamlDumper.dump(yamlWorkflow.yamlize(), fileWriter);
 
     // Set to read-only to remind people that they should not be editing auto-generated yaml files.
     out.setWritable(false);
