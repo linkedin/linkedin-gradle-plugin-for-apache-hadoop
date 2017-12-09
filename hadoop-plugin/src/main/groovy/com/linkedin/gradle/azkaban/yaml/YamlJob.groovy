@@ -6,7 +6,7 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 /**
  * Representation of a job in .flow file for Azkaban Flow 2.0
  */
-class YamlJob {
+class YamlJob implements YamlObject {
   String name;
   String type;
   List<String> dependsOn;

@@ -5,11 +5,14 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
 /**
  * Representation of a project in flow.project file for Azkaban Flow 2.0
  */
-class YamlProject {
+class YamlProject implements YamlObject {
+  String name;
+
   /**
    * Constructor for YamlProject
    */
-  YamlProject() {
+  YamlProject(String name) {
+    this.name = name;
   }
 
   /**

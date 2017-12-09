@@ -66,7 +66,7 @@ import com.linkedin.gradle.hadoopdsl.job.StartJob;
  *     command: echo "hello world from job_command_2"
  * ---
  */
-class YamlWorkflow {
+class YamlWorkflow implements YamlObject {
   String name;
   String type;
   List dependsOn;
@@ -74,54 +74,80 @@ class YamlWorkflow {
   List nodes;
 
   /**
-   * Construct YamlJob from Job and the Job's parent scope
+   * Base constructor for YamlWorkflow.
    *
    * @param workflow The workflow to be converted into Yaml
-   * @param parentScope The parent scope of the workflow
+   */
+  YamlWorkflow(Workflow workflow) {
+    this(workflow, false);
+  }
+
+  /**
+   * Construct YamlWorkflow from Workflow and the Workflow's parent scope.
+   *
+   * @param workflow The workflow to be converted into Yaml
    * @param subflow Boolean regarding whether or not the workflow is a subflow
    */
-  YamlWorkflow(Workflow workflow, NamedScope parentScope, boolean isSubflow) {
+  YamlWorkflow(Workflow workflow, boolean isSubflow) {
     // Include name/type in yaml only if the workflow is a subflow
     name = isSubflow ? workflow.name : null;
     type = isSubflow ? "flow" : null;
     dependsOn = workflow.parentDependencies.toList();
-    config = buildConfig(workflow, parentScope, isSubflow);
-    nodes = buildNodes(workflow, parentScope);
+    config = buildConfig(workflow, isSubflow);
+    nodes = buildNodes(workflow, workflow.scope.nextLevel);
   }
 
   /**
-   * Create the workflow config from the properties in the namespace
+   * Create the workflow config from the properties in the namespace.
    *
    * @param workflow The workflow being constructed
-   * @param parentScope The parent scope of the workflow being constructed
    * @param subflow Boolean regarding whether or not the workflow is a subflow
    * @return result The map of all properties associated with the workflow
    */
-  private static Map buildConfig(Workflow workflow, NamedScope parentScope, boolean isSubflow) {
+  private static Map<String, String> buildConfig(Workflow workflow, boolean isSubflow) {
     Map<String, String> result = [:];
-    // For the root workflow, add all global properties
+    // Add all global properties to all workflows that aren't subflows
     if (!isSubflow) {
-      NamedScope oldParentScope = (NamedScope) parentScope.properties["nextLevel"];
-      oldParentScope.properties["thisLevel"].each { key, val ->
-        // thisLevel contains properties as well as workflows,
-        // so make sure to only parse and include Properties objects
-        if (val.getClass() == Properties) {
-          result << ((Properties) val).buildProperties(oldParentScope)
-        }
-      }
+      result << addGlobalProperties(workflow.scope.nextLevel);
     }
     // Build all workflow properties after root properties so if same property is defined
     // then the workflow property is selected
     workflow.properties.each { Properties prop ->
-      result << prop.buildProperties(parentScope);
+      result << prop.buildProperties(workflow.scope.nextLevel);
     }
     return result;
   }
 
   /**
-   * Create the workflow nodes from the jobs/subflows defined in the workflow
+   * Return all globally defined properties by recursing upward from given scope until root level
+   * is reached.
+   *
+   * @param scope Scope containing properties to be applied
+   * @return Map of recursively found properties
+   */
+  private static Map<String, String> addGlobalProperties(NamedScope scope) {
+    // Stop recursing when reach root level - don't include root level properties.
+    if (scope.nextLevel == null) {
+      return [:];
+    }
+    // Build properties from current level and add them to map to be returned.
+    Map <String, String> thisLevelProperties = [:];
+    scope.thisLevel.each { key, val ->
+      // Could contain things other than Properties such as workflows,
+      // so make sure to only include Properties objects.
+      if (val.getClass() == Properties) {
+        thisLevelProperties << ((Properties) val).buildProperties(scope.nextLevel);
+      }
+    }
+    // If same property is defined twice, take the most local property
+    // i.e. workflow property taken over global property.
+    return addGlobalProperties(scope.nextLevel) << thisLevelProperties;
+  }
+
+  /**
+   * Create the workflow nodes from the jobs/subflows defined in the workflow.
    * Instead of storing YamlJobs/YamlWorkflows themselves, store as maps in order to simplify
-   * yaml output
+   * yaml output.
    * Do not include LaunchJobs and StartJobs because they aren't needed in Flow 2.0
    *
    * @param workflow The workflow being constructed
@@ -139,7 +165,7 @@ class YamlWorkflow {
     }
     // Add all subflows
     workflow.flowsToBuild.each { Workflow subflow ->
-      result.add((new YamlWorkflow(subflow, subflow.scope, true)).yamlize());
+      result.add((new YamlWorkflow(subflow, true)).yamlize());
     }
     // Remove all LaunchJobs and StartJobs from dependencies of other jobs
     workflow.jobsToBuild.each { Job job ->

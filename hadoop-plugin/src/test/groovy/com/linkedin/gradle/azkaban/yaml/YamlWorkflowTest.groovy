@@ -16,38 +16,45 @@ import static org.mockito.Mockito.when;
 
 class YamlWorkflowTest {
 
-  NamedScope mockNamedScope = mock(NamedScope.class);
-  NamedScope mockRootNamedScope = mock(NamedScope.class);
+  NamedScope mockHadoopScope = mock(NamedScope.class);
+  NamedScope mockRootScope = mock(NamedScope.class);
   Job mockJob = mock(Job.class);
+  NamedScope mockWorkflowScope = mock(NamedScope.class);
   Workflow mockWorkflow = mock(Workflow.class);
+  NamedScope mockSubflowScope = mock(NamedScope.class);
   Workflow mockSubflow = mock(Workflow.class);
 
   @Before
   public void setup() {
-    when(mockNamedScope.nextLevel).thenReturn(mockRootNamedScope);
-    when(mockRootNamedScope.properties).thenReturn("");
+    when(mockHadoopScope.nextLevel).thenReturn(mockRootScope);
+    when(mockHadoopScope.properties).thenReturn("");
+    when(mockRootScope.nextLevel).thenReturn(null);
 
     when(mockJob.name).thenReturn("testJob");
     when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
     when(mockJob.dependencyNames).thenReturn([].toSet());
-    when(mockJob.buildProperties(mockNamedScope)).thenReturn([:]);
+    when(mockJob.buildProperties(mockWorkflowScope)).thenReturn([:]);
 
     when(mockWorkflow.name).thenReturn("testFlow");
+    when(mockWorkflow.scope).thenReturn(mockWorkflowScope);
     when(mockWorkflow.parentDependencies).thenReturn([].toSet());
     when(mockWorkflow.properties).thenReturn([]);
     when(mockWorkflow.jobsToBuild).thenReturn([]);
     when(mockWorkflow.flowsToBuild).thenReturn([]);
+    when(mockWorkflowScope.nextLevel).thenReturn(mockHadoopScope);
 
     when(mockSubflow.name).thenReturn("subflowTest");
+    when(mockSubflow.scope).thenReturn(mockSubflowScope);
     when(mockSubflow.parentDependencies).thenReturn(["testFlow"].toSet());
     when(mockSubflow.properties).thenReturn([]);
     when(mockSubflow.jobsToBuild).thenReturn([]);
     when(mockSubflow.flowsToBuild).thenReturn([]);
+    when(mockSubflowScope.nextLevel).thenReturn(mockWorkflowScope);
   }
 
   @Test
   public void TestSimpleYamlWorkflow() {
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -64,7 +71,7 @@ class YamlWorkflowTest {
     when(mockWorkflow.jobsToBuild).thenReturn([mockJob]);
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -86,7 +93,7 @@ class YamlWorkflowTest {
 
   @Test
   public void TestSubflow() {
-    Map yamlizedSubflow = new YamlWorkflow(mockSubflow, mockNamedScope, true).yamlize();
+    Map yamlizedSubflow = new YamlWorkflow(mockSubflow, true).yamlize();
     assertEquals("subflowTest", yamlizedSubflow["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
@@ -99,10 +106,10 @@ class YamlWorkflowTest {
     Properties props = new Properties("testProperties");
     props.setJobProperty("globalProp1", "val1");
     props.setJobProperty("globalProp2", "val2");
-    when(mockRootNamedScope.thisLevel).thenReturn(["globalProps": props]);
+    when(mockHadoopScope.thisLevel).thenReturn(["globalProps": props]);
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -120,16 +127,44 @@ class YamlWorkflowTest {
   public void TestWorkflowPropertyOverGlobalProperty() {
     Properties globalProps = new Properties("globalProperties");
     globalProps.setJobProperty("sharedProp", "wrongVal");
-    when(mockRootNamedScope.thisLevel).thenReturn(["globalProps": globalProps]);
+    when(mockHadoopScope.thisLevel).thenReturn(["globalProps": globalProps]);
     Properties workflowProps = new Properties("workflowProperties");
     workflowProps.setJobProperty("sharedProp", "correctVal");
     when(mockWorkflow.properties).thenReturn([workflowProps]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     assertEquals(["sharedProp": "correctVal"], yamlizedWorkflow["config"]);
+    assertFalse(yamlizedWorkflow.containsKey("nodes"));
+  }
+
+  @Test
+  public void TestWorkflowPropertyNestedGlobalProperty() {
+    NamedScope mockParentScope = mock(NamedScope.class);
+    Properties parentProps = new Properties("parentProperties");
+    parentProps.setConfProperty("parentProp", "parentVal");
+    when(mockParentScope.thisLevel).thenReturn(["parentProps": parentProps]);
+    when(mockParentScope.nextLevel).thenReturn(mockHadoopScope);
+
+    Properties globalProps = new Properties("globalProperties");
+    globalProps.setJobProperty("globalProp", "globalVal");
+    globalProps.setConfProperty("parentProp", "wrongParentVal");
+    when(mockHadoopScope.thisLevel).thenReturn(["globalProps": globalProps]);
+    Properties workflowProps = new Properties("workflowProperties");
+    workflowProps.setJobProperty("workflowProp", "workflowVal");
+    when(mockWorkflow.properties).thenReturn([workflowProps]);
+    when(mockWorkflowScope.nextLevel).thenReturn(mockParentScope);
+
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map expectedConfig = ["workflowProp": "workflowVal",
+                          "hadoop-inject.parentProp": "parentVal",
+                          "globalProp": "globalVal"];
+    assertFalse(yamlizedWorkflow.containsKey("name"));
+    assertFalse(yamlizedWorkflow.containsKey("type"));
+    assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
+    assertEquals(expectedConfig, yamlizedWorkflow["config"]);
     assertFalse(yamlizedWorkflow.containsKey("nodes"));
   }
 
@@ -141,12 +176,12 @@ class YamlWorkflowTest {
     when(mockJobTwo.name).thenReturn("testJobTwo");
     when(mockJobTwo.jobProperties).thenReturn(["type": "testJobtype"]);
     when(mockJobTwo.dependencyNames).thenReturn([].toSet());
-    when(mockJobTwo.buildProperties(mockNamedScope)).thenReturn([:]);
+    when(mockJobTwo.buildProperties(mockHadoopScope)).thenReturn([:]);
 
     when(mockJob.dependencyNames).thenReturn([startJob.name, launchJob.name, "testJobTwo"].toSet());
     when(mockWorkflow.jobsToBuild).thenReturn([startJob, launchJob, mockJobTwo, mockJob]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow, mockNamedScope, false).yamlize();
+    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
