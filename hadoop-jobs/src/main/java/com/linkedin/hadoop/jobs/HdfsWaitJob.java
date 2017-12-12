@@ -16,21 +16,19 @@
 package com.linkedin.hadoop.jobs;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import java.util.Properties;
-
+import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
 import org.apache.log4j.Logger;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 
 /**
  * Hadoop Java job that is passed arguments from an hdfsWaitJob with type=hadoopJava.
@@ -80,19 +78,24 @@ public class HdfsWaitJob extends Configured {
     boolean checkExactPath = Boolean.valueOf(_properties.getProperty("exactPath", "false"));
     boolean folderFound = false;
 
-    log.info("STATUS: Job started. Checking the directory at " + dirPath + " for fresh folders with a sleep interval of " + _properties.getProperty("sleepInterval", "1M"));
+    log.info(
+        "STATUS: Job started. Checking the directory at " + dirPath + " for fresh folders with a sleep interval of "
+            + _properties.getProperty("sleepInterval", "1M"));
 
     while (System.currentTimeMillis() < endTime && !folderFound) {
       folderFound = checkDirectory(dirPath, freshness, checkExactPath);
       if (!folderFound) {
-        log.info("STATUS: Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
-        log.info("REMINDER: Job will time out " + TimeUnit.MILLISECONDS.toMinutes(timeout) + " minutes after instantiation.");
+        log.info(
+            "STATUS: Now sleeping for " + _properties.getProperty("sleepInterval", "1M") + " before polling again.");
+        log.info("REMINDER: Job will time out " + TimeUnit.MILLISECONDS.toMinutes(timeout)
+            + " minutes after instantiation.");
         Thread.sleep(sleepTime);
       }
     }
 
     if (!folderFound) {
-      log.info("WARNING: There were no folders found in " + dirPath + " that were fresh enough before reaching timeout.");
+      log.info(
+          "WARNING: There were no folders found in " + dirPath + " that were fresh enough before reaching timeout.");
       log.info("RESULT: Job timing out with parameter failOnTimeout = " + failOnTimeout);
       if (failOnTimeout) {
         throw new Exception("Forcing job to fail after timeout since failOnTimeout = true");
@@ -151,7 +154,8 @@ public class HdfsWaitJob extends Configured {
       } else if (unit == 'D') {
         totalTime += TimeUnit.DAYS.toMillis(time);
       } else {
-        String errMessage = "ERROR: Invalid time specification: " + prop + " does not have units in seconds (S), minutes (M), hours (H), or days (D).";
+        String errMessage = "ERROR: Invalid time specification: " + prop
+            + " does not have units in seconds (S), minutes (M), hours (H), or days (D).";
         log.info(errMessage);
         throw new NumberFormatException(errMessage);
       }
@@ -171,7 +175,8 @@ public class HdfsWaitJob extends Configured {
    * @throws IOException If there is an HDFS exception
    * @return A boolean value corresponding to whether a fresh folder was found
    */
-  public boolean checkDirectory(String dirPath, long freshness, boolean checkExactPath) throws IOException, NullPointerException {
+  public boolean checkDirectory(String dirPath, long freshness, boolean checkExactPath)
+      throws IOException, NullPointerException {
     FileSystem fileSys = FileSystem.get(getConf());
 
     if (fileSys == null) {

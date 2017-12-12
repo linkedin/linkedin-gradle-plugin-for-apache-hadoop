@@ -13,11 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.util;
+package com.linkedin.gradle.util
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.Instant
 
 /**
  * Util class for Azkaban Client.
@@ -30,13 +30,12 @@ class AzkabanClientUtil {
    * @return Date format in string. Returns "- "if epoch is -1
    */
   static String epochToDate(String epoch) {
-    if (epoch.equals("-1")) {
+    if (epoch == "-1") {
       return "-"
-    } else {
-      Date date = new Date(Long.parseLong(epoch));
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-      return dateFormat.format(date);
     }
+    Date date = new Date(Long.parseLong(epoch))
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH)
+    return dateFormat.format(date)
   }
 
   /**
@@ -48,34 +47,36 @@ class AzkabanClientUtil {
    * @return elapsedTime Time elapsed between start and stop Epoch time
    */
   static String getElapsedTime(String startEpoch, String endEpoch) throws IllegalArgumentException, ArithmeticException {
-    if (startEpoch.equals("-1")) {
-      return "-";
-    } else if (endEpoch.equals("-1")) {
-      endEpoch = Long.toString(Instant.now().toEpochMilli());
+    Long end
+    if (startEpoch == "-1") {
+      return "-"
+    } else if (endEpoch == "-1") {
+      end = Long.parseLong(Long.toString(Instant.now().toEpochMilli()))
+    } else {
+      end = Long.parseLong(endEpoch)
     }
 
-    Long start = Long.parseLong(startEpoch);
-    Long end = Long.parseLong(endEpoch);
+    Long start = Long.parseLong(startEpoch)
 
     if (start < 0 || end < 0 || start > end) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException()
     }
 
-    int elapsed = (end - start)/1000L;
-    int elapsedSecs = elapsed % 60;
-    int elapsedMins = ((int)(elapsed / 60)) % 60;
-    int elapsedHours = elapsed / 3600;
+    int elapsed = (end - start) / 1000L
+    int elapsedSecs = elapsed % 60
+    int elapsedMins = ((int)(elapsed / 60)) % 60
+    int elapsedHours = elapsed / 3600
 
-    StringBuilder elapsedFormatted = new StringBuilder();
+    StringBuilder elapsedFormatted = new StringBuilder()
 
     if (elapsedHours) {
-      elapsedFormatted.append("${elapsedHours} Hr ");
+      elapsedFormatted.append("${elapsedHours} Hr ")
     }
     if (elapsedHours || elapsedMins) {
-      elapsedFormatted.append("${elapsedMins} Min ");
+      elapsedFormatted.append("${elapsedMins} Min ")
     }
-    elapsedFormatted.append("${elapsedSecs} Sec");
+    elapsedFormatted.append("${elapsedSecs} Sec")
 
-    return elapsedFormatted.toString();
+    return elapsedFormatted.toString()
   }
 }
