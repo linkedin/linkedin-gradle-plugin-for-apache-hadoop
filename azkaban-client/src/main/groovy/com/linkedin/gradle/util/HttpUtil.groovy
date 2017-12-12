@@ -13,21 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.util;
+package com.linkedin.gradle.util
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.client.ClientProtocolException
+import org.apache.http.client.methods.CloseableHttpResponse
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.protocol.HttpClientContext
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+import org.apache.http.util.EntityUtils
 
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 /**
  * Utility class for handling HTTP request and responses.
@@ -36,7 +36,7 @@ import org.gradle.api.logging.Logging;
  */
 class HttpUtil {
 
-  private final static Logger logger = Logging.getLogger(this.class);
+  private final static Logger LOGGER = Logging.getLogger(this.class)
 
   /**
    * batchGet requests implementation using threads
@@ -45,36 +45,36 @@ class HttpUtil {
    * @return responseList The list of all the batch responses
    */
   static List<String> batchGet(List<URI> uriList) {
-    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-    connectionManager.setDefaultMaxPerRoute(20);
-    CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
+    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager()
+    connectionManager.setDefaultMaxPerRoute(20)
+    CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build()
 
     try {
       // create a thread for each URI
-      GetThread[] threads = new GetThread[uriList.size()];
+      GetThread[] threads = new GetThread[uriList.size()]
       for (int i = 0; i < threads.length; i++) {
-        HttpGet httpGet = new HttpGet(uriList.get(i));
-        threads[i] = new GetThread(httpClient, httpGet);
+        HttpGet httpGet = new HttpGet(uriList.get(i))
+        threads[i] = new GetThread(httpClient, httpGet)
       }
 
       // start the threads
       for (int j = 0; j < threads.length; j++) {
-        threads[j].start();
+        threads[j].start()
       }
 
       // join the threads
       for (int j = 0; j < threads.length; j++) {
-        threads[j].join();
+        threads[j].join()
       }
 
-      List<String> responseList = new ArrayList<String>();
+      List<String> responseList = []
       for (int j = 0; j < threads.length; j++) {
-        responseList.add(threads[j].getResponse());
+        responseList.add(threads[j].getResponse())
       }
-      return responseList; //finally will always execute in spite of return statement
+      return responseList //finally will always execute in spite of return statement
 
     } finally {
-      httpClient.close();
+      httpClient.close()
     }
   }
 
@@ -85,12 +85,12 @@ class HttpUtil {
    * @return The response String
    */
   static String responseFromGET(URI uri) {
-    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    CloseableHttpClient httpClient = HttpClientBuilder.create().build()
     try {
-      String response = EntityUtils.toString(httpClient.execute(new HttpGet(uri)).getEntity());
-      return response;
+      String response = EntityUtils.toString(httpClient.execute(new HttpGet(uri)).getEntity())
+      return response
     } finally {
-      httpClient.close();
+      httpClient.close()
     }
   }
 
@@ -101,16 +101,16 @@ class HttpUtil {
    * @return The response String
    */
   static String responseFromPOST(URI uri) {
-    HttpPost httpPost = new HttpPost(uri);
-    httpPost.setHeader("Accept", "*/*");
-    httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+    HttpPost httpPost = new HttpPost(uri)
+    httpPost.setHeader("Accept", "*/*")
+    httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded")
 
-    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    CloseableHttpClient httpClient = HttpClientBuilder.create().build()
     try {
-      String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
-      return response;
+      String response = EntityUtils.toString(httpClient.execute(httpPost).getEntity())
+      return response
     } finally {
-      httpClient.close();
+      httpClient.close()
     }
   }
 
@@ -122,34 +122,34 @@ class HttpUtil {
    * @return response Returns the response string of respective thread.
    */
   static class GetThread extends Thread {
-    private final CloseableHttpClient httpClient;
-    private final HttpClientContext context;
-    private final HttpGet httpGet;
-    private String response;
+    private final CloseableHttpClient httpClient
+    private final HttpClientContext context
+    private final HttpGet httpGet
+    private String response
 
-    public GetThread(CloseableHttpClient httpClient, HttpGet httpGet) {
-      this.httpClient = httpClient;
-      this.context = HttpClientContext.create();
-      this.httpGet = httpGet;
+    GetThread(CloseableHttpClient httpClient, HttpGet httpGet) {
+      this.httpClient = httpClient
+      this.context = HttpClientContext.create()
+      this.httpGet = httpGet
     }
 
-    public String getResponse() {
-      return this.response;
+    String getResponse() {
+      return this.response
     }
 
     @Override
-    public void run() {
+    void run() {
       try {
-        CloseableHttpResponse httpResponse = httpClient.execute(httpGet, context);
+        CloseableHttpResponse httpResponse = httpClient.execute(httpGet, context)
         try {
-          response = EntityUtils.toString(httpResponse.getEntity());
+          response = EntityUtils.toString(httpResponse.getEntity())
         } finally {
-          httpResponse.close();
+          httpResponse.close()
         }
       } catch (ClientProtocolException ex) {
-        logger.error("ClientProtocolException in Thread creation. \n${ex.getMessage()}");
+        LOGGER.error("ClientProtocolException in Thread creation. \n${ex.getMessage()}")
       } catch (IOException ex) {
-        logger.error("IOException in Thread creation. \n${ex.getMessage()}");
+        LOGGER.error("IOException in Thread creation. \n${ex.getMessage()}")
       }
     }
   }

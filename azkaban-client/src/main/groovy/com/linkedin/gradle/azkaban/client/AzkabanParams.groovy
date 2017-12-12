@@ -13,19 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.client;
+package com.linkedin.gradle.azkaban.client
 
 class AzkabanParams {
-  public static final String ACTION = "action";
-  public static final String AJAX = "ajax";
-  public static final String DESCRIPTION = "description";
-  public static final String EXECID = "execid";
-  public static final String EXECUTOR = "/executor";
-  public static final String FLOW = "flow";
-  public static final String LENGTH = "length";
-  public static final String MANAGER = "/manager";
-  public static final String NAME = "name";
-  public static final String PROJECT = "project";
-  public static final String SESSIONID = "session.id";
-  public static final String START = "start";
+  public static final String ACTION = "action"
+  public static final String AJAX = "ajax"
+  public static final String DESCRIPTION = "description"
+  public static final String EXECID = "execid"
+  public static final String EXECUTOR = "/executor"
+  public static final String FLOW = "flow"
+  public static final String LENGTH = "length"
+  public static final String MANAGER = "/manager"
+  public static final String NAME = "name"
+  public static final String PROJECT = "project"
+  public static final String SESSIONID = "session.id"
+  public static final String START = "start"
 }

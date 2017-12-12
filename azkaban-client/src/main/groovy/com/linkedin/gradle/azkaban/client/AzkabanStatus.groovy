@@ -13,80 +13,80 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.client;
+package com.linkedin.gradle.azkaban.client
 
 class AzkabanStatus {
 
-  private int _cancelled;
-  private int _disabled;
-  private int _failed;
-  private int _ready;
-  private int _running;
-  private int _succeeded;
+  private int cancelled
+  private int disabled
+  private int failed
+  private int ready
+  private int running
+  private int succeeded
 
   AzkabanStatus() {
-    _cancelled = 0;
-    _disabled = 0;
-    _failed = 0;
-    _ready = 0;
-    _running = 0;
-    _succeeded = 0;
+    cancelled = 0
+    disabled = 0
+    failed = 0
+    ready = 0
+    running = 0
+    succeeded = 0
   }
 
   /**
    * Get cancelled jobs count
-   * @return _cancelled Cancelled jobs count
+   * @return cancelled Cancelled jobs count
    */
   int getCancelled() {
-    return _cancelled;
+    return cancelled
   }
 
   /**
    * Get disabled jobs count
-   * @return _disabled Disabled jobs count
+   * @return disabled Disabled jobs count
    */
   int getDisabled() {
-    return _disabled;
+    return disabled
   }
 
   /**
    * Get failed jobs count
-   * @return _failed Failed jobs count
+   * @return failed Failed jobs count
    */
   int getFailed() {
-    return _failed;
+    return failed
   }
 
   /**
    * Get jobs count which are ready
-   * @return _ready Ready jobs count
+   * @return ready Ready jobs count
    */
   int getReady() {
-    return _ready;
+    return ready
   }
 
   /**
    * Get running jobs count
-   * @return _running Running jobs count
+   * @return running Running jobs count
    */
   int getRunning() {
-    return _running;
+    return running
   }
 
   /**
    * Get succeeded jobs count
-   * @return _succeeded Succeeded jobs count
+   * @return succeeded Succeeded jobs count
    */
   int getSucceeded() {
-    return _succeeded;
+    return succeeded
   }
 
   /**
    * Get Total jobs count
-   * @return _total Total jobs count
+   * @return total Total jobs count
    */
   int getTotal() {
-    return _cancelled + _disabled + _failed + _ready + _running + _succeeded;
+    return cancelled + disabled + failed + ready + running + succeeded
   }
 
   /**
@@ -97,31 +97,31 @@ class AzkabanStatus {
   void increment(String status) {
     switch (status) {
       case "CANCELLED":
-        _cancelled++;
-        break;
+        cancelled++
+        break
 
       case "DISABLED":
-        _disabled++;
-        break;
+        disabled++
+        break
 
       case "FAILED":
-        _failed++;
-        break;
+        failed++
+        break
 
       case "READY":
-        _failed++;
-        break;
+        ready++
+        break
 
       case "RUNNING":
-        _running++;
-        break;
+        running++
+        break
 
       case "SUCCEEDED":
-        _succeeded++
-        break;
+        succeeded++
+        break
 
       default:
-        break;
+        break
     }
   }
 
@@ -131,26 +131,26 @@ class AzkabanStatus {
    * @return Status String
    */
   List<String> getStatusValues() {
-    List<String> values = new ArrayList<String>();
-    values.add(Integer.toString(getRunning()));
-    values.add(Integer.toString(getSucceeded()));
-    values.add(Integer.toString(getFailed()));
-    values.add(Integer.toString(getReady()));
-    values.add(Integer.toString(getCancelled()));
-    values.add(Integer.toString(getDisabled()));
-    values.add(Integer.toString(getTotal()));
-    return values;
+    List<String> values = []
+    values.add(Integer.toString(getRunning()))
+    values.add(Integer.toString(getSucceeded()))
+    values.add(Integer.toString(getFailed()))
+    values.add(Integer.toString(getReady()))
+    values.add(Integer.toString(getCancelled()))
+    values.add(Integer.toString(getDisabled()))
+    values.add(Integer.toString(getTotal()))
+    return values
   }
 
   static List<String> getStatusLabels() {
-    List<String> labels = new ArrayList<String>();
-    labels.add("Running");
-    labels.add("Succeeded");
-    labels.add("Failed");
-    labels.add("Ready");
-    labels.add("Cancelled");
-    labels.add("Disabled");
-    labels.add("Total");
-    return labels;
+    List<String> labels = []
+    labels.add("Running")
+    labels.add("Succeeded")
+    labels.add("Failed")
+    labels.add("Ready")
+    labels.add("Cancelled")
+    labels.add("Disabled")
+    labels.add("Total")
+    return labels
   }
 }

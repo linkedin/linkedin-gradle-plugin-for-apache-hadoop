@@ -13,26 +13,22 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.util;
+package com.linkedin.gradle.util
 
-import org.junit.Test;
+import org.junit.Test
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
-class AzkabanHelperTest {
+class AzkabanClientUtilTest {
 
   @Test
-  public void TestEpochToDate() {
-    assertEquals(AzkabanClientUtil.epochToDate("-1"), "-");
+  void TestEpochToDate() {
+    assert AzkabanClientUtil.epochToDate("-1") == "-"
   }
 
   @Test
-  public void TestGetElapsedTime() {
-    assertEquals(AzkabanClientUtil.getElapsedTime("-1", "anything"), "-");
-    assertNotEquals(AzkabanClientUtil.getElapsedTime("1476786100", "-1"), "-");
-    assertEquals(AzkabanClientUtil.getElapsedTime("1476786100000", "1476786100000"), "0 Sec");
-    assertEquals(AzkabanClientUtil.getElapsedTime("1476786100000", "1476786238000"), "2 Min 18 Sec");
-    assertEquals(AzkabanClientUtil.getElapsedTime("1476776100000", "1476786238000"), "2 Hr 48 Min 58 Sec");
+  void TestGetElapsedTime() {
+    assert AzkabanClientUtil.getElapsedTime("-1", "anything") == "-"
+    assert AzkabanClientUtil.getElapsedTime("1476786100", "-1") != "-"
+    assert AzkabanClientUtil.getElapsedTime("1476786100000", "1476786238000") == "2 Min 18 Sec"
+    assert AzkabanClientUtil.getElapsedTime("1476776100000", "1476786238000") == "2 Hr 48 Min 58 Sec"
   }
 }
