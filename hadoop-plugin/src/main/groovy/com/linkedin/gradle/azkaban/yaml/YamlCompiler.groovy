@@ -119,11 +119,9 @@ class YamlCompiler extends BaseCompiler {
   }
 
   /**
-   * Construct YamlCompiler from Workflow.
-   * Expects that buildFlowTargets method has already been executed.
+   * Construct YamlWorkflow from Workflow then dump the YamlWorkflow.
    *
-   * @param workflow The built workflow to be converted into Yaml and output
-   * @param parentScope The parent scope of the workflow
+   * @param workflow The workflow to be converted into Yaml and dumped
    */
   @Override
   void visitWorkflow(Workflow workflow) {

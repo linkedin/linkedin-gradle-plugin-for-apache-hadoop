@@ -83,9 +83,9 @@ class YamlWorkflow implements YamlObject {
   }
 
   /**
-   * Construct YamlWorkflow from Workflow and the Workflow's parent scope.
+   * Construct YamlWorkflow from Workflow.
    *
-   * @param workflow The workflow to be converted into Yaml
+   * @param workflow Workflow to be converted into Yaml
    * @param subflow Boolean regarding whether or not the workflow is a subflow
    */
   YamlWorkflow(Workflow workflow, boolean isSubflow) {
@@ -94,15 +94,15 @@ class YamlWorkflow implements YamlObject {
     type = isSubflow ? "flow" : null;
     dependsOn = workflow.parentDependencies.toList();
     config = buildConfig(workflow, isSubflow);
-    nodes = buildNodes(workflow, workflow.scope.nextLevel);
+    nodes = buildNodes(workflow);
   }
 
   /**
    * Create the workflow config from the properties in the namespace.
    *
-   * @param workflow The workflow being constructed
+   * @param workflow Workflow being converted
    * @param subflow Boolean regarding whether or not the workflow is a subflow
-   * @return result The map of all properties associated with the workflow
+   * @return result Map of all configs associated with the workflow
    */
   private static Map<String, String> buildConfig(Workflow workflow, boolean isSubflow) {
     Map<String, String> result = [:];
@@ -110,7 +110,7 @@ class YamlWorkflow implements YamlObject {
     if (!isSubflow) {
       result << addGlobalProperties(workflow.scope.nextLevel);
     }
-    // Build all workflow properties after root properties so if same property is defined
+    // Build all workflow properties global root properties so if same property is defined
     // then the workflow property is selected
     workflow.properties.each { Properties prop ->
       result << prop.buildProperties(workflow.scope.nextLevel);
@@ -126,7 +126,7 @@ class YamlWorkflow implements YamlObject {
    * @return Map of recursively found properties
    */
   private static Map<String, String> addGlobalProperties(NamedScope scope) {
-    // Stop recursing when reach root level - don't include root level properties.
+    // Stop recursing when root level is reached - don't include root level properties.
     if (scope.nextLevel == null) {
       return [:];
     }
@@ -150,17 +150,16 @@ class YamlWorkflow implements YamlObject {
    * yaml output.
    * Do not include LaunchJobs and StartJobs because they aren't needed in Flow 2.0
    *
-   * @param workflow The workflow being constructed
-   * @param parentScope The parent scope of the workflow being constructed
+   * @param workflow Workflow being constructed
    * @return result List of all nodes converted to String Maps
    */
-  private static List buildNodes(Workflow workflow, NamedScope parentScope) {
+  private static List buildNodes(Workflow workflow) {
     List result = [];
 
     // Add all jobs except LaunchJobs and StartJobs
     workflow.jobsToBuild.each { Job job ->
       if (job.class != LaunchJob.class && job.class != StartJob.class) {
-        result.add((new YamlJob(job, parentScope)).yamlize());
+        result.add((new YamlJob(job, workflow.scope)).yamlize());
       }
     }
     // Add all subflows
@@ -185,7 +184,7 @@ class YamlWorkflow implements YamlObject {
   }
 
   /**
-   * @return String Map detailing exactly what should be printed in Yaml
+   * @return Map detailing exactly what should be printed in Yaml
    * will not include name, type, dependsOn, config, or nodes if it is false
    * (i.e. dependsOn not defined)
    */

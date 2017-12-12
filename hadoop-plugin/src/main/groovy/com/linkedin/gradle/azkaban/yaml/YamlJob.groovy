@@ -13,7 +13,7 @@ class YamlJob implements YamlObject {
   Map<String, String> config;
 
   /**
-   * Construct YamlJob from Job and the Job's parent scope
+   * Construct YamlJob from Job and the Job's parent scope (the workflow's scope)
    *
    * @param job The job to be converted into Yaml
    * @param parentScope The parent scope of the job
@@ -29,7 +29,7 @@ class YamlJob implements YamlObject {
   }
 
   /**
-   * @return String Map detailing exactly what should be printed in Yaml
+   * @return Map detailing exactly what should be printed in Yaml
    * will not include name, type, dependsOn, or config if it is false (i.e. dependsOn not defined)
    */
   Map yamlize() {

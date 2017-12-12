@@ -16,7 +16,7 @@ class YamlProject implements YamlObject {
   }
 
   /**
-   * @return String Map detailing exactly what should be printed in Yaml
+   * @return Map detailing exactly what should be printed in Yaml
    */
   Map yamlize() {
     Map result = [:];
