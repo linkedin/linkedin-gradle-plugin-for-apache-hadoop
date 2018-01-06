@@ -265,8 +265,8 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
         String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test will be run in ${azkProject.azkabanProjName}";
         prettyPrintMessage(message);
-        List<String> testWorkflows = getTestWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession(), azkProject), azkProject);
-        executeAzkabanFlow(project, AzkabanHelper.readSession(), testWorkflows, azkProject);
+        List<String> testWorkflows = getTestWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession("http://example.com:123"), azkProject), azkProject);
+        executeAzkabanFlow(project, AzkabanHelper.readSession("http://example.com:123"), testWorkflows, azkProject);
       }
     }
   }
@@ -294,8 +294,8 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
 
         String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your assertions will be run in ${azkProject.azkabanProjName}";
         prettyPrintMessage(message);
-        List<String> testWorkflows = getAssertionWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession(), azkProject), azkProject);
-        executeAzkabanFlow(project, AzkabanHelper.readSession(), testWorkflows, azkProject);
+        List<String> testWorkflows = getAssertionWorkflows(project, AzkabanHelper.resumeOrGetSession(AzkabanHelper.readSession("http://example.com:123"), azkProject), azkProject);
+        executeAzkabanFlow(project, AzkabanHelper.readSession("http://example.com:123"), testWorkflows, azkProject);
       }
     }
   }
@@ -455,7 +455,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
         validateTestnameProperty(project);
 
         azkProject = getTestProjectName(project, false);
-        List<String> testflows = filterTestFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject), project);
+        List<String> testflows = filterTestFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession("http://example.com:123"), azkProject), project);
         flowsToExecute = testflows;
 
         String message = " The test project on Azkaban is ${azkProject.azkabanProjName}. Your test status will be fetched from ${azkProject.azkabanProjName}";
@@ -486,7 +486,7 @@ class TestPlugin extends HadoopDslPlugin implements Plugin<Project> {
         validateTestnameProperty(project);
 
         azkProject = getTestProjectName(project, false);
-        List<String> testflows = filterAssertionFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession(), azkProject), project);
+        List<String> testflows = filterAssertionFlows(getFlowsOrThrowError(project, AzkabanHelper.readSession("http://example.com:123"), azkProject), project);
         flowsToExecute = testflows;
 
         if(flowsToExecute.empty) {

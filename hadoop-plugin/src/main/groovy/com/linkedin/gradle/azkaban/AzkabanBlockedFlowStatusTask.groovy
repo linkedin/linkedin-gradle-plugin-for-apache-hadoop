@@ -36,7 +36,7 @@ class AzkabanBlockedFlowStatusTask extends AzkabanFlowStatusTask {
     if (azkProject.azkabanUrl == null) {
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-    getBlockedAzkabanFlowStatus(AzkabanHelper.readSession());
+    getBlockedAzkabanFlowStatus(AzkabanHelper.readSession(azkProject.azkabanUrl));
   }
 
   /**

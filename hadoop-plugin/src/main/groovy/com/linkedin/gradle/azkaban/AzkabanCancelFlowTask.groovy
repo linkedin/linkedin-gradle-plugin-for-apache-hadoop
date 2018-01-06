@@ -40,7 +40,7 @@ class AzkabanCancelFlowTask extends DefaultTask {
     if (azkProject.azkabanUrl == null) {
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-    cancelRunningAzkabanFlow(AzkabanHelper.readSession());
+    cancelRunningAzkabanFlow(AzkabanHelper.readSession(azkProject.azkabanUrl));
   }
 
   /**

@@ -37,7 +37,7 @@ class AzkabanCreateProjectTask extends DefaultTask {
     if (azkProject.azkabanUrl == null) {
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-    createAzkabanProject(AzkabanHelper.readSession());
+    createAzkabanProject(AzkabanHelper.readSession(azkProject.azkabanUrl));
   }
 
   /**

@@ -116,7 +116,7 @@ class AzkabanHelper {
       }
 
       String sessionId = jsonObj.getString("session.id");
-      saveSession(sessionId);
+      saveSession(azkabanUrl, sessionId);
       return sessionId;
     }
     finally {
@@ -412,19 +412,27 @@ class AzkabanHelper {
   /**
    * Reads the Azkaban session ID from the session.properties file in the ~/.azkaban directory.
    *
+   * @param azkabanUrl Azkaban URL
    * @return The Azkaban session ID
    */
-  static String readSession() {
-    File file = new File(System.getProperty("user.home") + "/.azkaban/session.properties");
-    String sessionId = null;
+  static String readSession(String azkabanUrl) {
+    String path = System.getProperty("user.home") + "/.azkaban/" + filesystemFriendly(azkabanUrl) + ".properties"
+    File file = new File(path);
+    logger.lifecycle("Searching for properties on path " + path + "\n");
     if (file.exists()) {
+      String sessionId = null;
       file.withInputStream { inputStream ->
+        logger.lifecycle("Properties found on path " + path + "\n");
         Properties properties = new Properties();
         properties.load(inputStream);
         sessionId = properties.getProperty("sessionId");
       }
+      logger.lifecycle("Session found. Session ID " + sessionId + " deemed valid.");
+      return sessionId;
+    } else {
+      logger.lifecycle("No properties found on path " + path);
+      return null
     }
-    return sessionId;
   }
 
   /**
@@ -458,12 +466,18 @@ class AzkabanHelper {
     return sessionId;
   }
 
+  static String filesystemFriendly(String s) {
+    return s.replaceAll("[^a-zA-Z0-9]+", "_");
+  }
+
   /**
    * Stores the session id in a properties file under ~/.azkaban.
    *
+   * @param azkabanUrl The Azkaban server URL
    * @param sessionId The session id
    */
-  static void saveSession(String sessionId) {
+  static void saveSession(String azkabanUrl, String sessionId) {
+
     if (!sessionId) {
       throw new GradleException("No session ID obtained to save");
     }
@@ -474,7 +488,7 @@ class AzkabanHelper {
       return;
     }
 
-    File file = new File(dir, "session.properties");
+    File file = new File(dir, filesystemFriendly(azkabanUrl) + ".properties");
     if (file.exists() && !file.delete()) {
       logger.error("Unable to delete the existing file at: " + file.toString());
       return;
