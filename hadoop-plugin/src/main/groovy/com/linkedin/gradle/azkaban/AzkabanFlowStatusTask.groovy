@@ -41,7 +41,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
     if (azkProject.azkabanUrl == null) {
       throw new GradleException("Please set azkaban.url in the .azkabanPlugin.json file in your project directory.");
     }
-    getAzkabanFlowStatus(AzkabanHelper.readSession());
+    getAzkabanFlowStatus(AzkabanHelper.readSession(azkProject.azkabanUrl));
   }
 
   /**
@@ -114,7 +114,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
     }
 
     // The user may have had to re-login to Azkaban, so re-read the session ID
-    sessionId = AzkabanHelper.readSession()
+    sessionId = AzkabanHelper.readSession(azkProject.azkabanUrl)
 
     // List of all the recent execution ID's of the flows defined in the project
     List<String> execIds = getRecentFlowExecutionIds(sessionId, flows);
