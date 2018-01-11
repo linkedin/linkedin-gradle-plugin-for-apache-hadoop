@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 LinkedIn Corp.
+ * Copyright 2017 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,11 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.yaml
-
-import com.linkedin.gradle.hadoopdsl.HadoopDslExtension
-import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin
-import com.linkedin.gradle.hadoopdsl.Visitor;
+package com.linkedin.gradle.azkaban.yaml;
 
 /**
  * Interface for Objects that can be converted to yaml.
