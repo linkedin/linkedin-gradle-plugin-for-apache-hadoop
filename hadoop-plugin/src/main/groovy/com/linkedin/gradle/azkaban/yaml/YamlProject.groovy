@@ -20,7 +20,7 @@ class YamlProject implements YamlObject {
    */
   Map yamlize() {
     Map result = [:];
-    result.put("Azkaban-Flow-Version", AZK_FLOW_VERSION);
+    result.put("azkaban-flow-version", AZK_FLOW_VERSION);
     return result;
   }
 }

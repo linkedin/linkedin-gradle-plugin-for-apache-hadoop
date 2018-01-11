@@ -4,8 +4,8 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.Properties;
-import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 
 /**
  * Representation of a workflow in .flow file for Azkaban Flow 2.0
@@ -148,7 +148,9 @@ class YamlWorkflow implements YamlObject {
    * Create the workflow nodes from the jobs/subflows defined in the workflow.
    * Instead of storing YamlJobs/YamlWorkflows themselves, store as maps in order to simplify
    * yaml output.
-   * Do not include LaunchJobs and StartJobs because they aren't needed in Flow 2.0
+   * Do not include StartJobs and SubFlowJobs because they aren't needed in Flow 2.0
+   * Still include LaunchJobs because the DAG engine still requires them - they may not be needed
+   * in the future.
    *
    * @param workflow Workflow being constructed
    * @return result List of all nodes converted to String Maps
@@ -156,9 +158,9 @@ class YamlWorkflow implements YamlObject {
   private static List buildNodes(Workflow workflow) {
     List result = [];
 
-    // Add all jobs except LaunchJobs and StartJobs
+    // Add all jobs except StartJobs and SubFlowJobs
     workflow.jobsToBuild.each { Job job ->
-      if (job.class != LaunchJob.class && job.class != StartJob.class) {
+      if (job.class != StartJob.class && job.class != SubFlowJob.class) {
         result.add((new YamlJob(job, workflow.scope)).yamlize());
       }
     }
@@ -166,9 +168,9 @@ class YamlWorkflow implements YamlObject {
     workflow.flowsToBuild.each { Workflow subflow ->
       result.add((new YamlWorkflow(subflow, true)).yamlize());
     }
-    // Remove all LaunchJobs and StartJobs from dependencies of other jobs
+    // Remove all StartJobs and SubFlowJobs from dependencies of other jobs
     workflow.jobsToBuild.each { Job job ->
-      if (job.class == LaunchJob.class || job.class == StartJob.class) {
+      if (job.class == StartJob.class || job.class == SubFlowJob.class) {
         result.each { node ->
           if (node["dependsOn"]) {
             node["dependsOn"].remove(job.name);

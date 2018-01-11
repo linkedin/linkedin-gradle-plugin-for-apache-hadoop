@@ -1,11 +1,12 @@
 package com.linkedin.gradle.azkaban.yaml;
 
-import com.linkedin.gradle.hadoopdsl.NamedScope
-import com.linkedin.gradle.hadoopdsl.Properties
+import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.hadoopdsl.job.Job
-import com.linkedin.gradle.hadoopdsl.job.LaunchJob
+import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -169,35 +170,44 @@ class YamlWorkflowTest {
   }
 
   @Test
-  public void TestRemoveLaunchAndStartJobs() {
+  public void TestRemoveStartAndSubflowJobs() {
     StartJob startJob = new StartJob("startJob");
-    LaunchJob launchJob = new LaunchJob("launchJob");
+    SubFlowJob subFlowJob = new SubFlowJob("subFlowJob");
     Job mockJobTwo = mock(Job.class);
     when(mockJobTwo.name).thenReturn("testJobTwo");
     when(mockJobTwo.jobProperties).thenReturn(["type": "testJobtype"]);
     when(mockJobTwo.dependencyNames).thenReturn([].toSet());
     when(mockJobTwo.buildProperties(mockHadoopScope)).thenReturn([:]);
+    LaunchJob launchJob = new LaunchJob("launchJob"); // Make sure LaunchJob is not deleted
+    launchJob.dependencyNames = [mockJob.name];
 
-    when(mockJob.dependencyNames).thenReturn([startJob.name, launchJob.name, "testJobTwo"].toSet());
-    when(mockWorkflow.jobsToBuild).thenReturn([startJob, launchJob, mockJobTwo, mockJob]);
+    when(mockJob.dependencyNames).thenReturn([startJob.name, subFlowJob.name,
+                                              "testJobTwo"].toSet());
+    when(mockWorkflow.jobsToBuild).thenReturn([startJob, subFlowJob, mockJobTwo, mockJob,
+                                               launchJob]);
 
     Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     assertFalse(yamlizedWorkflow.containsKey("config"));
-    assertEquals(2, ((List) yamlizedWorkflow["nodes"]).size());
+    assertEquals(3, ((List) yamlizedWorkflow["nodes"]).size());
 
-    List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort().reverse();
-    Map yamlizedJob = (Map) sortedNodes[0];
-    assertEquals("testJob", yamlizedJob["name"]);
-    assertEquals("testJobtype", yamlizedJob["type"]);
-    assertEquals([mockJobTwo.name], yamlizedJob["dependsOn"]);
-    assertFalse(yamlizedJob.containsKey("config"));
-    Map yamlizedJobTwo = (Map) sortedNodes[1];
+    List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();
+    Map yamlizedJobTwo = (Map) sortedNodes[0];
     assertEquals("testJobTwo", yamlizedJobTwo["name"]);
     assertEquals("testJobtype", yamlizedJobTwo["type"]);
     assertFalse(yamlizedJobTwo.containsKey("dependsOn"));
     assertFalse(yamlizedJobTwo.containsKey("config"));
+    Map yamlizedLaunchJob = (Map) sortedNodes[1];
+    assertEquals("launchJob", yamlizedLaunchJob["name"]);
+    assertEquals("noop", yamlizedLaunchJob["type"]);
+    assertEquals(["testJob"], yamlizedLaunchJob["dependsOn"]);
+    assertFalse(yamlizedLaunchJob.containsKey("config"));
+    Map yamlizedJob = (Map) sortedNodes[2];
+    assertEquals("testJob", yamlizedJob["name"]);
+    assertEquals("testJobtype", yamlizedJob["type"]);
+    assertEquals([mockJobTwo.name], yamlizedJob["dependsOn"]);
+    assertFalse(yamlizedJob.containsKey("config"));
   }
 }
