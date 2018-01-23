@@ -286,7 +286,7 @@ class AzkabanPlugin implements Plugin<Project> {
    * @return The HaodopDslCompiler
    */
   HadoopDslCompiler makeCompiler(Project project) {
-    return new AzkabanDslCompiler(project);
+    return project.extensions.hadoopDslPlugin.selectCompilerType(project);
   }
 
   /**

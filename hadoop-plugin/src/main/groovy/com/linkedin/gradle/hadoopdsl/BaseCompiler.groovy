@@ -73,6 +73,8 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     visitExtension(plugin.extension);
   }
 
+  abstract void doAtCompilerCreation();
+
   /**
    * Builds the Hadoop DSL extension, which builds the workflows and properties that have been
    * specified in the DSL and added to the extension with the hadoop { ... } DSL syntax.
@@ -107,6 +109,8 @@ abstract class BaseCompiler extends BaseVisitor implements HadoopDslCompiler {
     if (hadoop.cleanFirst) {
       cleanBuildDirectory(file);
     }
+
+    doAtCompilerCreation();
 
     // Visit the workflows and properties under the extension
     super.visitExtension(hadoop);

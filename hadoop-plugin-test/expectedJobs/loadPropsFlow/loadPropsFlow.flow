@@ -1,0 +1,52 @@
+config:
+  props3: moo3
+  props4: moo4
+  props5: moo5
+  props1: shared1
+  props2: shared2
+  props6: shared6
+nodes:
+- name: loadPropsFlow
+  type: noop
+  dependsOn:
+  - job3
+- name: job3
+  type: noop
+  dependsOn:
+  - innerflow
+  config:
+    props3: job3
+- name: job2
+  type: noop
+  config:
+    props4: shared4
+    props8: shared8
+    props2: job2
+    props7: job7
+- name: innerflow
+  type: flow
+  dependsOn:
+  - job2
+  config:
+    props5: innerflow5
+    props6: innerflow6
+    props8: innerflow8
+  nodes:
+  - name: innerflow
+    type: noop
+    dependsOn:
+    - job4
+  - name: job4
+    type: noop
+    dependsOn:
+    - job1
+    config:
+      props4: shared4
+      props8: job8
+      props9: job9
+  - name: job1
+    type: noop
+    config:
+      props1: job1
+      props2: job2
+      props8: job8
