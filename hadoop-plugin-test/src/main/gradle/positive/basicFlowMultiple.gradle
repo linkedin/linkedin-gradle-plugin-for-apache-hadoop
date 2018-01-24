@@ -38,11 +38,7 @@ hadoop {
       uses 'echo "This is an echoed text."'
     }
 
-    noOpJob('shellEnd') {
-      depends 'shellPwd', 'shellEcho', 'shellBash'
-    }
-
-    targets 'shellEnd'
+    targets 'shellPwd', 'shellEcho', 'shellBash'
   }
 
   workflow('basicFlow2') {
@@ -64,10 +60,6 @@ hadoop {
       uses 'echo "This is an echoed text."'
     }
 
-    noOpJob('shellEnd') {
-      depends 'shellPwd', 'shellEcho', 'shellBash'
-    }
-
-    targets 'shellEnd'
+    targets 'shellPwd', 'shellEcho', 'shellBash'
   }
 }

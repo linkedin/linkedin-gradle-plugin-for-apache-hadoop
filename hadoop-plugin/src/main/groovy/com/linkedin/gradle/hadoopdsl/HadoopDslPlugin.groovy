@@ -36,6 +36,8 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   List<Closure> hadoopClosures;
   Map<String, Closure> namedHadoopClosures;
 
+  static final String GENERATE_YAML_OUTPUT_FLAG_LOCATION = ".hadoop.generate_yaml_output";
+
   /**
    * Constructor for the Hadoop DSL Plugin.
    */
@@ -520,7 +522,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    * @return The User-configured Compiler, default is AzkabanDslCompiler
    */
   HadoopDslCompiler selectCompilerType(Project project) {
-    return scope.lookup(".hadoop.generate_yaml_output") ?
+    return scope.lookup(GENERATE_YAML_OUTPUT_FLAG_LOCATION) ?
             new YamlCompiler(project) : new AzkabanDslCompiler(project);
   }
 }

@@ -4,10 +4,6 @@ nodes:
 - name: basicFlow
   type: noop
   dependsOn:
-  - shellEnd
-- name: shellEnd
-  type: noop
-  dependsOn:
   - shellPwd
   - shellEcho
   - shellBash

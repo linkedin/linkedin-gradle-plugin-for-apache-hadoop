@@ -53,29 +53,17 @@ hadoop {
         addPropertyFile('properties') {
         }
 
-        noOpJob('shellEnd') {
-          depends 'shellPwd'
-        }
-
         commandJob('shellPwd') {
           uses 'pwd'
         }
 
         flowDepends 'shellBash'
-        targets 'shellEnd'
+        targets 'shellPwd'
       }
 
-      noOpJob('shellEnd') {
-        depends 'shellEcho', 'embeddedFlow2'
-      }
-
-      targets 'shellEnd'
+      targets 'shellEcho', 'embeddedFlow2'
     }
 
-    noOpJob('shellEnd') {
-      depends 'shellPwd', 'shellEcho', 'embeddedFlow1'
-    }
-
-    targets 'shellEnd'
+    targets 'shellPwd', 'shellEcho', 'embeddedFlow1'
   }
 }

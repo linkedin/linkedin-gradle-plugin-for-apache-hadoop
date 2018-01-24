@@ -4,10 +4,6 @@ nodes:
 - name: embeddedFlow
   type: noop
   dependsOn:
-  - shellEnd
-- name: shellEnd
-  type: noop
-  dependsOn:
   - shellPwd
   - shellEcho
   - embeddedFlow1
@@ -25,10 +21,6 @@ nodes:
     flow-level-parameter: value
   nodes:
   - name: embeddedFlow1
-    type: noop
-    dependsOn:
-    - shellEnd
-  - name: shellEnd
     type: noop
     dependsOn:
     - shellEcho
@@ -49,10 +41,6 @@ nodes:
       flow-level-parameter: value
     nodes:
     - name: embeddedFlow2
-      type: noop
-      dependsOn:
-      - shellEnd
-    - name: shellEnd
       type: noop
       dependsOn:
       - shellPwd
