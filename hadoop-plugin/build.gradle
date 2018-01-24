@@ -40,6 +40,7 @@ dependencies {
   compile('org.apache.hadoop:hadoop-hdfs:2.3.0') { transitive = false }
   compile 'org.apache.oozie:oozie-client:4.2.0'
   compile('org.apache.pig:pig:0.15.0') { transitive = false }
+  compile 'org.yaml:snakeyaml:1.18'
 
   runtime 'com.googlecode.json-simple:json-simple:1.1'
   runtime 'com.sun.jersey:jersey-client:1.9'
@@ -50,6 +51,7 @@ dependencies {
   runtime 'org.mortbay.jetty:jetty-util:6.1.25'
 
   testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.10.0'
 }
 
 task groovydocJar(type: Jar, dependsOn: groovydoc) {

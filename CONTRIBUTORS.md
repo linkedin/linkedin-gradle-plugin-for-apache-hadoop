@@ -117,6 +117,7 @@ The following were contributed by Jianling Zhong. Thanks, Jianling!
 * `Add supports for a "required parameters" check`
 
 The following were contributed by Charlie Summers. Thanks, Charlie!
+* `Introduce YamlCompiler, YamlWorkflow, YamlJob, and YamlProject for Flow 2.0`
 * `Add ability for Hadoop DSL to understand the TableauJob job type`
 * `Adding additional condition for TableauJob creation`
 

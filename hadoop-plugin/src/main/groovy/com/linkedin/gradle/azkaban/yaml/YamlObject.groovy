@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 LinkedIn Corp.
+ * Copyright 2017 LinkedIn Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,14 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban;
+package com.linkedin.gradle.azkaban.yaml;
 
-final class AzkabanConstants {
-  static final String AZK_PROJ_NAME = "azkabanProjName";
-  static final String AZK_URL = "azkabanUrl";
-  static final String AZK_USER_NAME = "azkabanUserName";
-  static final String AZK_VAL_AUTO_FIX = "azkabanValidatorAutoFix";
-  static final String AZK_ZIP_TASK = "azkabanZipTask";
-  static final String AZK_PASSWORD = "azkabanPassword";
-  static final double AZK_FLOW_VERSION = 2.0;
+/**
+ * Interface for Objects that can be converted to yaml.
+ */
+interface YamlObject {
+  /**
+   * Converts internal data representations into basic data types (lists, maps, ints, strings, etc.)
+   * for easy conversion to yaml.
+   *
+   * @return Map containing the converted data types.
+   */
+  Map yamlize();
 }
