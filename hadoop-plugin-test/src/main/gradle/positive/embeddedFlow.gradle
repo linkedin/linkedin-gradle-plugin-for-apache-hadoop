@@ -11,7 +11,7 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-// Simple flow for testing yaml creation for flow 2.0
+// A more complicated flow for testing yaml creation for Flow 2.0
 
 hadoop {
   buildPath "jobs/embeddedFlow"
