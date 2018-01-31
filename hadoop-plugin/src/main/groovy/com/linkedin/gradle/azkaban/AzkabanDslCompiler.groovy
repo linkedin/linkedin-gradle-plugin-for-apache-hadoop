@@ -65,6 +65,13 @@ class AzkabanDslCompiler extends BaseCompiler {
   }
 
   /**
+   * Nothing needs to be done when AzkabanDslCompiler is created.
+   */
+  @Override
+  void doOnceAfterCleaningBuildDirectory() {
+  }
+
+  /**
    * Builds the namespace. Creates a subdirectory for everything under the namespace.
    *
    * @param namespace The namespace to build

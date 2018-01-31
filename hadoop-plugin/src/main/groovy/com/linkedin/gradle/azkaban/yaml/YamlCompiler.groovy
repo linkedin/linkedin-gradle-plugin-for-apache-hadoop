@@ -76,6 +76,15 @@ class YamlCompiler extends BaseCompiler {
   }
 
   /**
+   * At creation of compiler, visit project.
+   * Only one project will ever exist per hadoop { } closure.
+   */
+  @Override
+  void doOnceAfterCleaningBuildDirectory() {
+    visitProject();
+  }
+
+  /**
    * Create and customize a Yaml object.
    * DumperOptions.FlowStyle.BLOCK indents the yaml in the expected, most readable way.
    *
@@ -91,7 +100,7 @@ class YamlCompiler extends BaseCompiler {
    * Instead of visiting properties, jobs, and propertySets as done in BaseNamedScopeContainer,
    * only visit workflows and namespaces.
    *
-   * Also visit the YamlProject for the YamlCompiler.
+   * Don't create any new directories - designed to be flat as opposed to nested dir structure.
    *
    * @param container The DSL element subclassing BaseNamedScopeContainer
    */
@@ -102,9 +111,6 @@ class YamlCompiler extends BaseCompiler {
 
     // Set the new parent scope
     this.parentScope = container.scope;
-
-    // Visit this single YamlProject
-    visitProject();
 
     // Visit each workflow
     container.workflows.each { Workflow workflow ->

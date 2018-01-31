@@ -1,0 +1,21 @@
+config:
+  flow-level-parameter: value
+nodes:
+- name: basicFlow2
+  type: noop
+  dependsOn:
+  - shellPwd
+  - shellEcho
+  - shellBash
+- name: shellPwd
+  type: command
+  config:
+    command: pwd
+- name: shellEcho
+  type: command
+  config:
+    command: echo "This is an echoed text."
+- name: shellBash
+  type: command
+  config:
+    command: bash ./sample_script.sh

@@ -1,0 +1,50 @@
+config:
+  flow-level-parameter: value
+nodes:
+- name: embeddedFlow
+  type: noop
+  dependsOn:
+  - shellPwd
+  - shellEcho
+  - embeddedFlow1
+- name: shellPwd
+  type: command
+  config:
+    command: pwd
+- name: shellEcho
+  type: command
+  config:
+    command: echo "This is an echoed text."
+- name: embeddedFlow1
+  type: flow
+  config:
+    flow-level-parameter: value
+  nodes:
+  - name: embeddedFlow1
+    type: noop
+    dependsOn:
+    - shellEcho
+    - embeddedFlow2
+  - name: shellEcho
+    type: command
+    config:
+      command: echo "This is an echoed text from embeddedFlow1."
+  - name: shellBash
+    type: command
+    config:
+      command: bash ./sample_script.sh
+  - name: embeddedFlow2
+    type: flow
+    dependsOn:
+    - shellBash
+    config:
+      flow-level-parameter: value
+    nodes:
+    - name: embeddedFlow2
+      type: noop
+      dependsOn:
+      - shellPwd
+    - name: shellPwd
+      type: command
+      config:
+        command: pwd

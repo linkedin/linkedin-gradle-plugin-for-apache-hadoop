@@ -1,0 +1,4 @@
+:hadoop-plugin-test:test_basicFlowMultiple
+Running test for the file positive/basicFlowMultiple.gradle
+Hadoop DSL static checker PASSED
+

@@ -15,6 +15,8 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.azkaban.yaml.YamlCompiler;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -33,6 +35,8 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
   // map is for named closures.
   List<Closure> hadoopClosures;
   Map<String, Closure> namedHadoopClosures;
+
+  static final String GENERATE_YAML_OUTPUT_FLAG_LOCATION = ".hadoop.generate_yaml_output";
 
   /**
    * Constructor for the Hadoop DSL Plugin.
@@ -90,6 +94,9 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
     project.extensions.add("evalHadoopClosure", this.&evalHadoopClosure);
     project.extensions.add("evalHadoopClosures", this.&evalHadoopClosures);
     project.extensions.add("hadoopClosure", this.&hadoopClosure);
+
+    // Add ability for users to toggle .job/.properties or .flow/.project output types
+    project.extensions.add("generateYamlOutput", this.&generateYamlOutput);
 
     // Add the extensions that expose the DSL to users. Specifically, expose all of the DSL
     // functions on the NamedScopeContainer interface.
@@ -500,5 +507,22 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
       throw new Exception("No definitionSet with the name ${name} has been defined");
     }
     currentDefinitionSetName = name;
+  }
+
+  /**
+   * Based on whether or not the flag generate_yaml_output is set to true in the hadoop scope
+   * (i.e. within the hadoop { } closure), select between YamlCompiler and AzkabanDslCompiler.
+   *
+   * Default is AzkabanDslCompiler for now.
+   *
+   * Flag is called 'generate_yaml_output' because underscores are not allowed in the names of
+   * other Hadoop objects, so it is highly unlikely for there to be unintentional collisions.
+   *
+   * @param project The Gradle project
+   * @return The User-configured Compiler, default is AzkabanDslCompiler
+   */
+  HadoopDslCompiler selectCompilerType(Project project) {
+    return scope.lookup(GENERATE_YAML_OUTPUT_FLAG_LOCATION) ?
+            new YamlCompiler(project) : new AzkabanDslCompiler(project);
   }
 }
