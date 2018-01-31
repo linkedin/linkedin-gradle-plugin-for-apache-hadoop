@@ -80,7 +80,7 @@ class YamlCompiler extends BaseCompiler {
    * Only one project will ever exist per hadoop { } closure.
    */
   @Override
-  void doAtCompilerCreation() {
+  void doOnceAfterCleaningBuildDirectory() {
     visitProject();
   }
 

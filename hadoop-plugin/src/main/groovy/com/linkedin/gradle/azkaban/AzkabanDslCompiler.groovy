@@ -68,7 +68,7 @@ class AzkabanDslCompiler extends BaseCompiler {
    * Nothing needs to be done when AzkabanDslCompiler is created.
    */
   @Override
-  void doAtCompilerCreation() {
+  void doOnceAfterCleaningBuildDirectory() {
   }
 
   /**
