@@ -18,7 +18,8 @@ package com.linkedin.gradle.lihadoopdsl;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.hadoopdsl.NamedScope;
+import com.linkedin.gradle.hadoopdsl.NamedScope
+import com.linkedin.gradle.lihadoopdsl.lijob.AutoTunePigLiJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
@@ -87,5 +88,15 @@ class LiHadoopDslFactory extends HadoopDslFactory {
   @Deprecated
   PigLiJob makePigLiJob(String name) {
     return new PigLiJob(name);
+  }
+
+  /**
+   * Factory method to build a Linkedin-specific AutoTunePigLiJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  AutoTunePigLiJob makeAutoTunePigLiJob(String name){
+    return new AutoTunePigLiJob(name);
   }
 }
