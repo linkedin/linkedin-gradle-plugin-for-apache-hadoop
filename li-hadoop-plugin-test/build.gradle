@@ -26,7 +26,6 @@ task initTestCases() {
     file("${project.projectDir}/output").deleteDir()
     file("${project.projectDir}/output").mkdir()
     file("${project.projectDir}/output/positive").mkdir()
-    file("${project.projectDir}/output/negative").mkdir()
   }
 }
 
