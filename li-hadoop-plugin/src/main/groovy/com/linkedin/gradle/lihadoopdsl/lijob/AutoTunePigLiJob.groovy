@@ -15,15 +15,16 @@
  */
 package com.linkedin.gradle.lihadoopdsl.lijob
 
+
 import com.linkedin.gradle.hadoopdsl.NamedScope
+
 
 /**
  * Extend the Hadoop Plugin Job classes with the LinkedIn-specific "autoTunePigLi" job type.
  * <p>
  * In the DSL, a AutoTunePigLiJob can be specified with:
  * <pre>
- *   autoTunePigLiJob('jobName') {
- *     uses 'myScript.pig'     // Required
+ *   autoTunePigLiJob('jobName') {*     uses 'myScript.pig'     // Required
  *     caches files: [
  *       'foo.jar' : '/user/bazz/foo.jar'
  *     ]
@@ -43,11 +44,13 @@ import com.linkedin.gradle.hadoopdsl.NamedScope
  *       'optimizationMetric': 'RESOURCE'
  *     ]
  *     queue 'marathon
- *  }
- * </pre>
- */
+ *}* </pre>*/
 
 class AutoTunePigLiJob extends PigLiJob {
+
+  private static final String JOB_CLASS_PROPERTY = "job.class";
+  private static final String OPTIMIZATION_VERSION_PROPERTY = "optimizationMetric";
+  private static final String ENABLE_TUNING_PROPERTY = "enable_tuning";
 
   AutoTunePigLiJob(String jobName) {
     /**
@@ -82,8 +85,13 @@ class AutoTunePigLiJob extends PigLiJob {
   @Override
   Map<String, String> buildProperties(NamedScope parentScope) {
     Map<String, String> autoTunePigBuildProperties = super.buildProperties(parentScope);
-    autoTunePigBuildProperties.put("job.class", "com.linkedin.jobtype.HadoopTuneInPigJob");
+    autoTunePigBuildProperties.put(JOB_CLASS_PROPERTY, "com.linkedin.jobtype.HadoopTuneInPigJob");
+    if (!autoTunePigBuildProperties.containsKey(OPTIMIZATION_VERSION_PROPERTY)) {
+      autoTunePigBuildProperties.put(OPTIMIZATION_VERSION_PROPERTY, "RESOURCE");
+    }
+    if (!autoTunePigBuildProperties.containsKey(ENABLE_TUNING_PROPERTY)) {
+      autoTunePigBuildProperties.put(ENABLE_TUNING_PROPERTY, "true");
+    }
     return autoTunePigBuildProperties;
   }
-
 }

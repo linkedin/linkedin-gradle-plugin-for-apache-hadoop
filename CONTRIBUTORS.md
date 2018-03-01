@@ -23,6 +23,9 @@ Vaughan.
 
 ### Contributors
 
+The following were contributed by Arpan Agrawal. Thanks, Arpan!
+* `Added AutoTunePigLiJob job type support `
+
 The following were contributed by Jun "Tony" Zhou. Thanks, Tony!
 * `Added Python Spark support for runSparkJob task.`
 * `Added support for submitting python Spark applications with Spark job type. Corresponsing tests are added.`
