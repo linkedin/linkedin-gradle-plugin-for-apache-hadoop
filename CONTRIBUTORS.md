@@ -87,6 +87,7 @@ The following were contributed by Ragesh Rajagopalan. Thanks, Ragesh!
 * `DI-584 Login prompt missing when uploading to Azkaban`
 
 The following were contributed by Pranay Hasan Yerra. Thanks, Pranay!
+* `LIHADOOP-32983 Azkaban CLI Tasks should prompt for "password+VIP" internal to Linkedin`
 * `Addressed a bug in ready status. Cleaned up the codenarc errors in azkaban-client`
 * `LIHADOOP-33260 Bump to Gradle 4.1`
 * `LIHADOOP-26107 Parameters to override the setting in .azkabanPlugin.json`
