@@ -57,6 +57,7 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_ZIP_TASK;
 class AzkabanHelper {
 
   private final static Logger logger = Logging.getLogger(AzkabanHelper);
+  static String passwordString = "Password";
 
   /**
    * Helper method to make a login request to Azkaban.
@@ -418,19 +419,15 @@ class AzkabanHelper {
   static String readSession(String azkabanUrl) {
     String path = System.getProperty("user.home") + "/.azkaban/" + filesystemFriendly(azkabanUrl) + ".properties"
     File file = new File(path);
-    logger.lifecycle("Searching for properties on path " + path + "\n");
     if (file.exists()) {
       String sessionId = null;
       file.withInputStream { inputStream ->
-        logger.lifecycle("Properties found on path " + path + "\n");
         Properties properties = new Properties();
         properties.load(inputStream);
         sessionId = properties.getProperty("sessionId");
       }
-      logger.lifecycle("Session found. Session ID " + sessionId + " deemed valid.");
       return sessionId;
     } else {
-      logger.lifecycle("No properties found on path " + path);
       return null
     }
   }
@@ -453,9 +450,9 @@ class AzkabanHelper {
 
       if (azkProject.azkabanPassword == null) {
         def console = getSystemConsole();
-        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter password: ", true));
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter ${passwordString}: ", true));
       } else {
-        logger.lifecycle("Azkaban Password: *********");
+        logger.lifecycle("Azkaban ${passwordString}: *********");
         sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, azkProject.azkabanPassword.toCharArray());
       }
     }

@@ -17,6 +17,7 @@ package com.linkedin.gradle.liazkaban;
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
+import com.linkedin.gradle.azkaban.AzkabanHelper;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
 import com.linkedin.gradle.azkaban.AzkabanProject;
 import com.linkedin.gradle.lihadoop.LiHadoopProperties;
@@ -88,5 +89,19 @@ class LiAzkabanPlugin extends AzkabanPlugin {
     } catch (Exception ex) {
       logger.error("Failed to fetch message. Error: " + ex.getMessage());
     }
+  }
+
+  /**
+   * Sets the passwordString to print Password+VIP before reading the AzkabanProject from the
+   * .azkabanPlugin.json file and overrides the values if users passes project properties.
+   *
+   * @param project The Gradle project
+   * @param interactive Interactively asks users for project properties
+   * @return The created AzkabanProject
+   */
+  @Override
+  AzkabanProject readAzkabanProject(Project project, boolean interactive) {
+    AzkabanHelper.setPasswordString("Password+VIP")
+    super.readAzkabanProject(project,interactive)
   }
 }
