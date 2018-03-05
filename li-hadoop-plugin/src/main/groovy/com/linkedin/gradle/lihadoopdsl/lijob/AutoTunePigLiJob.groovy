@@ -51,6 +51,7 @@ class AutoTunePigLiJob extends PigLiJob {
   private static final String JOB_CLASS_PROPERTY = "job.class";
   private static final String OPTIMIZATION_VERSION_PROPERTY = "optimizationMetric";
   private static final String ENABLE_TUNING_PROPERTY = "enable_tuning";
+  private static final String DISABLE_TUNING_PROPERTY = "disable_tuning";
 
   AutoTunePigLiJob(String jobName) {
     /**
@@ -90,7 +91,16 @@ class AutoTunePigLiJob extends PigLiJob {
       autoTunePigBuildProperties.put(OPTIMIZATION_VERSION_PROPERTY, "RESOURCE");
     }
     if (!autoTunePigBuildProperties.containsKey(ENABLE_TUNING_PROPERTY)) {
-      autoTunePigBuildProperties.put(ENABLE_TUNING_PROPERTY, "true");
+      if (autoTunePigBuildProperties.containsKey(DISABLE_TUNING_PROPERTY) &&
+          autoTunePigBuildProperties.get(DISABLE_TUNING_PROPERTY).equalsIgnoreCase("True")) {
+        autoTunePigBuildProperties.put(ENABLE_TUNING_PROPERTY, "false");
+      } else {
+        autoTunePigBuildProperties.put(ENABLE_TUNING_PROPERTY, "true");
+      }
+    }
+
+    if(autoTunePigBuildProperties.containsKey(DISABLE_TUNING_PROPERTY)){
+      autoTunePigBuildProperties.remove(DISABLE_TUNING_PROPERTY);
     }
     return autoTunePigBuildProperties;
   }

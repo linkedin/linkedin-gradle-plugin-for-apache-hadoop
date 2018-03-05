@@ -155,7 +155,7 @@ testFiles.each { fileName ->
 
 // Setup the a master task that runs all the test case wrappers.
 task runDslTestCases(dependsOn: initTestCases) {
-  description = "Li Runs the Hadoop DSL test cases"
+  description = "Runs the Li Hadoop DSL test cases"
   group = "Li Hadoop DSL Tests"
 
   testFiles.each() { fileName ->
@@ -167,14 +167,14 @@ task runDslTestCases(dependsOn: initTestCases) {
 // Create a task that compares the generated files against the set of known good job files.
 task compareKnownJobFiles(type: Exec, dependsOn: runDslTestCases) {
   description = "Compares the results of the known job files to the compiled job files"
-  group = "Hadoop DSL Tests"
+  group = "Li Hadoop DSL Tests"
   commandLine "diff", "-r", "${project.projectDir}/expectedJobs", "${project.projectDir}/jobs"
 }
 
 // Create a task that compares the console output against the known console output.
 task compareKnownOutputFiles(type: Exec, dependsOn: runDslTestCases) {
   description = "Compares the results of the known output to the actual output"
-  group = "Hadoop DSL Tests"
+  group = "Li Hadoop DSL Tests"
   commandLine "diff", "-r", "${project.projectDir}/expectedOutput", "${project.projectDir}/output"
 }
 
