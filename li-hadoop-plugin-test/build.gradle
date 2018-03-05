@@ -17,8 +17,29 @@ task forceGradlew(type: Exec) {
 task initTestCases() {
   dependsOn ":li-hadoop-plugin:build"
   dependsOn forceGradlew
-  description = "Hadoop DSL task to prepare the test cases"
-  group = "Hadoop DSL Tests"
+  description = "Li Hadoop DSL task to prepare the test cases"
+  group = "Li Hadoop DSL Tests"
+
+  doFirst {
+    file("${project.projectDir}/jobs").deleteDir()
+    file("${project.projectDir}/jobs").mkdir()
+    file("${project.projectDir}/output").deleteDir()
+    file("${project.projectDir}/output").mkdir()
+    file("${project.projectDir}/output/positive").mkdir()
+  }
+}
+
+// Enumerate the test case files.
+def testFiles = []
+
+def testCases = project.fileTree([
+    dir: "${project.projectDir}",
+    include: "src/main/gradle/**/*.gradle"
+])
+
+testCases.each { File file ->
+  String relPath = file.getAbsolutePath().replace("${project.projectDir}/src/main/gradle/", "")
+  testFiles.add(relPath)
 }
 
 // Helper function to determine the location of the li-hadoop-plugin jars. LinkedIn internal builds
@@ -33,8 +54,147 @@ def buildPluginDir(Project project) {
   return project.hasProperty("overridePluginTestDir") ? project.overridePluginTestDir : project.pluginTestDir
 }
 
+// Get rid of messages about starting the Gradle daemon.
+// Get rid of LinkedIn-specific messages about CIA instrumentation.
+// Get rid of LinkedIn-specific messages about posting task-result start and end.
+// Get rid of the variable "Total time: 4.544 secs" that appears at the end of the output.
+def cleanBuildOutput(String buildOutput) {
+  String[] linesToRemove = [
+      "Starting a new Gradle Daemon for this build \\(subsequent builds will be faster\\).\n",
+      "Will post to CIA for parent task uuid [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\n",
+      "posting task-result-start for li-hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
+      "posting task-result-end [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12} for li-hadoop-plugin-test:test_[a-zA-Z0-9]*\n",
+      "Download (.*)\n",
+      "cache artifact-at-repository.bin (.*)\n",
+      "cache artifact-at-url.bin (.*)\n",
+      "Starting a Gradle Daemon, (.*), use --status for details\n",
+      "BUILD SUCCESSFUL in (.*)\n",
+      "[0-9] actionable task: [0-9] executed\n"
+  ] as String[]
+
+  for (String lineToRemove : linesToRemove) {
+    buildOutput = buildOutput.replaceFirst(lineToRemove, "")
+  }
+
+  int endIndex = buildOutput.lastIndexOf("Total time:")
+  return (endIndex == -1) ? buildOutput : buildOutput.substring(0, endIndex)
+}
+
+// Determine the base file name for a test case file from its relative path name.
+def findBaseFileName(String fileName) {
+  return fileName.replace("positive/", "").replace("negative/", "").replace(".gradle", "")
+}
+
+// Create a task for each test case
+testFiles.each { fileName ->
+  String baseFileName = findBaseFileName(fileName)
+  String pluginDir = buildPluginDir(project)
+
+  project.tasks.create("test_${baseFileName}") {
+    description = "Li Hadoop DSL test case for the file ${fileName}"
+    group = "Li Hadoop DSL Tests"
+
+    doFirst {
+      logger.lifecycle("Running test for the file ${fileName}")
+    }
+    doLast {
+      project.pluginTestDir="${pluginDir}"
+      apply from: "src/main/gradle/${fileName}"
+      project.tasks["buildAzkabanFlows"].execute()
+    }
+  }
+}
+
+// Create a wrapper task that runs each test case and captures its output.
+testFiles.each { fileName ->
+  String baseFileName = findBaseFileName(fileName)
+  String baseDirName = fileName.replace("${baseFileName}.gradle", "").replace("/", "")
+  String outputFile = baseDirName.isEmpty() ? "${baseFileName}.out" : "${baseDirName}/${baseFileName}.out"
+
+  // Properties to work with LinkedIn internal builds. In LinkedIn internal builds, the build
+  // directory is in a different place, so pass the location to the test case task.
+  String pluginDir = buildPluginDir(project)
+
+  project.tasks.create(name: "run_${baseFileName}", type: Exec, dependsOn: initTestCases) {
+    description = "Runs Li Hadoop DSL test case for the file ${fileName} and captures the output"
+    group = "Li Hadoop DSL Tests"
+
+    // If a test fails that is supposed to pass, we want to see the stacktrace.
+    if ("positive" == baseDirName) {
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}", "--stacktrace"
+    } else {
+      commandLine "${project.projectDir}/../gradlew", "test_${baseFileName}", "-PoverridePluginTestDir=${pluginDir}"
+    }
+
+    ignoreExitValue true
+
+    // Store the output instead of printing to the console
+    // errorOutput = new ByteArrayOutputStream()
+    standardOutput = new ByteArrayOutputStream()
+
+    doLast {
+      String buildOutput = standardOutput.toString()
+      logger.lifecycle(buildOutput)
+
+      new File("${project.projectDir}/output/${outputFile}").withWriter { out ->
+        out.write(cleanBuildOutput(buildOutput))
+      }
+
+      // If a test case gives the wrong result, stop right there with an exception.
+      if ("positive" == baseDirName && execResult.getExitValue() != 0) {
+        throw new Exception("Positive test case ${baseFileName} failed")
+      }
+
+      if ("negative" == baseDirName && execResult.getExitValue() == 0) {
+        throw new Exception("Negative test case ${baseFileName} passed")
+      }
+    }
+  }
+}
+
+
+// Setup the a master task that runs all the test case wrappers.
+task runDslTestCases(dependsOn: initTestCases) {
+  description = "Runs the Li Hadoop DSL test cases"
+  group = "Li Hadoop DSL Tests"
+
+  testFiles.each() { fileName ->
+    String baseFileName = findBaseFileName(fileName)
+    dependsOn "run_${baseFileName}"
+  }
+}
+
+// Create a task that compares the generated files against the set of known good job files.
+task compareKnownJobFiles(type: Exec, dependsOn: runDslTestCases) {
+  description = "Compares the results of the known job files to the compiled job files"
+  group = "Li Hadoop DSL Tests"
+  commandLine "diff", "-r", "${project.projectDir}/expectedJobs", "${project.projectDir}/jobs"
+}
+
+// Create a task that compares the console output against the known console output.
+task compareKnownOutputFiles(type: Exec, dependsOn: runDslTestCases) {
+  description = "Compares the results of the known output to the actual output"
+  group = "Li Hadoop DSL Tests"
+  commandLine "diff", "-r", "${project.projectDir}/expectedOutput", "${project.projectDir}/output"
+}
+
+// Create a master task that runs the test cases and compares the results.
+task runTestCasesAndCompareOutput {
+  dependsOn compareKnownJobFiles
+  dependsOn compareKnownOutputFiles
+  description = "Master task to run all Li Hadoop DSL tests and compare the actual results against the known results"
+  group = "Li Hadoop DSL Tests"
+}
+
+// Make the test task depend on the master task to run the test cases and compare the results.
+test.dependsOn runTestCasesAndCompareOutput
+
 // Test for including the sources zip and scmMetadata in the Hadoop zip and building the CRT zip.
 task runHadoopZipTest(type: GradleBuild, dependsOn: initTestCases) {
+  dependsOn runTestCasesAndCompareOutput
+  description = "Runs Li Hadoop DSL test case for building Hadoop zips"
+  group = "Li Hadoop DSL Tests"
+
   String liPluginDir = buildLiPluginDir(project)
   String pluginDir = buildPluginDir(project)
 

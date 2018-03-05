@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.4
+
+* Adding AutoTunePigLiJob job type support 
+
 0.14.3
 
 * Introduce YamlCompiler, YamlWorkflow, YamlJob, and YamlProject for Flow 2.0

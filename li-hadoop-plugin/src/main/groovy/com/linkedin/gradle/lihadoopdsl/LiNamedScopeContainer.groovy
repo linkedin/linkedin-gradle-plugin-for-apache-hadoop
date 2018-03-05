@@ -17,6 +17,7 @@ package com.linkedin.gradle.lihadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.NamedScopeContainer;
+import com.linkedin.gradle.lihadoopdsl.lijob.AutoTunePigLiJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 
@@ -27,7 +28,7 @@ import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 @SuppressWarnings("deprecation")
 interface LiNamedScopeContainer extends NamedScopeContainer {
   /**
-   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in workflow scope with the given name
+   * DSL liPigBangBangJob method creates a LiPigBangBangJob in workflow scope with the given name
    * and configuration.
    *
    * @param name The job name
@@ -50,4 +51,15 @@ interface LiNamedScopeContainer extends NamedScopeContainer {
   @Deprecated
   @HadoopDslMethod
   PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure);
+
+  /**
+   * DSL autoTunePigLiJob method creates a AutoTunePigLiJob in workflow scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  AutoTunePigLiJob autoTunePigLiJob(String name, @DelegatesTo(AutoTunePigLiJob) Closure configure);
 }

@@ -18,6 +18,7 @@ package com.linkedin.gradle.lihadoopdsl;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.lihadoopdsl.lijob.AutoTunePigLiJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
 import org.gradle.api.Project;
@@ -42,6 +43,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
     super.apply(project);
     project.extensions.add("liPigBangBangJob", this.&liPigBangBangJob);
     project.extensions.add("pigLiJob", this.&pigLiJob);
+    project.extensions.add("autoTunePigLiJob",this.&autoTunePigLiJob);
   }
 
   /**
@@ -56,7 +58,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
   }
 
   /**
-   * DSL LiPigBangBangJob method creates a LiPigBangBangJob in scope with the given name
+   * DSL liPigBangBangJob method creates a LiPigBangBangJob in scope with the given name
    * and configuration
    * @param name The Job name
    * @param configure The configuration closure
@@ -82,5 +84,18 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
   PigLiJob pigLiJob(String name, @DelegatesTo(PigLiJob) Closure configure) {
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return ((PigLiJob)configureJob(liFactory.makePigLiJob(name), configure));
+  }
+
+  /**
+   * DSL autoTunePigLiJob method creates a AutoTunePigLiJob in scope with the given name
+   * and configuration
+   * @param name The Job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  AutoTunePigLiJob autoTunePigLiJob(String name, @DelegatesTo(AutoTunePigLiJob) Closure configure){
+    LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
+    return ((AutoTunePigLiJob)configureJob(liFactory.makeAutoTunePigLiJob(name), configure));
   }
 }

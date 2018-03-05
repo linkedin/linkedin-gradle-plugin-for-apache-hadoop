@@ -1,0 +1,11 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=hadoopJava
+enable_tuning=true
+job.class=com.linkedin.jobtype.HadoopTuneInPigJob
+optimizationMetric=RESOURCE
+output_path=home/hadoop-starter-kit/hello-pig-azkaban/count_by_country
+param.output_path=home/hadoop-starter-kit/hello-pig-azkaban/count_by_country
+param.profile_data=/data/databases/Identity/Profile/#LATEST
+pig.additional.jars=hello-pig-udf.jar
+pig.script=src/main/pig/count_by_country.pig
+profile_data=/data/databases/Identity/Profile/#LATEST
