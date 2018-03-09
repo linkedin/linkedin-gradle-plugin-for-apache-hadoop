@@ -132,7 +132,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: KafkaPushJob ${job.name} must set inputPath");
       foundError = true;
     }
-    if (job.topic == null || job.topic.isEmpty()) {
+    if ((job.topic == null || job.topic.isEmpty()) && !job.multiTopic) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: KafkaPushJob ${job.name} must set topic");
       foundError = true;
     }

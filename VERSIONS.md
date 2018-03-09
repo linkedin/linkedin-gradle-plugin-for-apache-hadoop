@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.6
+
+* Adding Hadoop DSL support for sending multiple topics with KafkaPushJob
+
 0.14.5
 
 * Azkaban CLI Tasks should prompt for "password+VIP" internal to Linkedin

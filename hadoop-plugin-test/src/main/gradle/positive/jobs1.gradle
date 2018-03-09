@@ -146,6 +146,8 @@ hadoop {
       usesNameNode 'hdfs://theNameNode.linkedin.com:9000'             // Optional
       usesSchemaRegistryUrl 'http://theKafkaNode:10252/schemaRegistry/schemas'  // Optional
       usesDisableAuditing true                                        // Optional
+      usesMultiTopic true                                             // Optional
+      usesWhitelistedTopics 'WhitelistedTopic.*'                        // Optional
       depends 'job7'
       queue 'marathon'
     }
