@@ -33,6 +33,7 @@ import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -997,5 +998,17 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   @HadoopDslMethod
   VenicePushJob venicePushJob(String name, @DelegatesTo(VenicePushJob) Closure configure) {
     return ((VenicePushJob)configureJob(factory.makeVenicePushJob(name), configure));
+  }
+
+  /**
+   * DSL tensorFlowJob method. Creates a TensorFlowJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  TensorFlowJob tensorFlowJob(String name, @DelegatesTo(TensorFlowJob) Closure configure) {
+    return ((TensorFlowJob)configureJob(factory.makeTensorFlowJob(name), configure));
   }
 }

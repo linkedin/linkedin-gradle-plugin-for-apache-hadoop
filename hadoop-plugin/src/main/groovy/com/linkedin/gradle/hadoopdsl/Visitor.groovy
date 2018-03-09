@@ -33,6 +33,7 @@ import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -69,6 +70,7 @@ interface Visitor {
   void visitJob(SparkJob job);
   void visitJob(SqlJob job);
   void visitJob(TableauJob job);
+  void visitJob(TensorFlowJob job);
   void visitJob(TeradataToHdfsJob job);
   void visitJob(VenicePushJob job);
   void visitJob(VoldemortBuildPushJob job);
