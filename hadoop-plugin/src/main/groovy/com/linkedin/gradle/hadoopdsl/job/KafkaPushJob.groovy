@@ -187,7 +187,7 @@ class KafkaPushJob extends HadoopJavaJob {
   }
 
   /**
-   * DSL usesDisableAuditing method causes multi.topic=value to be set in the job file.
+   * DSL usesMultiTopic method causes multi.topic=value to be set in the job file. Will default to false if not set.
    *
    * @param multiTopic
    */
@@ -198,7 +198,7 @@ class KafkaPushJob extends HadoopJavaJob {
   }
 
   /**
-   * DSL usesDisableAuditing method causes whitelisted.topics=value to be set in the job file.
+   * DSL usesWhitelistedTopics method causes whitelisted.topics=value to be set in the job file.
    *
    * @param whitelistedTopicsRegex
    */
