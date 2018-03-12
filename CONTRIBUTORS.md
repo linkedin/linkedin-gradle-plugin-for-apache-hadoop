@@ -137,3 +137,5 @@ The following were contributed by Charles Gao. Thanks, Charles!
 The following were contributed by Michal Trna. Thanks, Michal!
 * `Session IDs are stored separately for each Azkaban server`
 
+The following were contributed by Tzu-Han Jan. Thanks, TJ!
+* `Updated Hadoop DSL for Kafka-Push-Job to understand multiTopic configurations`

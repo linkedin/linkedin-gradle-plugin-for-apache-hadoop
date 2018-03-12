@@ -30,13 +30,15 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * <pre>
  *   kafkaPushJob('jobName') {
  *     usesInputPath '/data/databases/MEMBER2/MEMBER_PROFILE/#LATEST'  // Required
- *     usesTopic 'kafkatestpush'                                       // Required
+ *     usesTopic 'kafkatestpush'                                       // Optional (Required in versions before 0.14.5)
  *     usesNameNode 'hdfs://theNameNode.linkedin.com:9000'             // Optional (Required in versions 0.5.3 through 0.5.14)
  *     usesBatchNumBytes 1000000                                       // Optional
  *     usesDisableSchemaRegistration true                              // Optional
  *     usesKafkaUrl 'theKafkaNode.linkedin.com:10251'                  // Optional
  *     usesSchemaRegistryUrl 'http://theKafkaNode.linkedin.com:10252/schemaRegistry/schemas'  // Optional
  *     usesDisableAuditing true                                        // (Since version 0.4.5) Optional
+ *     usesMultiTopic true                                             // Optional
+ *     usesWhitelistedTopics 'WhitelistedTopic.*'                      // Optional
  *   }
  * </pre>
  */
@@ -52,6 +54,8 @@ class KafkaPushJob extends HadoopJavaJob {
   String kafkaUrl;
   String schemaRegistryUrl;
   Boolean disableAuditing;
+  Boolean multiTopic;
+  String whitelistedTopics;
 
   /**
    * Constructor for a KafkaPushJob.
@@ -86,7 +90,9 @@ class KafkaPushJob extends HadoopJavaJob {
     cloneJob.kafkaUrl = kafkaUrl;
     cloneJob.nameNode = nameNode;
     cloneJob.schemaRegistryUrl = schemaRegistryUrl;
-    cloneJob.disableAuditing = disableAuditing
+    cloneJob.disableAuditing = disableAuditing;
+    cloneJob.multiTopic = multiTopic;
+    cloneJob.whitelistedTopics = whitelistedTopics;
     return ((KafkaPushJob)super.clone(cloneJob));
   }
 
@@ -178,5 +184,27 @@ class KafkaPushJob extends HadoopJavaJob {
   void usesDisableAuditing(Boolean disableAuditing) {
     this.disableAuditing = disableAuditing;
     setJobProperty("disable.auditing", disableAuditing);
+  }
+
+  /**
+   * DSL usesMultiTopic method causes multi.topic=value to be set in the job file. Will default to false if not set.
+   *
+   * @param multiTopic
+   */
+  @HadoopDslMethod
+  void usesMultiTopic(Boolean multiTopic) {
+    this.multiTopic = multiTopic;
+    setJobProperty("multi.topic", multiTopic);
+  }
+
+  /**
+   * DSL usesWhitelistedTopics method causes whitelisted.topics=value to be set in the job file.
+   *
+   * @param whitelistedTopicsRegex
+   */
+  @HadoopDslMethod
+  void usesWhitelistedTopics(String whitelistedTopics) {
+    this.whitelistedTopics = whitelistedTopics;
+    setJobProperty("whitelisted.topics", whitelistedTopics);
   }
 }
