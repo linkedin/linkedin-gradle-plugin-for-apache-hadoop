@@ -12,5 +12,6 @@ ps_vcores=1
 task_command=./tf.py
 worker_env.ENV1=val1
 worker_env.ENV2=val2
+worker_gpus=2
 worker_memory=8192
 worker_vcores=1

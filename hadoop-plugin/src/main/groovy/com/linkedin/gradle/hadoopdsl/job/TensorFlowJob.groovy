@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     psCores 1
  *     workerMemory 8192
  *     workerCores 1
+ *     workerGpus 2
  *     numPs 2
  *     numWorkers 4
  *     archive 'tensorflow-starter-kit-1.4.16-SNAPSHOT-azkaban.zip'
@@ -48,6 +49,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   int psCores;
   int workerMemory;
   int workerCores;
+  int workerGpus;
   int numPs;
   int numWorkers;
   String archive;
@@ -89,6 +91,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
     cloneJob.psCores = psCores;
     cloneJob.workerMemory = workerMemory;
     cloneJob.workerCores = workerCores;
+    cloneJob.workerGpus = workerGpus;
     cloneJob.numPs = numPs;
     cloneJob.numWorkers = numWorkers;
     cloneJob.archive = archive;
@@ -162,6 +165,17 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   void workerCores(int workerCores) {
     this.workerCores = workerCores;
     setJobProperty("worker_vcores", this.workerCores);
+  }
+
+  /**
+   * DSL method to set the worker gpus.
+   *
+   * @param workerGpus workerGpus for the TensorFlow job
+   */
+  @HadoopDslMethod
+  void workerGpus(int workerGpus) {
+    this.workerGpus = workerGpus;
+    setJobProperty("worker_gpus", this.workerGpus);
   }
 
   /**

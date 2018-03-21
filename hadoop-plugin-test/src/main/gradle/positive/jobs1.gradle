@@ -388,6 +388,7 @@ hadoop {
       psCores 1
       workerMemory 8192
       workerCores 1
+      workerGpus 2
       numPs 2
       numWorkers 4
       archive 'tensorflow-starter-kit.zip'
