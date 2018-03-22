@@ -102,9 +102,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the am memory.
+   * Sets memory in MB for this TensorFlow job's ApplicationMaster.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param amMemory amMemory for the TensorFlow job
+   * @param amMemory ApplicationMaster memory, in MB, for the TensorFlow job
    */
   @HadoopDslMethod
   void amMemory(int amMemory) {
@@ -113,9 +114,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the am cores.
+   * Sets number of cores for this TensorFlow job's ApplicationMaster.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param amCores amCores for the TensorFlow job
+   * @param amCores Number of ApplicationMaster cores for the TensorFlow job
    */
   @HadoopDslMethod
   void amCores(int amCores) {
@@ -124,9 +126,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the ps memory.
+   * Sets memory in MB for each parameter server's YARN container.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param psMemory psMemory for the TensorFlow job
+   * @param psMemory Memory in MB for each parameter server
    */
   @HadoopDslMethod
   void psMemory(int psMemory) {
@@ -135,9 +138,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the ps cores.
+   * Sets number of cores for each parameter server's YARN container.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param psCores psCores for the TensorFlow job
+   * @param psCores Cores for each parameter server
    */
   @HadoopDslMethod
   void psCores(int psCores) {
@@ -146,9 +150,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the worker memory.
+   * Sets memory in MB for each TensorFlow worker's YARN container.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param workerMemory workerMemory for the TensorFlow job
+   * @param workerMemory Memory in MB for each TensorFlow worker
    */
   @HadoopDslMethod
   void workerMemory(int workerMemory) {
@@ -157,9 +162,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the worker cores.
+   * Sets number of cores for each TensorFlow worker's YARN container.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param workerCores workerCores for the TensorFlow job
+   * @param workerCores Cores for each TensorFlow worker
    */
   @HadoopDslMethod
   void workerCores(int workerCores) {
@@ -168,9 +174,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the worker gpus.
+   * Sets number of GPUs for each TensorFlow worker's YARN container.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param workerGpus workerGpus for the TensorFlow job
+   * @param workerGpus Number of GPUs for each TensorFlow worker
    */
   @HadoopDslMethod
   void workerGpus(int workerGpus) {
@@ -179,9 +186,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the num ps.
+   * Sets number of parameter server containers to request from YARN.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param numPs numPs for the TensorFlow job
+   * @param numPs Number of parameter servers for this TensorFlow job
    */
   @HadoopDslMethod
   void numPs(int numPs) {
@@ -190,9 +198,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the num workers.
+   * Sets number of TensorFlow workers to request from YARN.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param numWorkers numWorkers for the TensorFlow job
+   * @param numWorkers Number of TensorFlow workers for this TensorFlow job
    */
   @HadoopDslMethod
   void numWorkers(int numWorkers) {
@@ -201,9 +210,11 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the archive.
+   * Sets the name of the archive containing TensorFlow training code, virtual env, etc.
+   * to localize to each parameter server/TensorFlow worker. The Azkaban zip should contain
+   * an archive with this name.
    *
-   * @param archive archive for the TensorFlow job
+   * @param archive Name of the archive to in the Azkaban zip to be localized in the YARN application
    */
   @HadoopDslMethod
   void archive(String archive) {
@@ -212,9 +223,11 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the jar.
+   * Sets the name of the jar in the Azkaban zip containing the code to run a TensorFlow
+   * application on YARN.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param jar jar for the TensorFlow job
+   * @param jar Name of the jar in the Azkaban zip containing TensorFlow application code
    */
   @HadoopDslMethod
   void jar(String jar) {
@@ -223,9 +236,10 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the task command.
+   * Sets the task command which will be run on each parameter server/worker.
+   * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param taskCommand Task command for the TensorFlow job
+   * @param taskCommand Command to run on each parameter server/worker
    */
   @HadoopDslMethod
   void taskCommand(String taskCommand) {
@@ -234,9 +248,9 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   }
 
   /**
-   * DSL method to set the worker environment.
+   * Sets environment variables which will be set for each parameter server/worker.
    *
-   * @param workerEnv Worker environment for the TensorFlow job
+   * @param workerEnv Environment for each container
    */
   @HadoopDslMethod
   @Override
