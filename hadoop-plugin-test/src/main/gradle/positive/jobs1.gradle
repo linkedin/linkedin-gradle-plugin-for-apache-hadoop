@@ -380,6 +380,26 @@ hadoop {
       usesVeniceStoreName 'venice_h2v_test_1k'
       depends 'job22'
     }
-    targets 'job23'
+
+    tensorFlowJob('job24') {
+      amMemory 2048
+      amCores 1
+      psMemory 2048
+      psCores 1
+      workerMemory 8192
+      workerCores 1
+      workerGpus 2
+      numPs 2
+      numWorkers 4
+      archive 'tensorflow-starter-kit.zip'
+      jar 'tensorflow-on-yarn-0.0.1.jar'
+      taskCommand './tf.py'
+      set workerEnv: [
+        'ENV1': 'val1',
+        'ENV2': 'val2'
+      ]
+      depends 'job23'
+    }
+    targets 'job24'
   }
 }

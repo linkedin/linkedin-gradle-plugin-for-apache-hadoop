@@ -34,6 +34,7 @@ import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -307,6 +308,12 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: HdfsWaitJob ${job.name} must set dirPath, freshness, timeout, and forceJobToFail");
       foundError = true;
     }
+  }
+
+  @Override
+  void visitJob(TensorFlowJob job) {
+    foundError |= validateNotEmpty(job, "taskCommand", job.taskCommand);
+    foundError |= validateNotEmpty(job, "archive", job.archive);
   }
 
   /**

@@ -36,6 +36,7 @@ import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -310,6 +311,16 @@ class HadoopDslFactory {
    */
   HdfsWaitJob makeHdfsWaitJob(String name) {
     return new HdfsWaitJob(name);
+  }
+
+  /**
+   * Factory method to build a TensorFlowJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  TensorFlowJob makeTensorFlowJob(String name) {
+    return new TensorFlowJob(name);
   }
 
   /**

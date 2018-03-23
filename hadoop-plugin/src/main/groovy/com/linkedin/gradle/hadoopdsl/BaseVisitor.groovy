@@ -33,6 +33,7 @@ import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -227,6 +228,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(VenicePushJob job) {
+    visitJob((Job)job);
+  }
+
+  @Override
+  void visitJob(TensorFlowJob job) {
     visitJob((Job)job);
   }
 }

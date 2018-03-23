@@ -114,6 +114,10 @@ hadoop {
     venicePushJob('job23') {
       depends 'job20'
     }
-    targets 'job23'
+
+    tensorFlowJob('job24') {
+      depends 'job23'
+    }
+    targets 'job24'
   }
 }

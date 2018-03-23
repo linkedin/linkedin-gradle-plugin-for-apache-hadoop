@@ -1,0 +1,17 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=TensorFlowJob
+dependencies=jobs1_job23
+am_memory=2048
+am_vcores=1
+archive=tensorflow-starter-kit.zip
+jar=tensorflow-on-yarn-0.0.1.jar
+num_ps=2
+num_workers=4
+ps_memory=2048
+ps_vcores=1
+task_command=./tf.py
+worker_env.ENV1=val1
+worker_env.ENV2=val2
+worker_gpus=2
+worker_memory=8192
+worker_vcores=1
