@@ -34,7 +34,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     numWorkers 4
  *     archive 'tensorflow-starter-kit-1.4.16-SNAPSHOT-azkaban.zip'
  *     jar 'tensorflow-on-yarn-0.0.1.jar'
- *     taskCommand ''
  *     set workerEnv: [
  *       'ENV1': 'val1',
  *       'ENV2': 'val2'
@@ -54,7 +53,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   int numWorkers;
   String archive;
   String jar;
-  String taskCommand;
   Map<String, Object> workerEnv;
 
   /**
@@ -96,7 +94,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
     cloneJob.numWorkers = numWorkers;
     cloneJob.archive = archive;
     cloneJob.jar = jar;
-    cloneJob.taskCommand = taskCommand;
     cloneJob.workerEnv.putAll(workerEnv);
     return ((TensorFlowJob)super.clone(cloneJob));
   }
@@ -233,18 +230,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   void jar(String jar) {
     this.jar = jar;
     setJobProperty("jar", this.jar);
-  }
-
-  /**
-   * Sets the task command which will be run on each parameter server/worker.
-   * Leaving this unset will default to the Hadoop application's default value.
-   *
-   * @param taskCommand Command to run on each parameter server/worker
-   */
-  @HadoopDslMethod
-  void taskCommand(String taskCommand) {
-    this.taskCommand = taskCommand;
-    setJobProperty("task_command", this.taskCommand);
   }
 
   /**

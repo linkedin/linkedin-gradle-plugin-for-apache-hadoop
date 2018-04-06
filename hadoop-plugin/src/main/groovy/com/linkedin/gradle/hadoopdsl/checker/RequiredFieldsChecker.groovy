@@ -312,7 +312,6 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(TensorFlowJob job) {
-    foundError |= validateNotEmpty(job, "taskCommand", job.taskCommand);
     foundError |= validateNotEmpty(job, "archive", job.archive);
   }
 
