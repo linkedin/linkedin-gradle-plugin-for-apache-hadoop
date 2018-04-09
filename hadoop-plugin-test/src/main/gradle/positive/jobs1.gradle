@@ -393,7 +393,6 @@ hadoop {
       numWorkers 4
       archive 'tensorflow-starter-kit.zip'
       jar 'tensorflow-on-yarn-0.0.1.jar'
-      taskCommand './tf.py'
       set workerEnv: [
         'ENV1': 'val1',
         'ENV2': 'val2'

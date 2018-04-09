@@ -23,6 +23,19 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * In the DSL, a TensorFlowJob can be specified with:
  * <pre>
  *   tensorFlowJob('jobName') {
+ *     def taskParams = [
+ *       "--tensorboard",
+ *       "--hdfs_input_path /tmp/trainingInput",
+ *       "--hdfs_output_path /tmp/trainingOutput",
+ *       "--learning_rate 0.25",
+ *       "--lambda_l2 0.01",
+ *     ].join(' ')
+ *     set properties: [
+ *       'python_binary_path': 'Python-2.7.11/bin/python',
+ *       'python_venv': "tensorflow-starter-kit-1.4.16-SNAPSHOT-venv.zip",
+ *       'executes': 'path/to/python/script.py',
+ *       'task_params': taskParams,
+ *     ]
  *     amMemory 2048
  *     amCores 1
  *     psMemory 2048
@@ -34,7 +47,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     numWorkers 4
  *     archive 'tensorflow-starter-kit-1.4.16-SNAPSHOT-azkaban.zip'
  *     jar 'tensorflow-on-yarn-0.0.1.jar'
- *     taskCommand ''
  *     set workerEnv: [
  *       'ENV1': 'val1',
  *       'ENV2': 'val2'
@@ -54,7 +66,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   int numWorkers;
   String archive;
   String jar;
-  String taskCommand;
   Map<String, Object> workerEnv;
 
   /**
@@ -96,7 +107,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
     cloneJob.numWorkers = numWorkers;
     cloneJob.archive = archive;
     cloneJob.jar = jar;
-    cloneJob.taskCommand = taskCommand;
     cloneJob.workerEnv.putAll(workerEnv);
     return ((TensorFlowJob)super.clone(cloneJob));
   }
@@ -233,18 +243,6 @@ class TensorFlowJob extends HadoopJavaProcessJob {
   void jar(String jar) {
     this.jar = jar;
     setJobProperty("jar", this.jar);
-  }
-
-  /**
-   * Sets the task command which will be run on each parameter server/worker.
-   * Leaving this unset will default to the Hadoop application's default value.
-   *
-   * @param taskCommand Command to run on each parameter server/worker
-   */
-  @HadoopDslMethod
-  void taskCommand(String taskCommand) {
-    this.taskCommand = taskCommand;
-    setJobProperty("task_command", this.taskCommand);
   }
 
   /**
