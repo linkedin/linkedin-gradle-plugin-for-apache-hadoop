@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.azkaban.yaml;
+package com.linkedin.gradle.azkaban
 
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Properties;
@@ -22,16 +22,17 @@ import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import org.gradle.api.Project;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class YamlWorkflowTest {
-
+class YamlCompilerTest {
   NamedScope mockHadoopScope = mock(NamedScope.class);
   NamedScope mockRootScope = mock(NamedScope.class);
   Job mockJob = mock(Job.class);
@@ -39,6 +40,7 @@ class YamlWorkflowTest {
   Workflow mockWorkflow = mock(Workflow.class);
   NamedScope mockSubflowScope = mock(NamedScope.class);
   Workflow mockSubflow = mock(Workflow.class);
+  YamlCompiler yamlCompiler;
 
   @Before
   public void setup() {
@@ -66,11 +68,16 @@ class YamlWorkflowTest {
     when(mockSubflow.jobsToBuild).thenReturn([]);
     when(mockSubflow.flowsToBuild).thenReturn([]);
     when(mockSubflowScope.nextLevel).thenReturn(mockWorkflowScope);
+
+    Project mockProject = mock(Project.class);
+    when(mockProject.name).thenReturn("test");
+    yamlCompiler = new YamlCompiler(mockProject);
+    yamlCompiler.parentScope = mockHadoopScope;
   }
 
   @Test
   public void TestSimpleYamlWorkflow() {
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -87,7 +94,7 @@ class YamlWorkflowTest {
     when(mockWorkflow.jobsToBuild).thenReturn([mockJob]);
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -109,7 +116,7 @@ class YamlWorkflowTest {
 
   @Test
   public void TestSubflow() {
-    Map yamlizedSubflow = new YamlWorkflow(mockSubflow, true).yamlize();
+    Map yamlizedSubflow = yamlCompiler.yamlizeWorkflow(mockSubflow, true);
     assertEquals("subflowTest", yamlizedSubflow["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
@@ -125,7 +132,7 @@ class YamlWorkflowTest {
     when(mockHadoopScope.thisLevel).thenReturn(["globalProps": props]);
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -148,7 +155,7 @@ class YamlWorkflowTest {
     workflowProps.setJobProperty("sharedProp", "correctVal");
     when(mockWorkflow.properties).thenReturn([workflowProps]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -173,7 +180,7 @@ class YamlWorkflowTest {
     when(mockWorkflow.properties).thenReturn([workflowProps]);
     when(mockWorkflowScope.nextLevel).thenReturn(mockParentScope);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     Map expectedConfig = ["workflowProp": "workflowVal",
                           "hadoop-inject.parentProp": "parentVal",
                           "globalProp": "globalVal"];
@@ -201,7 +208,7 @@ class YamlWorkflowTest {
     when(mockWorkflow.jobsToBuild).thenReturn([startJob, subFlowJob, mockJobTwo, mockJob,
                                                launchJob]);
 
-    Map yamlizedWorkflow = new YamlWorkflow(mockWorkflow).yamlize();
+    Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -224,5 +231,48 @@ class YamlWorkflowTest {
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertEquals([mockJobTwo.name], yamlizedJob["dependsOn"]);
     assertFalse(yamlizedJob.containsKey("config"));
+  }
+
+  @Test
+  public void TestSimpleYamlJob() {
+    NamedScope mockNamedScope = mock(NamedScope.class);
+    Job mockJob = mock(Job.class);
+    when(mockJob.name).thenReturn("test");
+    when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
+    when(mockJob.dependencyNames).thenReturn([].toSet());
+    when(mockJob.buildProperties(mockNamedScope)).thenReturn([:]);
+
+    Map yamlizedJob = yamlCompiler.yamlizeJob(mockJob);
+    assertEquals("test", yamlizedJob["name"]);
+    assertEquals("testJobtype", yamlizedJob["type"]);
+    assertFalse(yamlizedJob.containsKey("dependsOn"));
+    assertFalse(yamlizedJob.containsKey("config"));
+  }
+
+  @Test
+  public void TestComplicatedYamlJob() {
+    Job mockJob = mock(Job.class);
+    when(mockJob.name).thenReturn("test");
+    when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
+    when(mockJob.dependencyNames).thenReturn(["dependency1", "dependency2"].toSet());
+    when(mockJob.buildProperties(yamlCompiler.parentScope)).thenReturn(["configKey1" : "configVal1",
+                                                                        "configKey2": "configVal2"]);
+
+    Map yamlizedJob = yamlCompiler.yamlizeJob(mockJob);
+    assertEquals("test", yamlizedJob["name"]);
+    assertEquals("testJobtype", yamlizedJob["type"]);
+    assertEquals(["dependency1", "dependency2"], ((List) yamlizedJob["dependsOn"]).sort());
+    assertEquals(["configKey1": "configVal1", "configKey2": "configVal2"], yamlizedJob["config"]);
+  }
+
+  @Test
+  public void TestYamlProject() {
+    Map yamlizedProject = yamlCompiler.yamlizeProject();
+    // Check yamlized project returns expected version.
+    // The third argument - 0 - refers to the possible difference between two doubles.
+    // There should be no difference between AZK_FLOW_VERSION and the yamlProject flow version.
+    assertEquals(AZK_FLOW_VERSION, (double) yamlizedProject["azkaban-flow-version"], 0);
+    // Check yamlCompiler picking up expected project name.
+    assertEquals("test", yamlCompiler.yamlProjectName);
   }
 }

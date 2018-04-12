@@ -16,7 +16,7 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
-import com.linkedin.gradle.azkaban.yaml.YamlCompiler;
+import com.linkedin.gradle.azkaban.YamlCompiler;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
