@@ -22,12 +22,12 @@ import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.Workflow;
-import com.linkedin.gradle.hadoopdsl.job.Job
-import com.linkedin.gradle.hadoopdsl.job.StartJob
+import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import org.gradle.api.Project;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.Yaml;
 
 import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
 
@@ -145,7 +145,7 @@ class YamlCompiler extends BaseCompiler {
 
     // Set to read-only to remind people that they should not be editing auto-generated yaml files.
     out.setWritable(false);
-    fileWriter.close()
+    fileWriter.close();
   }
 
   /**
