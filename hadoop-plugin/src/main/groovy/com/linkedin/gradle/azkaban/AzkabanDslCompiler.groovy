@@ -41,13 +41,16 @@ class AzkabanDslCompiler extends BaseCompiler {
   /**
    * Cleans up generated files from the build directory.
    *
+   * Clean up both .job/.properties as well as .flow/.project for easy Flow 2.0 upgrade/rollback.
+   *
    * @param buildDirectoryFile Java File object representing the build directory
    */
   @Override
   void cleanBuildDirectory(File buildDirectoryFile) {
     buildDirectoryFile.eachFileRecurse(groovy.io.FileType.FILES) { f ->
       String fileName = f.getName().toLowerCase();
-      if (fileName.endsWith(".job") || fileName.endsWith(".properties")) {
+      if (fileName.endsWith(".job") || fileName.endsWith(".properties") ||
+              fileName.endsWith(".flow") || fileName.endsWith(".project")) {
         f.delete();
       }
     }
