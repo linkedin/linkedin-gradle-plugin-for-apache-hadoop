@@ -32,8 +32,7 @@ import org.yaml.snakeyaml.Yaml;
 import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
 
 /**
- * Turns the internal representations of workflows, jobs, and properties into their
- * corresponding Yaml counterparts then creates and fills the <workflow-name>.flow(s) and
+ * Translates user-defined workflows, jobs, and properties into <workflow-name>.flow(s) and
  * <project-name>.project yaml files.
  *
  * The usage of Yaml compilation vs .job/.properties compilation is user-controlled within their
@@ -250,8 +249,8 @@ class YamlCompiler extends BaseCompiler {
     if (!isSubflow) {
       result << addGlobalWorkflowProperties(workflow.scope.nextLevel);
     }
-    // Build all workflow properties global root properties so if same property is defined
-    // then the workflow property is selected
+    // Build all workflow properties after global properties so if same property is defined in both
+    // then the local workflow property is selected
     workflow.properties.each { Properties prop ->
       result << prop.buildProperties(workflow.scope.nextLevel);
     }
