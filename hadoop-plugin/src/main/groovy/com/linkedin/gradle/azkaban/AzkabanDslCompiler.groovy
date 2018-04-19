@@ -24,6 +24,7 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 
 import org.gradle.api.Project;
+import static AzkabanCompilerUtils.sortPropertiesToBuild;
 
 /**
  * Hadoop DSL compiler for Azkaban.
@@ -236,33 +237,5 @@ class AzkabanDslCompiler extends BaseCompiler {
 
     // Set to read-only to remind people that they should not be editing the job files.
     file.setWritable(false);
-  }
-
-  /**
-   * Helper method to sort a list of properties from a Job or a Properties object into a
-   * standardized, sorted order that will make reading job and property files easy.
-   *
-   * @param propertyNames The property names for a Job or Properties object
-   * @return The property names in a standardized, sorted order
-   */
-  static List<String> sortPropertiesToBuild(Set<String> propertyNames) {
-    // First, sort the properties alphabetically.
-    List<String> propertyList = new ArrayList<String>(propertyNames);
-    Collections.sort(propertyList);
-
-    List<String> sortedKeys = new ArrayList<String>(propertyList.size());
-
-    // List the job type and dependencies first if they exist.
-    if (propertyList.remove("type")) {
-      sortedKeys.add("type");
-    }
-
-    if (propertyList.remove("dependencies")) {
-      sortedKeys.add("dependencies");
-    }
-
-    // Then add the rest of the keys to the final list of sorted keys.
-    sortedKeys.addAll(propertyList);
-    return sortedKeys;
   }
 }

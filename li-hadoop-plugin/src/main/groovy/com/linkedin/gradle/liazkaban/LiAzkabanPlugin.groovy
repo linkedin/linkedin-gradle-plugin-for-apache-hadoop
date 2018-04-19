@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.liazkaban;
 
-import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
+import com.linkedin.gradle.hadoopdsl.HadoopDslCompiler;
 import com.linkedin.gradle.azkaban.AzkabanFlowStatusTask;
 import com.linkedin.gradle.azkaban.AzkabanHelper;
 import com.linkedin.gradle.azkaban.AzkabanPlugin;
@@ -71,8 +71,8 @@ class LiAzkabanPlugin extends AzkabanPlugin {
    * @return The AzkabanDslCompiler
    */
   @Override
-  AzkabanDslCompiler makeCompiler(Project project) {
-    return new LiAzkabanDslCompiler(project);
+  HadoopDslCompiler makeCompiler(Project project) {
+    return project.extensions.hadoopDslPlugin.selectCompilerType(project);
   }
 
   /**

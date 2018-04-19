@@ -33,6 +33,7 @@ dependencies {
   provided project(":hadoop-plugin")
 
   testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.10.0'
 }
 
 task sourceJar(type: Jar) {
