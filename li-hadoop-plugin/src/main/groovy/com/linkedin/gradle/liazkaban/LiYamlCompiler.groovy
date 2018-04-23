@@ -50,8 +50,6 @@ class LiYamlCompiler extends YamlCompiler {
 
     // Add job name
     yamlizedJob["name"] = job.name;
-    // Add job type
-    yamlizedJob["type"] = job.jobProperties["type"];
     // Add job dependencies if there are any
     if (!job.dependencyNames.isEmpty()) {
       yamlizedJob["dependsOn"] = job.dependencyNames.toList();
@@ -59,6 +57,8 @@ class LiYamlCompiler extends YamlCompiler {
     // Add job configs if there are any
     Map<String, String> filteredConfig = [:];
     Map<String, String> config = job.buildProperties(this.parentScope);
+    // Add job type after test to pick up LiBangBangJob type switch from pig -> hadoopShell
+    yamlizedJob["type"] = config["type"];
     // Remove type and dependencies from config because they're represented elsewhere
     config.remove("type");
     config.remove("dependencies");

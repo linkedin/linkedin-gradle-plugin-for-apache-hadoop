@@ -36,13 +36,13 @@ class YamlBangBangJobTest {
     liYamlCompiler.parentScope = mockNamedScope;
     LiPigBangBangJob mockLiBangBangJob = mock(LiPigBangBangJob.class);
     when(mockLiBangBangJob.name).thenReturn("test");
-    when(mockLiBangBangJob.jobProperties).thenReturn(["type": "pig"]);
+    when(mockLiBangBangJob.jobProperties).thenReturn(["type": "hadoopShell"]);
     when(mockLiBangBangJob.dependencyNames).thenReturn([].toSet());
-    when(mockLiBangBangJob.buildProperties(mockNamedScope)).thenReturn([:]);
+    when(mockLiBangBangJob.buildProperties(mockNamedScope)).thenReturn(["type": "hadoopShell"]);
 
     Map yamlizedJob = liYamlCompiler.yamlizeJob(mockLiBangBangJob);
     assertEquals("test", yamlizedJob["name"]);
-    assertEquals("pig", yamlizedJob["type"]);
+    assertEquals("hadoopShell", yamlizedJob["type"]);
     assertFalse(yamlizedJob.containsKey("dependsOn"));
     assertEquals("-Dazkaban.link.workflow.url=\${azkaban.link.workflow.url} " +
             "-Dazkaban.link.execution.url=\${azkaban.link.execution.url} " +
