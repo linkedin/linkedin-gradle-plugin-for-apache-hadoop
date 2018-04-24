@@ -39,16 +39,16 @@ import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
  * workflows.gradle file (or equivalent). The default is .job/.properties for now.
  * TODO reallocf change default to .flow/.project in the future
  */
-class YamlCompiler extends BaseCompiler {
+class AzkabanDslYamlCompiler extends BaseCompiler {
   Yaml yamlDumper;
   String yamlProjectName;
 
   /**
-   * Constructor for the YamlCompiler.
+   * Constructor for the AzkabanDslYamlCompiler.
    *
    * @param project The Gradle project
    */
-  YamlCompiler(Project project) {
+  AzkabanDslYamlCompiler(Project project) {
     super(project);
     this.yamlDumper = setupYamlObject();
     this.yamlProjectName = project.name;
@@ -135,7 +135,7 @@ class YamlCompiler extends BaseCompiler {
   }
 
   /**
-   * Dumps the YamlProject for this YamlCompiler.
+   * Dumps the YamlProject for this AzkabanDslYamlCompiler.
    */
   void visitProject() {
     File out = new File(this.parentDirectory, "${this.yamlProjectName}.project");

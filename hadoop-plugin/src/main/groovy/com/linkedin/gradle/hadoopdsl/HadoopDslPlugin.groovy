@@ -16,7 +16,7 @@
 package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.azkaban.AzkabanDslCompiler;
-import com.linkedin.gradle.azkaban.YamlCompiler;
+import com.linkedin.gradle.azkaban.AzkabanDslYamlCompiler;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -512,7 +512,7 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
 
   /**
    * Based on whether or not the flag generate_yaml_output is set to true in the hadoop scope
-   * (i.e. within the hadoop { } closure), select between YamlCompiler and AzkabanDslCompiler.
+   * (i.e. within the hadoop { } closure), select between AzkabanDslYamlCompiler and AzkabanDslCompiler.
    *
    * Default is AzkabanDslCompiler for now.
    *
@@ -524,6 +524,6 @@ class HadoopDslPlugin extends BaseNamedScopeContainer implements Plugin<Project>
    */
   HadoopDslCompiler selectCompilerType(Project project) {
     return scope.lookup(GENERATE_YAML_OUTPUT_FLAG_LOCATION) ?
-            new YamlCompiler(project) : new AzkabanDslCompiler(project);
+            new AzkabanDslYamlCompiler(project) : new AzkabanDslCompiler(project);
   }
 }

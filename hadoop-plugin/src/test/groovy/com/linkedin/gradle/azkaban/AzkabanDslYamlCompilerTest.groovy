@@ -32,7 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class YamlCompilerTest {
+class AzkabanDslYamlCompilerTest {
   NamedScope mockHadoopScope = mock(NamedScope.class);
   NamedScope mockRootScope = mock(NamedScope.class);
   Job mockJob = mock(Job.class);
@@ -40,7 +40,7 @@ class YamlCompilerTest {
   Workflow mockWorkflow = mock(Workflow.class);
   NamedScope mockSubflowScope = mock(NamedScope.class);
   Workflow mockSubflow = mock(Workflow.class);
-  YamlCompiler yamlCompiler;
+  AzkabanDslYamlCompiler yamlCompiler;
 
   @Before
   public void setup() {
@@ -71,7 +71,7 @@ class YamlCompilerTest {
 
     Project mockProject = mock(Project.class);
     when(mockProject.name).thenReturn("test");
-    yamlCompiler = new YamlCompiler(mockProject);
+    yamlCompiler = new AzkabanDslYamlCompiler(mockProject);
     yamlCompiler.parentScope = mockHadoopScope;
   }
 

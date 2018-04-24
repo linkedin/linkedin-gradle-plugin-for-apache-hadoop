@@ -16,7 +16,7 @@
 package com.linkedin.gradle.liazkaban.yaml;
 
 import com.linkedin.gradle.hadoopdsl.NamedScope
-import com.linkedin.gradle.liazkaban.LiYamlCompiler;
+import com.linkedin.gradle.liazkaban.LiAzkabanDslYamlCompiler;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob
 import org.gradle.api.Project;
 import org.junit.Test;
@@ -30,7 +30,7 @@ class YamlBangBangJobTest {
   @Test
   public void TestYamlBangBangJob() {
     Project mockProject = mock(Project.class);
-    LiYamlCompiler liYamlCompiler = new LiYamlCompiler(mockProject);
+    LiAzkabanDslYamlCompiler liYamlCompiler = new LiAzkabanDslYamlCompiler(mockProject);
     liYamlCompiler.parentDirectory = "build/tmp"
     NamedScope mockNamedScope = mock(NamedScope.class);
     liYamlCompiler.parentScope = mockNamedScope;

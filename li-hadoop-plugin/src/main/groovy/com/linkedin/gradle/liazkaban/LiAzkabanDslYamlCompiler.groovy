@@ -15,7 +15,7 @@
  */
 package com.linkedin.gradle.liazkaban
 
-import com.linkedin.gradle.azkaban.YamlCompiler;
+import com.linkedin.gradle.azkaban.AzkabanDslYamlCompiler;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import org.gradle.api.Project
 
@@ -26,14 +26,14 @@ import static com.linkedin.gradle.liazkaban.LiAzkabanCompilerUtils.writeGradleFo
  * Simple class that wraps the YamlCompiler to specify LiYamlWorkflows instead of YamlWorkflows to
  * handle LI specific behavior.
  */
-class LiYamlCompiler extends YamlCompiler {
+class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
 
   /**
    * Constructor for the YamlCompiler.
    *
    * @param project The Gradle project
    */
-  LiYamlCompiler(Project project) {
+  LiAzkabanDslYamlCompiler(Project project) {
     super(project);
   }
 
@@ -50,15 +50,15 @@ class LiYamlCompiler extends YamlCompiler {
 
     // Add job name
     yamlizedJob["name"] = job.name;
-    // Add job dependencies if there are any
-    if (!job.dependencyNames.isEmpty()) {
-      yamlizedJob["dependsOn"] = job.dependencyNames.toList();
-    }
     // Add job configs if there are any
     Map<String, String> filteredConfig = [:];
     Map<String, String> config = job.buildProperties(this.parentScope);
     // Add job type after test to pick up LiBangBangJob type switch from pig -> hadoopShell
     yamlizedJob["type"] = config["type"];
+    // Add job dependencies if there are any
+    if (!job.dependencyNames.isEmpty()) {
+      yamlizedJob["dependsOn"] = job.dependencyNames.toList();
+    }
     // Remove type and dependencies from config because they're represented elsewhere
     config.remove("type");
     config.remove("dependencies");

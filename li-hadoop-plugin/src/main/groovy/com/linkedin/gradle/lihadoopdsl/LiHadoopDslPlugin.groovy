@@ -19,8 +19,8 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
-import com.linkedin.gradle.liazkaban.LiAzkabanDslCompiler;
-import com.linkedin.gradle.liazkaban.LiYamlCompiler;
+import com.linkedin.gradle.liazkaban.LiAzkabanDslCompiler
+import com.linkedin.gradle.liazkaban.LiAzkabanDslYamlCompiler;
 import com.linkedin.gradle.lihadoopdsl.lijob.AutoTunePigLiJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
@@ -107,7 +107,7 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
 
   /**
    * Based on whether or not the flag generate_yaml_output is set to true in the hadoop scope
-   * (i.e. within the hadoop { } closure), select between LiYamlCompiler and LiAzkabanDslCompiler.
+   * (i.e. within the hadoop { } closure), select between LiAzkabanDslYamlCompiler and LiAzkabanDslCompiler.
    *
    * Default is LiAzkabanDslCompiler for now.
    *
@@ -119,6 +119,6 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
    */
   HadoopDslCompiler selectCompilerType(Project project) {
     return scope.lookup(GENERATE_YAML_OUTPUT_FLAG_LOCATION) ?
-            new LiYamlCompiler(project) : new LiAzkabanDslCompiler(project);
+            new LiAzkabanDslYamlCompiler(project) : new LiAzkabanDslCompiler(project);
   }
 }
