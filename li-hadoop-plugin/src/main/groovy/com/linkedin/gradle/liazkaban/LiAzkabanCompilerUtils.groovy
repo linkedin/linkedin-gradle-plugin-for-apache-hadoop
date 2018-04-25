@@ -39,7 +39,6 @@ class LiAzkabanCompilerUtils extends AzkabanCompilerUtils {
    * This file duplicates functionality from the superclass. We have to remove other properties
    * from the job file apart from the command and type.
    *
-   * @param job The LiPigBangBangJob job to build
    * @param allProperties The original map of properties from the job
    * @return List The filtered list of keys that need to be looked up in allProperties to get the
    *              resulting BangBang properties.
@@ -90,6 +89,9 @@ class LiAzkabanCompilerUtils extends AzkabanCompilerUtils {
    * Takes a LiBangBangJob and writes the Gradle file for bangbang.
    *
    * @param job The LiBangBangJob Job to build
+   * @param project The Gradle project
+   * @param parentScope The parent scope of the LiBangBangJob
+   * @param parentDirectory The string referring to the parent directory to write the gradle file to
    */
   static void writeGradleForBangBangJob(LiBangBangJob job, Project project, NamedScope parentScope,
           String parentDirectory) {

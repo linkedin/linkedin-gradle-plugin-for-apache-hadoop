@@ -42,7 +42,6 @@ class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
    * This includes generate the required BangBang gradle file.
    *
    * @param job LiPigBangBangJob whose config will be modified
-   * @param parentScope Parent scope of the job
    * @return Filtered string map of properties to be output in Yaml
    */
   Map<String,String> yamlizeJob(LiPigBangBangJob job) {
