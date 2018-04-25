@@ -123,6 +123,8 @@ The following were contributed by Jianling Zhong. Thanks, Jianling!
 * `Add supports for a "required parameters" check`
 
 The following were contributed by Charlie Summers. Thanks, Charlie!
+* `Upgrade li-hadoop-plugin for Flow 2.0`
+* `Refactor YamlCompiler to fit closer with AzkabanDslCompiler`
 * `Allow configurable Yaml creation for Flow 2.0`
 * `Introduce YamlCompiler, YamlWorkflow, YamlJob, and YamlProject for Flow 2.0`
 * `Add ability for Hadoop DSL to understand the TableauJob job type`

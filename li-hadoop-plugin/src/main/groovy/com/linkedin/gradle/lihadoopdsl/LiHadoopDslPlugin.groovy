@@ -15,9 +15,12 @@
  */
 package com.linkedin.gradle.lihadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.HadoopDslCompiler;
 import com.linkedin.gradle.hadoopdsl.HadoopDslFactory;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 import com.linkedin.gradle.hadoopdsl.HadoopDslPlugin;
+import com.linkedin.gradle.liazkaban.LiAzkabanDslCompiler
+import com.linkedin.gradle.liazkaban.LiAzkabanDslYamlCompiler;
 import com.linkedin.gradle.lihadoopdsl.lijob.AutoTunePigLiJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import com.linkedin.gradle.lihadoopdsl.lijob.PigLiJob;
@@ -27,6 +30,9 @@ import org.gradle.api.Project;
  * LinkedIn-specific customizations to the Hadoop DSL Plugin.
  */
 class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer {
+
+  static final String GENERATE_YAML_OUTPUT_FLAG_LOCATION = ".hadoop.generate_yaml_output";
+
   /**
    * Applies the LinkedIn-specific Hadoop DSL Plugin.
    *
@@ -97,5 +103,22 @@ class LiHadoopDslPlugin extends HadoopDslPlugin implements LiNamedScopeContainer
   AutoTunePigLiJob autoTunePigLiJob(String name, @DelegatesTo(AutoTunePigLiJob) Closure configure){
     LiHadoopDslFactory liFactory = (LiHadoopDslFactory)factory;
     return ((AutoTunePigLiJob)configureJob(liFactory.makeAutoTunePigLiJob(name), configure));
+  }
+
+  /**
+   * Based on whether or not the flag generate_yaml_output is set to true in the hadoop scope
+   * (i.e. within the hadoop { } closure), select between LiAzkabanDslYamlCompiler and LiAzkabanDslCompiler.
+   *
+   * Default is LiAzkabanDslCompiler for now.
+   *
+   * Flag is called 'generate_yaml_output' because underscores are not allowed in the names of
+   * other Hadoop objects, so it is highly unlikely for there to be unintentional collisions.
+   *
+   * @param project The Gradle project
+   * @return The User-configured Compiler, default is LiAzkabanDslCompiler
+   */
+  HadoopDslCompiler selectCompilerType(Project project) {
+    return scope.lookup(GENERATE_YAML_OUTPUT_FLAG_LOCATION) ?
+            new LiAzkabanDslYamlCompiler(project) : new LiAzkabanDslCompiler(project);
   }
 }
