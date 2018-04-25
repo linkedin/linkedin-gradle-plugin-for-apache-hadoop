@@ -107,6 +107,7 @@ class LiAzkabanCompilerUtils extends AzkabanCompilerUtils {
    * Extracts the information to write from the bangbang template.
    *
    * @param job The job for which information should be extracted
+   * @param parentScope The parent scope of the job being extracted
    * @return The text for the gradle file
    */
   static String getBangBangGradleText(LiBangBangJob job, NamedScope parentScope) {
