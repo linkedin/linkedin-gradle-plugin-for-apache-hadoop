@@ -20,11 +20,15 @@ import com.linkedin.gradle.hadoopdsl.BaseNamedScopeContainer;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
-import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.Properties
+import com.linkedin.gradle.hadoopdsl.Schedule
+import com.linkedin.gradle.hadoopdsl.Trigger;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDatasetDependency
+import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 import org.gradle.api.Project;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -179,6 +183,11 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     if (isSubflow) {
       yamlizedWorkflow["name"] = workflow.name;
     }
+    // Add trigger if not subflow and there is a trigger defined in the workflow
+    // TODO reallocf is this the right way to handle multiple defined triggers?
+    if (!isSubflow && !workflow.triggers.isEmpty()) {
+      yamlizedWorkflow["trigger"] = yamlizeTrigger(workflow.triggers[0]);
+    }
     // Add type "flow" if subflow
     if (isSubflow) {
       yamlizedWorkflow["type"] = "flow";
@@ -234,6 +243,58 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     Map result = [:];
     result.put("azkaban-flow-version", AZK_FLOW_VERSION);
     return result;
+  }
+
+  /**
+   * Take in trigger and turn into map to be output in yaml file.
+   *
+   * @param trigger Trigger to be turned into map.
+   * @return Map representing trigger to be output in yaml file.
+   */
+  Map yamlizeTrigger(Trigger trigger) {
+    Map yamlizedTrigger = [:];
+
+    // Add maximum number of minutes the trigger will wait before it's automatically cancelled
+    yamlizedTrigger["maxWaitMins"] = trigger.maxWaitMins;
+    // Add trigger schedule
+    yamlizedTrigger["schedule"] = yamlizeSchedule(trigger.schedule);
+    // Add trigger dependencies if there are any
+    if (!trigger.triggerDependencies.isEmpty()) {
+      List<Map> yamlizedTriggerDependencies = [];
+      trigger.triggerDependencies.each { TriggerDependency triggerDependency ->
+        yamlizedTriggerDependencies << yamlizeTriggerDependency(triggerDependency);
+      }
+      yamlizedTrigger["triggerDependencies"] = yamlizedTriggerDependencies;
+    }
+    return yamlizedTrigger;
+  }
+
+  /**
+   * Take in schedule and turn into map to be output in yaml file.
+   *
+   * @param schedule Schedule to be turned into map.
+   * @return Map representing schedule to be output in yaml file.
+   */
+  Map yamlizeSchedule(Schedule schedule) {
+    Map yamlizedSchedule = [:];
+
+    // Add schedule type
+    yamlizedSchedule["type"] = schedule.type;
+    // Add cron value
+    yamlizedSchedule["value"] = schedule.value;
+    return yamlizedSchedule;
+  }
+
+  Map yamlizeTriggerDependency(DaliDatasetDependency daliDatasetDependency) {
+    Map yamlizedTriggerDependency = [:];
+
+    // Add trigger dependency name
+    yamlizedTriggerDependency["name"] = daliDatasetDependency.name;
+    // Add trigger dependency type
+    yamlizedTriggerDependency["type"] = daliDatasetDependency.type;
+    // Add trigger dependency params
+    yamlizedTriggerDependency["params"] = daliDatasetDependency.params;
+    return yamlizedTriggerDependency;
   }
 
   /**

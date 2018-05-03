@@ -59,6 +59,7 @@ class AzkabanDslYamlCompilerTest {
     when(mockWorkflow.properties).thenReturn([]);
     when(mockWorkflow.jobsToBuild).thenReturn([]);
     when(mockWorkflow.flowsToBuild).thenReturn([]);
+    when(mockWorkflow.triggers).thenReturn([]);
     when(mockWorkflowScope.nextLevel).thenReturn(mockHadoopScope);
 
     when(mockSubflow.name).thenReturn("subflowTest");
