@@ -11,13 +11,14 @@ trigger:
       delay: 1
       window: 1
       unit: daily
-      ignoreLocation: true
+      ignoreLocation: 'true'
   - name: other-name
     type: dali-dataset
     params:
       view: another dataset
       delay: 1
       window: 7
+      unit: hourly
 config:
   flow-level-parameter: value
 nodes:

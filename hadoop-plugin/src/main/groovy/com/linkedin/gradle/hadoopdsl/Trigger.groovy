@@ -13,18 +13,19 @@ class Trigger {
   int maxWaitMins;
 
   // Used to determine when the triggerInstance is created in Azkaban.
-  Schedule schedule;
+  // Should only be 1 defined.
+  List<Schedule> schedules;
 
   // Used to determine what is necessary for the triggerInstance in Azkaban to be satisfied.
   // Once satisfied, the triggerInstance will launch the Azkaban flow.
   // For example, a Data Dependency will be included here.
-  List triggerDependencies;
+  List<TriggerDependency> triggerDependencies;
 
   Trigger(String name, Project project){
     this.name = name;
     this.project = project;
     this.maxWaitMins = 0; // TODO reallocf verify >0 (required to be set by user)
-    this.schedule = null;
+    this.schedules = new ArrayList<Schedule>();
     this.triggerDependencies = new ArrayList<TriggerDependency>(); // TODO reallocf any verify?
   }
 
@@ -34,7 +35,7 @@ class Trigger {
 
   protected Trigger clone(Trigger cloneTrigger) {
     cloneTrigger.maxWaitMins = maxWaitMins;
-    cloneTrigger.schedule = schedule;
+    cloneTrigger.schedules = schedules;
     cloneTrigger.triggerDependencies = triggerDependencies;
     return cloneTrigger;
   }
@@ -48,7 +49,7 @@ class Trigger {
   void schedule(String name, @DelegatesTo(Schedule) Closure configure) {
     Schedule schedule = new Schedule(name);
     project.configure(schedule, configure);
-    this.schedule = schedule;
+    this.schedules.add(schedule);
   }
 
   @HadoopDslMethod

@@ -11,12 +11,9 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 //  filter 'isguest=0'
 //}
 class DaliDatasetDependency extends TriggerDependency {
-  String name;
-  String type;
-  Map params;
 
   DaliDatasetDependency(String name) {
-    this.name = name;
+    super(name);
     this.type = "dali-dataset";
     this.params = [:];
   }
@@ -32,18 +29,8 @@ class DaliDatasetDependency extends TriggerDependency {
   }
 
   @HadoopDslMethod
-  void delay(String delay) {
-    this.params["delay"] = delay.toInteger();
-  }
-
-  @HadoopDslMethod
   void window(int window) {
     this.params["window"] = window;
-  }
-
-  @HadoopDslMethod
-  void window(String window) {
-    this.params["window"] = window.toInteger();
   }
 
   // TODO validate daily or weekly
@@ -55,12 +42,6 @@ class DaliDatasetDependency extends TriggerDependency {
   // TODO validate true or false
   @HadoopDslMethod
   void ignoreLocation(String ignoreLocation) {
-    this.params["ignoreLocation"] = ignoreLocation.toBoolean();
-  }
-
-  // TODO validate true or false
-  @HadoopDslMethod
-  void ignoreLocation(boolean ignoreLocation) {
     this.params["ignoreLocation"] = ignoreLocation;
   }
 }

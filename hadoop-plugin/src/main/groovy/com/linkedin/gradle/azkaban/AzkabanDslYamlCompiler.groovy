@@ -26,8 +26,8 @@ import com.linkedin.gradle.hadoopdsl.Trigger;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
-import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDatasetDependency
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDatasetDependency;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 import org.gradle.api.Project;
 import org.yaml.snakeyaml.DumperOptions;
@@ -257,7 +257,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     // Add maximum number of minutes the trigger will wait before it's automatically cancelled
     yamlizedTrigger["maxWaitMins"] = trigger.maxWaitMins;
     // Add trigger schedule
-    yamlizedTrigger["schedule"] = yamlizeSchedule(trigger.schedule);
+    yamlizedTrigger["schedule"] = yamlizeSchedule(trigger.schedules[0]);
     // Add trigger dependencies if there are any
     if (!trigger.triggerDependencies.isEmpty()) {
       List<Map> yamlizedTriggerDependencies = [];

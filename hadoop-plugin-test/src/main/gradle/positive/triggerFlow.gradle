@@ -6,6 +6,7 @@ buildscript {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
     // Must manually specify snakeyaml for testing, not required for users
     classpath 'org.yaml:snakeyaml:1.18'
+    classpath 'org.quartz-scheduler:quartz:2.2.1'
   }
 }
 
@@ -31,13 +32,14 @@ hadoop {
         view 'search_mp_versioned.search_impression_event_0_0_47' // required
         delay 1 // required
         window 1 // required
-        unit 'daily' // not required - must be either 'daily' or 'weekly'
+        unit 'daily' // required - must be either 'daily' or 'weekly'
         ignoreLocation 'true' // not required - must be either 'true' or 'false'
       }
       daliDatasetDependency('other-name') {
         view 'another dataset'
         delay 1
         window 7
+        unit 'hourly'
       }
     }
 
