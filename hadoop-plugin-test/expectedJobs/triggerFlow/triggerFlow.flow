@@ -5,15 +5,15 @@ trigger:
     value: 0 0 1 ? * *
   triggerDependencies:
   - name: search-impression
-    type: dali-dataset
+    type: dali
     params:
       view: search_mp_versioned.search_impression_event_0_0_47
       delay: 1
       window: 1
       unit: daily
-      ignoreLocation: 'true'
+      ignoreLocation: true
   - name: other-name
-    type: dali-dataset
+    type: dali
     params:
       view: another dataset
       delay: 1

@@ -4,7 +4,7 @@ buildscript {
   }
   dependencies {
     classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
-    // Must manually specify snakeyaml for testing, not required for users
+    // Must manually specify snakeyaml and quartz-scheduler for testing, not required for users
     classpath 'org.yaml:snakeyaml:1.18'
     classpath 'org.quartz-scheduler:quartz:2.2.1'
   }
@@ -24,11 +24,11 @@ hadoop {
     trigger('trigger1') {
       // no maxWaitMins throws an ERROR
       // no schedule throws an ERROR
-      daliDatasetDependency('dali-data-dep') {
-        // no dali dataset dependency view throws an ERROR
-        // no dali dataset dependency window throws an ERROR
-        // no dali dataset dependency delay throws an ERROR
-        // no dali dataset dependency unit throws an ERROR
+      daliDependency('dali-data-dep') {
+        // no dali dependency view throws an ERROR
+        // no dali dependency window throws an ERROR
+        // no dali dependency delay throws an ERROR
+        // no dali dependency unit throws an ERROR
       }
     }
 
@@ -55,21 +55,19 @@ hadoop {
       schedule('schedule1') {
         value '*/30 0 1 ? * *'// really small cron interval throws an ERROR
       }
-      daliDatasetDependency('dali-data-dep') {
+      daliDependency('dali-data-dep') {
         view 'test'
-        window 0 // dali dataset dependency window less than 1 throws an ERROR
-        delay '-1' as int // dali dataset dependency delay less than 0 throws an ERROR
-        unit 'fail' // dali dataset dependency unit not 'daily' or 'hourly' throws an ERROR
-        ignoreLocation 'untrue'// dali dataset dependency ignoreLocation not 'true' or 'false'
-                               // throws an ERROR
+        window 0 // dali dependency window less than 1 throws an ERROR
+        delay '-1' as int // dali dependency delay less than 0 throws an ERROR
+        unit 'fail' // dali dependency unit not 'daily' or 'hourly' throws an ERROR
       }
-      daliDatasetDependency('dali-data-dep') { // two dependencies with same name throws an ERROR
+      daliDependency('dali-data-dep') { // two dependencies with same name throws an ERROR
         view 'test'
         window 1
         delay 0
         unit 'daily'
       }
-      daliDatasetDependency('dali-data-dep2') { // two dependencies with same config throws an ERROR
+      daliDependency('dali-data-dep2') { // two dependencies with same config throws an ERROR
         view 'test'
         window 1
         delay 0

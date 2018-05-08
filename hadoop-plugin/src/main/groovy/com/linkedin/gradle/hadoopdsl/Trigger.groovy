@@ -1,6 +1,6 @@
-package com.linkedin.gradle.hadoopdsl;
+package com.linkedin.gradle.hadoopdsl
 
-import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDatasetDependency;
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 
 import org.gradle.api.Project;
@@ -53,9 +53,9 @@ class Trigger {
   }
 
   @HadoopDslMethod
-  void daliDatasetDependency(String name, @DelegatesTo(DaliDatasetDependency) Closure configure) {
-    DaliDatasetDependency daliDatasetDependency = new DaliDatasetDependency(name);
-    project.configure(daliDatasetDependency, configure);
-    triggerDependencies.add(daliDatasetDependency);
+  void daliDependency(String name, @DelegatesTo(DaliDependency) Closure configure) {
+    DaliDependency daliDependency = new DaliDependency(name);
+    project.configure(daliDependency, configure);
+    triggerDependencies.add(daliDependency);
   }
 }

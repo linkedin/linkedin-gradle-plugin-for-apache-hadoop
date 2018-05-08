@@ -5,11 +5,11 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 /**
  * This dependency is satisfied when the dali dataset view becomes fully available.
  */
-class DaliDatasetDependency extends TriggerDependency {
+class DaliDependency extends TriggerDependency {
 
-  DaliDatasetDependency(String name) {
+  DaliDependency(String name) {
     super(name);
-    this.type = "dali-dataset";
+    this.type = "dali";
   }
 
   @HadoopDslMethod
@@ -33,7 +33,7 @@ class DaliDatasetDependency extends TriggerDependency {
   }
 
   @HadoopDslMethod
-  void ignoreLocation(String ignoreLocation) {
+  void ignoreLocation(boolean ignoreLocation) {
     this.params["ignoreLocation"] = ignoreLocation;
   }
 }

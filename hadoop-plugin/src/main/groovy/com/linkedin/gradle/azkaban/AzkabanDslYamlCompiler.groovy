@@ -27,7 +27,7 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
-import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDatasetDependency;
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 import org.gradle.api.Project;
 import org.yaml.snakeyaml.DumperOptions;
@@ -284,15 +284,15 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     return yamlizedSchedule;
   }
 
-  Map yamlizeTriggerDependency(DaliDatasetDependency daliDatasetDependency) {
+  Map yamlizeTriggerDependency(DaliDependency daliDependency) {
     Map yamlizedTriggerDependency = [:];
 
     // Add trigger dependency name
-    yamlizedTriggerDependency["name"] = daliDatasetDependency.name;
+    yamlizedTriggerDependency["name"] = daliDependency.name;
     // Add trigger dependency type
-    yamlizedTriggerDependency["type"] = daliDatasetDependency.type;
+    yamlizedTriggerDependency["type"] = daliDependency.type;
     // Add trigger dependency params
-    yamlizedTriggerDependency["params"] = daliDatasetDependency.params;
+    yamlizedTriggerDependency["params"] = daliDependency.params;
     return yamlizedTriggerDependency;
   }
 
