@@ -24,9 +24,9 @@ class Trigger {
   Trigger(String name, Project project){
     this.name = name;
     this.project = project;
-    this.maxWaitMins = 0; // TODO reallocf verify >0 (required to be set by user)
+    this.maxWaitMins = 0;
     this.schedules = new ArrayList<Schedule>();
-    this.triggerDependencies = new ArrayList<TriggerDependency>(); // TODO reallocf any verify?
+    this.triggerDependencies = new ArrayList<TriggerDependency>();
   }
 
   protected Trigger clone() {

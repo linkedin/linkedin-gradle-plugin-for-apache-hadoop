@@ -11,7 +11,7 @@ class Schedule {
   Schedule(String name) {
     this.name = name;
     this.type = "cron";
-    this.value = null; // TODO reallocf validate?
+    this.value = null;
   }
 
   @HadoopDslMethod

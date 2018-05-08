@@ -14,8 +14,6 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 // Simple flow for testing trigger creation
 
-// TODO reallocf negative cases for Cheng's negative cases in AZ
-
 hadoop {
   buildPath "jobs/triggerFlow"
   cleanPath false
