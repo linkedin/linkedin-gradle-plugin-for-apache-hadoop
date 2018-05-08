@@ -12,12 +12,10 @@ buildscript {
 
 apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
-// Simple flow for testing trigger creation
-
-// TODO reallocf negative cases for Cheng's negative cases in AZ
+// Negative cases for trigger creation
 
 hadoop {
-  buildPath "jobs/triggerFlow"
+  buildPath "jobs/triggerCheck"
   cleanPath false
 
   generateYamlOutput true
@@ -51,23 +49,6 @@ hadoop {
     targets 'shellBash'
   }
 
-/**
- * The TriggerChecker rule checks the following:
- * <ul>
- *   <li>Trigger specific
- *   <li>WARN if a trigger maxWaitMins is greater than 10 days (14400) - will be set to 10 days
- *       by Azkaban.</li>
- *   <li>ERROR if a trigger schedule value has an interval smaller than 1 minute.</li>
- *   <li>ERROR if a trigger dependency name is not unique.</li>
- *   <li>ERROR if a trigger dependency config (type + params) is not unique.</li>
- *   <li>
- *   <li>DaliDatasetDependency specific
- *   <li>ERROR if a trigger dali dataset dependency window less than one.</li>
- *   <li>ERROR if a trigger dali dataset dependency delay less than zero.</li>
- *   <li>ERROR if a trigger dali dataset dependency unit is not 'daily' or 'hourly'.</li>
- *   <li>ERROR if a trigger dali dataset dependency ignoreLocation is not 'true' or 'false'.</li>
- * </ul>
- */
   workflow('triggerFail2') {
     trigger('trigger3') {
       maxWaitMins 9999999 // really high maxWaitMins throws a WARN

@@ -20,8 +20,8 @@ import com.linkedin.gradle.hadoopdsl.BaseNamedScopeContainer;
 import com.linkedin.gradle.hadoopdsl.HadoopDslExtension;
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Namespace;
-import com.linkedin.gradle.hadoopdsl.Properties
-import com.linkedin.gradle.hadoopdsl.Schedule
+import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.Schedule;
 import com.linkedin.gradle.hadoopdsl.Trigger;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
@@ -184,7 +184,6 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
       yamlizedWorkflow["name"] = workflow.name;
     }
     // Add trigger if not subflow and there is a trigger defined in the workflow
-    // TODO reallocf is this the right way to handle multiple defined triggers?
     if (!isSubflow && !workflow.triggers.isEmpty()) {
       yamlizedWorkflow["trigger"] = yamlizeTrigger(workflow.triggers[0]);
     }

@@ -38,7 +38,7 @@ import org.gradle.api.Project;
  *   <li>WorkflowJobChecker: checks various properties of workflows</li>
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
  *   <li>PropertySetChecker: checks that property files and jobs that declare baseProperties refer to valid property sets</li>
- *   <li>TriggerChecker: checks that the trigger schedules and dependencies are properly defined</li>
+ *   <li>TriggerChecker: checks that the triggers and their  dependencies are properly defined</li>
  * </ul>
  */
 class HadoopDslChecker extends BaseStaticChecker {

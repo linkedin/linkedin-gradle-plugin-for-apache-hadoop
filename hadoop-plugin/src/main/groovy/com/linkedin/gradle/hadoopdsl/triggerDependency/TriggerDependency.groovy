@@ -7,5 +7,7 @@ abstract class TriggerDependency {
 
   TriggerDependency(String name) {
     this.name = name;
+    this.type = null;
+    this.params = [:];
   }
 }
