@@ -23,7 +23,8 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import org.gradle.api.Project;
 import org.junit.Before;
 import org.junit.Test;
@@ -284,5 +285,25 @@ class AzkabanDslYamlCompilerTest {
     assertEquals(5, yamlizedTrigger["maxWaitMins"]);
     assertEquals("cron", yamlizedTrigger["schedule"]["type"]);
     assertEquals("0 0 1 ? * *", yamlizedTrigger["schedule"]["value"]);
+  }
+
+  @Test
+  public void TestComplicatedYamlTrigger() {
+    DaliDependency mockDaliDependency = mock(DaliDependency.class);
+    when(mockDaliDependency.name).thenReturn("testDaliDependency");
+    when(mockDaliDependency.type).thenReturn("dali");
+    when(mockDaliDependency.params).thenReturn(["view": "testView", "delay": 1, "window": 2,
+                                                "unit": "hourly", "ignoreLocation": false]);
+    when(mockTrigger.triggerDependencies).thenReturn([mockDaliDependency]);
+
+    Map yamlizedTrigger = yamlCompiler.yamlizeTrigger(mockTrigger);
+    assertEquals(5, yamlizedTrigger["maxWaitMins"]);
+    assertEquals("cron", yamlizedTrigger["schedule"]["type"]);
+    assertEquals("0 0 1 ? * *", yamlizedTrigger["schedule"]["value"]);
+    assertEquals("testView", yamlizedTrigger["triggerDependencies"][0]["params"]["view"]);
+    assertEquals(1, yamlizedTrigger["triggerDependencies"][0]["params"]["delay"]);
+    assertEquals(2, yamlizedTrigger["triggerDependencies"][0]["params"]["window"]);
+    assertEquals("hourly", yamlizedTrigger["triggerDependencies"][0]["params"]["unit"]);
+    assertEquals(false, yamlizedTrigger["triggerDependencies"]["params"][0]["ignoreLocation"]);
   }
 }
