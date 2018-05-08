@@ -284,6 +284,12 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     return yamlizedSchedule;
   }
 
+  /**
+   * Take in dali dependency and turn into map to be output in yaml file.
+   *
+   * @param daliDependency Dali dependency to be turned into map.
+   * @return Map representing dali dependency to be output in yaml file.
+   */
   Map yamlizeTriggerDependency(DaliDependency daliDependency) {
     Map yamlizedTriggerDependency = [:];
 

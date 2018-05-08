@@ -37,7 +37,6 @@ import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
-import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 
 import org.gradle.api.Project;
 

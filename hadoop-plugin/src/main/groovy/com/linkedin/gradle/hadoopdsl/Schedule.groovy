@@ -2,7 +2,13 @@ package com.linkedin.gradle.hadoopdsl;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
-// check to see if valid schedule?
+/**
+ * Represents the cron schedule that Azkaban uses to schedule jobs by time.
+ *
+ * If paired with a dependency in a Trigger, the schedule signifies when the trigger is created.
+ * At this point, the trigger will start looking to see if the dependencies are met which then
+ * launches the flow.
+ */
 class Schedule {
   String name;
   String type;

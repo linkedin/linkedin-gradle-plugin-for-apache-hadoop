@@ -68,7 +68,7 @@ class TriggerChecker extends BaseStaticChecker {
     }
 
     // Indicate to the static checker whether or not we passed all the static checks
-    foundError |= workflowError
+    foundError |= workflowError;
   }
 
   boolean checkTrigger(Trigger trigger) {

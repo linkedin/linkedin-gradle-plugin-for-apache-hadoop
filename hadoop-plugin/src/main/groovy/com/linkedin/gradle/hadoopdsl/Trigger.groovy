@@ -5,6 +5,12 @@ import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 
 import org.gradle.api.Project;
 
+/**
+ * Triggers are used by Azkaban to know when to automatically launch flows (aka trigger them).
+ *
+ * In Azkaban, triggers are created based on their defined schedule (cron schedule) then actually
+ * launches the flow when all the dependencies in the trigger are fulfilled.
+ */
 class Trigger {
   String name;
   Project project;
@@ -18,7 +24,6 @@ class Trigger {
 
   // Used to determine what is necessary for the triggerInstance in Azkaban to be satisfied.
   // Once satisfied, the triggerInstance will launch the Azkaban flow.
-  // For example, a Data Dependency will be included here.
   List<TriggerDependency> triggerDependencies;
 
   Trigger(String name, Project project){
