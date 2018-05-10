@@ -23,7 +23,7 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
-import com.linkedin.gradle.hadoopdsl.job.SubFlowJob
+import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import org.gradle.api.Project;
 import org.junit.Before;

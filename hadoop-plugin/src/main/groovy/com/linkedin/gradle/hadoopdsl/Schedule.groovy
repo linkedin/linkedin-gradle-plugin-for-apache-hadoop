@@ -10,12 +10,10 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * launches the flow.
  */
 class Schedule {
-  String name;
   String type;
   String value;
 
-  Schedule(String name) {
-    this.name = name;
+  Schedule() {
     this.type = "cron";
     this.value = null;
   }

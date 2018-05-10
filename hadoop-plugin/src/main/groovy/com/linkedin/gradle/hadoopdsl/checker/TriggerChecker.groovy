@@ -136,17 +136,17 @@ class TriggerChecker extends BaseStaticChecker {
     trigger.schedules.each { Schedule schedule ->
       // ERROR if no schedule value defined
       if (schedule.value == null) {
-        project.logger.lifecycle("TriggerChecker ERROR: Schedule ${schedule.name} in Trigger ${trigger.name} in Workflow ${workflow.name} must define 'value'.");
+        project.logger.lifecycle("TriggerChecker ERROR: Schedule in Trigger ${trigger.name} in Workflow ${workflow.name} must define 'value'.");
         checkScheduleError = true;
       }
       // ERROR if schedule value is not a valid cron expression
       else if (!CronExpression.isValidExpression(schedule.value)) {
-        project.logger.lifecycle("TriggerChecker ERROR: Schedule ${schedule.name} in Trigger ${trigger.name} in Workflow ${workflow.name} must define 'value' as a valid cron expression.");
+        project.logger.lifecycle("TriggerChecker ERROR: Schedule in Trigger ${trigger.name} in Workflow ${workflow.name} must define 'value' as a valid cron expression.");
         checkScheduleError = true;
       }
       // ERROR if schedule value specifies a cron expression that runs more frequently than once per minute
       else if (schedule.value.split("\\s+")[0] != "0") {
-        project.logger.lifecycle("TriggerChecker ERROR: Schedule ${schedule.name} in Trigger ${trigger.name} in Workflow ${workflow.name} must define interval of flow trigger to be larger than 1 minute.");
+        project.logger.lifecycle("TriggerChecker ERROR: Schedule in Trigger ${trigger.name} in Workflow ${workflow.name} must define interval of flow trigger to be larger than 1 minute.");
         checkScheduleError = true;
       }
     }
@@ -182,8 +182,8 @@ class TriggerChecker extends BaseStaticChecker {
       project.logger.lifecycle("TriggerChecker ERROR: DaliDependency ${daliDependency.name} in Trigger ${trigger.name} in Workflow ${workflow.name} must have a window greater than 0.");
       checkDaliDependencyError = true;
     }
-    // ERROR if dali dataset dependency has a window less than one.
-    if (daliDependency.params["delay"] < 1) {
+    // ERROR if dali dependency has a delay less than zero.
+    if (daliDependency.params["delay"] < 0) {
       project.logger.lifecycle("TriggerChecker ERROR: DaliDependency ${daliDependency.name} in Trigger ${trigger.name} in Workflow ${workflow.name} must have a nonnegative delay.");
       checkDaliDependencyError = true;
     }

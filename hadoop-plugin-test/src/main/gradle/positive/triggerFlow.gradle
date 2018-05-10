@@ -23,7 +23,7 @@ hadoop {
   workflow('triggerFlow') {
     trigger('trigger') {
       maxWaitMins 5
-      schedule('schedule') {
+      schedule {
         value '0 0 1 ? * *'
       }
       daliDependency('search-impression') {

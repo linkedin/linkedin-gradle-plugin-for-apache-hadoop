@@ -51,8 +51,8 @@ class Trigger {
   }
 
   @HadoopDslMethod
-  void schedule(String name, @DelegatesTo(Schedule) Closure configure) {
-    Schedule schedule = new Schedule(name);
+  void schedule(@DelegatesTo(Schedule) Closure configure) {
+    Schedule schedule = new Schedule();
     project.configure(schedule, configure);
     this.schedules.add(schedule);
   }
