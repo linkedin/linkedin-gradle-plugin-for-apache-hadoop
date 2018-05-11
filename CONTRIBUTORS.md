@@ -123,6 +123,7 @@ The following were contributed by Jianling Zhong. Thanks, Jianling!
 * `Add supports for a "required parameters" check`
 
 The following were contributed by Charlie Summers. Thanks, Charlie!
+* `DSL Trigger Implementation`
 * `Upgrade li-hadoop-plugin for Flow 2.0`
 * `Refactor YamlCompiler to fit closer with AzkabanDslCompiler`
 * `Allow configurable Yaml creation for Flow 2.0`

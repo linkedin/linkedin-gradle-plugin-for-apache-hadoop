@@ -55,6 +55,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   List<Properties> properties;
   List<PropertySet> propertySets;
   List<Workflow> workflows;
+  List<Trigger> triggers;
 
   /**
    * Constructor for the BaseNamedScopeContainer.
@@ -75,6 +76,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Workflow>();
+    this.triggers = new ArrayList<Trigger>();
   }
 
   /**
@@ -93,6 +95,7 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     this.properties = new ArrayList<Properties>();
     this.propertySets = new ArrayList<PropertySet>();
     this.workflows = new ArrayList<Workflow>();
+    this.triggers = new ArrayList<Trigger>();
   }
 
   /**
@@ -129,11 +132,16 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
       scope.unbind(workflow.name);
     }
 
+    for (Trigger trigger : triggers) {
+      scope.unbind(trigger.name);
+    }
+
     jobs.clear();
     namespaces.clear();
     properties.clear();
     propertySets.clear();
     workflows.clear();
+    triggers.clear();
 
     return this;
   }
@@ -181,6 +189,12 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     for (Workflow workflow : workflows) {
       Workflow clone = workflow.clone(container.getScope());
       container.workflows.add(clone);
+      container.scope.bind(clone.name, clone);
+    }
+
+    for (Trigger trigger : triggers) {
+      Trigger clone = trigger.clone();
+      container.triggers.add(clone);
       container.scope.bind(clone.name, clone);
     }
 
@@ -325,6 +339,33 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   }
 
   /**
+   * Helper method to clone a Trigger in the DSL.
+   *
+   * @param name The name of the object to clone
+   * @return The cloned object
+   */
+  protected Trigger cloneTrigger(String name) {
+    Trigger trigger = (Trigger)scope.lookup(name);
+    if (trigger == null) {
+      throw new Exception("Could not find trigger ${name} from scope ${scope.levelName}");
+    }
+    return trigger.clone();
+  }
+
+  /**
+   * Helper method to clone a Trigger in the DSL and give it a new name.
+   *
+   * @param name The name of the object to clone
+   * @param rename The new name to give the object
+   * @return The cloned object
+   */
+  protected Trigger cloneTrigger(String name, String rename) {
+    Trigger trigger = cloneTrigger(name);
+    trigger.name = rename;
+    return trigger;
+  }
+
+  /**
    * Helper method to configure a Job in the DSL. Can be called by subclasses to configure custom
    * Job subclass types.
    *
@@ -397,6 +438,21 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     project.configure(workflow, configure);
     workflows.add(workflow);
     return workflow;
+  }
+
+  /**
+   * Helper method to configure a Trigger in the DSL. Can be called by subclasses to configure
+   * custom Trigger subclass types.
+   *
+   * @param trigger The trigger to configure
+   * @param configure The configuration closure
+   * @return The input trigger, which is now configured
+   */
+  protected Trigger configureTrigger(Trigger trigger, Closure configure) {
+    scope.bind(trigger.name, trigger);
+    project.configure(trigger, configure);
+    triggers.add(trigger);
+    return trigger;
   }
 
   /**
@@ -537,6 +593,34 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   @HadoopDslMethod
   Workflow addWorkflow(String name, String rename, @DelegatesTo(Workflow) Closure configure) {
     return configureWorkflow(cloneWorkflow(name, rename), configure);
+  }
+
+  /**
+   * DSL addTrigger method. Looks up the trigger with given name, clones it, configures the clone
+   * with the given configuration closure and binds the clone in scope.
+   *
+   * @param name The trigger name to lookup
+   * @param configure The configuration closure
+   * @return The cloned and configured trigger that was bound in scope
+   */
+  @HadoopDslMethod
+  Trigger addTrigger(String name, @DelegatesTo(Trigger) Closure configure) {
+    return configureTrigger(cloneTrigger(name), configure);
+  }
+
+  /**
+   * DSL addTrigger method. Looks up the trigger with given name, clones it, renames the clone to
+   * the specified name, configures the clone with the given configuration closure and binds the
+   * clone in scope.
+   *
+   * @param name The trigger name to lookup
+   * @param rename The new name to give the cloned trigger
+   * @param configure The configuration closure
+   * @return The cloned, renamed and configured trigger that was bound in scope
+   */
+  @HadoopDslMethod
+  Trigger addTrigger(String name, String rename, @DelegatesTo(Trigger) Closure configure) {
+    return configureTrigger(cloneTrigger(name, rename), configure);
   }
 
   /**
@@ -1010,5 +1094,17 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   @HadoopDslMethod
   TensorFlowJob tensorFlowJob(String name, @DelegatesTo(TensorFlowJob) Closure configure) {
     return ((TensorFlowJob)configureJob(factory.makeTensorFlowJob(name), configure));
+  }
+
+  /**
+   * DSL trigger method. Creates a Trigger in scope with the given name and configuration.
+   *
+   * @param name The trigger name
+   * @param configure The configuration closure
+   * @return The new trigger
+   */
+  @HadoopDslMethod
+  Trigger trigger(String name, @DelegatesTo(Trigger) Closure configure) {
+    return configureTrigger(factory.makeTrigger(name, project), configure);
   }
 }

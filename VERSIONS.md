@@ -17,6 +17,10 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.10
+
+* DSL Trigger Implementation
+
 0.14.9
 
 * Upgrade li-hadoop-plugin for Flow 2.0

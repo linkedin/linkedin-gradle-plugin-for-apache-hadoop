@@ -17,11 +17,14 @@ package com.linkedin.gradle.azkaban;
 
 import com.linkedin.gradle.hadoopdsl.NamedScope;
 import com.linkedin.gradle.hadoopdsl.Properties;
+import com.linkedin.gradle.hadoopdsl.Schedule;
+import com.linkedin.gradle.hadoopdsl.Trigger;
 import com.linkedin.gradle.hadoopdsl.Workflow;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
+import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import org.gradle.api.Project;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +43,8 @@ class AzkabanDslYamlCompilerTest {
   Workflow mockWorkflow = mock(Workflow.class);
   NamedScope mockSubflowScope = mock(NamedScope.class);
   Workflow mockSubflow = mock(Workflow.class);
+  Trigger mockTrigger = mock(Trigger.class);
+  Schedule mockSchedule = mock(Schedule.class);
   AzkabanDslYamlCompiler yamlCompiler;
 
   @Before
@@ -59,6 +64,7 @@ class AzkabanDslYamlCompilerTest {
     when(mockWorkflow.properties).thenReturn([]);
     when(mockWorkflow.jobsToBuild).thenReturn([]);
     when(mockWorkflow.flowsToBuild).thenReturn([]);
+    when(mockWorkflow.triggers).thenReturn([]);
     when(mockWorkflowScope.nextLevel).thenReturn(mockHadoopScope);
 
     when(mockSubflow.name).thenReturn("subflowTest");
@@ -73,6 +79,13 @@ class AzkabanDslYamlCompilerTest {
     when(mockProject.name).thenReturn("test");
     yamlCompiler = new AzkabanDslYamlCompiler(mockProject);
     yamlCompiler.parentScope = mockHadoopScope;
+
+    when(mockTrigger.maxWaitMins).thenReturn(5);
+    when(mockTrigger.schedules).thenReturn([mockSchedule]);
+    when(mockTrigger.triggerDependencies).thenReturn([]);
+
+    when(mockSchedule.type).thenReturn("cron");
+    when(mockSchedule.value).thenReturn("0 0 1 ? * *");
   }
 
   @Test
@@ -235,15 +248,8 @@ class AzkabanDslYamlCompilerTest {
 
   @Test
   public void TestSimpleYamlJob() {
-    NamedScope mockNamedScope = mock(NamedScope.class);
-    Job mockJob = mock(Job.class);
-    when(mockJob.name).thenReturn("test");
-    when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
-    when(mockJob.dependencyNames).thenReturn([].toSet());
-    when(mockJob.buildProperties(mockNamedScope)).thenReturn([:]);
-
     Map yamlizedJob = yamlCompiler.yamlizeJob(mockJob);
-    assertEquals("test", yamlizedJob["name"]);
+    assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertFalse(yamlizedJob.containsKey("dependsOn"));
     assertFalse(yamlizedJob.containsKey("config"));
@@ -251,15 +257,12 @@ class AzkabanDslYamlCompilerTest {
 
   @Test
   public void TestComplicatedYamlJob() {
-    Job mockJob = mock(Job.class);
-    when(mockJob.name).thenReturn("test");
-    when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
     when(mockJob.dependencyNames).thenReturn(["dependency1", "dependency2"].toSet());
     when(mockJob.buildProperties(yamlCompiler.parentScope)).thenReturn(["configKey1" : "configVal1",
                                                                         "configKey2": "configVal2"]);
 
     Map yamlizedJob = yamlCompiler.yamlizeJob(mockJob);
-    assertEquals("test", yamlizedJob["name"]);
+    assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertEquals(["dependency1", "dependency2"], ((List) yamlizedJob["dependsOn"]).sort());
     assertEquals(["configKey1": "configVal1", "configKey2": "configVal2"], yamlizedJob["config"]);
@@ -274,5 +277,33 @@ class AzkabanDslYamlCompilerTest {
     assertEquals(AZK_FLOW_VERSION, (double) yamlizedProject["azkaban-flow-version"], 0);
     // Check yamlCompiler picking up expected project name.
     assertEquals("test", yamlCompiler.yamlProjectName);
+  }
+
+  @Test
+  public void TestSimpleYamlTrigger() {
+    Map yamlizedTrigger = yamlCompiler.yamlizeTrigger(mockTrigger);
+    assertEquals(5, yamlizedTrigger["maxWaitMins"]);
+    assertEquals("cron", yamlizedTrigger["schedule"]["type"]);
+    assertEquals("0 0 1 ? * *", yamlizedTrigger["schedule"]["value"]);
+  }
+
+  @Test
+  public void TestComplicatedYamlTrigger() {
+    DaliDependency mockDaliDependency = mock(DaliDependency.class);
+    when(mockDaliDependency.name).thenReturn("testDaliDependency");
+    when(mockDaliDependency.type).thenReturn("dali");
+    when(mockDaliDependency.params).thenReturn(["view": "testView", "delay": 1, "window": 2,
+                                                "unit": "hourly", "ignoreLocation": false]);
+    when(mockTrigger.triggerDependencies).thenReturn([mockDaliDependency]);
+
+    Map yamlizedTrigger = yamlCompiler.yamlizeTrigger(mockTrigger);
+    assertEquals(5, yamlizedTrigger["maxWaitMins"]);
+    assertEquals("cron", yamlizedTrigger["schedule"]["type"]);
+    assertEquals("0 0 1 ? * *", yamlizedTrigger["schedule"]["value"]);
+    assertEquals("testView", yamlizedTrigger["triggerDependencies"][0]["params"]["view"]);
+    assertEquals(1, yamlizedTrigger["triggerDependencies"][0]["params"]["delay"]);
+    assertEquals(2, yamlizedTrigger["triggerDependencies"][0]["params"]["window"]);
+    assertEquals("hourly", yamlizedTrigger["triggerDependencies"][0]["params"]["unit"]);
+    assertEquals(false, yamlizedTrigger["triggerDependencies"]["params"][0]["ignoreLocation"]);
   }
 }

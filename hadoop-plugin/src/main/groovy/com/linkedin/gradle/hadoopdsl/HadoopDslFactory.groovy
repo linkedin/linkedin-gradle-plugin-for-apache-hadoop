@@ -369,6 +369,18 @@ class HadoopDslFactory {
   }
 
   /**
+   * Factory method to build a Trigger.
+   *
+   * @param name The trigger name
+   * @param project The Gradle project
+   * @param parentScope The parent scope
+   * @return The trigger
+   */
+  Trigger makeTrigger(String name, Project project) {
+    return new Trigger(name, project);
+  }
+
+  /**
    * Factory method to build an Assertion.
    *
    * @param name The Assertion name

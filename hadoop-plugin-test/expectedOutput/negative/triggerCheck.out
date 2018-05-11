@@ -1,0 +1,24 @@
+:hadoop-plugin-test:test_triggerCheck
+Running test for the file negative/triggerCheck.gradle
+TriggerChecker ERROR: Workflow triggerFail1 contains more than 1 trigger.
+TriggerChecker ERROR: Trigger trigger1 in Workflow triggerFail1 must define 'maxWaitMins' and it must be greater than 0.
+TriggerChecker ERROR: Trigger trigger1 in Workflow triggerFail1 does not contain a schedule.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must define a view.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must define a window.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must define a delay.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must define a unit.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must have a window greater than 0.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must have a nonnegative delay.
+TriggerChecker ERROR: 'unit' value in DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 can only be set to 'daily' or 'hourly'.
+TriggerChecker ERROR: Trigger trigger2 in Workflow triggerFail1 must define 'maxWaitMins' and it must be greater than 0.
+TriggerChecker ERROR: Trigger trigger2 in Workflow triggerFail1 contains more than one schedule.
+TriggerChecker ERROR: Schedule in Trigger trigger2 in Workflow triggerFail1 must define 'value'.
+TriggerChecker ERROR: Schedule in Trigger trigger2 in Workflow triggerFail1 must define 'value' as a valid cron expression.
+TriggerChecker WARN: Trigger trigger3 in Workflow triggerFail2 defines 'maxWaitMins' to be greater than 10 days. Azkaban will automatically reduce to 10 days.
+TriggerChecker ERROR: Schedule in Trigger trigger3 in Workflow triggerFail2 must define interval of flow trigger to be larger than 1 minute.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger3 in Workflow triggerFail2 must have a window greater than 0.
+TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger3 in Workflow triggerFail2 must have a nonnegative delay.
+TriggerChecker ERROR: 'unit' value in DaliDependency dali-data-dep in Trigger trigger3 in Workflow triggerFail2 can only be set to 'daily' or 'hourly'.
+TriggerChecker ERROR: Trigger trigger3 in Workflow triggerFail2 contains dependencies with the same name.
+TriggerChecker ERROR: Trigger trigger3 in Workflow triggerFail2 contains duplicate dependencies (same type and parameters).
+:hadoop-plugin-test:test_triggerCheck FAILED

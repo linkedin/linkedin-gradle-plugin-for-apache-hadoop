@@ -40,6 +40,7 @@ dependencies {
   compile('org.apache.hadoop:hadoop-hdfs:2.3.0') { transitive = false }
   compile 'org.apache.oozie:oozie-client:4.2.0'
   compile('org.apache.pig:pig:0.15.0') { transitive = false }
+  compile 'org.quartz-scheduler:quartz:2.2.1'
   compile 'org.yaml:snakeyaml:1.18'
 
   runtime 'com.googlecode.json-simple:json-simple:1.1'

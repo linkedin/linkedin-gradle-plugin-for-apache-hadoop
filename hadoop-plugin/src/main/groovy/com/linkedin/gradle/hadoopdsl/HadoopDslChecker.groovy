@@ -19,6 +19,7 @@ import com.linkedin.gradle.hadoopdsl.checker.JobDependencyChecker;
 import com.linkedin.gradle.hadoopdsl.checker.PropertySetChecker;
 import com.linkedin.gradle.hadoopdsl.checker.RequiredFieldsChecker;
 import com.linkedin.gradle.hadoopdsl.checker.RequiredParametersChecker;
+import com.linkedin.gradle.hadoopdsl.checker.TriggerChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidFieldsChecker;
 import com.linkedin.gradle.hadoopdsl.checker.ValidNameChecker;
 import com.linkedin.gradle.hadoopdsl.checker.WorkflowJobChecker;
@@ -37,6 +38,7 @@ import org.gradle.api.Project;
  *   <li>WorkflowJobChecker: checks various properties of workflows</li>
  *   <li>JobDependencyChecker: checks various properties of jobs, such as no cyclic dependencies and potential read-before-write race conditions</li>
  *   <li>PropertySetChecker: checks that property files and jobs that declare baseProperties refer to valid property sets</li>
+ *   <li>TriggerChecker: checks that the triggers and their  dependencies are properly defined</li>
  * </ul>
  */
 class HadoopDslChecker extends BaseStaticChecker {
@@ -64,6 +66,7 @@ class HadoopDslChecker extends BaseStaticChecker {
     checks.add(makeJobDependencyChecker());
     checks.add(makePropertySetChecker());
     checks.add(makeValidFieldsChecker());
+    checks.add(makeTriggerChecker());
     return checks;
   }
 
@@ -150,5 +153,15 @@ class HadoopDslChecker extends BaseStaticChecker {
    */
   WorkflowJobChecker makeWorkflowJobChecker() {
     return new WorkflowJobChecker(project);
+  }
+
+  /**
+   * Factory method to build the TriggerChecker check. Allows subclasses to provide a custom
+   * implementation of this check.
+   *
+   * @return The TriggerChecker check
+   */
+  TriggerChecker makeTriggerChecker() {
+    return new TriggerChecker(project);
   }
 }
