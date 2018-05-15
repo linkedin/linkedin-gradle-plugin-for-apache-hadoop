@@ -67,7 +67,7 @@ def cleanBuildOutput(String buildOutput) {
   ] as String[]
 
   for (String lineToRemove : linesToRemove) {
-    buildOutput = buildOutput.replaceFirst(lineToRemove, "")
+    buildOutput = buildOutput.replaceAll(lineToRemove, "")
   }
 
   int endIndex = buildOutput.lastIndexOf("Total time:")
