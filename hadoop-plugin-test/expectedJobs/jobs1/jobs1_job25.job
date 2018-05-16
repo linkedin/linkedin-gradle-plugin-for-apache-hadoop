@@ -1,0 +1,12 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=spark
+dependencies=jobs1_job24
+conf.key1=value1
+conf.key2=value2
+conf.spark.driver.cores=1
+driver-memory=2048m
+execution-jar=path/to/python/script.py
+executor-cores=2
+executor-memory=8192m
+num-executors=6
+queue=marathon

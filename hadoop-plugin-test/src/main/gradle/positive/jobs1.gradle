@@ -381,7 +381,8 @@ hadoop {
       depends 'job22'
     }
 
-    tensorFlowJob('job24') {
+    tensorFlowJob('job24', 'tony') {
+      executes 'path/to/python/script.py'
       amMemory 2048
       amCores 1
       psMemory 2048
@@ -392,13 +393,32 @@ hadoop {
       numPs 2
       numWorkers 4
       archive 'tensorflow-starter-kit.zip'
-      jar 'tensorflow-on-yarn-0.0.1.jar'
       set workerEnv: [
         'ENV1': 'val1',
         'ENV2': 'val2'
       ]
       depends 'job23'
     }
-    targets 'job24'
+
+    tensorFlowJob('job25', 'spark') {
+      executes 'path/to/python/script.py'
+      amMemory 2048
+      amCores 1
+      // Put ps memory before worker memory and ps cores after worker cores
+      // to verify only worker params take effect
+      psMemory 2048
+      workerCores 2
+      workerMemory 8192
+      psCores 1
+      numPs 2
+      numWorkers 4
+      queue 'marathon'
+      set sparkConfs: [
+        'key1': 'value1',
+        'key2': 'value2'
+      ]
+      depends 'job24'
+    }
+    targets 'job25'
   }
 }

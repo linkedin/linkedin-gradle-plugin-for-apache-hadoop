@@ -115,9 +115,13 @@ hadoop {
       depends 'job20'
     }
 
-    tensorFlowJob('job24') {
+    tensorFlowJob('job24', 'tony') {
       depends 'job23'
     }
-    targets 'job24'
+
+    tensorFlowJob('job25', 'spark') {
+      depends 'job24'
+    }
+    targets 'job25'
   }
 }

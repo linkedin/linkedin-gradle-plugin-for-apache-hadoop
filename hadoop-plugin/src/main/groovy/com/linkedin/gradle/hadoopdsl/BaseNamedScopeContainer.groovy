@@ -33,7 +33,9 @@ import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
-import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowSparkJob
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -1092,8 +1094,16 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    * @return The new job
    */
   @HadoopDslMethod
-  TensorFlowJob tensorFlowJob(String name, @DelegatesTo(TensorFlowJob) Closure configure) {
-    return ((TensorFlowJob)configureJob(factory.makeTensorFlowJob(name), configure));
+  TensorFlowJob tensorFlowJob(String name, String type, @DelegatesTo(TensorFlowJob) Closure configure) {
+    switch (type.toLowerCase()) {
+    case "spark":
+      return ((TensorFlowSparkJob)configureJob(factory.makeTensorFlowSparkJob(name), configure));
+    case "tony":
+      return ((TensorFlowTonyJob)configureJob(factory.makeTensorFlowTonyJob(name), configure));
+    default:
+      throw new Exception("Unsupported execution type: ${type} in TensorFlow job declaration." +
+              " Should be SPARK or TONY.");
+    }
   }
 
   /**
