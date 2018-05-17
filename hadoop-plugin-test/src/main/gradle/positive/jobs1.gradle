@@ -383,11 +383,11 @@ hadoop {
 
     tensorFlowJob('job24', 'tony') {
       executes 'path/to/python/script.py'
-      amMemory 2048
+      amMemoryMB 2048
       amCores 1
-      psMemory 2048
+      psMemoryMB 2048
       psCores 1
-      workerMemory 8192
+      workerMemoryMB 8192
       workerCores 1
       workerGpus 2
       numPs 2
@@ -402,13 +402,13 @@ hadoop {
 
     tensorFlowJob('job25', 'spark') {
       executes 'path/to/python/script.py'
-      amMemory 2048
+      amMemoryMB 2048
       amCores 1
       // Put ps memory before worker memory and ps cores after worker cores
       // to verify only worker params take effect
-      psMemory 2048
+      psMemoryMB 2048
       workerCores 2
-      workerMemory 8192
+      workerMemoryMB 8192
       psCores 1
       numPs 2
       numWorkers 4
