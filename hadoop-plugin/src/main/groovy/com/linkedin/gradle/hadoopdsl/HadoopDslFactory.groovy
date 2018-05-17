@@ -36,7 +36,9 @@ import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.StartJob;
 import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
-import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowSparkJob
+import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
@@ -314,13 +316,23 @@ class HadoopDslFactory {
   }
 
   /**
-   * Factory method to build a TensorFlowJob
+   * Factory method to build a TensorFlowSparkJob
    *
    * @param name The job name
    * @return The job
    */
-  TensorFlowJob makeTensorFlowJob(String name) {
-    return new TensorFlowJob(name);
+  TensorFlowJob makeTensorFlowSparkJob(String name) {
+    return new TensorFlowSparkJob(name);
+  }
+
+  /**
+   * Factory method to build a TensorFlowTonyJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  TensorFlowJob makeTensorFlowTonyJob(String name) {
+    return new TensorFlowTonyJob(name);
   }
 
   /**

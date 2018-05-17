@@ -310,11 +310,6 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     }
   }
 
-  @Override
-  void visitJob(TensorFlowJob job) {
-    foundError |= validateNotEmpty(job, "archive", job.archive);
-  }
-
   /**
    * Validates the source for an HdfsToTeradataJob job. Checks the required fields based on whether
    * the source is Hive or an Avro file.

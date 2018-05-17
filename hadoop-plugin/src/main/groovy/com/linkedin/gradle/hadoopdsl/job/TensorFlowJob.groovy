@@ -18,76 +18,10 @@ package com.linkedin.gradle.hadoopdsl.job;
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
 /**
- * Job class for type=TensorFlowJob jobs.
- * <p>
- * In the DSL, a TensorFlowJob can be specified with:
- * <pre>
- *   tensorFlowJob('jobName') {
- *     def taskParams = [
- *       "--tensorboard",
- *       "--hdfs_input_path /tmp/trainingInput",
- *       "--hdfs_output_path /tmp/trainingOutput",
- *       "--learning_rate 0.25",
- *       "--lambda_l2 0.01",
- *     ].join(' ')
- *     set properties: [
- *       'python_binary_path': 'Python-2.7.11/bin/python',
- *       'python_venv': "tensorflow-starter-kit-1.4.16-SNAPSHOT-venv.zip",
- *       'executes': 'path/to/python/script.py',
- *       'task_params': taskParams,
- *     ]
- *     amMemory 2048
- *     amCores 1
- *     psMemory 2048
- *     psCores 1
- *     workerMemory 8192
- *     workerCores 1
- *     workerGpus 2
- *     numPs 2
- *     numWorkers 4
- *     archive 'tensorflow-starter-kit-1.4.16-SNAPSHOT-azkaban.zip'
- *     jar 'tensorflow-on-yarn-0.0.1.jar'
- *     set workerEnv: [
- *       'ENV1': 'val1',
- *       'ENV2': 'val2'
- *     ]
- *   }
- * </pre>
+ * Abstract class for tensorflow job. Subclasses will implement different
+ * TensorFlow execution types.
  */
-class TensorFlowJob extends HadoopJavaProcessJob {
-  int amMemory;
-  int amCores;
-  int psMemory;
-  int psCores;
-  int workerMemory;
-  int workerCores;
-  int workerGpus;
-  int numPs;
-  int numWorkers;
-  String archive;
-  String jar;
-  Map<String, Object> workerEnv;
-
-  /**
-   * Constructor for a TensorFlowJob.
-   *
-   * @param jobName The job name
-   */
-  TensorFlowJob(String jobName) {
-    super(jobName);
-    workerEnv = new HashMap<>();
-    setJobProperty("type", "TensorFlowJob");
-  }
-
-  /**
-   * Clones the job.
-   *
-   * @return The cloned job
-   */
-  @Override
-  TensorFlowJob clone() {
-    return clone(new TensorFlowJob(name));
-  }
+interface TensorFlowJob {
 
   /**
    * Helper method to set the properties on a cloned job.
@@ -95,33 +29,24 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param cloneJob The job being cloned
    * @return The cloned job
    */
-  TensorFlowJob clone(TensorFlowJob cloneJob) {
-    cloneJob.amMemory = amMemory;
-    cloneJob.amCores = amCores;
-    cloneJob.psMemory = psMemory;
-    cloneJob.psCores = psCores;
-    cloneJob.workerMemory = workerMemory;
-    cloneJob.workerCores = workerCores;
-    cloneJob.workerGpus = workerGpus;
-    cloneJob.numPs = numPs;
-    cloneJob.numWorkers = numWorkers;
-    cloneJob.archive = archive;
-    cloneJob.jar = jar;
-    cloneJob.workerEnv.putAll(workerEnv);
-    return ((TensorFlowJob)super.clone(cloneJob));
-  }
+  TensorFlowJob clone(TensorFlowJob cloneJob);
+
+  /**
+   * Sets user's python script entry point.
+   *
+   * @param executes Path to script to execute.
+   */
+  @HadoopDslMethod
+  void executes(String executePath);
 
   /**
    * Sets memory in MB for this TensorFlow job's ApplicationMaster.
    * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param amMemory ApplicationMaster memory, in MB, for the TensorFlow job
+   * @param amMemoryMB ApplicationMaster memory, in MB, for the TensorFlow job
    */
   @HadoopDslMethod
-  void amMemory(int amMemory) {
-    this.amMemory = amMemory;
-    setJobProperty("am_memory", this.amMemory);
-  }
+  void amMemoryMB(int amMemoryMB);
 
   /**
    * Sets number of cores for this TensorFlow job's ApplicationMaster.
@@ -130,10 +55,15 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param amCores Number of ApplicationMaster cores for the TensorFlow job
    */
   @HadoopDslMethod
-  void amCores(int amCores) {
-    this.amCores = amCores;
-    setJobProperty("am_vcores", this.amCores);
-  }
+  void amCores(int amCores);
+
+  /**
+   * Sets number of GPUs for TensorFlow AM.
+   *
+   * @param amGpus Number of GPUs for TensorFlow AM
+   */
+  @HadoopDslMethod
+  void amGpus(int amGpus);
 
   /**
    * Sets memory in MB for each parameter server's YARN container.
@@ -142,10 +72,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param psMemory Memory in MB for each parameter server
    */
   @HadoopDslMethod
-  void psMemory(int psMemory) {
-    this.psMemory = psMemory;
-    setJobProperty("ps_memory", this.psMemory);
-  }
+  void psMemoryMB(int psMemoryMB);
 
   /**
    * Sets number of cores for each parameter server's YARN container.
@@ -154,10 +81,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param psCores Cores for each parameter server
    */
   @HadoopDslMethod
-  void psCores(int psCores) {
-    this.psCores = psCores;
-    setJobProperty("ps_vcores", this.psCores);
-  }
+  void psCores(int psCores);
 
   /**
    * Sets memory in MB for each TensorFlow worker's YARN container.
@@ -166,10 +90,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param workerMemory Memory in MB for each TensorFlow worker
    */
   @HadoopDslMethod
-  void workerMemory(int workerMemory) {
-    this.workerMemory = workerMemory;
-    setJobProperty("worker_memory", this.workerMemory);
-  }
+  void workerMemoryMB(int workerMemoryMB);
 
   /**
    * Sets number of cores for each TensorFlow worker's YARN container.
@@ -178,10 +99,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param workerCores Cores for each TensorFlow worker
    */
   @HadoopDslMethod
-  void workerCores(int workerCores) {
-    this.workerCores = workerCores;
-    setJobProperty("worker_vcores", this.workerCores);
-  }
+  void workerCores(int workerCores);
 
   /**
    * Sets number of GPUs for each TensorFlow worker's YARN container.
@@ -190,10 +108,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param workerGpus Number of GPUs for each TensorFlow worker
    */
   @HadoopDslMethod
-  void workerGpus(int workerGpus) {
-    this.workerGpus = workerGpus;
-    setJobProperty("worker_gpus", this.workerGpus);
-  }
+  void workerGpus(int workerGpus);
 
   /**
    * Sets number of parameter server containers to request from YARN.
@@ -202,10 +117,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param numPs Number of parameter servers for this TensorFlow job
    */
   @HadoopDslMethod
-  void numPs(int numPs) {
-    this.numPs = numPs;
-    setJobProperty("num_ps", this.numPs);
-  }
+  void numPs(int numPs);
 
   /**
    * Sets number of TensorFlow workers to request from YARN.
@@ -214,10 +126,7 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param numWorkers Number of TensorFlow workers for this TensorFlow job
    */
   @HadoopDslMethod
-  void numWorkers(int numWorkers) {
-    this.numWorkers = numWorkers;
-    setJobProperty("num_workers", this.numWorkers);
-  }
+  void numWorkers(int numWorkers);
 
   /**
    * Sets the name of the archive containing TensorFlow training code, virtual env, etc.
@@ -227,44 +136,5 @@ class TensorFlowJob extends HadoopJavaProcessJob {
    * @param archive Name of the archive to in the Azkaban zip to be localized in the YARN application
    */
   @HadoopDslMethod
-  void archive(String archive) {
-    this.archive = archive;
-    setJobProperty("archive", this.archive);
-  }
-
-  /**
-   * Sets the name of the jar in the Azkaban zip containing the code to run a TensorFlow
-   * application on YARN.
-   * Leaving this unset will default to the Hadoop application's default value.
-   *
-   * @param jar Name of the jar in the Azkaban zip containing TensorFlow application code
-   */
-  @HadoopDslMethod
-  void jar(String jar) {
-    this.jar = jar;
-    setJobProperty("jar", this.jar);
-  }
-
-  /**
-   * Sets environment variables which will be set for each parameter server/worker.
-   *
-   * @param workerEnv Environment for each container
-   */
-  @HadoopDslMethod
-  @Override
-  void set(Map args) {
-    super.set(args);
-    if (args.containsKey("workerEnv")) {
-      Map<String, Object> workerEnv = args.workerEnv;
-      workerEnv.each { String name, Object value ->
-        setWorkerEnv(name, value);
-      }
-    }
-  }
-
-  @HadoopDslMethod
-  void setWorkerEnv(String name, Object value) {
-    this.workerEnv.put(name, value);
-    setJobProperty("worker_env.${name}", value);
-  }
+  void archive(String archive);
 }

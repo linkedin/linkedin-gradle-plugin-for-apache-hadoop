@@ -515,5 +515,5 @@ interface NamedScopeContainer {
    * @return The new job
    */
   @HadoopDslMethod
-  TensorFlowJob tensorFlowJob(String name, @DelegatesTo(TensorFlowJob) Closure configure);
+  TensorFlowJob tensorFlowJob(String name, String type, @DelegatesTo(TensorFlowJob) Closure configure);
 }
