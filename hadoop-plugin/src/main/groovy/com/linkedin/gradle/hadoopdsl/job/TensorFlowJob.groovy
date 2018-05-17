@@ -58,6 +58,14 @@ interface TensorFlowJob {
   void amCores(int amCores);
 
   /**
+   * Sets number of GPUs for TensorFlow AM.
+   *
+   * @param amGpus Number of GPUs for TensorFlow AM
+   */
+  @HadoopDslMethod
+  void amGpus(int amGpus);
+
+  /**
    * Sets memory in MB for each parameter server's YARN container.
    * Leaving this unset will default to the Hadoop application's default value.
    *

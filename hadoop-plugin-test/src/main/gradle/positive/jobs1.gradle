@@ -385,6 +385,7 @@ hadoop {
       executes 'path/to/python/script.py'
       amMemoryMB 2048
       amCores 1
+      amGpus 1
       psMemoryMB 2048
       psCores 1
       workerMemoryMB 8192

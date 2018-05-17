@@ -91,6 +91,11 @@ class TensorFlowSparkJob extends SparkJob implements TensorFlowJob {
   }
 
   @Override
+  void amGpus(int amGpus) {
+    throw new Exception("Requesting AM GPUs via tensorflow on spark is not supported currently.");
+  }
+
+  @Override
   void psMemoryMB(int psMemoryMB) {
     // If worker memory has already been set, ignore
     if (this.executorMemory == null) {
@@ -120,7 +125,7 @@ class TensorFlowSparkJob extends SparkJob implements TensorFlowJob {
 
   @Override
   void workerGpus(int workerGpus) {
-    throw new Exception("Requesting GPUs via tensorflow on spark is not supported currently.");
+    throw new Exception("Requesting worker GPUs via tensorflow on spark is not supported currently.");
   }
 
   @Override
