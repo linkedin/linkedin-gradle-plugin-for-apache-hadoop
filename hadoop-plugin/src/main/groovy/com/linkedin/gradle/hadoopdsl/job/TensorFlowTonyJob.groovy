@@ -36,12 +36,12 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *       'task_params': taskParams,
  *     ]
  *     executes path/to/python/script.py
- *     amMemory 2048
+ *     amMemory 2g
  *     amCores 1
  *     amGpus 1
- *     psMemoryMB 2048
+ *     psMemory 2g
  *     psCores 1
- *     workerMemoryMB 8192
+ *     workerMemory 8g
  *     workerCores 1
  *     workerGpus 2
  *     numPs 2
