@@ -204,7 +204,7 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
       parsedMem = parsedMem[0..-2];
     }
     if (parsedMem[-1] == "g") {
-      parsedMem = parsedMem[0..-2] + "000";
+      parsedMem = (parsedMem[0..-2].toInteger() * 1024).toString();
     }
     return parsedMem;
   }

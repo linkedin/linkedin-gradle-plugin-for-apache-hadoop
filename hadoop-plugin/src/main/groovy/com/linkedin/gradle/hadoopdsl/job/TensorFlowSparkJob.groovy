@@ -22,11 +22,11 @@ package com.linkedin.gradle.hadoopdsl.job
  *   tensorFlowJob('jobName', 'spark') {
  *     executes path/to/python/script.py
  *     appParams params
- *     amMemory 2g
+ *     amMemory '2g'
  *     amCores 1
- *     psMemory 2g
+ *     psMemory '2g'
  *     psCores 1
- *     workerMemory 8g
+ *     workerMemory '8g'
  *     workerCores 1
  *     numPs 2
  *     numWorkers 4
