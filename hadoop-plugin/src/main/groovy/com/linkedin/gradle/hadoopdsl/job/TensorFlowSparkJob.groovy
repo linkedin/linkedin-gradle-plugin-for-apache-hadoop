@@ -13,10 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl.job;
-
-import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
-
+package com.linkedin.gradle.hadoopdsl.job
 /**
  * Job class for type=TensorFlowJob jobs.
  * <p>
@@ -25,11 +22,11 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *   tensorFlowJob('jobName', 'spark') {
  *     executes path/to/python/script.py
  *     appParams params
- *     amMemoryMB 2048
+ *     amMemory '2g'
  *     amCores 1
- *     psMemoryMB 2048
+ *     psMemory '2g'
  *     psCores 1
- *     workerMemoryMB 8192
+ *     workerMemory '8g'
  *     workerCores 1
  *     numPs 2
  *     numWorkers 4
@@ -80,8 +77,8 @@ class TensorFlowSparkJob extends SparkJob implements TensorFlowJob {
   }
 
   @Override
-  void amMemoryMB(int amMemoryMB) {
-    String amMemoryStr = amMemoryMB + "m";
+  void amMemory(String amMemory) {
+    String amMemoryStr = amMemory;
     super.driverMemory(amMemoryStr);
   }
 
@@ -96,10 +93,10 @@ class TensorFlowSparkJob extends SparkJob implements TensorFlowJob {
   }
 
   @Override
-  void psMemoryMB(int psMemoryMB) {
+  void psMemory(String psMemory) {
     // If worker memory has already been set, ignore
     if (this.executorMemory == null) {
-      String psMemoryStr = psMemoryMB + "m";
+      String psMemoryStr = psMemory;
       super.executorMemory(psMemoryStr);
     }
   }
@@ -113,8 +110,8 @@ class TensorFlowSparkJob extends SparkJob implements TensorFlowJob {
   }
 
   @Override
-  void workerMemoryMB(int workerMemoryMB) {
-    String workerMemoryStr = workerMemoryMB + "m";
+  void workerMemory(String workerMemory) {
+    String workerMemoryStr = workerMemory;
     super.executorMemory(workerMemoryStr);
   }
 
