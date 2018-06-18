@@ -116,7 +116,6 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void amMemory(String amMemory) {
-    this.amMemory = parseMemoryToMB(amMemory);
     setJobProperty("am_memory", this.amMemory);
   }
 
@@ -134,7 +133,6 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void psMemory(String psMemory) {
-    this.psMemory = parseMemoryToMB(psMemory);
     setJobProperty("ps_memory", this.psMemory);
   }
 
@@ -146,7 +144,6 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void workerMemory(String workerMemory) {
-    this.workerMemory = parseMemoryToMB(workerMemory);
     setJobProperty("worker_memory", this.workerMemory);
   }
 
@@ -196,17 +193,6 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
   void setWorkerEnv(String name, Object value) {
     this.workerEnv.put(name, value);
     setJobProperty("worker_env.${name}", value);
-  }
-
-  String parseMemoryToMB(String memString) {
-    String parsedMem = memString.toLowerCase();
-    if (parsedMem[-1] == "m") {
-      parsedMem = parsedMem[0..-2];
-    }
-    if (parsedMem[-1] == "g") {
-      parsedMem = (parsedMem[0..-2].toInteger() * 1024).toString();
-    }
-    return parsedMem;
   }
 
 }

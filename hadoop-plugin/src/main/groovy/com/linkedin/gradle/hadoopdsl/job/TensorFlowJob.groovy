@@ -40,10 +40,10 @@ interface TensorFlowJob {
   void executes(String executePath);
 
   /**
-   * Sets memory in MB for this TensorFlow job's ApplicationMaster.
+   * Sets memory for this TensorFlow job's ApplicationMaster.
    * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param amMemory ApplicationMaster memory, in MB, for the TensorFlow job
+   * @param amMemory ApplicationMaster memory for the TensorFlow job
    */
   @HadoopDslMethod
   void amMemory(String amMemory);
@@ -66,10 +66,10 @@ interface TensorFlowJob {
   void amGpus(int amGpus);
 
   /**
-   * Sets memory in MB for each parameter server's YARN container.
+   * Sets memory for each parameter server's YARN container.
    * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param psMemory Memory in MB for each parameter server
+   * @param psMemory Memory for each parameter server
    */
   @HadoopDslMethod
   void psMemory(String psMemory);
@@ -84,10 +84,10 @@ interface TensorFlowJob {
   void psCores(int psCores);
 
   /**
-   * Sets memory in MB for each TensorFlow worker's YARN container.
+   * Sets memory for each TensorFlow worker's YARN container.
    * Leaving this unset will default to the Hadoop application's default value.
    *
-   * @param workerMemory Memory in MB for each TensorFlow worker
+   * @param workerMemory Memory for each TensorFlow worker
    */
   @HadoopDslMethod
   void workerMemory(String workerMemory);
