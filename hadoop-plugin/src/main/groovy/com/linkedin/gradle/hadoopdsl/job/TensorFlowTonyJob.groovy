@@ -36,12 +36,12 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *       'task_params': taskParams,
  *     ]
  *     executes path/to/python/script.py
- *     amMemory 2g
+ *     amMemory '2g'
  *     amCores 1
  *     amGpus 1
- *     psMemory 2g
+ *     psMemory '2g'
  *     psCores 1
- *     workerMemory 8g
+ *     workerMemory '8g'
  *     workerCores 1
  *     workerGpus 2
  *     numPs 2
@@ -116,6 +116,7 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void amMemory(String amMemory) {
+    this.amMemory = amMemory;
     setJobProperty("am_memory", this.amMemory);
   }
 
@@ -133,6 +134,7 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void psMemory(String psMemory) {
+    this.psMemory = psMemory;
     setJobProperty("ps_memory", this.psMemory);
   }
 
@@ -144,6 +146,7 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
   @Override
   void workerMemory(String workerMemory) {
+    this.workerMemory = workerMemory;
     setJobProperty("worker_memory", this.workerMemory);
   }
 
