@@ -112,8 +112,6 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
    * Instead of visiting properties, jobs, and propertySets as done in BaseNamedScopeContainer,
    * only visit workflows and namespaces.
    *
-   * Don't create any new directories - designed to be flat as opposed to nested dir structure.
-   *
    * @param container The DSL element subclassing BaseNamedScopeContainer
    */
   @Override
@@ -136,6 +134,42 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
 
     // Restore the last parent scope
     this.parentScope = oldParentScope;
+  }
+
+  /**
+   * Builds the namespace. Creates a subdirectory for everything under the namespace.
+   *
+   * @param namespace The namespace to build
+   */
+  @Override
+  void visitNamespace(Namespace namespace) {
+    // Save the last parent directory information
+    String oldParentDirectory = this.parentDirectory;
+
+    // Set the new parent directory information
+    this.parentDirectory = "${this.parentDirectory}/${namespace.name}";
+
+    // Build a directory for the namespace
+    File file = new File(this.parentDirectory);
+    if (file.exists()) {
+      if (!file.isDirectory()) {
+        throw new IOException("Directory ${this.parentDirectory} for the namespace ${namespace.name} must specify a directory");
+      }
+    }
+    else {
+      // Try to make the directory automatically if we can. For git users, this is convenient as
+      // git will not push empty directories in the repository (and users will often add the
+      // generated job files to their gitignore).
+      if (!file.mkdirs()) {
+        throw new IOException("Directory ${this.parentDirectory} for the namespace ${namespace.name} could not be created");
+      }
+    }
+
+    // Visit the elements in the namespace
+    visitScopeContainer(namespace);
+
+    // Restore the last parent directory
+    this.parentDirectory = oldParentDirectory;
   }
 
   /**
