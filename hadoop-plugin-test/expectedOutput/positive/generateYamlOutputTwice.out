@@ -1,0 +1,4 @@
+:hadoop-plugin-test:test_generateYamlOutputTwice
+Running test for the file positive/generateYamlOutputTwice.gradle
+Hadoop DSL static checker PASSED
+

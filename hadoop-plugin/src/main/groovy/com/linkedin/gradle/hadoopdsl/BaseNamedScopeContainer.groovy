@@ -59,6 +59,8 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   List<Workflow> workflows;
   List<Trigger> triggers;
 
+  static final String GENERATE_YAML_OUTPUT_FLAG = "generate_yaml_output";
+
   /**
    * Constructor for the BaseNamedScopeContainer.
    * <p>
@@ -739,20 +741,28 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
    */
   @HadoopDslMethod
   boolean generateYamlOutput() {
-    this.scope.bind("generate_yaml_output", true);
-    return true;
+    return generateYamlOutput(true);
   }
 
   /**
    * Creates the task to toggle between .flow/.project files generation and .job/.properties files
    * generation.
    *
+   * If called multiple times, the value is bound to the final flag set
+   *
    * @param boolean flag Boolean to which generate_yaml_output is set
    * @return The value of generate_yaml_output flag - always true
    */
   @HadoopDslMethod
   boolean generateYamlOutput(boolean flag) {
-    this.scope.bind("generate_yaml_output", flag);
+    Boolean yamlFlag = this.getScope().lookup(GENERATE_YAML_OUTPUT_FLAG);
+    if (yamlFlag == null) { // If yaml flag hasn't been set yet, set to value flag
+      this.scope.bind(GENERATE_YAML_OUTPUT_FLAG, flag);
+    }
+    else { // If yaml flag has already been set, unbind it and set to new value flag
+      this.scope.unbind(GENERATE_YAML_OUTPUT_FLAG);
+      this.scope.bind(GENERATE_YAML_OUTPUT_FLAG, flag);
+    }
     return flag;
   }
 
