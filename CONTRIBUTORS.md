@@ -132,6 +132,7 @@ The following were contributed by Charlie Summers. Thanks, Charlie!
 * `Add ability for Hadoop DSL to understand the TableauJob job type`
 * `Adding additional condition for TableauJob creation`
 * `Allow generateYamlOutput to be defined multiple times`
+* `Remove maxWaitMins requirement if no dependencies defined in Trigger`
 
 The following were contributed by Nicholas Cowan. Thanks, Nick!
 * `Add ability for Hadoop DSL to understand the HdfsWait job type`

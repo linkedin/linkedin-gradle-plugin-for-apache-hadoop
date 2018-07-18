@@ -22,7 +22,7 @@ hadoop {
 
   workflow('triggerFail1') {
     trigger('trigger1') {
-      // no maxWaitMins throws an ERROR
+      // no maxWaitMins when there is a dependency throws an ERROR
       // no schedule throws an ERROR
       daliDependency('dali-data-dep') {
         // no dali dependency view throws an ERROR
@@ -33,7 +33,8 @@ hadoop {
     }
 
     trigger('trigger2') { // two defined triggers throws an ERROR
-      maxWaitMins 0 // maxWaitMins less than 1 throws an ERROR
+      // maxWaitMins defined with no dependencies throws a WARN
+      maxWaitMins 1
       schedule {
         // no schedule value throws an ERROR
       }

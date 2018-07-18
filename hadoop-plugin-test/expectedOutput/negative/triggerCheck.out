@@ -10,7 +10,7 @@ TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workfl
 TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must have a window greater than 0.
 TriggerChecker ERROR: DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 must have a nonnegative delay.
 TriggerChecker ERROR: 'unit' value in DaliDependency dali-data-dep in Trigger trigger1 in Workflow triggerFail1 can only be set to 'daily' or 'hourly'.
-TriggerChecker ERROR: Trigger trigger2 in Workflow triggerFail1 must define 'maxWaitMins' and it must be greater than 0.
+TriggerChecker WARN: Trigger trigger2 in Workflow triggerFail1 defines 'maxWaitMins' when there are no dependencies. Azkaban will automatically launch the flow when the schedule is met, so this isn't necessary.
 TriggerChecker ERROR: Trigger trigger2 in Workflow triggerFail1 contains more than one schedule.
 TriggerChecker ERROR: Schedule in Trigger trigger2 in Workflow triggerFail1 must define 'value'.
 TriggerChecker ERROR: Schedule in Trigger trigger2 in Workflow triggerFail1 must define 'value' as a valid cron expression.
