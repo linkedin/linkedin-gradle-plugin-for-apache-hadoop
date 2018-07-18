@@ -14,9 +14,10 @@ import org.quartz.CronExpression;
  * <ul>
  *   <li>Trigger specific
  *   <li>ERROR if more than 1 trigger is defined in a workflow.</li>
- *   <li>ERROR if a trigger maxWaitMins doesn't exist or is less than 1.</li>
+ *   <li>ERROR if there are dependencies and a trigger maxWaitMins doesn't exist or is less than 1.</li>
  *   <li>WARN if a trigger maxWaitMins is greater than 10 days (14400) - will be set to 10 days
  *       by Azkaban.</li>
+ *   <li>WARN if a trigger maxWaitMins is set and there are no dependencies</li>
  *   <li>ERROR if a trigger schedule doesn't exist.</li>
  *   <li>ERROR if more than one trigger schedule is defined for a trigger.</li>
  *   <li>ERROR if a trigger schedule doesn't have a value.</li>
@@ -25,7 +26,7 @@ import org.quartz.CronExpression;
  *   <li>ERROR if a trigger dependency name is not unique.</li>
  *   <li>ERROR if a trigger dependency config (type + params) is not unique.</li>
  *   <li>
- *   <li>DaliDependency specific
+ *   <li>DaliDependency specific</li>
  *   <li>ERROR if a trigger dali dependency doesn't have a view.</li>
  *   <li>ERROR if a trigger dali dependency doesn't have a window.</li>
  *   <li>ERROR if a trigger dali dependency doesn't have a delay.</li>
@@ -106,14 +107,18 @@ class TriggerChecker extends BaseStaticChecker {
   boolean checkWaitMins() {
     boolean checkWaitMinsError = false;
 
-    // ERROR if maxWaitMins not defined or >1
-    if (trigger.maxWaitMins < MIN_FLOW_TRIGGER_WAIT_TIME) {
+    // ERROR if there are dependencies and maxWaitMins doesn't exist or <1
+    if (trigger.triggerDependencies.size() != 0 && trigger.maxWaitMins < MIN_FLOW_TRIGGER_WAIT_TIME) {
       project.logger.lifecycle("TriggerChecker ERROR: Trigger ${trigger.name} in Workflow ${workflow.name} must define 'maxWaitMins' and it must be greater than 0.");
       checkWaitMinsError = true;
     }
     // WARN if maxWaitMins >10 days (14400 mins)
-    else if (trigger.maxWaitMins > MAX_FLOW_TRIGGER_WAIT_TIME) {
+    if (trigger.maxWaitMins > MAX_FLOW_TRIGGER_WAIT_TIME) {
       project.logger.lifecycle("TriggerChecker WARN: Trigger ${trigger.name} in Workflow ${workflow.name} defines 'maxWaitMins' to be greater than 10 days. Azkaban will automatically reduce to 10 days.");
+    }
+    // WARN if maxWaitMins is set when there are no dependencies
+    if (trigger.triggerDependencies.size() == 0 && trigger.maxWaitMins != 0) {
+      project.logger.lifecycle("TriggerChecker WARN: Trigger ${trigger.name} in Workflow ${workflow.name} defines 'maxWaitMins' when there are no dependencies. Azkaban will automatically launch the flow when the schedule is met, so this isn't necessary.");
     }
 
     return checkWaitMinsError;
