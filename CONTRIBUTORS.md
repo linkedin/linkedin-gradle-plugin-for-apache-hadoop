@@ -147,3 +147,6 @@ The following were contributed by Michal Trna. Thanks, Michal!
 
 The following were contributed by Tzu-Han Jan. Thanks, TJ!
 * `Updated Hadoop DSL for Kafka-Push-Job to understand multiTopic configurations`
+
+The following were contributed by Chris Li. 
+* `Remove jdbcDriverClass requirement from SQL job type`

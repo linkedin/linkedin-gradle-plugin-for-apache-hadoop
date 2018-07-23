@@ -290,7 +290,9 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
   @Override
   void visitJob(SqlJob job) {
-    foundError |= validateNotEmpty(job, "jdbcDriverClass", job.jdbcDriverClass);
+    // JDBC connection manager can derive the JDBC driver class from
+    // JDBC URI; therefore, this parameter is no longer required
+    //foundError |= validateNotEmpty(job, "jdbcDriverClass", job.jdbcDriverClass);
     foundError |= validateNotEmpty(job, "jdbcUrl", job.jdbcUrl);
     foundError |= validateNotEmpty(job, "jdbcUserId", job.jdbcUserId);
     foundError |= validateNotEmpty(job, "jdbcEncryptedCredential", job.jdbcEncryptedCredential);
