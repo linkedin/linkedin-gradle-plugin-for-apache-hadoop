@@ -26,7 +26,7 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * In the DSL, a SQL job type can be specified with:
  * <pre>
  *   sqlJob('jobName') {
- *     jdbcDriverClass com.teradata.jdbc.TeraDriver                            // Required
+ *     jdbcDriverClass com.teradata.jdbc.TeraDriver                            // Deprecated
  *     jdbcUrl 'jdbc:teradata://foo.com/DBS_PORT=1025,CHARSET=UTF8,TMODE=TERA' // Required
  *     jdbcUserId 'foo'                                                        // Required
  *     jdbcEncryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'         // Required
@@ -34,7 +34,8 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     set properties: [
  *       'user.to.proxy' : 'testUser'
  *       'jdbc.sql.1' : 'DELETE test_table_publish ALL;',
- *       'jdbc.sql.2' : 'INSERT INTO test_table_publish SELECT * FROM test_table;',
+ *       'jdbc.sql.2' : 'INSERT INTO test_table_publish SELECT * FROM test_table;',,
+ *       'jdbc.sql_statements.filepath' : 'src/main/sql/test.sql',
  *       'propertyName1' : 'propertyValue1',
  *       'propertyName2' : 'propertyValue2',
  *     ]
@@ -42,7 +43,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * </pre>
  */
 class SqlJob extends Job {
-  String jdbcDriverClass;
   String jdbcUrl;
   String jdbcUserId;
   String jdbcEncryptedCredential;
@@ -51,12 +51,6 @@ class SqlJob extends Job {
   SqlJob(String jobName) {
     super(jobName);
     setJobProperty("type", "sql");
-  }
-
-  @HadoopDslMethod
-  void jdbcDriverClass(String jdbcDriverClass) {
-    this.jdbcDriverClass = jdbcDriverClass;
-    setJobProperty("jdbc.driver.class", jdbcDriverClass);
   }
 
   @HadoopDslMethod
@@ -100,7 +94,6 @@ class SqlJob extends Job {
    * @return The cloned job
    */
   SqlJob clone(SqlJob cloneJob) {
-    cloneJob.jdbcDriverClass = jdbcDriverClass;
     cloneJob.jdbcUrl = jdbcUrl;
     cloneJob.jdbcUserId = jdbcUserId;
     cloneJob.jdbcEncryptedCredential = jdbcEncryptedCredential;

@@ -320,7 +320,6 @@ hadoop {
     }
 
     sqlJob('job18') {
-      jdbcDriverClass 'com.teradata.jdbc.TeraDriver' //Required
       jdbcUrl '/job/data/src'            //Required
       jdbcUserId 'foo'                   //Required
       jdbcEncryptedCredential 'eyJ2YWwiOiJiQzVCU09HbDVwYndxNFRXV00yZ'  //Required

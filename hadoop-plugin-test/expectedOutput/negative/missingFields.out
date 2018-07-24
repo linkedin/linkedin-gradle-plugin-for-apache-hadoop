@@ -36,7 +36,6 @@ RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required 
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoKey
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoOperation
 RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: errorHdfsPath
-RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcDriverClass
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUrl
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUserId
 RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcEncryptedCredential
