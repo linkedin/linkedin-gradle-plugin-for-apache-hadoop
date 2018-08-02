@@ -98,16 +98,16 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
   }
 
   /**
-   * Instead of visiting workflows and namespaces in the same way the BaseNamedScopeContainer did.
+   * Visit workflows and namespaces in the same way the BaseNamedScopeContainer did.
    *
    * Don't visit jobs, those are visited when workflows are yamlized.
    *
    * Don't visit propertySets, those don't need to be visited.
    *
-   * Only visit properties if there are no workflows present (they are also visited during
-   * yamlization otherwise). This provides backward compatibility with Flow 1.0 by allowing
-   * "emergent flows" to be created by compiling temporary properties files that are merged into
-   * the .flow files during the Zip step.
+   * Only visit properties if there are no workflows present (they are otherwise visited during
+   * yamlization). This provides backward compatibility with Flow 1.0 by allowing "emergent flows"
+   * to be created by compiling temporary properties files that are merged into the .flow files
+   * during the Zip step.
    *
    * @param container The DSL element subclassing BaseNamedScopeContainer
    */
@@ -129,7 +129,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
       visitNamespace(namespace);
     }
 
-    // Visit properties only if there are no workspaces in the namespace
+    // Visit properties only if there are no workflows in the namespace
     if (container.workflows.isEmpty()) {
       container.properties.each { Properties properties ->
         visitProperties(properties)

@@ -245,7 +245,8 @@ class HadoopZipExtension {
           String newFlowFile = YamlMerge.merge(file, tempPropsList, zipName);
           newFlowFilePathsList.add(newFlowFile);
         }
-        else if (flowFile.matches(/.*_.*/) && !flowFile.matches(/.*${zipName}.*/)) {
+        else if (flowFile.matches(/.*_.*/) && flowFile.matches(/.*\.flow/) &&
+                !flowFile.matches(/.*${zipName}.*/)) {
           // Remove all flow files with underscores that do not have the zipName included
           // These are merged flow files from another namespace
           flowFilePathsList.add(flowFile);
