@@ -50,19 +50,3 @@ hadoop {
     targets 'shellPwd', 'shellEcho', 'shellBash'
   }
 }
-
-hadoopZip {
-  libPath = "lib"
-  base {
-    from { fileTree("jobs/emergentFlow").exclude("otherNamespace").files } {
-      into "."
-    }
-  }
-  zip("emergentFlowTest") {
-    from { fileTree("jobs/emergentFlow/otherNamespace").files } {
-      into "."
-    }
-  }
-}
-
-startHadoopZips.dependsOn buildAzkabanFlows
