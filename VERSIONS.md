@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.16
+* Handling emergent flows for Flow 2.0
+
 0.14.15
 * Remove jdbcDriverClass requirement for SQL job type
 

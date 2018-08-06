@@ -30,10 +30,10 @@ import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 import org.gradle.api.Project;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
+import static com.linkedin.gradle.util.YamlUtils.setupYamlObject;
 
 /**
  * Translates user-defined workflows, jobs, and properties into <workflow-name>.flow(s) and
@@ -70,7 +70,8 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     buildDirectoryFile.eachFileRecurse(groovy.io.FileType.FILES) { f ->
       String fileName = f.getName().toLowerCase();
       if (fileName.endsWith(".job") || fileName.endsWith(".properties") ||
-              fileName.endsWith(".flow") || fileName.endsWith(".project")) {
+              fileName.endsWith(".flow") || fileName.endsWith(".project") ||
+              fileName.endsWith(".tempprops")) {
         f.delete();
       }
     }
@@ -97,20 +98,16 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
   }
 
   /**
-   * Create and customize a Yaml object.
-   * DumperOptions.FlowStyle.BLOCK indents the yaml in the expected, most readable way.
+   * Visit workflows and namespaces in the same way the BaseNamedScopeContainer did.
    *
-   * @return new properly setup Yaml object
-   */
-  private static Yaml setupYamlObject() {
-    DumperOptions options = new DumperOptions();
-    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    return new Yaml(options);
-  }
-
-  /**
-   * Instead of visiting properties, jobs, and propertySets as done in BaseNamedScopeContainer,
-   * only visit workflows and namespaces.
+   * Don't visit jobs, those are visited when workflows are yamlized.
+   *
+   * Don't visit propertySets, those don't need to be visited.
+   *
+   * Only visit properties if there are no workflows present (they are otherwise visited during
+   * yamlization). This provides backward compatibility with Flow 1.0 by allowing "emergent flows"
+   * to be created by compiling temporary properties files that are merged into the .flow files
+   * during the Zip step.
    *
    * @param container The DSL element subclassing BaseNamedScopeContainer
    */
@@ -130,6 +127,13 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     // Visit each child namespace
     container.namespaces.each { Namespace namespace ->
       visitNamespace(namespace);
+    }
+
+    // Visit properties only if there are no workflows in the namespace
+    if (container.workflows.isEmpty()) {
+      container.properties.each { Properties properties ->
+        visitProperties(properties)
+      }
     }
 
     // Restore the last parent scope
@@ -183,6 +187,25 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     // Set to read-only to remind people that they should not be editing auto-generated yaml files.
     out.setWritable(false);
     fileWriter.close();
+  }
+
+  /**
+   * This method is only called if there are no workflows in the namespace. It creates a temporary
+   * .tempprops file that will be merged with workflows during the Zip step should it be present.
+   * This allows for Flow 1.0 backward compatibility.
+   *
+   * @param properties Properties whose temp file is to be built
+   */
+  void visitProperties(Properties properties) {
+    Map<String, String> allProperties = properties.buildProperties(this.parentScope);
+    if (allProperties.size() == 0) {
+      return;
+    }
+    String fileName = properties.buildFileName(this.parentScope);
+    File file = new File(this.parentDirectory, "${fileName}.tempprops");
+    FileWriter fileWriter = new FileWriter(file);
+    this.yamlDumper.dump(allProperties, fileWriter)
+    fileWriter.close()
   }
 
   /**

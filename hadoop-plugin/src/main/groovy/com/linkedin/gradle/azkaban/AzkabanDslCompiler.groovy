@@ -51,7 +51,8 @@ class AzkabanDslCompiler extends BaseCompiler {
     buildDirectoryFile.eachFileRecurse(groovy.io.FileType.FILES) { f ->
       String fileName = f.getName().toLowerCase();
       if (fileName.endsWith(".job") || fileName.endsWith(".properties") ||
-              fileName.endsWith(".flow") || fileName.endsWith(".project")) {
+              fileName.endsWith(".flow") || fileName.endsWith(".project") ||
+              fileName.endsWith(".tempprops")) {
         f.delete();
       }
     }

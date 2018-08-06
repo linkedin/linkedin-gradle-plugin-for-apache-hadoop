@@ -18,6 +18,7 @@ package com.linkedin.gradle.zip;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.bundling.Zip;
 
@@ -163,7 +164,7 @@ class HadoopZipExtension {
    * @return The zip task
    */
   Task createZipTask(Project project, String zipName) {
-    return project.tasks.create(name: "${zipName}HadoopZip", type: Zip) { task ->
+    return project.tasks.create(name: "${zipName}HadoopZip", type: Zip) { Task task ->
       classifier = zipName.equals("main") ? "" : zipName;
       description = "Creates a Hadoop zip archive for ${zipName}";
       group = "Hadoop Plugin";
@@ -171,6 +172,10 @@ class HadoopZipExtension {
       // This task is a dependency of buildHadoopZips and depends on the startHadoopZips
       project.tasks["buildHadoopZips"].dependsOn task;
       dependsOn "startHadoopZips";
+
+      doFirst {
+        mergeTempPropsWithFlowFiles(task, zipName);
+      }
 
       // Include files specified by the user through hadoopZip extension. If there is a base
       // CopySpec, add it as a child of the zip-specific CopySpec.
@@ -201,6 +206,56 @@ class HadoopZipExtension {
       doLast {
         project.logger.lifecycle("Prepared archive for Hadoop zip '${zipName}' at: ${archivePath}");
       }
+    }
+  }
+
+  /**
+   * This enables "Emergent Flows" in Flow 2.0 - so users can define properties in a separate
+   * namespace then merge them into the resulting yaml workflows at Zip time.
+   *
+   * This method retrieves all .tempprops source files in the task and turns them into Maps, then
+   * merges those maps into the root level config of all of the .flow file (to ensure backward
+   * compatibility). The resulting object is then saved in a new .flow file.
+   *
+   * @param task Task where merging may occur
+   * @param zipName Name of the zip being generated - used to create new .flow file names
+   */
+  void mergeTempPropsWithFlowFiles(Task task, String zipName) {
+    List<Map<String, String>> tempPropsList = [];
+    List<String> tempPropsPathsList = [];
+    List<String> flowFilePathsList = [];
+    List<String> newFlowFilePathsList = [];
+
+    task.source.visit { FileVisitDetails tempProps ->
+      String tempPropsPath = tempProps.path;
+      if (tempPropsPath.matches(/.*\.tempprops/)) {
+        Map<String, String> tempPropsMap = YamlMerge.readInYaml(tempProps);
+        tempPropsList.add(tempPropsMap);
+        tempPropsPathsList.add(tempPropsPath);
+      }
+    }
+    // Merge all .tempprops files into the .flow files and create new .flow files with the results
+    if (!tempPropsList.isEmpty()) {
+      task.source.visit { FileVisitDetails file ->
+        String flowFile = file.path;
+        if (flowFile.matches(/.*\.flow/) && !flowFile.matches(/.*_.*/)) {
+          // Consider all .flow files to be flows except for those that have underscores
+          // Those that have underscores are files that were already merged
+          flowFilePathsList.add(flowFile);
+          String newFlowFile = YamlMerge.merge(file, tempPropsList, zipName);
+          newFlowFilePathsList.add(newFlowFile);
+        }
+        else if (flowFile.matches(/.*_.*/) && flowFile.matches(/.*\.flow/) &&
+                !flowFile.matches(/.*${zipName}.*/)) {
+          // Remove all flow files with underscores that do not have the zipName included
+          // These are merged flow files from another namespace
+          flowFilePathsList.add(flowFile);
+        }
+      }
+      // Remove all .tempprops files and old .flow files from the zip and include the new .flow files
+      task.exclude tempPropsPathsList;
+      task.exclude flowFilePathsList;
+      newFlowFilePathsList.each { String path -> task.from(path); }
     }
   }
 

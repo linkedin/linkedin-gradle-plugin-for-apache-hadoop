@@ -133,6 +133,7 @@ The following were contributed by Charlie Summers. Thanks, Charlie!
 * `Adding additional condition for TableauJob creation`
 * `Allow generateYamlOutput to be defined multiple times`
 * `Remove maxWaitMins requirement if no dependencies defined in Trigger`
+* `Handling emergent flows for Flow 2.0`
 
 The following were contributed by Nicholas Cowan. Thanks, Nick!
 * `Add ability for Hadoop DSL to understand the HdfsWait job type`
