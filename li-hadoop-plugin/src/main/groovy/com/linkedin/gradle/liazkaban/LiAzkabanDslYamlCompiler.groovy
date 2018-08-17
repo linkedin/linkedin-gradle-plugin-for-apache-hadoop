@@ -58,6 +58,10 @@ class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
     if (!job.dependencyNames.isEmpty()) {
       yamlizedJob["dependsOn"] = job.dependencyNames.toList();
     }
+    // Add job condition if not null
+    if(job.condition != null) {
+      yamlizedJob["condition"] = job.condition;
+    }
     // Remove type and dependencies from config because they're represented elsewhere
     config.remove("type");
     config.remove("dependencies");

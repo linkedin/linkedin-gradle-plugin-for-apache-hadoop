@@ -85,6 +85,9 @@ class Workflow extends BaseNamedScopeContainer {
   // The SubFlowJob for the workflow if this is a grouping subflow
   SubFlowJob subFlowJob;
 
+  // The condition for a subflow to run
+  String condition;
+
   /**
    * Base constructor for a Workflow.
    *
@@ -362,6 +365,11 @@ class Workflow extends BaseNamedScopeContainer {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];
     flowDepends(clear, targetNames);
+  }
+
+  @HadoopDslMethod
+  void conditions(String subflowCondition) {
+    condition = subflowCondition;
   }
 
   /**
