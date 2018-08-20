@@ -38,12 +38,14 @@ import com.linkedin.gradle.hadoopdsl.Workflow;
  *       'propertyName1' : 'propertyValue1'
  *     ]
  *     depends 'job1'
+ *     conditions 'all_done'
  *   }
  * </pre>
  */
 class Job {
   String basePropertySetName;
   String name;
+  String condition;
   Set<String> dependencyNames;
   Map<String, Object> jobProperties;
   Map<String, String> reading;
@@ -252,6 +254,11 @@ class Job {
     boolean clear = args.containsKey("clear") ? args["clear"] : false;
     List<String> targetNames = (List<String>)args["targetNames"];
     depends(clear, targetNames);
+  }
+
+  @HadoopDslMethod
+  void conditions(String jobCondition) {
+    condition = jobCondition;
   }
 
   /**

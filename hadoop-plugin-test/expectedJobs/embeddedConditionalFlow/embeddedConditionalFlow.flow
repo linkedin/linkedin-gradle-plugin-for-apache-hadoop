@@ -1,0 +1,37 @@
+config:
+  flow-level-parameter: value
+nodes:
+- name: embeddedConditionalFlow
+  type: noop
+  dependsOn:
+  - embeddedFlow
+- name: shellBash
+  type: command
+  config:
+    command: bash ./sample_script.sh
+- name: shellPwd
+  type: command
+  config:
+    command: pwd
+- name: embeddedFlow
+  type: flow
+  dependsOn:
+  - shellBash
+  - shellPwd
+  condition: one_success
+  nodes:
+  - name: embeddedFlow
+    type: noop
+    dependsOn:
+    - shellEcho
+  - name: shellEcho
+    type: command
+    dependsOn:
+    - shellPwd
+    condition: all_done
+    config:
+      command: echo "This is an echo job inside embeddedFlow."
+  - name: shellPwd
+    type: command
+    config:
+      command: pwd

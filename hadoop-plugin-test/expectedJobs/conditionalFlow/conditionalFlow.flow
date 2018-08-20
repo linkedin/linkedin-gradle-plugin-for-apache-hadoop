@@ -1,0 +1,23 @@
+config:
+  flow-level-parameter: value
+nodes:
+- name: conditionalFlow
+  type: noop
+  dependsOn:
+  - shellEcho
+- name: shellEcho
+  type: command
+  dependsOn:
+  - shellBash
+  - shellPwd
+  condition: all_done
+  config:
+    command: echo "This is an echoed text."
+- name: shellBash
+  type: command
+  config:
+    command: bash ./sample_script.sh
+- name: shellPwd
+  type: command
+  config:
+    command: pwd

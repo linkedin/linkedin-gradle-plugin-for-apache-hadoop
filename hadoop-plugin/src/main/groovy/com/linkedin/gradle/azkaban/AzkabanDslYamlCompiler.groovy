@@ -252,6 +252,9 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     if (!workflow.parentDependencies.isEmpty()) {
       yamlizedWorkflow["dependsOn"] = workflow.parentDependencies.toList();
     }
+    if(isSubflow && workflow.condition != null) {
+      yamlizedWorkflow["condition"] = workflow.condition;
+    }
     // Add configs if there are any
     Map<String, String> config = buildWorkflowConfig(workflow, isSubflow);
     if (!config.isEmpty()) {
@@ -282,6 +285,9 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     // Add job dependencies if there are any
     if (!job.dependencyNames.isEmpty()) {
       yamlizedJob["dependsOn"] = job.dependencyNames.toList();
+    }
+    if(job.condition != null) {
+      yamlizedJob["condition"] = job.condition;
     }
     // Add job configs if there are any
     Map<String, String> config = job.buildProperties(this.parentScope);

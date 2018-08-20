@@ -56,6 +56,7 @@ class AzkabanDslYamlCompilerTest {
     when(mockJob.name).thenReturn("testJob");
     when(mockJob.jobProperties).thenReturn(["type": "testJobtype"]);
     when(mockJob.dependencyNames).thenReturn([].toSet());
+    when(mockJob.condition).thenReturn("all_done");
     when(mockJob.buildProperties(mockWorkflowScope)).thenReturn([:]);
 
     when(mockWorkflow.name).thenReturn("testFlow");
@@ -70,6 +71,7 @@ class AzkabanDslYamlCompilerTest {
     when(mockSubflow.name).thenReturn("subflowTest");
     when(mockSubflow.scope).thenReturn(mockSubflowScope);
     when(mockSubflow.parentDependencies).thenReturn(["testFlow"].toSet());
+    when(mockSubflow.condition).thenReturn("one_success");
     when(mockSubflow.properties).thenReturn([]);
     when(mockSubflow.jobsToBuild).thenReturn([]);
     when(mockSubflow.flowsToBuild).thenReturn([]);
@@ -123,6 +125,7 @@ class AzkabanDslYamlCompilerTest {
     Map yamlizedJob = (Map) sortedNodes[1];
     assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
+    assertEquals("all_done", yamlizedJob["condition"]);
     assertFalse(yamlizedJob.containsKey("dependsOn"));
     assertFalse(yamlizedJob.containsKey("config"));
   }
@@ -133,6 +136,7 @@ class AzkabanDslYamlCompilerTest {
     assertEquals("subflowTest", yamlizedSubflow["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
+    assertEquals("one_success", yamlizedSubflow["condition"]);
     assertFalse(yamlizedSubflow.containsKey("config"));
     assertFalse(yamlizedSubflow.containsKey("nodes"));
   }
@@ -229,21 +233,21 @@ class AzkabanDslYamlCompilerTest {
     assertEquals(3, ((List) yamlizedWorkflow["nodes"]).size());
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();
-    Map yamlizedJobTwo = (Map) sortedNodes[0];
-    assertEquals("testJobTwo", yamlizedJobTwo["name"]);
-    assertEquals("testJobtype", yamlizedJobTwo["type"]);
-    assertFalse(yamlizedJobTwo.containsKey("dependsOn"));
-    assertFalse(yamlizedJobTwo.containsKey("config"));
-    Map yamlizedLaunchJob = (Map) sortedNodes[1];
-    assertEquals("launchJob", yamlizedLaunchJob["name"]);
-    assertEquals("noop", yamlizedLaunchJob["type"]);
-    assertEquals(["testJob"], yamlizedLaunchJob["dependsOn"]);
-    assertFalse(yamlizedLaunchJob.containsKey("config"));
-    Map yamlizedJob = (Map) sortedNodes[2];
+    Map yamlizedJob = (Map) sortedNodes[0];
     assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertEquals([mockJobTwo.name], yamlizedJob["dependsOn"]);
     assertFalse(yamlizedJob.containsKey("config"));
+    Map yamlizedJobTwo = (Map) sortedNodes[1];
+    assertEquals("testJobTwo", yamlizedJobTwo["name"]);
+    assertEquals("testJobtype", yamlizedJobTwo["type"]);
+    assertFalse(yamlizedJobTwo.containsKey("dependsOn"));
+    assertFalse(yamlizedJobTwo.containsKey("config"));
+    Map yamlizedLaunchJob = (Map) sortedNodes[2];
+    assertEquals("launchJob", yamlizedLaunchJob["name"]);
+    assertEquals("noop", yamlizedLaunchJob["type"]);
+    assertEquals(["testJob"], yamlizedLaunchJob["dependsOn"]);
+    assertFalse(yamlizedLaunchJob.containsKey("config"));
   }
 
   @Test

@@ -151,3 +151,6 @@ The following were contributed by Tzu-Han Jan. Thanks, TJ!
 
 The following were contributed by Chris Li. 
 * `Remove jdbcDriverClass requirement from SQL job type`
+
+The following were contributed by Jamie Sun. Thanks, Jamie! 
+* `Add conditional workflow feature`
