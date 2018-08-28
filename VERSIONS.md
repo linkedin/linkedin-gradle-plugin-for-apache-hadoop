@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.26
+* Bump version to match li-hadoop-plugin MP
+
 0.14.17
 * Add conditional workflow feature
 
