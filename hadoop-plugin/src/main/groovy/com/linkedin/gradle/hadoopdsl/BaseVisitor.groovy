@@ -37,6 +37,7 @@ import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
 
 /**
  * Base implementation of Visitor to make it easy to implement visitor subclasses. By default, the
@@ -228,6 +229,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(VenicePushJob job) {
+    visitJob((Job)job);
+  }
+
+  @Override
+  void visitJob(WormholePushJob job) {
     visitJob((Job)job);
   }
 

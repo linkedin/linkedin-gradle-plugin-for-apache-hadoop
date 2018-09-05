@@ -39,7 +39,7 @@ import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
-
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
 import org.gradle.api.Project;
 
 /**
@@ -1114,6 +1114,19 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
       throw new Exception("Unsupported execution type: ${type} in TensorFlow job declaration." +
               " Should be SPARK or TONY.");
     }
+  }
+
+  /**
+   * DSL wormholePushJob method. Creates a wormholePushJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  WormholePushJob wormholePushJob(String name, @DelegatesTo(WormholePushJob) Closure configure) {
+    return ((WormholePushJob)configureJob(factory.makeWormholePushJob(name), configure));
   }
 
   /**

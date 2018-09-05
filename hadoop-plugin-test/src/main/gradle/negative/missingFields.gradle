@@ -122,6 +122,10 @@ hadoop {
     tensorFlowJob('job25', 'spark') {
       depends 'job24'
     }
-    targets 'job25'
+
+    wormholePushJob('job26') {
+      depends 'job25'
+    }
+    targets 'job26'
   }
 }
