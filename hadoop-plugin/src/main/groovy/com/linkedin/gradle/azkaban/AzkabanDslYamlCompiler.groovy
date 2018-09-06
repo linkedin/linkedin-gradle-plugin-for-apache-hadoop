@@ -234,6 +234,14 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
    * @return Map representing workflow to be output in yaml file.
    */
   Map yamlizeWorkflow(Workflow workflow, boolean isSubflow) {
+    // Save the last scope information
+    NamedScope oldParentScope = this.parentScope;
+    String oldParentDirectory = this.parentDirectory;
+
+    // Set the new parent scope information
+    this.parentScope = workflow.scope;
+    this.parentDirectory = "${this.parentDirectory}/${workflow.name}";
+
     Map yamlizedWorkflow = [:];
 
     // Add workflow name if subflow
@@ -265,6 +273,10 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     if (!nodes.isEmpty()) {
       yamlizedWorkflow["nodes"] = nodes;
     }
+
+    // Restore the last parent scope
+    this.parentScope = oldParentScope;
+    this.parentDirectory = oldParentDirectory;
 
     return yamlizedWorkflow;
   }
