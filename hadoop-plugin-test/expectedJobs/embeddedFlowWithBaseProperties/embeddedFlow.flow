@@ -1,0 +1,17 @@
+nodes:
+- name: embeddedFlow
+  type: noop
+  dependsOn:
+  - embeddedFlow1
+- name: embeddedFlow1
+  type: flow
+  nodes:
+  - name: embeddedFlow1
+    type: noop
+    dependsOn:
+    - shellEcho
+  - name: shellEcho
+    type: command
+    config:
+      command: echo "This is an echoed text from embeddedFlow1."
+      user.to.proxy: foo
