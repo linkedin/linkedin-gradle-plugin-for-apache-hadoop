@@ -1,0 +1,30 @@
+config:
+  user.to.proxy: foo
+nodes:
+- name: wordCountFlow
+  type: noop
+  dependsOn:
+  - checkResultsJob
+- name: checkResultsJob
+  type: hadoopShell
+  dependsOn:
+  - wordCountMapReduceJob
+  config:
+    command: bash ./bash/checkResults.sh . Government
+- name: wordCountMapReduceJob
+  type: hadoopJava
+  dependsOn:
+  - uploadResourceFilesJob
+  condition: ${uploadResourceFilesJob:param1} == "foo"
+  config:
+    job.class: com.linkedin.hadoop.example.WordCountJob
+    classpath: ./lib/*
+    input.path: ./text
+    output.path: ./word-count-map-reduce
+    hadoop-inject.mapreduce.job.classloader: 'true'
+    force.output.overwrite: 'true'
+- name: uploadResourceFilesJob
+  type: hadoopShell
+  config:
+    command: hadoop fs -mkdir -p .
+    command.1: hadoop fs -copyFromLocal -f ./text .
