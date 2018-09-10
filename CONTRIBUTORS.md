@@ -155,3 +155,4 @@ The following were contributed by Chris Li.
 The following were contributed by Jamie Sun. Thanks, Jamie! 
 * `Add conditional workflow feature`
 * `Fix base properties scope for subflows when generating YAML files`
+* `Fix variable substitution issue when generating YAML files`
