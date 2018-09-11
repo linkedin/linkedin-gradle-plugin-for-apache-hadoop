@@ -296,7 +296,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     yamlizedJob["type"] = job.jobProperties["type"];
     // Add job dependencies if there are any
     if (!job.dependencyNames.isEmpty()) {
-      yamlizedJob["dependsOn"] = job.dependencyNames.toList();
+      yamlizedJob["dependsOn"] = job.dependencyNames.toList().collect{ dep -> dep.toString() };
     }
     if(job.condition != null) {
       yamlizedJob["condition"] = job.condition;

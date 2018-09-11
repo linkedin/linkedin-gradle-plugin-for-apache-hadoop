@@ -15,6 +15,9 @@ apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
 
 def projectPath = "."
 def jobName = "uploadResourceFilesJob"
+def jobName2 = "checkResultsJob"
+def dependList = ["${jobName}"]
+def targetList = ["${jobName2}"]
 
 hadoop {
   buildPath "jobs/flowWithVariableSubstitution"
@@ -50,17 +53,17 @@ hadoop {
       set properties: [
           'force.output.overwrite': true
       ]
-      depends "${jobName}"
+      depends dependList
       conditions '${' + "${jobName}" + ':param1} == "foo"'
     }
 
     def keywordToCheck = "Government"
 
-    hadoopShellJob('checkResultsJob') {
+    hadoopShellJob("${jobName2}") {
       uses "bash ./bash/checkResults.sh ${projectPath} ${keywordToCheck}"
       depends 'wordCountMapReduceJob'
     }
 
-    targets 'checkResultsJob'
+    targets targetList
   }
 }
