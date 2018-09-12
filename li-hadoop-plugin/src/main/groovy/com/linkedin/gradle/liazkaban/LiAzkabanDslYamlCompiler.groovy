@@ -68,7 +68,7 @@ class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
     writeGradleForBangBangJob(job, this.project, this.parentScope, this.parentDirectory);
     List<String> filteredKeys = addBangBangProperties(config);
     filteredKeys.each { key ->
-      filteredConfig[key] = config[key];
+      filteredConfig[key] = config[key].toString();
     }
     if (!filteredConfig.isEmpty()) {
       yamlizedJob["config"] = filteredConfig;

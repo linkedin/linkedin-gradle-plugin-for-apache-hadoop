@@ -1,0 +1,10 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=WormholePushJob
+dependencies=jobs1_job25
+dataset=model
+dataset.group=linkedin-project
+input.path=/user/input
+namespace=linkedin
+output.location=LOCAL
+preserve.input=true
+version.string=1.2.4-2018.09.04

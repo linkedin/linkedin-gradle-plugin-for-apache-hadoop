@@ -42,6 +42,7 @@ import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
 import com.linkedin.gradle.test.AssertionWorkflowExtension;
 import com.linkedin.gradle.test.TestExtension;
 
@@ -378,6 +379,16 @@ class HadoopDslFactory {
    */
   Workflow makeWorkflow(String name, Project project, NamedScope parentScope) {
     return new Workflow(name, project, parentScope);
+  }
+
+  /**
+   * Factory method to build a WormholePushJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  WormholePushJob makeWormholePushJob(String name) {
+    return new WormholePushJob(name);
   }
 
   /**

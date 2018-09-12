@@ -33,12 +33,11 @@ import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
 import com.linkedin.gradle.hadoopdsl.job.SparkJob;
 import com.linkedin.gradle.hadoopdsl.job.SqlJob;
-import com.linkedin.gradle.hadoopdsl.job.TableauJob;
-import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
+import com.linkedin.gradle.hadoopdsl.job.TableauJob
 import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
-
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
 import org.gradle.api.Project;
 
 /**
@@ -229,6 +228,19 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     // Print a warning if avroKeyField or avroValueField is set but isAvroData is false
     if (!job.isAvroData && (!emptyAvroKeyFd || !emptyAvroValFd)) {
       project.logger.lifecycle("RequiredFieldsChecker WARNING: VoldemortBuildPushJob ${job.name} will not use avroKeyField and avroValueField since isAvroData is set to false");
+    }
+  }
+
+  @Override
+  void visitJob(WormholePushJob job) {
+    boolean emptyInputPath = job.inputPath == null || job.inputPath.isEmpty();
+    boolean emptyNamespace = job.namespace == null || job.namespace.isEmpty();
+    boolean emptyDatasetGroup = job.datasetGroup == null || job.datasetGroup.isEmpty();
+    boolean emptyDataset = job.dataset == null || job.dataset.isEmpty();
+
+    if (emptyInputPath || emptyNamespace || emptyDatasetGroup || emptyDataset) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: WormholePushJob ${job.name} must set inputPath, namespace, datasetGroup and dataset");
+      foundError = true;
     }
   }
 

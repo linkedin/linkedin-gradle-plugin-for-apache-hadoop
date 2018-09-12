@@ -296,7 +296,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     yamlizedJob["type"] = job.jobProperties["type"];
     // Add job dependencies if there are any
     if (!job.dependencyNames.isEmpty()) {
-      yamlizedJob["dependsOn"] = job.dependencyNames.toList();
+      yamlizedJob["dependsOn"] = job.dependencyNames.toList().collect{ dep -> dep.toString() };
     }
     if(job.condition != null) {
       yamlizedJob["condition"] = job.condition;
@@ -307,6 +307,11 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     config.remove("type");
     config.remove("dependencies");
     if (!config.isEmpty()) {
+      // If the job config contains "${}", which is a GString, it can involve lazy evaluation.
+      // It means it's not until the toString() method is invoked that the GString is evaluated.
+      // Without toString(), it can cause incompatible issue when writing the GString directly
+      // to YAML file.
+      config.each { key, val -> config[key] = val.toString()};
       yamlizedJob["config"] = config;
     }
 
