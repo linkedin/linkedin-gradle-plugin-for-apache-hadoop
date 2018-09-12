@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.30
+* Adding WormholePushJob job type support
+
 0.14.29
 * Fix variable substitution issue for dependency list
 
