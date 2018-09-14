@@ -1,0 +1,31 @@
+nodes:
+- name: workflow1
+  type: noop
+  dependsOn:
+  - shellEcho
+  - embeddedFlow
+- name: shellEcho
+  type: command
+  dependsOn:
+  - shellPwd
+  condition: one_success
+  config:
+    command: echo "This is an echoed text."
+- name: shellPwd
+  type: command
+  config:
+    command: pwd
+- name: embeddedFlow
+  type: flow
+  dependsOn:
+  - shellPwd
+  condition: one_failed
+  nodes:
+  - name: embeddedFlow
+    type: noop
+    dependsOn:
+    - job1
+  - name: job1
+    type: command
+    config:
+      command: pwd

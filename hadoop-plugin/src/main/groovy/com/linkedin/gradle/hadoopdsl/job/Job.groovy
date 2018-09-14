@@ -201,6 +201,7 @@ class Job {
    */
   Job clone(Job cloneJob) {
     cloneJob.basePropertySetName = basePropertySetName;
+    cloneJob.condition = condition;
     cloneJob.dependencyNames.addAll(dependencyNames);
     cloneJob.jobProperties.putAll(jobProperties);
     cloneJob.reading.putAll(reading);
