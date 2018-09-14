@@ -1,0 +1,47 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
+    // Must manually specify snakeyaml for testing, not required for users
+    classpath 'org.yaml:snakeyaml:1.18'
+  }
+}
+
+apply plugin: com.linkedin.gradle.hadoop.HadoopPlugin
+
+// Test clone a workflow (which invokes clone jobs) when generating conditional workflows
+
+workflow('basicFlow') {
+  commandJob('shellPwd') {
+    uses 'pwd'
+  }
+
+  commandJob('shellEcho') {
+    uses 'echo "This is an echoed text."'
+    depends 'shellPwd'
+    conditions 'one_success'
+  }
+
+  workflow('embeddedFlow') {
+    commandJob('job1') {
+      uses 'pwd'
+    }
+
+    flowDepends('shellPwd')
+    conditions 'one_failed'
+    targets 'job1'
+  }
+
+  targets 'shellEcho', 'embeddedFlow'
+}
+
+hadoop {
+  buildPath "jobs/cloneJobWithCondition"
+  cleanPath false
+
+  generateYamlOutput true
+
+  addWorkflow('basicFlow', 'workflow1') {}
+}

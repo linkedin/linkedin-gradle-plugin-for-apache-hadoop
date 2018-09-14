@@ -157,6 +157,7 @@ The following were contributed by Jamie Sun. Thanks, Jamie!
 * `Fix base properties scope for subflows when generating YAML files`
 * `Fix variable substitution issue when generating YAML files`
 * `Fix variable substitution issue for dependency list`
+* `Fix cloneWorkflow and cloneJob issue when generating conditional workflows`
 
 The following were contributed by Rakesh Malladi. Thanks, Rakesh!
 * `Add ability for Hadoop DSL to understand the WormholePushJob job type`
