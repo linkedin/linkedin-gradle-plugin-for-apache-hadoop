@@ -18,6 +18,7 @@ def jobName = "uploadResourceFilesJob"
 def jobName2 = "checkResultsJob"
 def dependList = ["${jobName}"]
 def targetList = ["${jobName2}"]
+def flowDependList = ["${jobName}"]
 
 hadoop {
   buildPath "jobs/flowWithVariableSubstitution"
@@ -57,11 +58,19 @@ hadoop {
       conditions '${' + "${jobName}" + ':param1} == "foo"'
     }
 
+    workflow("embeddedFlow") {
+      commandJob("job1") {
+        uses 'pwd'
+      }
+      flowDepends clear: 'false', targetNames: flowDependList
+      targets 'job1'
+    }
+
     def keywordToCheck = "Government"
 
     hadoopShellJob("${jobName2}") {
       uses "bash ./bash/checkResults.sh ${projectPath} ${keywordToCheck}"
-      depends 'wordCountMapReduceJob'
+      depends 'wordCountMapReduceJob', 'embeddedFlow'
     }
 
     targets targetList

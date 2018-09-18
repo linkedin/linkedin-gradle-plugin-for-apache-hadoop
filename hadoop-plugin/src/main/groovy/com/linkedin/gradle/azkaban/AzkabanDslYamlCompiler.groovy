@@ -258,7 +258,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     }
     // Add dependencies if there are any
     if (!workflow.parentDependencies.isEmpty()) {
-      yamlizedWorkflow["dependsOn"] = workflow.parentDependencies.toList();
+      yamlizedWorkflow["dependsOn"] = workflow.parentDependencies.toList().collect{ dep -> dep.toString() };
     }
     if(isSubflow && workflow.condition != null) {
       yamlizedWorkflow["condition"] = workflow.condition;
