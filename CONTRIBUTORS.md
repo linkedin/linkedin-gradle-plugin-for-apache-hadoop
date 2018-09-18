@@ -158,6 +158,7 @@ The following were contributed by Jamie Sun. Thanks, Jamie!
 * `Fix variable substitution issue when generating YAML files`
 * `Fix variable substitution issue for dependency list`
 * `Fix cloneWorkflow and cloneJob issue when generating conditional workflows`
+* `Fix variable substitution issue for flow dependency list`
 
 The following were contributed by Rakesh Malladi. Thanks, Rakesh!
 * `Add ability for Hadoop DSL to understand the WormholePushJob job type`

@@ -9,6 +9,7 @@ nodes:
   type: hadoopShell
   dependsOn:
   - wordCountMapReduceJob
+  - embeddedFlow
   config:
     command: bash ./bash/checkResults.sh . Government
 - name: wordCountMapReduceJob
@@ -28,3 +29,16 @@ nodes:
   config:
     command: hadoop fs -mkdir -p .
     command.1: hadoop fs -copyFromLocal -f ./text .
+- name: embeddedFlow
+  type: flow
+  dependsOn:
+  - uploadResourceFilesJob
+  nodes:
+  - name: embeddedFlow
+    type: noop
+    dependsOn:
+    - job1
+  - name: job1
+    type: command
+    config:
+      command: pwd
