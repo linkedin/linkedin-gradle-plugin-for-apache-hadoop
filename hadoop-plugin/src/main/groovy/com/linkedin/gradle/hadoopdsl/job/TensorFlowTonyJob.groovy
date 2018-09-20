@@ -17,6 +17,9 @@ package com.linkedin.gradle.hadoopdsl.job;
 
 import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
 
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+
 /**
  * Job class for type=TensorFlowJob jobs.
  * <p>
@@ -34,19 +37,18 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *       'python_binary_path': 'Python-2.7.11/bin/python',
  *       'python_venv': "tensorflow-starter-kit-1.4.16-SNAPSHOT-venv.zip",
  *       'task_params': taskParams,
+ *       'tony.am.memory': '2g',
+ *       'tony.am.vcores': 1,
+ *       'tony.am.gpus': 1,
+ *       'tony.ps.memory': '2g',
+ *       'tony.ps.vcores': 1,
+ *       'tony.worker.memory': '8g',
+ *       'tony.worker.vcores': 1,
+ *       'tony.worker.gpus': 1,
+ *       'tony.ps.instances': 2,
+ *       'tony.worker.instances': 4
  *     ]
  *     executes path/to/python/script.py
- *     amMemory '2g'
- *     amCores 1
- *     amGpus 1
- *     psMemory '2g'
- *     psCores 1
- *     workerMemory '8g'
- *     workerCores 1
- *     workerGpus 2
- *     numPs 2
- *     numWorkers 4
- *     archive 'tensorflow-starter-kit-1.4.16-SNAPSHOT-azkaban.zip'
  *     set workerEnv: [
  *       'ENV1': 'val1',
  *       'ENV2': 'val2'
@@ -55,6 +57,9 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * </pre>
  */
 class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
+
+  private final static Logger logger = Logging.getLogger(TensorFlowTonyJob);
+
   String executePath;
   String amMemory;
   int amCores;
@@ -108,6 +113,10 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
     return ((TensorFlowJob)super.clone(cloneJob));
   }
 
+  private void printDeprecatedParamMessage(String deprecatedParam, String config) {
+    logger.warn(sprintf("%s is deprecated in favor of setting '%s' in your properties block.", [deprecatedParam, config]))
+  }
+
   @Override
   void executes(String executePath) {
     this.executePath = executePath;
@@ -117,67 +126,77 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
   @Override
   void amMemory(String amMemory) {
     this.amMemory = amMemory;
-    setJobProperty("am_memory", this.amMemory);
+    printDeprecatedParamMessage("amMemory", "tony.am.memory")
+    setJobProperty("tony.am.memory", this.amMemory);
   }
 
   @Override
   void amCores(int amCores) {
     this.amCores = amCores;
-    setJobProperty("am_vcores", this.amCores);
+    printDeprecatedParamMessage("amCores", "tony.am.vcores")
+    setJobProperty("tony.am.vcores", this.amCores);
   }
 
   @Override
   void amGpus(int amGpus) {
     this.amGpus = amGpus;
-    setJobProperty("am_gpus", this.amGpus);
+    printDeprecatedParamMessage("amGpus", "tony.am.gpus")
+    setJobProperty("tony.am.gpus", this.amGpus);
   }
 
   @Override
   void psMemory(String psMemory) {
     this.psMemory = psMemory;
-    setJobProperty("ps_memory", this.psMemory);
+    printDeprecatedParamMessage("psMemory", "tony.ps.memory")
+    setJobProperty("tony.ps.memory", this.psMemory);
   }
 
   @Override
   void psCores(int psCores) {
     this.psCores = psCores;
-    setJobProperty("ps_vcores", this.psCores);
+    printDeprecatedParamMessage("psCores", "tony.ps.vcores")
+    setJobProperty("tony.ps.vcores", this.psCores);
   }
 
   @Override
   void workerMemory(String workerMemory) {
     this.workerMemory = workerMemory;
-    setJobProperty("worker_memory", this.workerMemory);
+    printDeprecatedParamMessage("workerMemory", "tony.worker.memory")
+    setJobProperty("tony.worker.memory", this.workerMemory);
   }
 
   @Override
   void workerCores(int workerCores) {
     this.workerCores = workerCores;
-    setJobProperty("worker_vcores", this.workerCores);
+    printDeprecatedParamMessage("workerCores", "tony.worker.vcores")
+    setJobProperty("tony.worker.vcores", this.workerCores);
   }
 
   @Override
   void workerGpus(int workerGpus) {
     this.workerGpus = workerGpus;
-    setJobProperty("worker_gpus", this.workerGpus);
+    printDeprecatedParamMessage("workerGpus", "tony.worker.gpus")
+    setJobProperty("tony.worker.gpus", this.workerGpus);
   }
 
   @Override
   void numPs(int numPs) {
     this.numPs = numPs;
-    setJobProperty("num_ps", this.numPs);
+    printDeprecatedParamMessage("numPs", "tony.ps.instances")
+    setJobProperty("tony.ps.instances", this.numPs);
   }
 
   @Override
   void numWorkers(int numWorkers) {
     this.numWorkers = numWorkers;
-    setJobProperty("num_workers", this.numWorkers);
+    printDeprecatedParamMessage("numWorkers", "tony.worker.instances")
+    setJobProperty("tony.worker.instances", this.numWorkers);
   }
 
   @Override
   void archive(String archive) {
     this.archive = archive;
-    setJobProperty("archive", this.archive);
+    logger.warn("archive param will be removed in the future. It's safe to remove, since it does nothing.")
   }
 
   @HadoopDslMethod
