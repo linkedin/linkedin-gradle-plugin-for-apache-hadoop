@@ -1,17 +1,16 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
 type=TensorFlowJob
 dependencies=jobs1_job23
-am_gpus=1
-am_memory=2g
-am_vcores=1
-archive=tensorflow-starter-kit.zip
 executes=path/to/python/script.py
-num_ps=2
-num_workers=4
-ps_memory=2g
-ps_vcores=1
+tony.am.gpus=1
+tony.am.memory=2g
+tony.am.vcores=1
+tony.ps.instances=2
+tony.ps.memory=2g
+tony.ps.vcores=1
+tony.worker.gpus=2
+tony.worker.instances=4
+tony.worker.memory=8g
+tony.worker.vcores=1
 worker_env.ENV1=val1
 worker_env.ENV2=val2
-worker_gpus=2
-worker_memory=8g
-worker_vcores=1
