@@ -235,11 +235,10 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(WormholePushJob job) {
     boolean emptyInputPath = job.inputPath == null || job.inputPath.isEmpty();
     boolean emptyNamespace = job.namespace == null || job.namespace.isEmpty();
-    boolean emptyDatasetGroup = job.datasetGroup == null || job.datasetGroup.isEmpty();
     boolean emptyDataset = job.dataset == null || job.dataset.isEmpty();
 
-    if (emptyInputPath || emptyNamespace || emptyDatasetGroup || emptyDataset) {
-      project.logger.lifecycle("RequiredFieldsChecker ERROR: WormholePushJob ${job.name} must set inputPath, namespace, datasetGroup and dataset");
+    if (emptyInputPath || emptyNamespace || emptyDataset) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: WormholePushJob ${job.name} must set inputPath, namespace and dataset");
       foundError = true;
     }
   }

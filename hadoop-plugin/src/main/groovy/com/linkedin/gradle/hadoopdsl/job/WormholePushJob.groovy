@@ -28,7 +28,6 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *   wormholePushJob('jobName') {
  *     fromInputPath '/user/input'            // Required
  *     toNamespace 'linkedin'                 // Required
- *     toDatasetGroup 'linkedin-project'      // Required
  *     toDataset 'model'                      // Required
  *     withVersionString '1.2.4-2018.09.04'   // Optional
  *     preserveInput true                     // Optional
@@ -40,7 +39,6 @@ class WormholePushJob extends HadoopJavaJob {
   // Required
   String inputPath;
   String namespace;
-  String datasetGroup;
   String dataset;
 
   // Optional
@@ -77,7 +75,6 @@ class WormholePushJob extends HadoopJavaJob {
   WormholePushJob clone(WormholePushJob cloneJob) {
     cloneJob.inputPath = inputPath;
     cloneJob.namespace = namespace;
-    cloneJob.datasetGroup = datasetGroup;
     cloneJob.dataset = dataset;
     cloneJob.versionString = versionString;
     cloneJob.preserveInput = preserveInput;
@@ -106,17 +103,6 @@ class WormholePushJob extends HadoopJavaJob {
   void toNamespace(String namespace) {
     this.namespace = namespace;
     setJobProperty("namespace", namespace);
-  }
-
-  /**
-   * DSL toDatasetGroup method causes dataset.group=value to be set in the job file.
-   *
-   * @param datasetGroup - The dataset group in which to write this dataset. Must already exist.
-   */
-  @HadoopDslMethod
-  void toDatasetGroup(String datasetGroup) {
-    this.datasetGroup = datasetGroup;
-    setJobProperty("dataset.group", datasetGroup);
   }
 
   /**

@@ -2,7 +2,6 @@
 type=WormholePushJob
 dependencies=jobs1_job25
 dataset=model
-dataset.group=linkedin-project
 input.path=/user/input
 namespace=linkedin
 output.location=LOCAL
