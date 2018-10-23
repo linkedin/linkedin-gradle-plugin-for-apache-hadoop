@@ -162,3 +162,4 @@ The following were contributed by Jamie Sun. Thanks, Jamie!
 
 The following were contributed by Rakesh Malladi. Thanks, Rakesh!
 * `Add ability for Hadoop DSL to understand the WormholePushJob job type`
+* `Deprecate dataset.group property from the WormholePushJob`
