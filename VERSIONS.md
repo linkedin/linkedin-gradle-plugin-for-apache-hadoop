@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.14.35
+* Stop outputting max wait mins when it's defined in a flow trigger with no dependencies
+
 0.14.34
 * Deprecate dataset.group property from the WormholePushJob
 
