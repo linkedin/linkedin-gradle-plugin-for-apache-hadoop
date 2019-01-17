@@ -334,7 +334,9 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     Map yamlizedTrigger = [:];
 
     // Add maximum number of minutes the trigger will wait before it's automatically cancelled
-    yamlizedTrigger["maxWaitMins"] = trigger.maxWaitMins;
+    if(trigger.maxWaitMins != 0) {
+      yamlizedTrigger["maxWaitMins"] = trigger.maxWaitMins;
+    }
     // Add trigger schedule
     yamlizedTrigger["schedule"] = yamlizeSchedule(trigger.schedules[0]);
     // Add trigger dependencies if there are any
