@@ -30,7 +30,7 @@ else {
   project(':li-hadoop-plugin-test').ext['liPluginTestDir'] = "${project(':li-hadoop-plugin').projectDir}/build/libs"
 }
 
-// Task to generate the Gradle wrapper
-task wrapper(type: Wrapper) {
+// Configure the Gradle wrapper
+wrapper {
   gradleVersion = '4.1'
 }
