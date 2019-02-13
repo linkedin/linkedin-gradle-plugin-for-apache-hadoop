@@ -38,8 +38,8 @@ import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob
 import com.linkedin.gradle.hadoopdsl.job.TensorFlowSparkJob
-import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
-import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
+import com.linkedin.gradle.hadoopdsl.job.TonyJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
@@ -327,13 +327,24 @@ class HadoopDslFactory {
   }
 
   /**
-   * Factory method to build a TensorFlowTonyJob
+   * @deprecated  Please use {@link #makeTonyJob} instead.
    *
    * @param name The job name
    * @return The job
    */
+  @Deprecated
   TensorFlowJob makeTensorFlowTonyJob(String name) {
-    return new TensorFlowTonyJob(name);
+    return new TonyJob(name);
+  }
+
+  /**
+   * Factory method to build a TonyJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  TensorFlowJob makeTonyJob(String name) {
+    return new TonyJob(name);
   }
 
   /**

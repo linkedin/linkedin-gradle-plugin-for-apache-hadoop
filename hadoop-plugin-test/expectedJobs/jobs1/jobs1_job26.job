@@ -1,6 +1,6 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
 type=WormholePushJob
-dependencies=jobs1_job25
+dependencies=jobs1_job25a
 dataset=model
 input.path=/user/input
 namespace=linkedin
