@@ -123,8 +123,12 @@ hadoop {
       depends 'job24'
     }
 
-    wormholePushJob('job26') {
+    tonyJob('job25a') {
       depends 'job25'
+    }
+
+    wormholePushJob('job26') {
+      depends 'job25a'
     }
     targets 'job26'
   }

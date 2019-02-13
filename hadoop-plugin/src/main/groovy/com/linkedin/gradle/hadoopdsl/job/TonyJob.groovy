@@ -21,11 +21,11 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
 /**
- * Job class for type=TensorFlowJob jobs.
+ * Job class for type=TonyJob and type=TensorFlowJob (deprecated) jobs.
  * <p>
- * In the DSL, a TensorFlowJob using TonY can be specified with:
+ * In the DSL, a TonyJob can be specified with:
  * <pre>
- *   tensorFlowJob('jobName', 'tony') {
+ *   tonyJob('jobName') {
  *     def taskParams = [
  *       "--tensorboard",
  *       "--hdfs_input_path /tmp/trainingInput",
@@ -35,11 +35,8 @@ import org.gradle.api.logging.Logging;
  *     ].join(' ')
  *     set properties: [
  *       'python_binary_path': 'Python-2.7.11/bin/python',
- *       'python_venv': "tensorflow-starter-kit-1.4.16-SNAPSHOT-venv.zip",
+ *       'python_venv': "my-venv.zip",
  *       'task_params': taskParams,
- *       'tony.am.memory': '2g',
- *       'tony.am.vcores': 1,
- *       'tony.am.gpus': 1,
  *       'tony.ps.memory': '2g',
  *       'tony.ps.vcores': 1,
  *       'tony.worker.memory': '8g',
@@ -55,10 +52,21 @@ import org.gradle.api.logging.Logging;
  *     ]
  *   }
  * </pre>
+ *
+ * <p>
+ * A TensorFlowJob using TonY (deprecated, please use TonyJob) can be specified with:
+ * <pre>
+ *   tensorFlowJob('jobName', 'tony') {
+ *     def taskParams = [ ... ].join(' ')
+ *     set properties: [ ... ]
+ *     executes path/to/python/script.py
+ *     set workerEnv: [ ... ]
+ *   }
+ * </pre>
  */
-class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
+class TonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
 
-  private final static Logger logger = Logging.getLogger(TensorFlowTonyJob);
+  private final static Logger logger = Logging.getLogger(TonyJob);
 
   String executePath;
   String amMemory;
@@ -75,14 +83,14 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
   Map<String, Object> workerEnv;
 
   /**
-   * Constructor for a TensorFlowJob.
+   * Constructor for a TonyJob.
    *
    * @param jobName The job name
    */
-  TensorFlowTonyJob(String jobName) {
+  TonyJob(String jobName) {
     super(jobName);
     workerEnv = new HashMap<>();
-    setJobProperty("type", "TensorFlowJob");
+    setJobProperty("type", "TonyJob");
   }
 
   /**
@@ -91,8 +99,8 @@ class TensorFlowTonyJob extends HadoopJavaProcessJob implements TensorFlowJob {
    * @return The cloned job
    */
   @Override
-  TensorFlowTonyJob clone() {
-    return clone(new TensorFlowTonyJob(name));
+  TonyJob clone() {
+    return clone(new TonyJob(name));
   }
 
   @Override

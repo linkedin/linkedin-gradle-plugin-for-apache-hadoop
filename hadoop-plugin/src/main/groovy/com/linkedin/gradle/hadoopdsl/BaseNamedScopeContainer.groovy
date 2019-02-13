@@ -35,8 +35,8 @@ import com.linkedin.gradle.hadoopdsl.job.SqlJob;
 import com.linkedin.gradle.hadoopdsl.job.TableauJob;
 import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob
 import com.linkedin.gradle.hadoopdsl.job.TensorFlowSparkJob
-import com.linkedin.gradle.hadoopdsl.job.TensorFlowTonyJob;
-import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
+import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob
+import com.linkedin.gradle.hadoopdsl.job.TonyJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
@@ -1109,11 +1109,22 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     case "spark":
       return ((TensorFlowSparkJob)configureJob(factory.makeTensorFlowSparkJob(name), configure));
     case "tony":
-      return ((TensorFlowTonyJob)configureJob(factory.makeTensorFlowTonyJob(name), configure));
+      return ((TonyJob)configureJob(factory.makeTensorFlowTonyJob(name), configure));
     default:
       throw new Exception("Unsupported execution type: ${type} in TensorFlow job declaration." +
               " Should be SPARK or TONY.");
     }
+  }
+
+  /**
+   * DSL tonyJob method. Creates a TonyJob in scope with the given name and configuration.
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  TonyJob tonyJob(String name, @DelegatesTo(TonyJob) Closure configure) {
+    return ((TonyJob)configureJob(factory.makeTonyJob(name), configure));
   }
 
   /**

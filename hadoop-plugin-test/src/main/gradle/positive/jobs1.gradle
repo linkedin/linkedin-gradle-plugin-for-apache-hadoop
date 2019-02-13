@@ -420,6 +420,20 @@ hadoop {
       depends 'job24'
     }
 
+    tonyJob('job25a') {
+      set properties: [
+        'executes': 'path/to/python/script.py',
+        'tony.ps.vcores': 1,
+        'tony.ps.memory': '2g',
+        'tony.ps.instances': 2,
+        'tony.worker.vcores': 1,
+        'tony.worker.memory': '8g',
+        'tony.worker.gpus': 2,
+        'tony.worker.instances': 4,
+      ]
+      depends 'job25'
+    }
+
     wormholePushJob('job26') {
       fromInputPath '/user/input'            // Required
       toNamespace 'linkedin'                 // Required
@@ -428,7 +442,7 @@ hadoop {
       preserveInput true                     // Optional
       toOutputLocation 'LOCAL'               // Optional
 
-      depends 'job25'
+      depends 'job25a'
     }
     targets 'job26'
   }
