@@ -1116,6 +1116,12 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     }
   }
 
+  /**
+   * DSL tonyJob method. Creates a TonyJob in scope with the given name and configuration.
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
   @HadoopDslMethod
   TonyJob tonyJob(String name, @DelegatesTo(TonyJob) Closure configure) {
     return ((TonyJob)configureJob(factory.makeTonyJob(name), configure));
