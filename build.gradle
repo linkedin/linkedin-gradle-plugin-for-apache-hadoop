@@ -23,6 +23,14 @@ boolean isLinkedInBuild = project.hasProperty('overrideBuildEnvironment')
 
 if (isLinkedInBuild) {
   apply from: project.overrideBuildEnvironment
+  subprojects {
+    plugins.withType(GroovyPlugin) {
+      dependencies {
+        codenarc 'org.codehaus.groovy:groovy-templates:2.5.5'
+        codenarc 'org.codenarc:CodeNarc:1.1'
+      }
+    }
+  }
 }
 else {
   project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
