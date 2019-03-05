@@ -160,15 +160,15 @@ class AzkabanUploadTask extends DefaultTask {
       httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
       HttpResponse response = httpClient.execute(httpPost);
 
-      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-        throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode() + "\nAlternately, you can upload the zip to your project via Azkaban UI.");
-      }
-
       logger.lifecycle("\n--------------------------------------------------------------------------------");
       logger.lifecycle(AzkabanHelper.parseResponse(response.toString()));
       String result = AzkabanHelper.parseContent(response.getEntity().getContent());
       logger.lifecycle(result);
       logger.lifecycle("--------------------------------------------------------------------------------");
+
+      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        throw new GradleException("Upload task failed.\nStatus line: " + response.getStatusLine().toString() + "\nStatus code: " + response.getStatusLine().getStatusCode() + "\nAlternately, you can upload the zip to your project via Azkaban UI.");
+      }
 
       // Check if there was an error during the upload.
       JSONObject jsonObj = new JSONObject(result);
