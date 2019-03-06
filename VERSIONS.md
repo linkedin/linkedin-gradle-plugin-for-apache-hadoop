@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.15.3
+* Empty commit to bump version 
+
 0.15.2
 * Always log response from Azkaban during upload
 * Fix "Build fails when run in LinkedIn multiproduct"
