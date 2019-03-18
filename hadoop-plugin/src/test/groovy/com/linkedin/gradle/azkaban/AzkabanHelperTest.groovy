@@ -16,10 +16,16 @@
 package com.linkedin.gradle.azkaban;
 
 import org.gradle.api.GradleException;
-import org.json.JSONObject;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.json.JSONObject
+import org.junit.Rule;
+import org.junit.Test
+import org.junit.rules.ExpectedException
+import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
+//import org.powermock.modules.junit4.PowerMockRunner;
+
+//@RunWith(PowerMockRunner)
 class AzkabanHelperTest {
   @Test
   public void TestFetchSortedFlows() {
@@ -30,5 +36,15 @@ class AzkabanHelperTest {
   @Test(expected = GradleException.class)
   public void TestGradleException() {
     AzkabanHelper.fetchSortedFlows(new JSONObject("{\"project\" : \"test-azkaban\",   \"projectId\" : 192,   \"flows\" : [ ] }"));
+  }
+
+  @Rule
+  public ExpectedException expectedEx = ExpectedException.none();
+
+  @Test(expected = Exception.class)
+  public void TestGetConsoleException() throws Exception {
+    expectedEx.expec(Exception.class);
+    expectedEx.expectMessage(AzkabanHelper.CONSOLE_EXCEPTION_MESSAGE);
+    AzkabanHelper.getSystemConsole();
   }
 }

@@ -58,6 +58,15 @@ class AzkabanHelper {
 
   private final static Logger logger = Logging.getLogger(AzkabanHelper);
   static String passwordString = "Password";
+  final static String CONSOLE_EXCEPTION_MESSAGE = """Cannot access the system console. Be sure to 
+pass --no-daemon in your command. For more info,
+                     |refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking.
+                     |
+                     |At LinkedIn, you must pass --no-daemon and explicitly set the JAVA_HOME environment variable to
+                     |the Java version specified in your product-spec. GRADLE_OPTS environment variable should also be set to
+                     |explicitly specify Xmx for Gradle 5 and newer versions, which set a very low default memory threshold for the launcher
+                     |VM; for example: "export GRADLE_OPTS="-Xmx1024m -XX:MaxMetaspaceSize=256m". Refer to the 'Password Masking' section of
+                     |http://go/HadoopPlugin for more info.""".stripMargin();
 
   /**
    * Helper method to make a login request to Azkaban.
@@ -315,13 +324,7 @@ class AzkabanHelper {
   static Console getSystemConsole() throws Exception {
     def console = System.console()
     if (console == null) {
-      String msg = """Cannot access the system console. Be sure to pass --no-daemon in your command. For more info,
-                     |refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking.
-                     |
-                     |At LinkedIn, you must pass --no-daemon and explicitly set the JAVA_HOME environment variable to
-                     |the Java version specified in your product-spec. Refer to the 'Password Masking' section of
-                     |http://go/HadoopPlugin for more info.""".stripMargin()
-      throw new Exception(msg)
+      throw new Exception(CONSOLE_EXCEPTION_MESSAGE)
     }
     return console
   }
