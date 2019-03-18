@@ -20,12 +20,9 @@ import org.json.JSONObject
 import org.junit.Rule;
 import org.junit.Test
 import org.junit.rules.ExpectedException
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
-//import org.powermock.modules.junit4.PowerMockRunner;
 
-//@RunWith(PowerMockRunner)
 class AzkabanHelperTest {
   @Test
   public void TestFetchSortedFlows() {
