@@ -58,8 +58,7 @@ class AzkabanHelper {
 
   private final static Logger logger = Logging.getLogger(AzkabanHelper);
   static String passwordString = "Password";
-  final static String CONSOLE_EXCEPTION_MESSAGE = """Cannot access the system console. Be sure to 
-pass --no-daemon in your command. For more info,
+  final static String CONSOLE_EXCEPTION_MESSAGE = """Cannot access the system console. Be sure to pass --no-daemon in your command. For more info,
                      |refer to https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features#password-masking.
                      |
                      |At LinkedIn, you must pass --no-daemon and explicitly set the JAVA_HOME environment variable to
