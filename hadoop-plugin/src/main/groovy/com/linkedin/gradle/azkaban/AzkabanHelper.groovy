@@ -64,8 +64,11 @@ class AzkabanHelper {
                      |At LinkedIn, you must pass --no-daemon and explicitly set the JAVA_HOME environment variable to
                      |the Java version specified in your product-spec. GRADLE_OPTS environment variable should also be set to
                      |explicitly specify Xmx for Gradle 5 and newer versions, which set a very low default memory threshold for the launcher
-                     |VM; for example: "export GRADLE_OPTS="-Xmx1024m -XX:MaxMetaspaceSize=256m". Refer to the 'Password Masking' section of
-                     |http://go/HadoopPlugin for more info.""".stripMargin();
+                     |VM; for example: "export GRADLE_OPTS="-Xmx1024m -XX:MaxMetaspaceSize=256m".
+                     |Another option for setting Xmx is to set org.gradle.jvmargs in
+                     |gradle.properties. Refer to the 'Password Masking' section of
+                     |https://github.com/linkedin/linkedin-gradle-plugin-for-apache-hadoop/wiki/Azkaban-Features
+                     |for more info.""".stripMargin();
 
   /**
    * Helper method to make a login request to Azkaban.
