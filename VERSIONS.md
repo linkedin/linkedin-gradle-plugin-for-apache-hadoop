@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.15.7
+* Add a workaround to handle visiting files multiple times when merging tempprops into .flow files.
+
 0.15.3
 * Empty commit to bump version 
 

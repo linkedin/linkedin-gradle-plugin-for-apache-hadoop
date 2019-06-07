@@ -222,40 +222,44 @@ class HadoopZipExtension {
    */
   void mergeTempPropsWithFlowFiles(Task task, String zipName) {
     List<Map<String, String>> tempPropsList = [];
-    List<String> tempPropsPathsList = [];
-    List<String> flowFilePathsList = [];
-    List<String> newFlowFilePathsList = [];
+    List<String> excludeList = [];
+    List<String> includeList = [];
+    Map<String, FileVisitDetails> flowsToMerge = [:];
 
     task.source.visit { FileVisitDetails tempProps ->
       String tempPropsPath = tempProps.path;
       if (tempPropsPath.matches(/.*\.tempprops/)) {
         Map<String, String> tempPropsMap = YamlMerge.readInYaml(tempProps);
         tempPropsList.add(tempPropsMap);
-        tempPropsPathsList.add(tempPropsPath);
+        excludeList.add(tempPropsPath);
       }
     }
+
     // Merge all .tempprops files into the .flow files and create new .flow files with the results
     if (!tempPropsList.isEmpty()) {
-      task.source.visit { FileVisitDetails file ->
-        String flowFile = file.path;
-        if (flowFile.matches(/.*\.flow/) && !flowFile.matches(/.*_.*/)) {
+      task.source.visit { FileVisitDetails fileDetails ->
+        String file = fileDetails.path;
+        if (file.matches(/.*\.flow/) && !file.matches(/.*_.*/)) {
           // Consider all .flow files to be flows except for those that have underscores
           // Those that have underscores are files that were already merged
-          flowFilePathsList.add(flowFile);
-          String newFlowFile = YamlMerge.merge(file, tempPropsList, zipName);
-          newFlowFilePathsList.add(newFlowFile);
+          excludeList.add(file);
+          flowsToMerge.put(file, fileDetails);
         }
-        else if (flowFile.matches(/.*_.*/) && flowFile.matches(/.*\.flow/) &&
-                !flowFile.matches(/.*${zipName}.*/)) {
+        else if (file.matches(/.*_.*/) && file.matches(/.*\.flow/) &&
+                !file.matches(/.*${zipName}.*/)) {
           // Remove all flow files with underscores that do not have the zipName included
           // These are merged flow files from another namespace
-          flowFilePathsList.add(flowFile);
+          excludeList.add(file);
         }
       }
+      for (entry in flowsToMerge) {
+        String newFlowFile = YamlMerge.merge(entry.value, tempPropsList, zipName);
+        includeList.add(newFlowFile);
+      }
+
       // Remove all .tempprops files and old .flow files from the zip and include the new .flow files
-      task.exclude tempPropsPathsList;
-      task.exclude flowFilePathsList;
-      newFlowFilePathsList.each { String path -> task.from(path); }
+      task.exclude excludeList;
+      includeList.each { String path -> task.from(path); }
     }
   }
 
