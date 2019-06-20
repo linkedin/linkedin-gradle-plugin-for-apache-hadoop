@@ -444,6 +444,20 @@ hadoop {
 
       depends 'job25a'
     }
-    targets 'job26'
+
+    kabootarJob('job27') {
+      usesTrainedModelLocation '/user/testmodelregsvc/trained-models' // Required
+      usesTrainingName 'AyeAyeCaptain'                                 // Required
+      usesWormholeNamespace 'testmodelregsvc'                          // Required
+      usesInitialImport 'initial/import/File'                          // Required
+      usesTrainingID '53fe1ff5-4439-4288-be43-11cb11629552'            // Optional
+      usesOrigin 'FELLOWSHIP'                                          // Optional
+      usesFramework 'PHOTON_CONNECT'                                   // Optional
+      usesModelSupplementaryDataLocation '/user/testmodelregsvc/data'  // Optional
+
+      depends 'job26'
+    }
+
+    targets 'job27'
   }
 }

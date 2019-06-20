@@ -45,5 +45,6 @@ RequiredFieldsChecker ERROR: TableauJob job19 must set workbookName
 RequiredFieldsChecker ERROR: HdfsWaitJob job20 must set dirPath, freshness, timeout, and forceJobToFail
 RequiredFieldsChecker ERROR: VenicePushJob job23 must set avroKeyField, avroValueField, clusterName, inputPath, veniceStoreName
 RequiredFieldsChecker ERROR: WormholePushJob job26 must set inputPath, namespace and dataset
+RequiredFieldsChecker ERROR: KabootarJob job27 must set trainingModelLocation, trainingName, wormholeNamespace, initialImport
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
 :hadoop-plugin-test:test_missingFields FAILED

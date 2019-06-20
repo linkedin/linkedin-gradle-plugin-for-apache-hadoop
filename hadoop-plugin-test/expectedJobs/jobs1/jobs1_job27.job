@@ -1,0 +1,11 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=KabootarJob
+dependencies=jobs1_job26
+framework=PHOTON_CONNECT
+initial.import=initial/import/File
+model.supplementary.data.path=/user/testmodelregsvc/data
+origin=FELLOWSHIP
+trained.model.location=/user/testmodelregsvc/trained-models
+training.id=53fe1ff5-4439-4288-be43-11cb11629552
+training.name=AyeAyeCaptain
+wormhole.namespace=testmodelregsvc

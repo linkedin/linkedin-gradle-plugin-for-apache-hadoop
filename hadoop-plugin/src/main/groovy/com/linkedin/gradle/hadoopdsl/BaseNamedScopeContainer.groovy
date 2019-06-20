@@ -26,6 +26,7 @@ import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
@@ -1138,6 +1139,19 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   @HadoopDslMethod
   WormholePushJob wormholePushJob(String name, @DelegatesTo(WormholePushJob) Closure configure) {
     return ((WormholePushJob)configureJob(factory.makeWormholePushJob(name), configure));
+  }
+
+  /**
+   * DSL kabootarJob method. Creates a KabootarJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  KabootarJob kabootarJob(String name, @DelegatesTo(KabootarJob) Closure configure) {
+    return ((KabootarJob)configureJob(factory.makeKabootarJob(name), configure));
   }
 
   /**

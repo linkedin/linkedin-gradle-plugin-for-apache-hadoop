@@ -166,3 +166,6 @@ The following were contributed by Rakesh Malladi. Thanks, Rakesh!
 
 The following were contributed by Yeni Bermudez. Thanks, Yeni!
 * `Add a workaround to handle visiting files multiple times when merging tempprops into .flow files.`
+
+The following were contributed by Abhishek Nimesh. Thanks, Abhishek!
+* `Add ability for Hadoop DSL to understand the KabootarJob job type`

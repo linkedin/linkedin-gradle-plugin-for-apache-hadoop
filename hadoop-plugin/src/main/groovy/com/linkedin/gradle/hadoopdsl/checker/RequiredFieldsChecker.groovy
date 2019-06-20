@@ -27,6 +27,7 @@ import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
@@ -242,6 +243,22 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       foundError = true;
     }
   }
+
+  @Override
+  void visitJob(KabootarJob job) {
+    boolean emptyTrainedModelLocation = job.trainedModelLocation == null || job.trainedModelLocation.isEmpty();
+    boolean emptyTrainingName = job.trainingName == null || job.trainingName.isEmpty();
+    boolean emptyWormholeNamespace = job.wormholeNamespace == null || job.wormholeNamespace.isEmpty();
+    boolean emptyInitialImport = job.initialImport == null || job.initialImport.isEmpty();
+
+    if (emptyTrainedModelLocation || emptyTrainingName || emptyWormholeNamespace || emptyInitialImport) {
+      project.logger.lifecycle(
+          "RequiredFieldsChecker ERROR: KabootarJob ${job.name} must set trainingModelLocation, " +
+              "trainingName, wormholeNamespace, initialImport");
+      foundError = true;
+    }
+  }
+
 
   @Override
   void visitJob(HdfsToTeradataJob job) {

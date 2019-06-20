@@ -26,6 +26,7 @@ import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
@@ -400,6 +401,16 @@ class HadoopDslFactory {
    */
   WormholePushJob makeWormholePushJob(String name) {
     return new WormholePushJob(name);
+  }
+
+  /**
+   * Factory method to build a KabootarJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  KabootarJob makeKabootarJob(String name) {
+    return new KabootarJob(name);
   }
 
   /**

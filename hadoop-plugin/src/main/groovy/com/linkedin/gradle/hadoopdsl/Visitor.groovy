@@ -26,6 +26,7 @@ import com.linkedin.gradle.hadoopdsl.job.HiveJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaJob;
 import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
+import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
@@ -76,4 +77,5 @@ interface Visitor {
   void visitJob(VenicePushJob job);
   void visitJob(VoldemortBuildPushJob job);
   void visitJob(WormholePushJob job);
+  void visitJob(KabootarJob job);
 }
