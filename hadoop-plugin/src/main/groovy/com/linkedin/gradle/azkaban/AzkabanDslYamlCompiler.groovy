@@ -266,7 +266,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     // Add configs if there are any
     Map<String, String> config = buildWorkflowConfig(workflow, isSubflow);
     if (!config.isEmpty()) {
-      yamlizedWorkflow["config"] = config;
+      yamlizedWorkflow["config"] = config.sort();
     }
     // Add jobs and subflows in one item - nodes - if there are any
     List nodes = buildNodes(workflow);
@@ -312,7 +312,7 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
       // Without toString(), it can cause incompatible issue when writing the GString directly
       // to YAML file.
       config.each { key, val -> config[key] = val.toString()};
-      yamlizedJob["config"] = config;
+      yamlizedJob["config"] = config.sort();
     }
 
     return yamlizedJob;
