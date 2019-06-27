@@ -103,8 +103,9 @@ class AzkabanDslYamlCompilerTest {
   @Test
   public void TestComplicatedYamlWorkflow() {
     Properties props = new Properties("testProperties");
-    props.setJobProperty("configKey1", "configVal1");
     props.setJobProperty("configKey2", "configVal2");
+    props.setJobProperty("configKey1", "configVal1");
+    props.setJobProperty("configKey3", "configValue3");
     when(mockWorkflow.properties).thenReturn([props]);
     when(mockWorkflow.jobsToBuild).thenReturn([mockJob]);
     when(mockWorkflow.flowsToBuild).thenReturn([mockSubflow]);
@@ -113,7 +114,9 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
-    assertEquals(["configKey1": "configVal1", "configKey2": "configVal2"], yamlizedWorkflow["config"]);
+    // Verify sorted config
+    assertEquals(yamlizedWorkflow["config"].toString(),
+        "[configKey1:configVal1, configKey2:configVal2, configKey3:configValue3]");
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();
     Map yamlizedSubflow = (Map) sortedNodes[0];
@@ -262,14 +265,17 @@ class AzkabanDslYamlCompilerTest {
   @Test
   public void TestComplicatedYamlJob() {
     when(mockJob.dependencyNames).thenReturn(["dependency1", "dependency2"].toSet());
-    when(mockJob.buildProperties(yamlCompiler.parentScope)).thenReturn(["configKey1" : "configVal1",
-                                                                        "configKey2": "configVal2"]);
+    when(mockJob.buildProperties(yamlCompiler.parentScope)).thenReturn(["configKey2": "configVal2",
+                                                                        "configKey1" : "configVal1",
+                                                                        "configKey3": "configVal3"]);
 
     Map yamlizedJob = yamlCompiler.yamlizeJob(mockJob);
     assertEquals("testJob", yamlizedJob["name"]);
     assertEquals("testJobtype", yamlizedJob["type"]);
     assertEquals(["dependency1", "dependency2"], ((List) yamlizedJob["dependsOn"]).sort());
-    assertEquals(["configKey1": "configVal1", "configKey2": "configVal2"], yamlizedJob["config"]);
+    // Verify sorted config
+    assertEquals(yamlizedJob["config"].toString(),
+        "[configKey1:configVal1, configKey2:configVal2, configKey3:configVal3]");
   }
 
   @Test

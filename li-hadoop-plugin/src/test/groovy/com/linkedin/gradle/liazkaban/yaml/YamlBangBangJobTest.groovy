@@ -22,7 +22,8 @@ import org.gradle.api.Project;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,8 +40,12 @@ class YamlBangBangJobTest {
     when(mockLiBangBangJob.jobProperties).thenReturn(["type": "hadoopShell"]);
     when(mockLiBangBangJob.dependencyNames).thenReturn([].toSet());
     when(mockLiBangBangJob.condition).thenReturn("one_success");
-    when(mockLiBangBangJob.buildProperties(mockNamedScope)).thenReturn(["type": "hadoopShell"]);
-
+    when(mockLiBangBangJob.buildProperties(mockNamedScope)).thenReturn([
+        "type": "hadoopShell",
+        "configKey2": "configValue2",
+        "configKey1": "configValue1",
+        "configKey3": "configValue3",
+    ]);
     Map yamlizedJob = liYamlCompiler.yamlizeJob(mockLiBangBangJob);
     assertEquals("test", yamlizedJob["name"]);
     assertEquals("hadoopShell", yamlizedJob["type"]);
@@ -53,5 +58,11 @@ class YamlBangBangJobTest {
             "-Dazkaban.link.attempt.url=\${azkaban.link.attempt.url} " +
             "-Dazkaban.job.innodes=\${azkaban.job.innodes} ",
             yamlizedJob["config"]["env.PIG_JAVA_OPTS"]);
+
+    assertNotNull(yamlizedJob["config"].get("env.PIG_JAVA_OPTS"))
+    yamlizedJob["config"].remove("env.PIG_JAVA_OPTS")
+    // Verify sorted older
+    assertEquals(yamlizedJob["config"].toString(),
+        "[configKey1:configValue1, configKey2:configValue2, configKey3:configValue3]")
   }
 }
