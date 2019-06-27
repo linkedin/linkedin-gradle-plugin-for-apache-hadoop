@@ -18,12 +18,12 @@ nodes:
   - uploadResourceFilesJob
   condition: ${uploadResourceFilesJob:param1} == "foo"
   config:
-    job.class: com.linkedin.hadoop.example.WordCountJob
     classpath: ./lib/*
-    input.path: ./text
-    output.path: ./word-count-map-reduce
-    hadoop-inject.mapreduce.job.classloader: 'true'
     force.output.overwrite: 'true'
+    hadoop-inject.mapreduce.job.classloader: 'true'
+    input.path: ./text
+    job.class: com.linkedin.hadoop.example.WordCountJob
+    output.path: ./word-count-map-reduce
 - name: uploadResourceFilesJob
   type: hadoopShell
   config:
