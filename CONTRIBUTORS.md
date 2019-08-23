@@ -169,3 +169,6 @@ The following were contributed by Yeni Bermudez. Thanks, Yeni!
 
 The following were contributed by Abhishek Nimesh. Thanks, Abhishek!
 * `Add ability for Hadoop DSL to understand the KabootarJob job type`
+
+The following were contributed by Zhixiong Chen.
+* `Sort config`

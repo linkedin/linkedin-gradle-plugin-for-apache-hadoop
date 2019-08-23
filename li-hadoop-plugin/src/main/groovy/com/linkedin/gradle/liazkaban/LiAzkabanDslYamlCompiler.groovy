@@ -71,7 +71,7 @@ class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
       filteredConfig[key] = config[key].toString();
     }
     if (!filteredConfig.isEmpty()) {
-      yamlizedJob["config"] = filteredConfig;
+      yamlizedJob["config"] = filteredConfig.sort();
     }
 
     return yamlizedJob;

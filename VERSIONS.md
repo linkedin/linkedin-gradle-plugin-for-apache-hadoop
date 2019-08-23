@@ -17,6 +17,8 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.15.9
+* Sort config.
 
 0.15.8
 * Adding KabootarJob job type support

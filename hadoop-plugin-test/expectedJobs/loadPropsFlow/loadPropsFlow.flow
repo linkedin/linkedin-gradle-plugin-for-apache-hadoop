@@ -1,9 +1,9 @@
 config:
+  props1: shared1
+  props2: shared2
   props3: moo3
   props4: moo4
   props5: moo5
-  props1: shared1
-  props2: shared2
   props6: shared6
 nodes:
 - name: loadPropsFlow
@@ -19,10 +19,10 @@ nodes:
 - name: job2
   type: noop
   config:
-    props4: shared4
-    props8: shared8
     props2: job2
+    props4: shared4
     props7: job7
+    props8: shared8
 - name: innerflow
   type: flow
   dependsOn:
