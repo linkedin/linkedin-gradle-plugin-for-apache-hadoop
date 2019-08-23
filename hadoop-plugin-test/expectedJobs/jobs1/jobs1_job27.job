@@ -1,6 +1,7 @@
 # This file generated from the Hadoop DSL. Do not edit by hand.
 type=KabootarJob
 dependencies=jobs1_job26
+ai.project.group=AIFoundationOther
 framework=PHOTON_CONNECT
 initial.import=initial/import/File
 model.supplementary.data.path=/user/testmodelregsvc/data
