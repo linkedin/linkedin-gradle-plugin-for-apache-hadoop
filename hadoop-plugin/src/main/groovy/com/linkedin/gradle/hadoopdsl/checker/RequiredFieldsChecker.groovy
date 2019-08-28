@@ -256,7 +256,7 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       project.logger.lifecycle(
           "RequiredFieldsChecker ERROR: KabootarJob ${job.name} must set trainingModelLocation, " +
               "trainingName, aiProjectGroup, wormholeNamespace, initialImport. " +
-              "Please see http://go/kabootar-wiki for more details.");
+              "Please see the job documentation for more details.");
       foundError = true;
     }
   }
