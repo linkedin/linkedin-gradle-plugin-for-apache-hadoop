@@ -172,3 +172,6 @@ The following were contributed by Abhishek Nimesh. Thanks, Abhishek!
 
 The following were contributed by Zhixiong Chen.
 * `Sort config`
+
+The following were contributed by Sayali Kadam.
+* `Accept property 'ai.project.group' for KabootarJob`

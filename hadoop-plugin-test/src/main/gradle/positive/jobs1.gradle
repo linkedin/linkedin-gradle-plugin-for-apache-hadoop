@@ -446,8 +446,9 @@ hadoop {
     }
 
     kabootarJob('job27') {
-      usesTrainedModelLocation '/user/testmodelregsvc/trained-models' // Required
+      usesTrainedModelLocation '/user/testmodelregsvc/trained-models'  // Required
       usesTrainingName 'AyeAyeCaptain'                                 // Required
+      usesAiProjectGroup 'AIFoundationOther'                           // Required
       usesWormholeNamespace 'testmodelregsvc'                          // Required
       usesInitialImport 'initial/import/File'                          // Required
       usesTrainingID '53fe1ff5-4439-4288-be43-11cb11629552'            // Optional

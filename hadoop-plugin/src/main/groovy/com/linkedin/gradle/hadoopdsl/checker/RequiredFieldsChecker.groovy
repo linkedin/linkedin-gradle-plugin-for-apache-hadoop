@@ -248,13 +248,15 @@ class RequiredFieldsChecker extends BaseStaticChecker {
   void visitJob(KabootarJob job) {
     boolean emptyTrainedModelLocation = job.trainedModelLocation == null || job.trainedModelLocation.isEmpty();
     boolean emptyTrainingName = job.trainingName == null || job.trainingName.isEmpty();
+    boolean emptyAiProjectGroup = job.aiProjectGroup == null || job.aiProjectGroup.isEmpty();
     boolean emptyWormholeNamespace = job.wormholeNamespace == null || job.wormholeNamespace.isEmpty();
     boolean emptyInitialImport = job.initialImport == null || job.initialImport.isEmpty();
 
-    if (emptyTrainedModelLocation || emptyTrainingName || emptyWormholeNamespace || emptyInitialImport) {
+    if (emptyTrainedModelLocation || emptyTrainingName || emptyAiProjectGroup || emptyWormholeNamespace || emptyInitialImport) {
       project.logger.lifecycle(
           "RequiredFieldsChecker ERROR: KabootarJob ${job.name} must set trainingModelLocation, " +
-              "trainingName, wormholeNamespace, initialImport");
+              "trainingName, aiProjectGroup, wormholeNamespace, initialImport. " +
+              "Please see the job documentation for more details.");
       foundError = true;
     }
   }

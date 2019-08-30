@@ -26,22 +26,21 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  * illustrate the DSL. Please check that these values are appropriate for your application. In the
  * DSL, a KabootarJob can be specified with:
  * <pre>
- *   KabootarJob('jobName') {
- *     usesTrainedModelLocation '/user/testmodelregsvc/trained-models' // Required
+ *   KabootarJob('jobName') {*     usesTrainedModelLocation '/user/testmodelregsvc/trained-models' // Required
  *     usesTrainingName 'AyeAyeCaptain'                       // Required
+ *     usesAiProjectGroup 'AIFoundationOther'                 // Required
  *     usesWormholeNamespace 'testmodelregsvc'                // Required
  *     usesInitialImport 'initial/import/File'                // Required
  *     usesTrainingID '53fe1ff5-4439-4288-be43-11cb11629552'  // Optional
  *     usesOrigin 'FELLOWSHIP'                                // Optional
  *     usesFramework 'PHOTON_CONNECT'                         // Optional
  *     usesModelSupplementaryDataLocation '/user/testmodelregsvc/trained-models-supplementary-data' // Optional
- *   }
- * </pre>
- */
+ *}* </pre>*/
 class KabootarJob extends HadoopJavaJob {
   // Required
   String trainedModelLocation;
   String trainingName;
+  String aiProjectGroup;
   String wormholeNamespace;
   String initialImport;
 
@@ -80,13 +79,14 @@ class KabootarJob extends HadoopJavaJob {
   KabootarJob clone(KabootarJob cloneJob) {
     cloneJob.trainedModelLocation = trainedModelLocation;
     cloneJob.trainingName = trainingName;
+    cloneJob.ai.project.group = aiProjectGroup;
     cloneJob.wormholeNamespace = wormholeNamespace;
     cloneJob.initialImport = initialImport;
     cloneJob.trainingID = trainingID;
     cloneJob.origin = origin;
     cloneJob.framework = framework;
     cloneJob.modelSupplementaryDataLocation = modelSupplementaryDataLocation;
-    return ((KabootarJob)super.clone(cloneJob));
+    return ((KabootarJob) super.clone(cloneJob));
   }
 
   /**
@@ -114,6 +114,19 @@ class KabootarJob extends HadoopJavaJob {
   }
 
   /**
+   * DSL usesAiProjectGroup method causes ai.project.group=value to be set in the job file.
+   *
+   * @param aiProjectGroup - This contains the project group at LinkedIn.
+   * The groups are used to connect related AI projects together.
+   * Currently, these project groups correspond to AI verticals.
+   */
+  @HadoopDslMethod
+  void usesAiProjectGroup(String aiProjectGroup) {
+    this.aiProjectGroup = aiProjectGroup;
+    setJobProperty("ai.project.group", aiProjectGroup);
+  }
+
+  /**
    * DSL usesWormholeNamespace method causes wormhole.namespace=value to be set in the job file.
    *
    * @param wormholeNamespace - Namespace in wormhole where the user wants packaged models to be copied.
@@ -136,7 +149,6 @@ class KabootarJob extends HadoopJavaJob {
     this.initialImport = initialImport;
     setJobProperty("initial.import", initialImport);
   }
-
 
   /**
    * DSL usesTrainingID method causes training.id=value to be set in the job file.
