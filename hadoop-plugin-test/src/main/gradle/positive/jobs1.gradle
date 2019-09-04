@@ -459,6 +459,17 @@ hadoop {
       depends 'job26'
     }
 
-    targets 'job27'
+    wormholePushJob2('job28') {
+      fromInputPath '/user/input'            // Required
+      toNamespace 'linkedin'                 // Required
+      toDataset 'model'                      // Required
+      withVersionString '1.2.4-2019.09.04'   // Optional
+      preserveInput true                     // Optional
+      toOutputLocation 'LOCAL'               // Optional
+
+      depends 'job27'
+    }
+
+    targets 'job28'
   }
 }
