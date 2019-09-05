@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.15.11
+* Adding WormholePushJob2 job type support
+
 0.15.10
 * Accept property "ai.project.group" for KabootarJob.
 

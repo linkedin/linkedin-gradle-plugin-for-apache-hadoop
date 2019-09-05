@@ -175,3 +175,6 @@ The following were contributed by Zhixiong Chen.
 
 The following were contributed by Sayali Kadam.
 * `Accept property 'ai.project.group' for KabootarJob`
+
+The following were contributed by Arjun Singh Bora.
+* `Add ability for Hadoop DSL to understand the WormholePushJob2 job type`
