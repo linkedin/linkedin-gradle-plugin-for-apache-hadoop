@@ -39,6 +39,7 @@ import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob2;
 
 /**
  * Defines a visitor pattern interface for the Hadoop DSL.
@@ -78,4 +79,5 @@ interface Visitor {
   void visitJob(VoldemortBuildPushJob job);
   void visitJob(WormholePushJob job);
   void visitJob(KabootarJob job);
+  void visitJob(WormholePushJob2 job);
 }

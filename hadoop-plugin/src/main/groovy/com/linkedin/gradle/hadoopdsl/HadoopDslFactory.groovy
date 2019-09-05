@@ -44,6 +44,7 @@ import com.linkedin.gradle.hadoopdsl.job.TonyJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob2;
 import com.linkedin.gradle.test.AssertionWorkflowExtension;
 import com.linkedin.gradle.test.TestExtension;
 
@@ -401,6 +402,16 @@ class HadoopDslFactory {
    */
   WormholePushJob makeWormholePushJob(String name) {
     return new WormholePushJob(name);
+  }
+
+  /**
+   * Factory method to build a WormholePushJob2.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  WormholePushJob2 makeWormholePushJob2(String name) {
+    return new WormholePushJob2(name);
   }
 
   /**

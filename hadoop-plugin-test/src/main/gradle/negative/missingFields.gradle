@@ -134,6 +134,10 @@ hadoop {
     kabootarJob('job27') {
       depends 'job26'
     }
-    targets 'job27'
+
+    wormholePushJob2('job28') {
+      depends 'job27'
+    }
+    targets 'job28'
   }
 }

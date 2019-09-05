@@ -41,6 +41,7 @@ import com.linkedin.gradle.hadoopdsl.job.TonyJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob2;
 import org.gradle.api.Project;
 
 /**
@@ -1139,6 +1140,19 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
   @HadoopDslMethod
   WormholePushJob wormholePushJob(String name, @DelegatesTo(WormholePushJob) Closure configure) {
     return ((WormholePushJob)configureJob(factory.makeWormholePushJob(name), configure));
+  }
+
+  /**
+   * DSL wormholePushJob2 method. Creates a wormholePushJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  WormholePushJob2 wormholePushJob2(String name, @DelegatesTo(WormholePushJob2) Closure configure) {
+    return ((WormholePushJob2)configureJob(factory.makeWormholePushJob2(name), configure));
   }
 
   /**

@@ -39,6 +39,7 @@ import com.linkedin.gradle.hadoopdsl.job.TensorFlowJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob2;
 
 /**
  * Interface that enables us to declare which DSL classes can declare a new scope (i.e. that have a
@@ -518,6 +519,16 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   WormholePushJob wormholePushJob(String name, @DelegatesTo(WormholePushJob) Closure configure);
+
+  /**
+   * DSL wormholePushJob2 method. Creates a WormholePushJob2 in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  WormholePushJob2 wormholePushJob2(String name, @DelegatesTo(WormholePushJob2) Closure configure);
 
   /**
    * DSL KabootarJob method. Creates a KabootarJob in scope with the given name and configuration.

@@ -39,6 +39,7 @@ import com.linkedin.gradle.hadoopdsl.job.TeradataToHdfsJob;
 import com.linkedin.gradle.hadoopdsl.job.VenicePushJob;
 import com.linkedin.gradle.hadoopdsl.job.VoldemortBuildPushJob;
 import com.linkedin.gradle.hadoopdsl.job.WormholePushJob;
+import com.linkedin.gradle.hadoopdsl.job.WormholePushJob2;
 import org.gradle.api.Project;
 
 /**
@@ -240,6 +241,18 @@ class RequiredFieldsChecker extends BaseStaticChecker {
 
     if (emptyInputPath || emptyNamespace || emptyDataset) {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: WormholePushJob ${job.name} must set inputPath, namespace and dataset");
+      foundError = true;
+    }
+  }
+
+  @Override
+  void visitJob(WormholePushJob2 job) {
+    boolean emptyInputPath = job.inputPath == null || job.inputPath.isEmpty();
+    boolean emptyNamespace = job.namespace == null || job.namespace.isEmpty();
+    boolean emptyDataset = job.dataset == null || job.dataset.isEmpty();
+
+    if (emptyInputPath || emptyNamespace || emptyDataset) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: WormholePushJob2 ${job.name} must set inputPath, namespace and dataset");
       foundError = true;
     }
   }
