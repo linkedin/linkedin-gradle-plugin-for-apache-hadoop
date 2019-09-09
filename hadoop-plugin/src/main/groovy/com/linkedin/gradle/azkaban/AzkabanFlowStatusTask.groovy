@@ -52,7 +52,7 @@ class AzkabanFlowStatusTask extends DefaultTask {
    */
   List<String> getSortedFlows(String sessionId) {
     // Fetch the project flows
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject, project)
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
