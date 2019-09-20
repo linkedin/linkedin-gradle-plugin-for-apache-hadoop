@@ -1,0 +1,66 @@
+//buildscript {
+//  repositories {
+//    jcenter()
+//  }
+//  dependencies {
+//    classpath files("${project.pluginTestDir}/hadoop-plugin-${project.version}.jar", "${project.pluginTestDir}/hadoop-plugin-${project.version}-SNAPSHOT.jar")
+//    // Must manually specify snakeyaml and quartz-scheduler for testing, not required for users
+//    classpath 'org.yaml:snakeyaml:1.18'
+//    classpath 'org.quartz-scheduler:quartz:2.2.1'
+//  }
+//}
+
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Simple flow for testing trigger creation
+
+hadoop {
+  buildPath "jobs/triggerFlow"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('triggerFlow') {
+    trigger('trigger') {
+      maxWaitMins 5
+      schedule {
+        value '0 0 1 ? * *'
+      }
+      daliDependency('search-impression') {
+        view 'search_mp_versioned.search_impression_event_0_0_47' // required
+        delay 1 // required
+        window 1 // required
+        unit 'daily' // required - must be either 'daily' or 'weekly'
+        ignoreLocation true // not required - must be either true or false
+      }
+      daliDependency('other-name') {
+        view 'another dataset'
+        delay 1
+        window 7
+        unit 'hourly'
+      }
+    }
+
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+}

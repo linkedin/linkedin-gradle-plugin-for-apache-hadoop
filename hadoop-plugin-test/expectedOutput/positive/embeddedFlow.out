@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_embeddedFlow
-Running test for the file positive/embeddedFlow.gradle
-Hadoop DSL static checker PASSED
-

@@ -1,0 +1,6 @@
+RequiredFieldsChecker WARNING: NoOpJob innerNoOpJob does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob noOpJob1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob noOpJob1 does not declare any dependencies. It won't do anything.
+WorkflowJobChecker WARNING: Workflow closuresWorkflow does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow closuresWorkflow does not contain any jobs or subflows. No job files will be built for this workflow.
+

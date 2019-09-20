@@ -1,0 +1,40 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test that the static checker catches a simple read-before-write race in a workflow.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('readWriteRace1') {
+    pigJob('job1') {
+      uses 'src/main/pig/pigScript.pig'
+      writes files: [
+        'foo' : '/data/databases/foo'
+      ]
+    }
+
+    pigJob('job2') {
+      uses 'src/main/pig/pigScript.pig'
+      reads files: [
+        'foo' : '/data/databases/foo'
+      ]
+      writes files: [
+        'bar' : '/data/databases/bar'
+      ]
+      depends 'job1'
+    }
+
+    pigJob('job3') {
+      uses 'src/main/pig/pigScript.pig'
+      reads files: [
+        'foo' : '/data/databases/foo',
+        'bar' : '/data/databases/bar'  // Reads bar, should job3 should depend on job2, but it does not.
+      ]
+      depends 'job1'
+    }
+
+    targets 'job2', 'job3'
+  }
+}

@@ -1,0 +1,7 @@
+WorkflowJobChecker WARNING: Workflow flow1 does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow flow1 does not contain any jobs or subflows. No job files will be built for this workflow.
+WorkflowJobChecker WARNING: Workflow flow2 does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow flow2 does not contain any jobs or subflows. No job files will be built for this workflow.
+JobDependencyChecker WARNING: The job job3 in the workflow subflowReadWriteRace1 reads the path /data/databases/bar that is written by the job job2, but does not have a direct or transitive dependency on this job. This is a potential read-before-write race condition.
+Hadoop DSL static checker PASSED
+

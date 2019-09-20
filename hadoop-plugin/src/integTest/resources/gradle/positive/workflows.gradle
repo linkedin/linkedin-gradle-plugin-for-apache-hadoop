@@ -1,0 +1,73 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Simple positive tests for workflows.
+
+workflow('workflowsWorkflow1') {
+  pigJob('job1') {
+    uses "src/main/pig/count_by_countryProd.pig"
+  }
+  targets 'job1'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('workflowsWorkflow2') {
+    pigJob('job1') {
+      uses 'src/main/pig/pigScript.pig'
+      reads files: [
+        'path1' : '/user/foo'
+      ]
+      writes files: [
+        'path2' : '/user/bar'
+      ]
+      set parameters: [
+        'param1' : 'val1'
+      ]
+    }
+
+    pigJob('job2') {
+      uses 'src/main/pig/pigScript.pig'
+    }
+
+    targets 'job1', 'job2'
+
+    // Test using the list syntax for the workflow targets method. This requires the use of parens.
+    targets(['job1', 'job2'])
+  }
+
+  addWorkflow('workflowsWorkflow1', 'workflowsWorkflow3') {
+    pigJob('job2') {
+      uses 'src/main/pig/pigScript.pig'
+      reads files: [
+        'path1' : '/user/foo'
+      ]
+      writes files: [
+        'path2' : '/user/bar'
+      ]
+      set parameters: [
+        'param1' : 'val1'
+      ]
+    }
+    targets clear: true, targetNames: ['job1', 'job2']
+  }
+
+  workflow('workflowsWorkflow4') {
+    pigJob('job1') {
+      uses 'src/main/pig/pigScript.pig'
+    }
+
+    propertyFile('propertyFile1') {
+      set properties: [
+        'myPropertyA' : 'valA',
+        'myPropertyB' : 'valB'
+      ]
+    }
+
+    // Don't target any jobs so that we can test generating the correct warning messages.
+    // targets 'job1'
+  }
+}

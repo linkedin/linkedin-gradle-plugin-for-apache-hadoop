@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_cloneSubflows
-Running test for the file positive/cloneSubflows.gradle
-Hadoop DSL static checker PASSED
-

@@ -1,3 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=noop
-dependencies=fullyQualifiedLookup2_job1,fullyQualifiedLookup2_job2

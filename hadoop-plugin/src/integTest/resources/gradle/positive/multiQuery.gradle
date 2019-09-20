@@ -1,0 +1,19 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Tests for HADOOP-7558. Tests multiple commands for a CommandJob.
+def commands = ['echo "hello"', 'echo "This is how one runs a command job"', 'whoami']
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('multiQuery') {
+    commandJob('commandJob1') {
+      usesCommands commands
+    }
+
+    targets 'commandJob1'
+  }
+}

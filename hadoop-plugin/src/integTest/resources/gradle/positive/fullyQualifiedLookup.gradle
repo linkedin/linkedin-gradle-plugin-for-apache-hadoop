@@ -1,0 +1,121 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Positive test case for doing fully-qualified name lookups.
+pigJob('job1') {
+  uses 'src/main/pig/pigScript.pig'
+}
+
+propertyFile('properties1') {
+  set properties: [
+    'myPropertyA' : 'valA',
+    'myPropertyB' : 'valB'
+  ]
+}
+
+workflow('fullyQualifiedLookup1') {
+  addJob('.job1', 'job1') {
+  }
+  addPropertyFile('.properties1', 'properties1') {
+  }
+  targets 'job1'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  addWorkflow('.fullyQualifiedLookup1', 'fullyQualifiedLookup1') {
+  }
+
+  workflow('fullyQualifiedLookup2') {
+    addJob('.job1', 'job1') {
+    }
+    addPropertyFile('.properties1', 'properties1') {
+    }
+    addJob('.fullyQualifiedLookup1.job1', 'job2') {
+    }
+    addPropertyFile('.fullyQualifiedLookup1.properties1', 'properties2') {
+    }
+    targets 'job1', 'job2'
+  }
+
+  workflow('fullyQualifiedLookup3') {
+    pigJob('job1') {
+      uses 'src/main/pig/sameName.pig'
+    }
+    targets 'job1'
+  }
+
+  propertyFile('fullyQualifiedLookupProperties2') {
+    set properties: [
+      'myPropertyC' : 'valC',
+      'myPropertyD' : 'valD'
+    ]
+  }
+
+  addWorkflow('.hadoop.fullyQualifiedLookup3', 'fullyQualifiedLookup4') {
+    addJob('.hadoop.fullyQualifiedLookup2.job1', 'job2') {
+    }
+    addPropertyFile('.hadoop.fullyQualifiedLookup2.properties1', 'properties1') {
+    }
+    addPropertyFile('.hadoop.fullyQualifiedLookupProperties2', 'properties2') {
+    }
+    targets 'job1', 'job2'
+  }
+}
+
+// Positive test case for doing qualified (and fully-qualified) name lookups.
+def foo1 = null;
+def foo2 = null;
+def bar1 = null;
+def bar2 = null;
+def bazz1 = null;
+def bazz2 = null;
+
+namespace("test") {
+  foo1 = namespace("foo") {
+    bar1 = namespace("bar") {
+      bazz1 = namespace("bazz") {
+      }
+    }
+
+    foo2 = namespace("foo") {
+      bar2 = namespace("bar") {
+        bazz2 = namespace("bazz") {
+        }
+      }
+
+      // In foo2's scope
+      assert(lookup("bar.bazz") == bazz2);
+      assert(lookup("foo.bar.bazz") == bazz2);
+      assert(lookup("test.foo.bar.bazz") == bazz1);
+      assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+      assert(lookup(".test.foo.bar.bazz") == bazz1);
+      assert(lookup(".test.foo.foo.bar.bazz") == bazz2);
+    }
+
+    // In foo1's scope
+    assert(lookup("bar.bazz") == bazz1);
+    assert(lookup("foo.bar.bazz") == bazz2);
+    assert(lookup("test.foo.bar.bazz") == bazz1);
+    assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+    assert(lookup(".test.foo.bar.bazz") == bazz1)
+    assert(lookup(".test.foo.foo.bar.bazz") == bazz2);;
+  }
+
+  // In hadoop scope
+  assert(lookup("foo.bar.bazz") == bazz1);
+  assert(lookup("foo.foo.bar.bazz") == bazz2);
+  assert(lookup("test.foo.bar.bazz") == bazz1);
+  assert(lookup("test.foo.foo.bar.bazz") == bazz2);
+  assert(lookup(".test.foo.bar.bazz") == bazz1);
+  assert(lookup(".test.foo.foo.bar.bazz") == bazz2);
+
+  // Check a couple of explicit bindings (after completing from foo1 and foo2's closures)
+  assert(foo1.scope.lookup("foo.foo.bar.bazz") == null);
+  assert(foo2.scope.lookup("foo.foo.bar.bazz") == null);
+  assert(foo1.scope.lookup("test.foo.foo.bar.bazz") == bazz2);
+  assert(foo2.scope.lookup("test.foo.foo.bar.bazz") == bazz2);
+}

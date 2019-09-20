@@ -1,0 +1,36 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test for the basic conditional workflow
+
+hadoop {
+  buildPath "jobs/conditionalFlow"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('conditionalFlow') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+      depends 'shellBash', 'shellPwd'
+      conditions 'all_done'
+    }
+
+    targets 'shellEcho'
+  }
+}

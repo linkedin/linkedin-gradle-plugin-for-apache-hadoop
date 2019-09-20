@@ -1,6 +1,0 @@
-:hadoop-plugin-test:test_loadPropsFlow
-Running test for the file positive/loadPropsFlow.gradle
-RequiredFieldsChecker WARNING: NoOpJob job2 does not declare any dependencies. It won't do anything.
-RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
-Hadoop DSL static checker PASSED
-

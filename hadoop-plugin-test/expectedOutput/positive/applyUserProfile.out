@@ -1,6 +1,0 @@
-:hadoop-plugin-test:test_applyUserProfile
-Running test for the file positive/applyUserProfile.gradle
-Could not find the Hadoop DSL profile file doesntExistFile.gradle in the path src/main/profiles. Ignoring this file.
-Could not find the Hadoop DSL profile file testProfile.gradle in the path doesntExistPath. Ignoring this file.
-Hadoop DSL static checker PASSED
-

@@ -1,0 +1,54 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Simple flow for testing yaml creation for Flow 2.0
+
+hadoop {
+  buildPath "jobs/namespacedFlows"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('basicFlow') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+
+  namespace('namespace1') {
+    addWorkflow('basicFlow') {
+      propertyFile('newProperties') {
+        set properties: [
+                'flow-level-parameter2' : 'value2'
+        ]
+      }
+    }
+  }
+
+  namespace('namespace2') {
+    addWorkflow('basicFlow') {
+      propertyFile('overwrittenProperties') {
+        set properties: [
+                'flow-level-parameter' : 'valueX'
+        ]
+      }
+    }
+  }
+}

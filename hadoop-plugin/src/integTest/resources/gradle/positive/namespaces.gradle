@@ -1,0 +1,91 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Positive test cases for namespaces
+
+namespace('namespace1') {
+  pigJob('pigJob1') {
+    uses 'src/main/pig/pigScript1.pig'
+  }
+
+  // Nested namespace
+  namespace('namespace1') {
+    pigJob('pigJob1') {
+      uses 'src/main/pig/pigScript1.pig'
+    }
+
+    // Doubly-nested namespace
+    namespace('namespace1') {
+      pigJob('pigJob1') {
+        uses 'src/main/pig/pigScript1.pig'
+      }
+    }
+  }
+}
+
+// Check that lookup finds the most nested job correctly
+lookup('.namespace1.namespace1.namespace1.pigJob1').script = 'src/main/pig/PIGSCRIPT1.pig'
+
+// Continue the previous namespace (and its child namespaces)
+namespace('namespace1') {
+  pigJob('pigJob2') {
+    uses 'src/main/pig/pigScript2.pig'
+  }
+
+  namespace('namespace1') {
+    pigJob('pigJob2') {
+      uses 'src/main/pig/pigScript2.pig'
+    }
+  }
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  // Check that the workflow and jobs under the namespace are built
+  namespace('namespace1') {
+    workflow('workflow1') {
+      pigJob('pigJob1') {
+        uses 'src/main/pig/pigScript1.pig'
+      }
+      targets 'pigJob1'
+    }
+
+    // Add a nested namespace and check that it is built
+    namespace('child') {
+      addWorkflow('.hadoop.namespace1.workflow1') {
+      }
+    }
+
+    // This job should not be built
+    pigJob('pigJob2') {
+      uses 'src/main/pig/pigScript2.pig'
+    }
+  }
+
+  // Continue the previous namespace (and its child namespaces)
+  namespace('namespace1') {
+    namespace('child') {
+      workflow('workflow2') {
+        pigJob('pigJob2') {
+          uses 'src/main/pig/pigScript2.pig'
+        }
+        targets 'pigJob2'
+      }
+    }
+  }
+
+  // Verify cloning works
+  addNamespace('namespace1', 'namespace2') {
+    // Check that lookup finds the most nested job correctly
+    lookup('child') {
+      lookup('workflow1') {
+        lookup('pigJob1') {
+          uses 'src/main/pig/PIGSCRIPT1.pig'
+        }
+      }
+    }
+  }
+}

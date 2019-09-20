@@ -1,3 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=noop
-dependencies=propertySetWorkflow1_pigJob1,propertySetWorkflow1_pigJob2,propertySetWorkflow1_javaProcessJob1

@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_embeddedConditionalFlow
-Running test for the file positive/embeddedConditionalFlow.gradle
-Hadoop DSL static checker PASSED
-

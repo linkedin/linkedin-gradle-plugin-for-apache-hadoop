@@ -1,3 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=noop
-dependencies=closure2_workflow1_pigJob1

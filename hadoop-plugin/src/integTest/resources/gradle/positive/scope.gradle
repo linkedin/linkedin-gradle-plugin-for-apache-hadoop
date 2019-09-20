@@ -1,0 +1,65 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Positive test case to support proper scoping in the DSL. You should be able to redefine DSL
+// elements within a nested scope that "hide" the element defined in the parent scope.
+
+noOpJob('job1') {
+}
+
+propertyFile('scopeProperties1') {
+  set properties: [
+    'myPropertyA' : 'valA',
+    'myPropertyB' : 'valB'
+  ]
+}
+
+workflow('scopeWorkflow1') {
+  // Inner job1 hides job1 declared in global scope
+  pigJob('job1') {
+    uses 'src/main/pig/pigScript.pig'
+  }
+
+  // Inner scopeProperties1 hides scopeProperties1 declared in global scope
+  propertyFile('scopeProperties1') {
+    set properties: [
+      'myPropertyC' : 'valC',
+      'myPropertyD' : 'valD'
+    ]
+  }
+
+  targets 'job1'
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  // Inner scopeProperties1 hides scopeProperties1 declared in global scope
+  propertyFile('scopeProperties1') {
+    set properties: [
+      'myPropertyE' : 'valE',
+      'myPropertyF' : 'valF'
+    ]
+  }
+
+  // Inner scopeWorkflow1 hides scopeWorkflow1 declared in global scope
+  workflow('scopeWorkflow1') {
+
+    // Inner job1 hides job1 declared in global scope
+    pigJob('job1') {
+      uses 'src/main/pig/sameName.pig'
+    }
+
+    // Inner scopeProperties1 hides scopeProperties1 declared in hadoop scope
+    propertyFile('scopeProperties1') {
+      set properties: [
+        'myPropertyG' : 'valG',
+        'myPropertyH' : 'valH'
+      ]
+    }
+
+    targets 'job1'
+  }
+}

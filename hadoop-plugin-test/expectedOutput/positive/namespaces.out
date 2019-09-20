@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_namespaces
-Running test for the file positive/namespaces.gradle
-Hadoop DSL static checker PASSED
-

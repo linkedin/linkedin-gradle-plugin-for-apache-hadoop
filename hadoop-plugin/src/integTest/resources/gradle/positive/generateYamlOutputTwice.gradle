@@ -1,0 +1,35 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test setting `generateYamlOutput` twice
+
+hadoop {
+  buildPath "jobs/generateYamlOutputTwice"
+  cleanPath false
+
+  generateYamlOutput false
+  generateYamlOutput true
+
+  workflow('basicFlow') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+}

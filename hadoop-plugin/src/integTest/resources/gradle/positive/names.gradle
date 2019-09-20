@@ -1,0 +1,26 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+// Positive test for explicit name resolution in the DSL. This feature allows you to specify named
+// elements in the DSL with string names and define them later. For example, in the workflow below
+// we specify that the workflow names1 targets job1 before job1 is defined. At build time, all of
+// the names get resolved.
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('names1') {
+    // job1 is not defined yet
+    targets 'job1'
+
+    // Now job1 is defined, but job2 is not defined yet
+    noOpJob('job1') {
+      depends 'job2'
+    }
+
+    // Now both job1 and job2 are defined - at build time, everything will resolve correctly
+    noOpJob('job2') {
+    }
+  }
+}

@@ -1,0 +1,48 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test for the embedded conditional workflow
+
+hadoop {
+  buildPath "jobs/embeddedConditionalFlow"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('embeddedConditionalFlow') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    workflow('embeddedFlow') {
+      groupJobs true
+      flowDepends 'shellBash', 'shellPwd'
+      conditions 'one_success'
+
+      commandJob('shellPwd') {
+        uses 'pwd'
+      }
+
+      commandJob('shellEcho') {
+        uses 'echo "This is an echo job inside embeddedFlow."'
+        depends 'shellPwd'
+        conditions 'all_done'
+      }
+
+      targets 'shellEcho'
+    }
+
+    targets 'embeddedFlow'
+  }
+}

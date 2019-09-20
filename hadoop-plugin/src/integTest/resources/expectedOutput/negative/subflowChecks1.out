@@ -1,0 +1,10 @@
+WorkflowJobChecker ERROR: Workflow subflowChecks1 declares that it targets subflowChecks0, but this target does not exist in the workflow.
+WorkflowJobChecker WARNING: Workflow subflowChecks1 does not contain any jobs or subflows. No job files will be built for this workflow.
+WorkflowJobChecker WARNING: Workflow subflowChecks1 declares the flow dependency targets [job1], but is not itself a subflow. The flow dependencies will be ignored.
+WorkflowJobChecker ERROR: Workflow subflowChecks2 contains the subflow flow1 that declares itself as a flow dependency target.
+WorkflowJobChecker WARNING: Workflow flow1 does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow flow1 does not contain any jobs or subflows. No job files will be built for this workflow.
+WorkflowJobChecker ERROR: Workflow subflowChecks3 contains the subflow flow1 that declares the flow dependency target job2, but this target does not exist in the workflow.
+WorkflowJobChecker WARNING: Workflow flow1 does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow flow1 does not contain any jobs or subflows. No job files will be built for this workflow.
+WorkflowJobChecker WARNING: Workflow subflowChecks4 contains the subflow flow1 that is not targeted by the workflow and is not a transitive dependency of the workflow targets. This subflow will not be built.

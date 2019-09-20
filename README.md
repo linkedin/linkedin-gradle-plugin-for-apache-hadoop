@@ -92,8 +92,7 @@ The project structure is setup as follows:
   * `azkaban-client`: Code to work with Azkaban via the Azkaban REST API
   * `example-project`: Example project that uses the Hadoop Plugin and DSL to build an example Azkaban workflow
   * `hadoop-jobs`: Code for re-usable Hadoop jobs and implementations of Hadoop DSL job types 
-  * `hadoop-plugin`: Code for the various plugins that comprise the Hadoop Plugin
-  * `hadoop-plugin-test`: Test cases for the Hadoop Plugin
+  * `hadoop-plugin`: Code and tests for the various plugins that comprise the Hadoop Plugin
   * `li-hadoop-plugin`: LinkedIn-specific extensions to the Hadoop Plugin
   * `li-hadoop-plugin-test`: Test cases for the LinkedIn-specific extensions to the Hadoop Plugin
 
@@ -105,6 +104,11 @@ organization (and to make sure our open-source contributions don't break the Lin
 
 To build the Plugin and run the test cases, run `./gradlew build` from the top-level project directory.
 
-To see all the test tasks, run `./gradlew tasks` from the top-level project directory. You can run
-an individual test with `./gradlew test_testName`. You can also run multiple tests by running
-`./gradlew test_testName1 ... test_testNameN`.
+##### Unit tests
+
+Unit tests are invoked by running `./gradlew :hadoop-plugin:test`.  Individual tests may be executed using 
+`./gradlew :hadoop-plugin:test --tests="com.linkedin.gradle.zip.HadoopZipTest"`.
+
+##### Integration tests
+
+Integration tests are invoked by running `./gradlew :hadoop-plugin:integTest`, or by running the `check` task.

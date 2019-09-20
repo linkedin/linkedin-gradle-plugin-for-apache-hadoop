@@ -1,0 +1,20 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Negative test case to support proper scoping in the DSL. You should not be able to redefine
+// DSL elements in the same scope.
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('workflow1') {
+    propertyFile('properties1') {
+    }
+
+    // Error! You can't redefine properties1 in workflow scope!
+    propertyFile('properties1') {
+    }
+  }
+}

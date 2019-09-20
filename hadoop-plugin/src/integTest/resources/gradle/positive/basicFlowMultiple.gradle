@@ -1,0 +1,56 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Two simple flows for testing yaml creation for Flow 2.0
+
+hadoop {
+  buildPath "jobs/basicFlowMultiple"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('basicFlow1') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+
+  workflow('basicFlow2') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+}

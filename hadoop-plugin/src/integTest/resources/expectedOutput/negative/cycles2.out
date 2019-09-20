@@ -1,0 +1,1 @@
+JobDependencyChecker ERROR: workflow cycles2 has a dependency cycle: job1->job4->job2->job1. The workflow dependencies must form a directed, acyclic graph.

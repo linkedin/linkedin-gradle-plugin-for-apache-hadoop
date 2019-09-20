@@ -1,4 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=flow
-dependencies=cloneSubflows2_flow1_flow2
-flow.name=cloneSubflows2_flow1_flow3

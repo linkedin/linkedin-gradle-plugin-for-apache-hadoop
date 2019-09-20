@@ -1,5 +1,6 @@
 plugins {
   id 'groovy'
+  id 'java-gradle-plugin'
   id 'com.gradle.plugin-publish' version '0.9.7'
   id 'com.jfrog.bintray' version '1.7'
   id 'eclipse'
@@ -25,6 +26,12 @@ sourceSets {
   test {
     compileClasspath+=configurations.provided
     runtimeClasspath+=configurations.provided
+  }
+  integTest {
+    groovy.srcDir file('src/integTest/groovy')
+    resources.srcDir file('src/integTest/resources')
+    compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+    runtimeClasspath += output + compileClasspath
   }
 }
 
@@ -53,7 +60,21 @@ dependencies {
 
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-core:2.10.0'
+
+  integTestCompile 'org.spockframework:spock-core:1.3-groovy-2.4@jar'
 }
+
+// This snippet should correctly mark the src/integTest/groovy folder as a green "Test Sources Root"
+// It is not working correctly with Gradle 4.1, but does not affect CLI builds.
+// See https://youtrack.jetbrains.com/issue/IDEA-151925?_ga=2.216610838.1699177374.1568948022-506133012.1554848156#comment=27-2355076
+//idea {
+//  module {
+//    testSourceDirs += project.sourceSets.integTest.groovy.srcDirs
+//    testSourceDirs += project.sourceSets.integTest.resources.srcDirs
+//    scopes.TEST.plus += configurations.integTestCompile
+//    scopes.TEST.plus += configurations.integTestRuntime
+//  }
+//}
 
 task groovydocJar(type: Jar, dependsOn: groovydoc) {
   description = 'An archive of the GroovyDocs for the Hadoop Gradle Plugin'
@@ -71,6 +92,16 @@ artifacts {
   archives groovydocJar
   archives sourceJar
 }
+
+task integTest(type: Test) {
+  description = 'Runs the integration tests.'
+  group = 'verification'
+  testClassesDirs = sourceSets.integTest.output.classesDirs
+  classpath = sourceSets.integTest.runtimeClasspath
+  mustRunAfter test
+}
+
+check.dependsOn integTest
 
 // Configuration for uploading to plugins.gradle.org
 pluginBundle {

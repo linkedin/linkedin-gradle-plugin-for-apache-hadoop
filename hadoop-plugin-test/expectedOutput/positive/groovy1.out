@@ -1,6 +1,0 @@
-:hadoop-plugin-test:test_groovy1
-Running test for the file positive/groovy1.gradle
-RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
-RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
-Hadoop DSL static checker PASSED
-

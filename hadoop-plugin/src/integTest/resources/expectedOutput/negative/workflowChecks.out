@@ -1,0 +1,2 @@
+WorkflowJobChecker ERROR: Workflow workflowChecks1 declares that it targets job2, but this target does not exist in the workflow.
+WorkflowJobChecker ERROR: Workflow workflowChecks2 contains the job job1 that declares that target job2, but this target does not exist in the workflow.
