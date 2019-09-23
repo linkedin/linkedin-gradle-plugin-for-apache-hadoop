@@ -46,12 +46,11 @@ class AzkabanCreateProjectTask extends DefaultTask {
    * @param sessionId The Azkaban session ID. If this is null, an attempt will be made to login to Azkaban.
    */
   void createAzkabanProject(String sessionId) {
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject, project)
 
-    def console = AzkabanHelper.getSystemConsole();
-    String input = AzkabanHelper.consoleInput(console, " > Enter Azkaban project description: ", true);
+    String input = AzkabanHelper.consoleInput(project, " > Enter Azkaban project description: ")
     while (input.isEmpty()) {
-      input = AzkabanHelper.consoleInput(console, "Enter non-empty Azkaban project description: ", false);
+      input = AzkabanHelper.consoleInput(project, "Enter non-empty Azkaban project description: ")
     }
 
     String response = AzkabanClient.createProject(azkProject.azkabanUrl, azkProject.azkabanProjName, input, sessionId);

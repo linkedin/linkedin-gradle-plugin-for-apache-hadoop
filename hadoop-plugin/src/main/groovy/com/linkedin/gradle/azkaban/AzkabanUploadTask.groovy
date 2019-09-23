@@ -62,7 +62,7 @@ class AzkabanUploadTask extends DefaultTask {
    * @param sessionId The Azkaban session id. If this is null, an attempt will be made to login to Azkaban.
    */
   void authenticateAndUploadToAzkaban(String sessionId) {
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject, project)
     createProjectAndUpload(sessionId);
   }
 
