@@ -79,7 +79,7 @@ class KabootarJob extends HadoopJavaJob {
   KabootarJob clone(KabootarJob cloneJob) {
     cloneJob.trainedModelLocation = trainedModelLocation;
     cloneJob.trainingName = trainingName;
-    cloneJob.ai.project.group = aiProjectGroup;
+    cloneJob.aiProjectGroup = aiProjectGroup;
     cloneJob.wormholeNamespace = wormholeNamespace;
     cloneJob.initialImport = initialImport;
     cloneJob.trainingID = trainingID;

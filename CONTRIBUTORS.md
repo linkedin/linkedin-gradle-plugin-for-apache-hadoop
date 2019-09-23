@@ -178,3 +178,6 @@ The following were contributed by Sayali Kadam.
 
 The following were contributed by Arjun Singh Bora.
 * `Add ability for Hadoop DSL to understand the WormholePushJob2 job type`
+
+The following were contributed by Sayali Kadam.
+* `Fixing property aiProjectGroup while cloning Kabootar Job`
