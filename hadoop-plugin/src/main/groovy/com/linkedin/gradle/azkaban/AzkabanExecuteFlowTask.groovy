@@ -48,7 +48,7 @@ class AzkabanExecuteFlowTask extends DefaultTask {
    */
   void executeAzkabanFlow(String sessionId) {
     // Fetch the project flows
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject, project)
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
@@ -102,12 +102,14 @@ class AzkabanExecuteFlowTask extends DefaultTask {
    *
    * @return Set of entered indices corresponding to flows
    */
-  private Set<String> getFlowIndicesInput() {
-    String input = AzkabanHelper.consoleInput(project, " > Enter indices of flows to be executed > ")
+  static Set<String> getFlowIndicesInput() {
+    def console = AzkabanHelper.getSystemConsole();
+
+    String input = AzkabanHelper.consoleInput(console, " > Enter indices of flows to be executed > ", true);
     Set<String> indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
 
     while (!input.trim().length() || indexSet.isEmpty()) {
-      input = AzkabanHelper.consoleInput(project, "> Enter correct indices of flows to be executed > ")
+      input = AzkabanHelper.consoleInput(console, "> Enter correct indices of flows to be executed > ", true);
       indexSet = new HashSet<String>(Arrays.asList(input.split("\\D+")));
     }
 
