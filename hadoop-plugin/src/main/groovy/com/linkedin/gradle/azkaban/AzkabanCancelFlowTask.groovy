@@ -50,7 +50,7 @@ class AzkabanCancelFlowTask extends DefaultTask {
    */
   void cancelRunningAzkabanFlow(String sessionId) {
     // Fetch the project flows
-    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject, project)
+    sessionId = AzkabanHelper.resumeOrGetSession(sessionId, azkProject);
     String fetchFlowsResponse = AzkabanClient.fetchProjectFlows(azkProject.azkabanUrl, azkProject.azkabanProjName, sessionId);
 
     if (fetchFlowsResponse.toLowerCase().contains("error")) {
@@ -103,7 +103,8 @@ class AzkabanCancelFlowTask extends DefaultTask {
       printStatus(flows, responseList);
 
       // Get exec ID's to kill
-      String input = AzkabanHelper.consoleInput(project, " > Enter ID's of executions to be killed: ")
+      def console = AzkabanHelper.getSystemConsole();
+      String input = AzkabanHelper.consoleInput(console, " > Enter ID's of executions to be killed: ", true);
 
       if (input.isEmpty()) {
         logger.error("Nothing entered, exiting...");

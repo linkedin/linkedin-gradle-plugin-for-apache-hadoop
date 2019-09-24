@@ -144,6 +144,8 @@ class AzkabanHelper {
    * @return Whether or not to save the updated fields to the .azkabanPlugin.json file
    */
   static boolean configureTask(AzkabanProject azkProject, Project project) {
+    def console = getSystemConsole()
+
     logger.lifecycle("Entering interactive mode. You can use the -PskipInteractive command line parameter to skip interactive mode and ONLY read from the .azkabanPlugin.json file.\n");
     logger.lifecycle("Azkaban Project Name: ${azkProject.azkabanProjName}");
     logger.lifecycle("Azkaban URL: ${azkProject.azkabanUrl}");
@@ -160,29 +162,29 @@ class AzkabanHelper {
         || azkProject.azkabanUserName.isEmpty()
         || azkProject.azkabanZipTask.isEmpty());
       if (!mustUpdate) {
-        input = consoleInput(project, " > Want to change any of the above? [y/N]: ")
+        input = consoleInput(console, " > Want to change any of the above? [y/N]: ", true);
       }
 
       if (input.equalsIgnoreCase("y")) {
-        input = consoleInput(project, "${mustUpdate ? ' > ' : ''}New Azkaban project name ${azkProject.azkabanProjName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanProjName}']" }: ")
+        input = consoleInput(console, "${mustUpdate ? ' > ' : ''}New Azkaban project name ${azkProject.azkabanProjName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanProjName}']" }: ", mustUpdate);
         while (azkProject.azkabanProjName.isEmpty() && input.isEmpty()) {
-          input = consoleInput(project, "New Azkaban project name (nonempty): ")
+          input = consoleInput(console, "New Azkaban project name (nonempty): ", false);
         }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanProjName = input.toString();
         }
 
-        input = consoleInput(project, "New Azkaban URL ${azkProject.azkabanUrl.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUrl}']"}: ")
+        input = consoleInput(console, "New Azkaban URL ${azkProject.azkabanUrl.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUrl}']"}: ", false);
         while (azkProject.azkabanUrl.isEmpty() && input.isEmpty()) {
-          input = consoleInput(project, "New Azkaban URL (nonempty): ")
+          input = consoleInput(console, "New Azkaban URL (nonempty): ", false);
         }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUrl = input.toString();
         }
 
-        input = consoleInput(project, "New Azkaban user name ${azkProject.azkabanUserName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUserName}']"}: ")
+        input = consoleInput(console, "New Azkaban user name ${azkProject.azkabanUserName.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanUserName}']"}: ", false);
         while (azkProject.azkabanUserName.isEmpty() && input.isEmpty()) {
-          input = consoleInput(project, "New Azkaban user name (nonempty): ")
+          input = consoleInput(console, "New Azkaban user name (nonempty): ", false);
         }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanUserName = input.toString();
@@ -193,16 +195,16 @@ class AzkabanHelper {
         showConfiguredHadoopZips(project);
         logger.lifecycle("(You can also enter the name of any other Gradle Zip task whose zip you want upload to Azkaban)\n");
 
-        input = consoleInput(project, " > New Azkaban Zip task ${azkProject.azkabanZipTask.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanZipTask}']"}: ")
+        input = consoleInput(console, " > New Azkaban Zip task ${azkProject.azkabanZipTask.isEmpty() ? '' : "[enter to accept '${azkProject.azkabanZipTask}']"}: ", true);
         while (azkProject.azkabanZipTask.isEmpty() && input.isEmpty()) {
-          input = consoleInput(project, "New Azkaban Zip task (nonempty): ")
+          input = consoleInput(console, "New Azkaban Zip task (nonempty): ", false);
         }
         if (input != null && !input.isEmpty()) {
           azkProject.azkabanZipTask = input.toString();
         }
 
         if (azkProject.azkabanPassword != null) {
-          char[] password = consoleSecretInput(project, "New Azkaban password ${azkProject.azkabanPassword.isEmpty() ? '' : "[enter to accept current password]"}: ")
+          char[] password = consoleSecretInput(console, "New Azkaban password ${azkProject.azkabanPassword.isEmpty() ? '' : "[enter to accept current password]"}: ", false);
           if (password != null && !password.length > 0) {
             azkProject.azkabanPassword = password.toString();
           }
@@ -210,7 +212,7 @@ class AzkabanHelper {
           Arrays.fill(password, ' ' as char);
         }
 
-        input = consoleInput(project, "Save these changes to the .azkabanPlugin.json file? [Y/n]: ")
+        input = consoleInput(console, "Save these changes to the .azkabanPlugin.json file? [Y/n]: ", false);
         return !input.equalsIgnoreCase("n");
       }
     } catch (IOException ex) {
@@ -221,22 +223,8 @@ class AzkabanHelper {
   }
 
   /**
-   * Helper routine to read input from the system console via Gradle's bundled ant instance.
-   *
-   * @param project The Gradle {@link Project} reference
-   * @param message Message to be printed for taking input
-   * @return The trimmed input
-   */
-  static String consoleInput(Project project, String message) {
-    project.ant.input(message: message, addProperty: 'userInput')
-
-    return project.ant.userInput.trim()
-  }
-
-  /**
    * Helper routine to read input from the system console.
    *
-   * @deprecated using stdin across multiple JVMs is problematic
    * @param console The system console instance
    * @param message Message to be printed for taking input
    * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
@@ -254,28 +242,11 @@ class AzkabanHelper {
   }
 
   /**
-   * Helper routine to read a secret password from the system console via Gradle's bundled ant instance.
-   * <p>
-   * After calling this method, do Arrays.fill(password, ' ' as char) on the result to clear the
-   * returned array as soon as it is used.
-   *
-   * @param console The system console instance
-   * @param message Message to be printed for taking input
-   * @return The secret password
-   */
-  static char[] consoleSecretInput(Project project, String message) {
-    project.ant.input(message: message, addProperty: 'passwd').handler(type: 'secure')
-
-    return project.ant.passwd
-  }
-
-  /**
    * Helper routine to read a secret password from the system console.
    * <p>
    * After calling this method, do Arrays.fill(password, ' ' as char) on the result to clear the
    * returned array as soon as it is used.
    *
-   * @deprecated using stdin across multiple JVMs is problematic
    * @param console The system console instance
    * @param message Message to be printed for taking input
    * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
@@ -351,7 +322,6 @@ class AzkabanHelper {
    *
    * @return The system console
    * @throws Exception if the system console cannot be accessed
-   * @deprecated using stdin across multiple JVMs is problematic
    */
   static Console getSystemConsole() throws Exception {
     def console = System.console()
@@ -471,11 +441,10 @@ class AzkabanHelper {
    * Generates an Azkaban session ID in case it is previously null by logging in to Azkaban.
    *
    * @param sessionId Current Azkaban session ID
-   * @param azkProject Bean containing existing session info (?)
-   * @param project The Gradle Project
+   * @param azkProject The Gradle Project
    * @return The updated session ID
    */
-  static String resumeOrGetSession(String sessionId, AzkabanProject azkProject, Project project) throws GradleException {
+  static String resumeOrGetSession(String sessionId, AzkabanProject azkProject) throws GradleException {
     // If no previous session is available, obtain a session id from server by sending login credentials.
     if (sessionId == null) {
       logger.lifecycle("No previous session found. Logging into Azkaban.\n");
@@ -486,8 +455,7 @@ class AzkabanHelper {
 
       if (azkProject.azkabanPassword == null) {
         def console = getSystemConsole();
-//        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter ${passwordString}: ", true));
-        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(project, " > Enter ${passwordString}: "))
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter ${passwordString}: ", true));
       } else {
         logger.lifecycle("Azkaban ${passwordString}: *********");
         sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, azkProject.azkabanPassword.toCharArray());
