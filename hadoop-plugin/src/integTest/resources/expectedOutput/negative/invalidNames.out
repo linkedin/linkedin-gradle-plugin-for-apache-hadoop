@@ -1,0 +1,10 @@
+ValidNameChecker ERROR: The Hadoop definitionSet   has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The Hadoop definitionSet invalid name has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The workflow invalid_Names has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The job null has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The job  has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The job   has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The job job1# has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The job job 2 has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The namespace null has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.
+ValidNameChecker ERROR: The namespace   has an invalid name. Names of objects declared in the DSL must be non-empty and consist of alphanumeric characters plus hyphens. Spaces or underscores are not allowed.

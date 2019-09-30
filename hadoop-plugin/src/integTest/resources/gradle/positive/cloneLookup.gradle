@@ -1,0 +1,119 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Positive test case for using the clone-lookup pattern.
+
+pigJob('job1') {
+  uses 'src/main/pig/pigScript.pig'
+}
+
+addJob('job1', 'job1Clone') {
+  uses 'src/main/pig/pigScriptClone.pig'
+}
+
+lookup('job1Clone') {
+  uses 'src/main/pig/sameName.pig'
+}
+
+propertyFile('properties1') {
+  set confProperties: [
+    'mapred.property1' : 'value1',
+    'mapred.property2' : 'value2'
+  ]
+  set jvmProperties: [
+    'jvmProperty1' : 'jvm1',
+    'jvmProperty2' : 'jvm2'
+  ]
+  set properties: [
+    'myPropertyA' : 'valA',
+    'myPropertyB' : 'valB'
+  ]
+}
+
+addPropertyFile('properties1', 'properties1Clone') {
+  set properties: [
+    'myPropertyB' : 'valBUpdate'
+  ]
+}
+
+lookup('properties1Clone') {
+  set confProperties: [
+    'mapred.property1' : 'value1Update'
+  ]
+  set jvmProperties: [
+    'jvmProperty1' : 'jvm1Update'
+  ]
+  set properties: [
+    'myPropertyC' : 'valC'
+  ]
+}
+
+workflow('cloneLookup1') {
+  addJob('job1Clone', 'job1') {
+    set parameters: [
+      'param1' : 'val1'
+    ]
+  }
+
+  addJob('job1', 'job2') {
+    uses 'src/main/pig/pigScript.pig'
+    set parameters: [
+      'param2' : 'val2'
+    ]
+    depends 'job1'
+  }
+
+  targets 'job2'
+}
+
+addWorkflow('cloneLookup1', 'cloneLookup1Clone') {
+  addPropertyFile('properties1Clone', 'properties1') {
+    set confProperties: [
+      'mapred.property2' : 'value2Update',
+      'mapred.property3' : 'value3'
+    ]
+    set jvmProperties: [
+      'jvmProperty2' : 'jvm2Update',
+      'jvmProperty3' : 'jvm3',
+    ]
+    set properties: [
+      'myPropertyC' : 'valCUpdate',
+      'myPropertyD' : 'valD'
+    ]
+  }
+}
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  addWorkflow('cloneLookup1Clone', 'cloneLookup2') {
+    lookup('job1') {
+      set parameters: [
+        'bar' : 'bazz'
+      ]
+    }
+
+    lookup('job2') {
+      set parameters: [
+        'param3' : 'val3'
+      ]
+    }
+
+    lookup('properties1') {
+      set confProperties: [
+        'mapred.property3' : 'value3Update',
+        'mapred.property4' : 'value4'
+      ]
+      set jvmProperties: [
+        'jvmProperty3' : 'jvm3Update',
+        'jvmProperty4' : 'jvm4',
+      ]
+      set properties: [
+        'myPropertyE' : 'valEUpdate',
+        'myPropertyF' : 'valF'
+      ]
+    }
+  }
+}

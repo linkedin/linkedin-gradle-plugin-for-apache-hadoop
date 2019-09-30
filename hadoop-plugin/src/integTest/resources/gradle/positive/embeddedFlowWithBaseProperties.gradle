@@ -1,0 +1,28 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test an embedded flow with base properties set in the job for Flow 2.0
+
+hadoop {
+  buildPath "jobs/embeddedFlowWithBaseProperties"
+  cleanPath false
+
+  generateYamlOutput true
+
+  workflow('embeddedFlow') {
+    propertySet('common') {
+      set properties: ['user.to.proxy' : 'foo']
+    }
+
+    workflow('embeddedFlow1') {
+      commandJob('shellEcho') {
+        baseProperties 'common'
+        uses 'echo "This is an echoed text from embeddedFlow1."'
+      }
+      targets 'shellEcho'
+    }
+
+    targets 'embeddedFlow1'
+  }
+}

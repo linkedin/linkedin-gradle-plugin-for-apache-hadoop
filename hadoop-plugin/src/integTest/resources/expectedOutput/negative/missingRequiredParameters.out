@@ -1,0 +1,2 @@
+RequiredParametersChecker ERROR: Job missingRequiredParametersWorkflow1/job2 requires parameter b, but it is not set.
+RequiredParametersChecker ERROR: Job missingRequiredParametersWorkflow1/job2 requires parameter c, but it is not set.

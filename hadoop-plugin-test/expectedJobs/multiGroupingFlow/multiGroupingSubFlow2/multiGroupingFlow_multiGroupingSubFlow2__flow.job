@@ -1,4 +1,0 @@
-# This file generated from the Hadoop DSL. Do not edit by hand.
-type=flow
-dependencies=multiGroupingFlow_job1,multiGroupingFlow_multiGroupingSubFlow1__flow
-flow.name=multiGroupingFlow_multiGroupingSubFlow2

@@ -181,3 +181,7 @@ The following were contributed by Arjun Singh Bora.
 
 The following were contributed by Sayali Kadam.
 * `Fixing property aiProjectGroup while cloning Kabootar Job`
+
+[Kyle Moore](https://www.linkedin.com/in/dpukyle/) ([DPUkyle](https://github.com/DPUkyle)) contributed the following:
+* `Refactored Hadoop DSL "tests" into proper integration tests using Gradle TestKit`
+

@@ -1,1 +1,0 @@
--- Test Pig script

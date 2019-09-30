@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_flowWithVariableSubstitution
-Running test for the file positive/flowWithVariableSubstitution.gradle
-Hadoop DSL static checker PASSED
-

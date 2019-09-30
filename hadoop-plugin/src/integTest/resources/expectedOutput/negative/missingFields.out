@@ -1,0 +1,48 @@
+JavaJob has been deprecated in favor of HadoopJavaJob or JavaProcessJob. Please change the job job5 to one of these classes.
+RequiredFieldsChecker ERROR: CommandJob job2 must set command or commands
+RequiredFieldsChecker ERROR: HadoopJavaJob job3 must set jobClass
+RequiredFieldsChecker ERROR: HiveJob job4 must set script
+RequiredFieldsChecker ERROR: JavaJob job5 must set jobClass
+RequiredFieldsChecker ERROR: JavaProcessJob job6 must set javaClass
+RequiredFieldsChecker ERROR: KafkaPushJob job7 must set inputPath
+RequiredFieldsChecker ERROR: KafkaPushJob job7 must set topic
+RequiredFieldsChecker ERROR: PigJob job9 must set script
+RequiredFieldsChecker ERROR: SparkJob job10 must set executes
+RequiredFieldsChecker ERROR: SparkJob job10Jar1 must set uses for Java application
+RequiredFieldsChecker ERROR: SparkJob job10Jar2 must set uses for Java application
+RequiredFieldsChecker ERROR: SparkJob job10Py must not set uses for Python application
+RequiredFieldsChecker ERROR: VoldemortBuildPushJob job11 has the following required fields: storeName, clusterName, buildInputPath, buildOutputPath, storeOwners, storeDesc
+RequiredFieldsChecker ERROR: HadoopShellJob job12 must set command or commands
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: hostName
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: userId
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: targetTable
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either credentialName or encryptedCredential defined
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 needs either avroSchemaPath or avroSchemaInline defined
+RequiredFieldsChecker ERROR: HdfsToTeradataJob job13 has the following required fields: sourceHdfsPath
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: hostName
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: userId
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 has the following required fields: targetHdfsPath
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either credentialName or encryptedCredential defined
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either sourceTable or sourceQuery defined
+RequiredFieldsChecker ERROR: TeradataToHdfsJob job14 needs either avroSchemaPath or avroSchemaInline defined
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following error: qps should be a positive number
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: sourceHdfsPath
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoEndpoint
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoDatabaseName
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoTableName
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoContentType
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoKey
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: espressoOperation
+RequiredFieldsChecker ERROR: HdfsToEspressoJob job15 has the following required fields: errorHdfsPath
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUrl
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcUserId
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcEncryptedCredential
+RequiredFieldsChecker ERROR: SqlJob job17 has the following required fields: jdbcCryptoKeyPath
+RequiredFieldsChecker ERROR: PinotBuildAndPushJob job18 must set tableName, inputPath, and pushLocation
+RequiredFieldsChecker ERROR: TableauJob job19 must set workbookName
+RequiredFieldsChecker ERROR: HdfsWaitJob job20 must set dirPath, freshness, timeout, and forceJobToFail
+RequiredFieldsChecker ERROR: VenicePushJob job23 must set avroKeyField, avroValueField, clusterName, inputPath, veniceStoreName
+RequiredFieldsChecker ERROR: WormholePushJob job26 must set inputPath, namespace and dataset
+RequiredFieldsChecker ERROR: KabootarJob job27 must set trainingModelLocation, trainingName, aiProjectGroup, wormholeNamespace, initialImport. Please see the job documentation for more details.
+RequiredFieldsChecker ERROR: WormholePushJob2 job28 must set inputPath, namespace and dataset
+RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.

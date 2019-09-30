@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_basicFlowNotYaml
-Running test for the file positive/basicFlowNotYaml.gradle
-Hadoop DSL static checker PASSED
-

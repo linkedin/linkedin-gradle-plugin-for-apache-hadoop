@@ -1,0 +1,4 @@
+ValidFieldsChecker ERROR: Value of executorCores must be greater than 0
+ValidFieldsChecker ERROR: Value of numExecutors must be greater than 0
+ValidFieldsChecker ERROR: driverMemory doesn't conform to a valid spark memory specifier. Memory should be specified in one of [b,k,kb,m,mb,g,gb,t,tb,p,pb]
+ValidFieldsChecker ERROR: executorMemory doesn't conform to a valid spark memory specifier. Memory should be specified in one of [b,k,kb,m,mb,g,gb,t,tb,p,pb]

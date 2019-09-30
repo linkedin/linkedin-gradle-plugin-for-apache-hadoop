@@ -33,7 +33,6 @@ if (isLinkedInBuild) {
   }
 }
 else {
-  project(':hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
   project(':li-hadoop-plugin-test').ext['pluginTestDir'] = "${project(':hadoop-plugin').projectDir}/build/libs"
   project(':li-hadoop-plugin-test').ext['liPluginTestDir'] = "${project(':li-hadoop-plugin').projectDir}/build/libs"
 }

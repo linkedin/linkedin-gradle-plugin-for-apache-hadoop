@@ -1,0 +1,43 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Flow for testing yaml creation for emergent flows for Flow 2.0
+
+hadoop {
+  buildPath "jobs/emergentFlow"
+  cleanPath false
+
+  generateYamlOutput true
+
+  namespace('otherNamespace') {
+    propertyFile('emergentProperties') {
+      set properties: [
+              'new-parameter' : 'new-value',
+              'flow-level-parameter' : 'value2'
+      ]
+    }
+  }
+
+  workflow('emergentFlow') {
+    propertyFile('properties') {
+      set properties: [
+              'flow-level-parameter' : 'value'
+      ]
+    }
+
+    commandJob('shellBash') {
+      uses 'bash ./sample_script.sh'
+    }
+
+    commandJob('shellPwd') {
+      uses 'pwd'
+    }
+
+    commandJob('shellEcho') {
+      uses 'echo "This is an echoed text."'
+    }
+
+    targets 'shellPwd', 'shellEcho', 'shellBash'
+  }
+}

@@ -1,0 +1,38 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Test clone a workflow (which invokes clone jobs) when generating conditional workflows
+
+workflow('basicFlow') {
+  commandJob('shellPwd') {
+    uses 'pwd'
+  }
+
+  commandJob('shellEcho') {
+    uses 'echo "This is an echoed text."'
+    depends 'shellPwd'
+    conditions 'one_success'
+  }
+
+  workflow('embeddedFlow') {
+    commandJob('job1') {
+      uses 'pwd'
+    }
+
+    flowDepends('shellPwd')
+    conditions 'one_failed'
+    targets 'job1'
+  }
+
+  targets 'shellEcho', 'embeddedFlow'
+}
+
+hadoop {
+  buildPath "jobs/cloneJobWithCondition"
+  cleanPath false
+
+  generateYamlOutput true
+
+  addWorkflow('basicFlow', 'workflow1') {}
+}

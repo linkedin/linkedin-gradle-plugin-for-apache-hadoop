@@ -1,0 +1,11 @@
+plugins {
+  id 'distribution'
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+hadoopZip {
+  base {
+    from "build.gradle"
+  }
+  zip("azkaban") {}
+}

@@ -1,5 +1,0 @@
-:hadoop-plugin-test:test_readWriteRace2
-Running test for the file positive/readWriteRace2.gradle
-JobDependencyChecker WARNING: The job job1 in the workflow readWriteRace2 reads the path /data/databases/foobarbazz that is written by the job job5, but does not have a direct or transitive dependency on this job. This is a potential read-before-write race condition.
-Hadoop DSL static checker PASSED
-

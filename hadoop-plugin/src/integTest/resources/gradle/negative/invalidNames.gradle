@@ -1,0 +1,38 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Negative test for invalid names.
+
+definitionSet name: ' ', defs: [:]
+definitionSet name: 'invalid name', defs: [:]
+
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('invalid_Names') {
+    job(null) {
+    }
+
+    job('') {
+    }
+
+    job(' ') {
+    }
+
+    job('job1#') {
+    }
+
+    job('job 2') {
+    }
+
+    targets '', '  ', 'job1#', 'job 2'
+  }
+
+  namespace(null) {
+  }
+
+  namespace(' ') {
+  }
+}

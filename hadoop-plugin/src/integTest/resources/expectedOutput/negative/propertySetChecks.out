@@ -1,0 +1,7 @@
+PropertySetChecker ERROR: job pigJob1 declares baseProperties propertySet0 that is not bound in scope
+PropertySetChecker ERROR: job pigJob2 declares baseProperties pigJob1 that refers to an object that is not a PropertySet
+PropertySetChecker ERROR: propertySet1 declares baseProperties propertySet1 with the same name as itself
+PropertySetChecker ERROR: propertySet2 declares baseProperties propertySet0 that is not bound in scope
+PropertySetChecker ERROR: propertySet3 declares baseProperties propertyFile1 that refers to an object that is not a PropertySet
+PropertySetChecker ERROR: properties propertyFile1 declares baseProperties propertySet0 that is not bound in scope
+PropertySetChecker ERROR: properties propertyFile2 declares baseProperties propertyFile1 that refers to an object that is not a PropertySet

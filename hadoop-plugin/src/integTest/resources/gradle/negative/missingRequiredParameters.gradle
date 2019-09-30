@@ -1,0 +1,34 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+// Negative test for missing required parameters.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('missingRequiredParametersWorkflow1') {
+
+    // The first job sets the correct required properties
+    job('job1') {
+      required parameters: [
+          'a', 'b', 'c'
+      ]
+      set properties: [
+          'a': 1,
+          'b': 2,
+          'c': 3
+      ]
+    }
+
+    // The second does not set the required properties 'b' and 'c'
+    job('job2') {
+      required parameters: ['a', 'b', 'c']
+      set properties: [
+          'a': 1
+      ]
+    }
+
+    targets 'job1', 'job2'
+  }
+}

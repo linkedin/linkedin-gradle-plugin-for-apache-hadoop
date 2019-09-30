@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_embeddedFlowWithBaseProperties
-Running test for the file positive/embeddedFlowWithBaseProperties.gradle
-Hadoop DSL static checker PASSED
-

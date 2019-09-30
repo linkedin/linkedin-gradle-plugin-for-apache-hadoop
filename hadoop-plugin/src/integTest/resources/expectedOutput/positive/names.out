@@ -1,0 +1,3 @@
+RequiredFieldsChecker WARNING: NoOpJob job2 does not declare any dependencies. It won't do anything.
+Hadoop DSL static checker PASSED
+

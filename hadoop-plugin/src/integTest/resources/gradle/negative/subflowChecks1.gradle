@@ -1,0 +1,59 @@
+plugins {
+  id 'com.linkedin.gradle.hadoop.HadoopPlugin'
+}
+
+workflow('subflowChecks0') {
+  job('job1') {
+  }
+  targets 'job1'
+}
+
+// Negative test that the static checker catches subflow-related errors.
+hadoop {
+  buildPath "jobs"
+  cleanPath false
+
+  workflow('subflowChecks1') {
+    // WARN if a workflow declares flow dependency targets, but is not a subflow
+    flowDepends 'job1'
+
+    // ERROR if a workflow declares that it targets a subflow that is not in the workflow
+    targets 'subflowChecks0'
+  }
+
+  workflow('subflowChecks2') {
+    workflow('flow1') {
+      // ERROR if a subflow declares itself as a flow dependency target
+      flowDepends 'flow1'
+    }
+
+    targets 'flow1'
+  }
+
+  workflow('subflowChecks3') {
+    job('job1') {
+    }
+
+    workflow('flow1') {
+      // ERROR if a subflow declares a flow dependency target that is not in its parent workflow
+      flowDepends 'job2'
+    }
+
+    targets 'job1', 'flow1'
+  }
+
+  workflow('subflowChecks4') {
+    job('job1') {
+    }
+
+    // WARN if a workflow contains subflows that will not be built
+    workflow('flow1') {
+      job('job1') {
+      }
+
+      targets 'job1'
+    }
+
+    targets 'job1'
+  }
+}

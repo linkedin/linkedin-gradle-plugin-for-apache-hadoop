@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_triggerFlowWithoutDep
-Running test for the file positive/triggerFlowWithoutDep.gradle
-Hadoop DSL static checker PASSED
-

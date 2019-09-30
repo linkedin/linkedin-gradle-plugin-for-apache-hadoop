@@ -1,4 +1,0 @@
-:hadoop-plugin-test:test_cloneJobWithCondition
-Running test for the file positive/cloneJobWithCondition.gradle
-Hadoop DSL static checker PASSED
-

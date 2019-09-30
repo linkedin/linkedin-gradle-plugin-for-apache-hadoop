@@ -1,0 +1,11 @@
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob k1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+RequiredFieldsChecker WARNING: NoOpJob job1 does not declare any dependencies. It won't do anything.
+WorkflowJobChecker WARNING: Workflow flow2 does not declare any targets. Use the workflow targets method to declare the target jobs and subflows for the workflow.
+WorkflowJobChecker WARNING: Workflow flow2 does not contain any jobs or subflows. No job files will be built for this workflow.
+Hadoop DSL static checker PASSED
+
