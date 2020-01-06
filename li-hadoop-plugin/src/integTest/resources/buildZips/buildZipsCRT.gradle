@@ -1,0 +1,14 @@
+plugins {
+  id 'distribution'
+  id 'li-hadoop-plugin'
+}
+
+hadoopZip {
+  base {
+    from "build.gradle"
+  }
+  zip("azkaban") {
+    from "buildZipsCRT.gradle"
+  }
+  CRT { }
+}
