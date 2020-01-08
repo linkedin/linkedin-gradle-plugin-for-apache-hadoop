@@ -184,4 +184,5 @@ The following were contributed by Sayali Kadam.
 
 [Kyle Moore](https://www.linkedin.com/in/dpukyle/) ([DPUkyle](https://github.com/DPUkyle)) contributed the following:
 * `Refactored Hadoop DSL "tests" into proper integration tests using Gradle TestKit`
+* `Refactored li-hadoop-plugin "tests" into proper integration tests using Gradle TestKit`
 

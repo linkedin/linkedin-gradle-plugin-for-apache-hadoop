@@ -1,5 +1,6 @@
 plugins {
   id 'groovy'
+  id 'java-gradle-plugin'
   id 'eclipse'
   id 'idea'
 }
@@ -23,6 +24,12 @@ sourceSets {
     compileClasspath+=configurations.provided
     runtimeClasspath+=configurations.provided
   }
+  integTest {
+    groovy.srcDir file('src/integTest/groovy')
+    resources.srcDir file('src/integTest/resources')
+    compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+    runtimeClasspath += output + compileClasspath
+  }
 }
 
 dependencies {
@@ -34,6 +41,8 @@ dependencies {
 
   testCompile 'junit:junit:4.12'
   testCompile 'org.mockito:mockito-core:2.10.0'
+
+  integTestCompile 'org.spockframework:spock-core:1.3-groovy-2.4@jar'
 }
 
 task sourceJar(type: Jar) {
@@ -50,6 +59,25 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
 
 artifacts {
   archives groovydocJar, sourceJar
+}
+
+task integTest(type: Test) {
+  description = 'Runs the integration tests.'
+  group = 'verification'
+  testClassesDirs = sourceSets.integTest.output.classesDirs
+  classpath = sourceSets.integTest.runtimeClasspath
+  mustRunAfter test
+}
+
+check.dependsOn integTest
+
+gradlePlugin {
+  plugins {
+    liHadoopPlugin {
+      id = 'li-hadoop-plugin'
+      implementationClass = 'com.linkedin.gradle.lihadoop.LiHadoopPlugin'
+    }
+  }
 }
 
 // In LinkedIn internal builds, we pull in some company-specific resource files into this project.
