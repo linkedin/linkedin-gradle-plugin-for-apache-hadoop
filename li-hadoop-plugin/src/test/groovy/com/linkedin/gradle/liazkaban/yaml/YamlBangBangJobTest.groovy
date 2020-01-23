@@ -31,6 +31,7 @@ class YamlBangBangJobTest {
   @Test
   public void TestYamlBangBangJob() {
     Project mockProject = mock(Project.class);
+    Project rootProject = mock(Project.class);
     LiAzkabanDslYamlCompiler liYamlCompiler = new LiAzkabanDslYamlCompiler(mockProject);
     liYamlCompiler.parentDirectory = "build/tmp"
     NamedScope mockNamedScope = mock(NamedScope.class);
@@ -46,7 +47,13 @@ class YamlBangBangJobTest {
         "configKey1": "configValue1",
         "configKey3": "configValue3",
     ]);
+    File f = new File("/a/b");
+    when(mockProject.getProjectDir()).thenReturn(f);
+    when(mockProject.getRootProject()).thenReturn(rootProject);
+    when(rootProject.relativeProjectPath("/a/b")).thenReturn("/a");
+
     Map yamlizedJob = liYamlCompiler.yamlizeJob(mockLiBangBangJob);
+    assertEquals("/a", yamlizedJob["config"]["projectDirectory"]);
     assertEquals("test", yamlizedJob["name"]);
     assertEquals("hadoopShell", yamlizedJob["type"]);
     assertFalse(yamlizedJob.containsKey("dependsOn"));
@@ -62,7 +69,8 @@ class YamlBangBangJobTest {
     assertNotNull(yamlizedJob["config"].get("env.PIG_JAVA_OPTS"))
     yamlizedJob["config"].remove("env.PIG_JAVA_OPTS")
     // Verify sorted older
-    assertEquals(yamlizedJob["config"].toString(),
-        "[configKey1:configValue1, configKey2:configValue2, configKey3:configValue3]")
+    assertEquals(
+        "[configKey1:configValue1, configKey2:configValue2, configKey3:configValue3, projectDirectory:/a]",
+        yamlizedJob["config"].toString());
   }
 }

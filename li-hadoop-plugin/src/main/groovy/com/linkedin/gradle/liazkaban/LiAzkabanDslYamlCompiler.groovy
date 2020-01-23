@@ -15,6 +15,9 @@
  */
 package com.linkedin.gradle.liazkaban
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import com.linkedin.gradle.azkaban.AzkabanDslYamlCompiler;
 import com.linkedin.gradle.lihadoopdsl.lijob.LiPigBangBangJob;
 import org.gradle.api.Project
@@ -65,6 +68,13 @@ class LiAzkabanDslYamlCompiler extends AzkabanDslYamlCompiler {
     // Remove type and dependencies from config because they're represented elsewhere
     config.remove("type");
     config.remove("dependencies");
+
+    // It is useful for static analysis to have the project directory
+    Path rootProjectDirectory = Paths.get(this.project.getRootDir().getAbsolutePath());
+    Path projectDirectory = Paths.get(this.project.getProjectDir().getAbsolutePath());
+    String relativeProjectDir = rootProjectDirectory.relativize(projectDirectory).toString();
+    config.put("projectDirectory", relativeProjectDir);
+
     writeGradleForBangBangJob(job, this.project, this.parentScope, this.parentDirectory);
     List<String> filteredKeys = addBangBangProperties(config);
     filteredKeys.each { key ->

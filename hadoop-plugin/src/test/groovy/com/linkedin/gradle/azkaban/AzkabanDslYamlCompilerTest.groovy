@@ -79,6 +79,9 @@ class AzkabanDslYamlCompilerTest {
 
     Project mockProject = mock(Project.class);
     when(mockProject.name).thenReturn("test");
+    when(mockProject.getRootDir()).thenReturn(new File("/home/root_directory"))
+    when(mockProject.getProjectDir()).thenReturn(new File("/home/root_directory/project_directory"))
+
     yamlCompiler = new AzkabanDslYamlCompiler(mockProject);
     yamlCompiler.parentScope = mockHadoopScope;
 
@@ -96,7 +99,7 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
-    assertFalse(yamlizedWorkflow.containsKey("config"));
+    assert yamlizedWorkflow.containsKey("config");
     assertFalse(yamlizedWorkflow.containsKey("nodes"));
   }
 
@@ -116,7 +119,7 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
     // Verify sorted config
     assertEquals(yamlizedWorkflow["config"].toString(),
-        "[configKey1:configVal1, configKey2:configVal2, configKey3:configValue3]");
+        "[configKey1:configVal1, configKey2:configVal2, configKey3:configValue3, projectDirectory:project_directory]");
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();
     Map yamlizedSubflow = (Map) sortedNodes[0];
@@ -140,7 +143,7 @@ class AzkabanDslYamlCompilerTest {
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
     assertEquals("one_success", yamlizedSubflow["condition"]);
-    assertFalse(yamlizedSubflow.containsKey("config"));
+    assert yamlizedSubflow.containsKey("config");
     assertFalse(yamlizedSubflow.containsKey("nodes"));
   }
 
@@ -156,13 +159,13 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
-    assertEquals(["globalProp1": "val1", "globalProp2": "val2"], yamlizedWorkflow["config"]);
+    assertEquals(["globalProp1": "val1", "globalProp2": "val2", "projectDirectory": "project_directory"], yamlizedWorkflow["config"]);
 
     Map yamlizedSubflow = (Map) ((List) yamlizedWorkflow["nodes"])[0];
     assertEquals("subflowTest", yamlizedSubflow ["name"]);
     assertEquals("flow", yamlizedSubflow["type"]);
     assertEquals([mockWorkflow.name], yamlizedSubflow["dependsOn"]);
-    assertFalse(yamlizedSubflow.containsKey("config"));
+    assert yamlizedSubflow.containsKey("config")
     assertFalse(yamlizedSubflow.containsKey("nodes"));
   }
 
@@ -179,7 +182,7 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
-    assertEquals(["sharedProp": "correctVal"], yamlizedWorkflow["config"]);
+    assertEquals(["sharedProp": "correctVal", "projectDirectory": "project_directory"], yamlizedWorkflow["config"]);
     assertFalse(yamlizedWorkflow.containsKey("nodes"));
   }
 
@@ -203,7 +206,8 @@ class AzkabanDslYamlCompilerTest {
     Map yamlizedWorkflow = yamlCompiler.yamlizeWorkflow(mockWorkflow, false);
     Map expectedConfig = ["workflowProp": "workflowVal",
                           "hadoop-inject.parentProp": "parentVal",
-                          "globalProp": "globalVal"];
+                          "globalProp": "globalVal",
+                          "projectDirectory": "project_directory"];
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
@@ -232,7 +236,7 @@ class AzkabanDslYamlCompilerTest {
     assertFalse(yamlizedWorkflow.containsKey("name"));
     assertFalse(yamlizedWorkflow.containsKey("type"));
     assertFalse(yamlizedWorkflow.containsKey("dependsOn"));
-    assertFalse(yamlizedWorkflow.containsKey("config"));
+    assert yamlizedWorkflow.containsKey("config")
     assertEquals(3, ((List) yamlizedWorkflow["nodes"]).size());
 
     List sortedNodes = ((List) yamlizedWorkflow["nodes"]).sort();

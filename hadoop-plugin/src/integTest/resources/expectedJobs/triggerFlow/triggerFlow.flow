@@ -21,6 +21,7 @@ trigger:
       unit: hourly
 config:
   flow-level-parameter: value
+  projectDirectory: ''
 nodes:
 - name: triggerFlow
   type: noop

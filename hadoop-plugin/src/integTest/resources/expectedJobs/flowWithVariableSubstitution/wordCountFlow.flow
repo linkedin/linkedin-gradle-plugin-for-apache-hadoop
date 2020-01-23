@@ -1,4 +1,5 @@
 config:
+  projectDirectory: ''
   user.to.proxy: foo
 nodes:
 - name: wordCountFlow
@@ -33,6 +34,8 @@ nodes:
   type: flow
   dependsOn:
   - uploadResourceFilesJob
+  config:
+    projectDirectory: ''
   nodes:
   - name: embeddedFlow
     type: noop

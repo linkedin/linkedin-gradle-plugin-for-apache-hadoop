@@ -1,3 +1,5 @@
+config:
+  projectDirectory: ''
 nodes:
 - name: workflow1
   type: noop
@@ -20,6 +22,8 @@ nodes:
   dependsOn:
   - shellPwd
   condition: one_failed
+  config:
+    projectDirectory: ''
   nodes:
   - name: embeddedFlow
     type: noop

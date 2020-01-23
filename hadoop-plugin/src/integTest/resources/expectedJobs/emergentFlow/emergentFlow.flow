@@ -1,5 +1,6 @@
 config:
   flow-level-parameter: value
+  projectDirectory: ''
 nodes:
 - name: emergentFlow
   type: noop

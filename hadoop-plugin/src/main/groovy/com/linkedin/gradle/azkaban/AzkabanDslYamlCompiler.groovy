@@ -30,7 +30,10 @@ import com.linkedin.gradle.hadoopdsl.job.SubFlowJob;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.DaliDependency;
 import com.linkedin.gradle.hadoopdsl.triggerDependency.TriggerDependency;
 import org.gradle.api.Project;
-import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.Yaml
+
+import java.nio.file.Path
+import java.nio.file.Paths;
 
 import static com.linkedin.gradle.azkaban.AzkabanConstants.AZK_FLOW_VERSION;
 import static com.linkedin.gradle.util.YamlUtils.setupYamlObject;
@@ -265,9 +268,14 @@ class AzkabanDslYamlCompiler extends BaseCompiler {
     }
     // Add configs if there are any
     Map<String, String> config = buildWorkflowConfig(workflow, isSubflow);
-    if (!config.isEmpty()) {
-      yamlizedWorkflow["config"] = config.sort();
-    }
+
+    // It is useful for static analysis to have the project directory
+    Path rootProjectDirectory = Paths.get(this.project.getRootDir().getAbsolutePath());
+    Path projectDirectory = Paths.get(this.project.getProjectDir().getAbsolutePath());
+    String relativeProjectDir = rootProjectDirectory.relativize(projectDirectory).toString();
+    config.put("projectDirectory", relativeProjectDir);
+    yamlizedWorkflow["config"] = config.sort();
+
     // Add jobs and subflows in one item - nodes - if there are any
     List nodes = buildNodes(workflow);
     if (!nodes.isEmpty()) {

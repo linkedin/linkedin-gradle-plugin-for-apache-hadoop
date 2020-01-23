@@ -4,6 +4,7 @@ trigger:
     value: 0 0 1 ? * *
 config:
   flow-level-parameter: value
+  projectDirectory: ''
 nodes:
 - name: triggerFlow
   type: noop

@@ -1,5 +1,6 @@
 config:
   flow-level-parameter: value
+  projectDirectory: ''
 nodes:
 - name: embeddedConditionalFlow
   type: noop
@@ -19,6 +20,8 @@ nodes:
   - shellBash
   - shellPwd
   condition: one_success
+  config:
+    projectDirectory: ''
   nodes:
   - name: embeddedFlow
     type: noop

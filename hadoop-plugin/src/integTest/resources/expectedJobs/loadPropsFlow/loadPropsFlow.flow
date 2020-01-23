@@ -1,4 +1,5 @@
 config:
+  projectDirectory: ''
   props1: shared1
   props2: shared2
   props3: moo3
@@ -28,6 +29,7 @@ nodes:
   dependsOn:
   - job2
   config:
+    projectDirectory: ''
     props5: innerflow5
     props6: innerflow6
     props8: innerflow8
