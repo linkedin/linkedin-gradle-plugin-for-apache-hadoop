@@ -32,6 +32,7 @@ class ScmMetadataContainer {
   UserMetadata userMetadata;
   SvnMetadata svnMetadata;
   ScmType scmType;
+  String projectDirectory;
 
   /**
    * Constructor for ScmMetadata.
@@ -40,7 +41,7 @@ class ScmMetadataContainer {
    * @param svnMetadata The Subversion metadata
    * @param userMetadata The user metadata
    */
-  ScmMetadataContainer(GitMetadata gitMetadata, SvnMetadata svnMetadata, UserMetadata userMetadata) {
+  ScmMetadataContainer(GitMetadata gitMetadata, SvnMetadata svnMetadata, UserMetadata userMetadata, String projectDirectory) {
     this.userMetadata = userMetadata;
 
     if (gitMetadata.isGitRepo) {
@@ -57,6 +58,7 @@ class ScmMetadataContainer {
 
     // Set scmType to NONE if we did not find either a Git or SVN repository.
     this.scmType = (this.scmType != null) ? this.scmType : ScmType.NONE;
+    this.projectDirectory = projectDirectory;
   }
 
   /**
