@@ -22,7 +22,10 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.tasks.bundling.Zip;
+import org.gradle.api.tasks.bundling.Zip
+
+import java.nio.file.Path
+import java.nio.file.Paths;
 
 /**
  * ScmPlugin implements features that generate source control management (scm) metadata, in
@@ -91,6 +94,17 @@ class ScmPlugin implements Plugin<Project> {
   }
 
   /**
+   * Returns the subproject directory relative to the root directory. It helps with runtime/static analysis for
+   * migrations
+   * @return The relativized path to the project. E.g. "subproject_dir_parent/subproject_dir"
+   */
+  private static String getRelativeProjectDirectory(Project p) {
+    Path rootProjectDirectory = Paths.get(p.getRootDir().getAbsolutePath());
+    Path projectDirectory = Paths.get(p.getProjectDir().getAbsolutePath());
+    return rootProjectDirectory.relativize(projectDirectory).toString();
+  }
+
+  /**
    * Builds and populates the SCM metadata using the various factory methods in this class.
    * Subclasses can override this method if they want to customize how the SCM metadata is built.
    *
@@ -106,7 +120,7 @@ class ScmPlugin implements Plugin<Project> {
 
     SvnMetadata svn = createSvnMetadata();
     svn.setMetadataProperties(project);
-    return createScmMetadataContainer(git, svn, user);
+    return createScmMetadataContainer(git, svn, user, getRelativeProjectDirectory(project));
   }
 
   /**
@@ -138,8 +152,9 @@ class ScmPlugin implements Plugin<Project> {
    * @param userMetadata The user metadata
    * @return A new ScmMetadataContainer instance
    */
-  ScmMetadataContainer createScmMetadataContainer(GitMetadata gitMetadata, SvnMetadata svnMetadata, UserMetadata userMetadata) {
-    return new ScmMetadataContainer(gitMetadata, svnMetadata, userMetadata);
+  ScmMetadataContainer createScmMetadataContainer(
+      GitMetadata gitMetadata, SvnMetadata svnMetadata, UserMetadata userMetadata, String projectDirectory) {
+    return new ScmMetadataContainer(gitMetadata, svnMetadata, userMetadata, projectDirectory);
   }
 
   /**

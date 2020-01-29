@@ -48,7 +48,9 @@ class BuildHadoopZips extends Specification {
         azkabanZip.exists()
         def zipFileContents = new ZipFile(azkabanZip)
         zipFileContents.getEntry('build.gradle') != null
-        zipFileContents.getEntry('buildMetadata.json') != null
+        def buildMetadataJson = zipFileContents.getEntry('buildMetadata.json')
+        buildMetadataJson != null
+        new Scanner(zipFileContents.getInputStream(buildMetadataJson)).useDelimiter("\\A").next().contains("\"projectDirectory\": \"\"")
         zipFileContents.getEntry("${projectName}-${version}-sources.zip") != null
     }
 }
