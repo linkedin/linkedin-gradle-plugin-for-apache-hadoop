@@ -27,24 +27,17 @@ import org.gradle.api.tasks.bundling.Zip
 import java.nio.file.Path
 import java.nio.file.Paths;
 
+
 /**
  * ScmPlugin implements features that generate source control management (scm) metadata, in
- * particular for Git and Subversion.
- */
+ * particular for Git and Subversion.*/
 class ScmPlugin implements Plugin<Project> {
-  /**
-   * Applies the ScmPlugin.
-   *
-   * @param project The Gradle project
-   */
-  @Override
-  void apply(Project project) {
-    // Enable users to skip the plugin
-    if (project.hasProperty("disableScmPlugin")) {
-      println("ScmPlugin disabled");
-      return;
-    }
 
+  void applyMetadataTasks(Project project) {
+    if (project.hasProperty("disableScmPluginMetaData")) {
+      println("ScmPlugin buildMetadata.json disabled")
+      return
+    }
     project.tasks.create("buildScmMetadata") {
       description = "Writes SCM metadata about the project to the project's build directory";
       group = "Hadoop Plugin";
@@ -83,7 +76,16 @@ class ScmPlugin implements Plugin<Project> {
         }
       }
     }
+  }
 
+  @Override
+  void apply(Project project) {
+    applyMetadataTasks(project)
+    // Allows users to skip the plugin if they don't want the sources zip (performance improvement)
+    if (project.hasProperty("disableScmPlugin")) {
+      println("ScmPlugin's sources.zip is disabled");
+      return;
+    }
     // We'll create the buildSourceZip task on the root project, so that there is only one sources
     // zip created that can be shared by all projects. Thus, only create the buildSourceZip task on
     // the root project if it hasn't been created already (you will get an exception if you try to
