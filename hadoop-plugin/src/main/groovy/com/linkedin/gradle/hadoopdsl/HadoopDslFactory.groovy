@@ -28,6 +28,7 @@ import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.KubernetesJob;
 import com.linkedin.gradle.hadoopdsl.job.LaunchJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
@@ -347,6 +348,16 @@ class HadoopDslFactory {
    */
   TensorFlowJob makeTonyJob(String name) {
     return new TonyJob(name);
+  }
+
+  /**
+   * Factory method to build a KubernetesJob
+   *
+   * @param name The job name
+   * @return The job
+   */
+  KubernetesJob makeKubernetesJob(String name) {
+    return new KubernetesJob(name);
   }
 
   /**

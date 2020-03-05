@@ -28,6 +28,7 @@ import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.KubernetesJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
@@ -549,4 +550,13 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   TensorFlowJob tensorFlowJob(String name, String type, @DelegatesTo(TensorFlowJob) Closure configure);
+
+  /**
+   * DSL kubernetesJob method. Creates a KubernetesJob in scope with the given name and configuration.
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  KubernetesJob kubernetesJob(String name, @DelegatesTo(KubernetesJob) Closure configure);
 }
