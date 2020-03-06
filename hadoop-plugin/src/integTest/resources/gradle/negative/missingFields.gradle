@@ -134,6 +134,10 @@ hadoop {
     wormholePushJob2('job28') {
       depends 'job27'
     }
-    targets 'job28'
+
+    kubernetesJob('job29') {
+      depends 'job28'
+    }
+    targets 'job29'
   }
 }

@@ -186,3 +186,5 @@ The following were contributed by Sayali Kadam.
 * `Refactored Hadoop DSL "tests" into proper integration tests using Gradle TestKit`
 * `Refactored li-hadoop-plugin "tests" into proper integration tests using Gradle TestKit`
 
+The following were contributed by Frank Gu.
+* `Add ability for Hadoop DSL to understand the KubernetesJob job type`

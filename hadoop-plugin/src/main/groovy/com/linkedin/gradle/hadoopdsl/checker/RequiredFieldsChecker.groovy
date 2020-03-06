@@ -29,6 +29,7 @@ import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.KubernetesJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
@@ -353,6 +354,11 @@ class RequiredFieldsChecker extends BaseStaticChecker {
       project.logger.lifecycle("RequiredFieldsChecker ERROR: HdfsWaitJob ${job.name} must set dirPath, freshness, timeout, and forceJobToFail");
       foundError = true;
     }
+  }
+
+  @Override
+  void visitJob(KubernetesJob job) {
+    foundError |= validateNotEmpty(job, "kind", job.kind);
   }
 
   /**

@@ -28,6 +28,7 @@ import com.linkedin.gradle.hadoopdsl.job.JavaProcessJob;
 import com.linkedin.gradle.hadoopdsl.job.Job;
 import com.linkedin.gradle.hadoopdsl.job.KabootarJob;
 import com.linkedin.gradle.hadoopdsl.job.KafkaPushJob;
+import com.linkedin.gradle.hadoopdsl.job.KubernetesJob;
 import com.linkedin.gradle.hadoopdsl.job.NoOpJob;
 import com.linkedin.gradle.hadoopdsl.job.PigJob;
 import com.linkedin.gradle.hadoopdsl.job.PinotBuildAndPushJob;
@@ -251,6 +252,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(TensorFlowJob job) {
+    visitJob((Job)job);
+  }
+
+  @Override
+  void visitJob(KubernetesJob job) {
     visitJob((Job)job);
   }
 }

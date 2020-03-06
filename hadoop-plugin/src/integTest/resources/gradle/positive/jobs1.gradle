@@ -466,6 +466,18 @@ hadoop {
       depends 'job27'
     }
 
-    targets 'job28'
+    kubernetesJob('job29') {
+      kind 'MPIJob'                                 // Required
+      namespace 'some-namespace'                    // Optional
+      set properties: [
+          'k8s.launcher.instances': 1,              // Optional
+          'k8s.worker.instances': 1,                // Optional
+          'k8s.worker.gpus': 4,                     // Optional
+          'k8s.containers.image': 'some.image.url'  // Optional
+      ]
+      depends 'job28'
+    }
+
+    targets 'job29'
   }
 }

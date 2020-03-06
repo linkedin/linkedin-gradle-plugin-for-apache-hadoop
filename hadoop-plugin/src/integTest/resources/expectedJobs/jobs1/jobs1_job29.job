@@ -1,0 +1,9 @@
+# This file generated from the Hadoop DSL. Do not edit by hand.
+type=KubernetesJob
+dependencies=jobs1_job28
+k8s.containers.image=some.image.url
+k8s.kind=MPIJob
+k8s.launcher.instances=1
+k8s.namespace=some-namespace
+k8s.worker.gpus=4
+k8s.worker.instances=1
