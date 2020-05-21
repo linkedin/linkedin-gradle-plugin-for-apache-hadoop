@@ -35,6 +35,13 @@ import com.linkedin.gradle.hadoopdsl.HadoopDslMethod;
  *     usesOrigin 'FELLOWSHIP'                                // Optional
  *     usesFramework 'PHOTON_CONNECT'                         // Optional
  *     usesModelSupplementaryDataLocation '/user/testmodelregsvc/trained-models-supplementary-data' // Optional
+ *     usesEnableQuasarModelBundle                            // Optional
+ *     usesEnableAutoPublish                                  // Optional
+ *     usesAutoPublishModelName                               // Required if usesEnableAutoPublish is true
+ *     usesAutoPublishModelDeploymentGroupName                // Required if usesEnableAutoPublish is true
+ *     usesAutoPublishVersionUpdateType                       // Optional
+ *     usesAutoPublishModelContainsPiiData                    // Required if usesEnableAutoPublish is true
+ *     usesAutoPublishModelContainsConfidentialData           // Required if usesEnableAutoPublish is true
  *}* </pre>*/
 class KabootarJob extends HadoopJavaJob {
   // Required
@@ -49,6 +56,14 @@ class KabootarJob extends HadoopJavaJob {
   String origin;
   String framework;
   String modelSupplementaryDataLocation;
+  Boolean enableQuasarModelBundle;
+  Boolean enableAutoPublish;
+  String autoPublishModelName; //required if enableAutoPublish is true
+  String autoPublishModelDeploymentGroupName; //required if enableAutoPublish is true
+  String autoPublishVersionUpdateType;
+  Boolean autoPublishModelContainsPiiData; //required if enableAutoPublish is true
+  Boolean autoPublishModelContainsConfidentialData; //required if enableAutoPublish is true
+
 
   /**
    * Constructor for KabootarJob.
@@ -86,6 +101,13 @@ class KabootarJob extends HadoopJavaJob {
     cloneJob.origin = origin;
     cloneJob.framework = framework;
     cloneJob.modelSupplementaryDataLocation = modelSupplementaryDataLocation;
+    cloneJob.enableQuasarModelBundle = enableQuasarModelBundle;
+    cloneJob.enableAutoPublish = enableAutoPublish;
+    cloneJob.autoPublishModelName = autoPublishModelName;
+    cloneJob.autoPublishModelDeploymentGroupName = autoPublishModelDeploymentGroupName;
+    cloneJob.autoPublishVersionUpdateType = autoPublishVersionUpdateType;
+    cloneJob.autoPublishModelContainsPiiData = autoPublishModelContainsPiiData;
+    cloneJob.autoPublishModelContainsConfidentialData = autoPublishModelContainsConfidentialData;
     return ((KabootarJob) super.clone(cloneJob));
   }
 
@@ -197,5 +219,88 @@ class KabootarJob extends HadoopJavaJob {
   void usesModelSupplementaryDataLocation(String modelSupplementaryDataLocation) {
     this.modelSupplementaryDataLocation = modelSupplementaryDataLocation;
     setJobProperty("model.supplementary.data.path", modelSupplementaryDataLocation);
+  }
+
+  /**
+   * DSL usesEnableQuasarModelBundle method causes enable.quasar.model.bundle to be set in the job file.
+   *
+   * @param enable.quasar.model.bundle - Flag that enables quasar model bundle format for models produced by Kabootar
+   */
+  @HadoopDslMethod
+  void usesEnableQuasarModelBundle(Boolean enableQuasarModelBundle) {
+    this.enableQuasarModelBundle = enableQuasarModelBundle;
+    setJobProperty("enable.quasar.model.bundle", enableQuasarModelBundle);
+  }
+
+  /**
+   * DSL usesEnableAutoPublish method causes auto.publish.enabled to be set in the job file.
+   *
+   * @param enableAutoPublish - Flag that controls whether Kabootar should auto-publish the trained model
+   */
+  @HadoopDslMethod
+  void usesEnableAutoPublish(Boolean enableAutoPublish) {
+    this.enableAutoPublish = enableAutoPublish;
+    setJobProperty("auto.publish.enabled", enableAutoPublish);
+  }
+
+  /**
+   * DSL usesAutoPublishModelName method causes auto.publish.model.name to be set in the job file.
+   *
+   * @param autoPublishModelName - Intended auto-published model name.
+   */
+  @HadoopDslMethod
+  void usesAutoPublishModelName(String autoPublishModelName) {
+    this.autoPublishModelName = autoPublishModelName;
+    setJobProperty("auto.publish.model.name", autoPublishModelName);
+  }
+
+  /**
+   * DSL usesAutoPublishModelDeploymentGroupName method causes auto.publish.model.deployment.group.name to be set in the
+   * job file.
+   *
+   * @param autoPublishModelDeploymentGroupName - Intended model deployment group name that the trained model will be
+   * auto-published into. This model deployment group must exist and the publisher needs to have DEVELOPMENT_TEAM role
+   * for the group.
+   */
+  @HadoopDslMethod
+  void usesAutoPublishModelDeploymentGroupName(String autoPublishModelDeploymentGroupName) {
+    this.autoPublishModelDeploymentGroupName = autoPublishModelDeploymentGroupName;
+    setJobProperty("auto.publish.model.deployment.group.name", autoPublishModelDeploymentGroupName);
+  }
+
+  /**
+   * DSL usesAutoPublishVersionUpdateType method causes auto.publish.version.update.type to be set in the job file.
+   *
+   * @param autoPublishVersionUpdateType - auto-publish model version update type. Can be patch, minor or major.
+   */
+  @HadoopDslMethod
+  void usesAutoPublishVersionUpdateType(String autoPublishVersionUpdateType) {
+    this.autoPublishVersionUpdateType = autoPublishVersionUpdateType;
+    setJobProperty("auto.publish.version.update.type", autoPublishVersionUpdateType);
+  }
+
+  /**
+   * DSL usesAutoPublishModelContainsPiiData method causes auto.publish.model.contains.pii.data to be set in the job
+   * file.
+   *
+   * @param autoPublishModelContainsPiiData - Indicate whether the to be auto-published trained model contains PII data.
+   */
+  @HadoopDslMethod
+  void usesAutoPublishModelContainsPiiData(Boolean autoPublishModelContainsPiiData) {
+    this.autoPublishModelContainsPiiData = autoPublishModelContainsPiiData;
+    setJobProperty("auto.publish.model.contains.pii.data", autoPublishModelContainsPiiData);
+  }
+
+  /**
+   * DSL usesAutoPublishModelContainsConfidentialData method causes auto.publish.model.contains.confidential.data to
+   * be set in the job file.
+   *
+   * @param autoPublishModelContainsConfidentialData - Indicate whether the to be auto-published trained model contains
+   * confidential data.
+   */
+  @HadoopDslMethod
+  void usesAutoPublishModelContainsConfidentialData(Boolean autoPublishModelContainsConfidentialData) {
+    this.autoPublishModelContainsConfidentialData = autoPublishModelContainsConfidentialData;
+    setJobProperty("auto.publish.model.contains.confidential.data", autoPublishModelContainsConfidentialData);
   }
 }

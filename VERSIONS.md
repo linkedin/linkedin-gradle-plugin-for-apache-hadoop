@@ -17,6 +17,9 @@ the License.
 Note that the LinkedIn build system occasionally requires that we skip a
 version bump, so you will see a few skipped version numbers in the list below.
 
+0.15.22
+* Adding support for model auto-publish for KabootarJob
+
 0.15.16
 * Adding KubernetesJob job type support.
 

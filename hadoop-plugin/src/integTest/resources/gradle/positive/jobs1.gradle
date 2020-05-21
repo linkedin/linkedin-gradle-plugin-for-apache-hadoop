@@ -451,6 +451,13 @@ hadoop {
       usesOrigin 'FELLOWSHIP'                                          // Optional
       usesFramework 'PHOTON_CONNECT'                                   // Optional
       usesModelSupplementaryDataLocation '/user/testmodelregsvc/data'  // Optional
+      usesEnableQuasarModelBundle true                                 // Optional
+      usesEnableAutoPublish true                                       // Optional
+      usesAutoPublishModelName 'myFirstModel'                          // Required if usesEnableAutoPublish is true
+      usesAutoPublishModelDeploymentGroupName 'myDeploymentGroup'      // Required if usesEnableAutoPublish is true
+      usesAutoPublishVersionUpdateType 'PATCH'                         // Optional
+      usesAutoPublishModelContainsPiiData false                        // Required if usesEnableAutoPublish is true
+      usesAutoPublishModelContainsConfidentialData false               // Required if usesEnableAutoPublish is true
 
       depends 'job26'
     }
