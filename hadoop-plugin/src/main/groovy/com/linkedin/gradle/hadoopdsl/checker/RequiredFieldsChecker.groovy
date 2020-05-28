@@ -265,11 +265,26 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     boolean emptyAiProjectGroup = job.aiProjectGroup == null || job.aiProjectGroup.isEmpty();
     boolean emptyWormholeNamespace = job.wormholeNamespace == null || job.wormholeNamespace.isEmpty();
     boolean emptyInitialImport = job.initialImport == null || job.initialImport.isEmpty();
+    boolean emptyAutoPublishModelName = job.autoPublishModelName == null || job.autoPublishModelName.isEmpty();
+    boolean emptyAutoPublishModelDeploymentGroupName = job.autoPublishModelDeploymentGroupName == null || job.autoPublishModelDeploymentGroupName.isEmpty();
+    boolean emptyAutoPublishModelContainsPiiData = job.autoPublishModelContainsPiiData == null;
+    boolean emptyAutoPublishModelContainsConfidentialData = job.autoPublishModelContainsConfidentialData = null;
+
 
     if (emptyTrainedModelLocation || emptyTrainingName || emptyAiProjectGroup || emptyWormholeNamespace || emptyInitialImport) {
       project.logger.lifecycle(
           "RequiredFieldsChecker ERROR: KabootarJob ${job.name} must set trainingModelLocation, " +
               "trainingName, aiProjectGroup, wormholeNamespace, initialImport. " +
+              "Please see the job documentation for more details.");
+      foundError = true;
+    }
+
+    if (job.enableAutoPublish && (emptyAutoPublishModelName || emptyAutoPublishModelDeploymentGroupName ||
+        emptyAutoPublishModelContainsPiiData || emptyAutoPublishModelContainsConfidentialData)) {
+      project.logger.lifecycle(
+          "RequiredFieldsChecker ERROR: KabootarJob ${job.name} must set autoPublishModelName, " +
+              "autoPublishModelDeploymentGroupName, autoPublishModelContainsPiiData and " +
+              "autoPublishModelContainsConfidentialData when auto-publish is enabled " +
               "Please see the job documentation for more details.");
       foundError = true;
     }

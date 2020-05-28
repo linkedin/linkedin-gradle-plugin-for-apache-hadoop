@@ -2,6 +2,13 @@
 type=KabootarJob
 dependencies=jobs1_job26
 ai.project.group=AIFoundationOther
+auto.publish.enabled=true
+auto.publish.model.contains.confidential.data=false
+auto.publish.model.contains.pii.data=false
+auto.publish.model.deployment.group.name=myDeploymentGroup
+auto.publish.model.name=myFirstModel
+auto.publish.version.update.type=PATCH
+enable.quasar.model.bundle=true
 framework=PHOTON_CONNECT
 initial.import=initial/import/File
 model.supplementary.data.path=/user/testmodelregsvc/data

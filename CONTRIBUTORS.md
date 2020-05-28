@@ -22,6 +22,8 @@ the LinkedIn Gradle DSL for Apache Hadoop was influenced by
 Vaughan.
 
 ### Contributors
+The following were contributed by Jin Sha. Thanks, Jin!
+* `Added support for model auto-publish for KabootarJob`
 
 The following were contributed by Arpan Agrawal. Thanks, Arpan!
 * `Added AutoTunePigLiJob job type support `
