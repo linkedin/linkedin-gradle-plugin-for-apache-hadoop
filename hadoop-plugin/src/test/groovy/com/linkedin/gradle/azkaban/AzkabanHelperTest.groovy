@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*
 
 class AzkabanHelperTest {
   @Test
@@ -44,4 +45,27 @@ class AzkabanHelperTest {
     expectedEx.expectMessage(AzkabanHelper.CONSOLE_EXCEPTION_MESSAGE);
     AzkabanHelper.getSystemConsole();
   }
+
+  // Since Console is final class, it requires `mock-maker-inline` extension to run below test.
+  // More details: https://github.com/mockito/mockito/wiki/What's-new-in-Mockito-2#unmockable
+  // Enabling this extension causes several other test cases failure. Keeping below test case commented for now.
+//  @Test
+//  void testConsoleSecretInput() {
+//    String consoleInputMessage = "Enter test input: "
+//    char[] nonEmptyInput = "test".toCharArray()
+//    char[] emptyInput = "".toCharArray()
+//    Console mockedConsole = mock(Console.class)
+//
+//    when(mockedConsole.readPassword()).thenReturn(nonEmptyInput)
+//    assertEquals(AzkabanHelper.consoleSecretInput(mockedConsole, consoleInputMessage, false, false), nonEmptyInput)
+//
+//    when(mockedConsole.readPassword()).thenReturn(nonEmptyInput)
+//    assertEquals(AzkabanHelper.consoleSecretInput(mockedConsole, consoleInputMessage, false, true), nonEmptyInput)
+//
+//    when(mockedConsole.readPassword()).thenReturn(emptyInput)
+//    assertEquals(AzkabanHelper.consoleSecretInput(mockedConsole, consoleInputMessage, false, false), emptyInput)
+//
+//    when(mockedConsole.readPassword()).thenReturn(emptyInput, emptyInput, nonEmptyInput)
+//    assertEquals(AzkabanHelper.consoleSecretInput(mockedConsole, consoleInputMessage, false, true), nonEmptyInput)
+//  }
 }

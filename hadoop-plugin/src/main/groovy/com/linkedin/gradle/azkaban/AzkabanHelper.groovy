@@ -252,15 +252,22 @@ class AzkabanHelper {
    * @param shortDelay Whether or not to introduce a short delay to allow Gradle to complete writing to the console
    * @return The secret password
    */
-  static char[] consoleSecretInput(Console console, String message, boolean shortDelay) {
+  static char[] consoleSecretInput(Console console, String message, boolean shortDelay, boolean retryIfEmpty = false) {
     // Give Gradle time to flush the logger to the screen and write its progress log line at the
     // bottom of the screen, so we can augment this line with a prompt for the input
     if (shortDelay) {
       sleep(500);
     }
 
-    console.format(message).flush();
-    return console.readPassword();
+    char[] secretInput;
+    while (true) {
+      console.format(message).flush();
+      secretInput = console.readPassword();
+      if (!retryIfEmpty || (secretInput != null && secretInput.length > 0)) {
+        break;
+      }
+    }
+    return secretInput;
   }
 
   /**
@@ -455,7 +462,7 @@ class AzkabanHelper {
 
       if (azkProject.azkabanPassword == null) {
         def console = getSystemConsole();
-        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter ${passwordString}: ", true));
+        sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, consoleSecretInput(console, " > Enter ${passwordString}: ", true, true));
       } else {
         logger.lifecycle("Azkaban ${passwordString}: *********");
         sessionId = azkabanLogin(azkProject.azkabanUrl, azkProject.azkabanUserName, azkProject.azkabanPassword.toCharArray());
