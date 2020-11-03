@@ -17,6 +17,7 @@ package com.linkedin.gradle.hadoopdsl.checker;
 
 import com.linkedin.gradle.hadoopdsl.Properties;
 import com.linkedin.gradle.hadoopdsl.BaseStaticChecker;
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopShellJob;
@@ -290,6 +291,13 @@ class RequiredFieldsChecker extends BaseStaticChecker {
     }
   }
 
+  @Override
+  void visitJob(CarbonJob job) {
+    if (job.taskType == null) {
+      project.logger.lifecycle("RequiredFieldsChecker ERROR: CarbonJob ${job.name} must set task.type");
+      foundError = true;
+    }
+  }
 
   @Override
   void visitJob(HdfsToTeradataJob job) {

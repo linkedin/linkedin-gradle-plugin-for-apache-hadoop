@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl;
+package com.linkedin.gradle.hadoopdsl
 
+
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -1180,6 +1182,18 @@ abstract class BaseNamedScopeContainer implements NamedScopeContainer {
     return ((KabootarJob)configureJob(factory.makeKabootarJob(name), configure));
   }
 
+  /**
+   * DSL CarbonJob method. Creates a carbonJob in scope with the given name
+   * and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  CarbonJob carbonJob(String name, @DelegatesTo(CarbonJob) Closure configure) {
+    return ((CarbonJob)configureJob(factory.makeCarbonJob(name), configure));
+  }
   /**
    * DSL trigger method. Creates a Trigger in scope with the given name and configuration.
    *

@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl;
+package com.linkedin.gradle.hadoopdsl
 
+
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -433,6 +435,16 @@ class HadoopDslFactory {
    */
   KabootarJob makeKabootarJob(String name) {
     return new KabootarJob(name);
+  }
+
+  /**
+   * Factory method to build a CarbonJob.
+   *
+   * @param name The job name
+   * @return The job
+   */
+  CarbonJob makeCarbonJob(String name) {
+    return new CarbonJob(name);
   }
 
   /**

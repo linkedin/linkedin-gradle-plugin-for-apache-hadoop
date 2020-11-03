@@ -46,4 +46,5 @@ RequiredFieldsChecker ERROR: WormholePushJob job26 must set inputPath, namespace
 RequiredFieldsChecker ERROR: KabootarJob job27 must set trainingModelLocation, trainingName, aiProjectGroup, wormholeNamespace, initialImport. Please see the job documentation for more details.
 RequiredFieldsChecker ERROR: WormholePushJob2 job28 must set inputPath, namespace and dataset
 RequiredFieldsChecker ERROR: KubernetesJob job29 has the following required fields: kind
+RequiredFieldsChecker ERROR: CarbonJob job30 must set task.type
 RequiredFieldsChecker WARNING: Properties properties1 does not set any confProperties, jobProperties, jvmProperties or basePropertySetName. Nothing will be built for this properties object.
