@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.linkedin.gradle.hadoopdsl;
+package com.linkedin.gradle.hadoopdsl
 
+
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -257,6 +259,11 @@ abstract class BaseVisitor implements Visitor {
 
   @Override
   void visitJob(KubernetesJob job) {
+    visitJob((Job)job);
+  }
+
+  @Override
+  void visitJob(CarbonJob job) {
     visitJob((Job)job);
   }
 }

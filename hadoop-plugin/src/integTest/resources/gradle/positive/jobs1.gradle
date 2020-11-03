@@ -485,6 +485,12 @@ hadoop {
       depends 'job28'
     }
 
+    carbonJob('job30') {
+      taskType 'retention'   // Required
+
+      depends 'job29'
+    }
+
     targets 'job29'
   }
 }

@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -559,4 +560,14 @@ interface NamedScopeContainer {
    */
   @HadoopDslMethod
   KubernetesJob kubernetesJob(String name, @DelegatesTo(KubernetesJob) Closure configure);
+
+  /**
+   * DSL carbonJob method. Creates a CarbonJob in scope with the given name and configuration.
+   *
+   * @param name The job name
+   * @param configure The configuration closure
+   * @return The new job
+   */
+  @HadoopDslMethod
+  CarbonJob carbonJob(String name, @DelegatesTo(CarbonJob) Closure configure);
 }

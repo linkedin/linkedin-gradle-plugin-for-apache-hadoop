@@ -190,3 +190,6 @@ The following were contributed by Sayali Kadam.
 
 The following were contributed by Frank Gu.
 * `Add ability for Hadoop DSL to understand the KubernetesJob job type`
+
+The following were contributed by Arjun Singh Bora.
+* `Add ability for Hadoop DSL to understand the CarbonJob job type`

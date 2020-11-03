@@ -15,6 +15,7 @@
  */
 package com.linkedin.gradle.hadoopdsl;
 
+import com.linkedin.gradle.hadoopdsl.job.CarbonJob;
 import com.linkedin.gradle.hadoopdsl.job.CommandJob;
 import com.linkedin.gradle.hadoopdsl.job.GobblinJob;
 import com.linkedin.gradle.hadoopdsl.job.HadoopJavaJob;
@@ -82,4 +83,5 @@ interface Visitor {
   void visitJob(KabootarJob job);
   void visitJob(WormholePushJob2 job);
   void visitJob(KubernetesJob job);
+  void visitJob(CarbonJob job);
 }

@@ -138,6 +138,11 @@ hadoop {
     kubernetesJob('job29') {
       depends 'job28'
     }
-    targets 'job29'
+
+    carbonJob('job30') {
+        depends 'job29'
+    }
+
+    targets 'job30'
   }
 }
